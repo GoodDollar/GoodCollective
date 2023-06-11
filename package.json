@@ -62,7 +62,7 @@
       "packages/common",
       "packages/solidity-ts",
       "packages/vite-app-ts",
-      "packages/next-app-ts",
+      "packages/sdk-js",
       "packages/subgraph",
       "packages/services/*",
       "packages/*"
@@ -86,10 +86,6 @@
     "packages/vite-app-ts/src/**/*.{ts,tsx}": [
       "yarn workspace @scaffold-eth/vite-app lint --fix",
       "yarn workspace @scaffold-eth/vite-app format"
-    ],
-    "packages/nextjs-app-ts/src/**/*.{ts,tsx}": [
-      "yarn workspace @scaffold-eth/nextjs-app lint --fix",
-      "yarn workspace @scaffold-eth/nextjs-app format"
     ],
     "packages/common/src/**/*.{ts,tsx}": [
       "yarn workspace @scaffold-eth/common lint --fix",
