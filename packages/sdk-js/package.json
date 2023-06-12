@@ -1,0 +1,39 @@
+{
+  "name": "@gooddollar/directpayments-sdk",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/sdk.umd.cjs",
+  "module": "./dist/sdk.js",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/sdk.js",
+      "require": "./dist/sdk.umd.cjs"
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "types",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "tsc && vite build",
+    "test:setup": "yarn exec ./scripts/deployContracts.sh",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.0",
+    "ethers": "^5.*",
+    "typescript": "^5.0.2",
+    "vite": "^4.3.9",
+    "vitest": "^0.32.0"
+  },
+  "peerDependencies": {
+    "ethers": "^5.*"
+  },
+  "dependencies": {
+    "@scaffold-eth/solidity": "0.1.0"
+  }
+}
