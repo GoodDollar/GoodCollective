@@ -25,7 +25,8 @@
     "lint": "eslint --config ./.eslintrc.js --ignore-path ./.eslintignore ./deploy/**/*.ts ./tasks/**/*.ts ./tests/**/*.ts ./helpers/**/*.ts",
     "solhint": "solhint ./contracts/**/*.sol",
     "format": "yarn prettier -w ./deploy/**/*.ts ./tasks/**/*.ts ./tests/**/*.ts ./helpers/**/*.ts contracts/**/*.sol ",
-    "format:check": "yarn prettier -c ./deploy/**/*.ts ./tasks/**/*.ts ./tests/**/*.ts ./helpers/**/*.ts ./contracts/**/*.sol "
+    "format:check": "yarn prettier -c ./deploy/**/*.ts ./tasks/**/*.ts ./tests/**/*.ts ./helpers/**/*.ts ./contracts/**/*.sol ",
+    "types": "typechain --target=ethers-v5 'generated/foundry/artifacts/**/*.json' --out-dir generated/contract-types"
   },
   "dependencies": {
     "@atixlabs/hardhat-time-n-mine": "^0.0.5",
@@ -50,7 +51,7 @@
     "@primitivefi/hardhat-dodoc": "^0.2.3",
     "@scaffold-eth/common": "0.0.0",
     "@tenderly/hardhat-tenderly": "^1.1.6",
-    "@typechain/ethers-v5": "^10.1.0",
+    "@typechain/ethers-v5": "^11.0.0",
     "@typechain/hardhat": "^6.1.3",
     "bip39": "^3.0.4",
     "chalk": "^4.1.2",
@@ -66,7 +67,7 @@
     "hardhat-watcher": "^2.5.0",
     "ipfs-http-client": "^54.0.2",
     "qrcode-terminal": "^0.12.0",
-    "typechain": "^8.1.0"
+    "typechain": "^8.2.0"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.3",

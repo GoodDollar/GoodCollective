@@ -5,11 +5,12 @@ pragma solidity >=0.8.0;
 import { ERC721Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import { StringsUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /**
     An NFT that can store data related to actions, the data is stored on-chain or as hash of the content that can later be proved.
  */
-contract ProvableNFT is ERC721Upgradeable, AccessControlUpgradeable {
+contract ProvableNFT is ERC721Upgradeable, AccessControlUpgradeable, UUPSUpgradeable {
   error BAD_DATAHASH(bytes32 dataHash, bytes32 tokenId);
   error NOT_MINTER();
   error NOT_MANAGER(uint16);
@@ -38,6 +39,8 @@ contract ProvableNFT is ERC721Upgradeable, AccessControlUpgradeable {
     __ERC721_init(_name, _symbol);
     _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
   }
+
+  function _authorizeUpgrade(address newimpl) internal virtual override onlyManager(0) {}
 
   function supportsInterface(bytes4 interfaceId) public view virtual override(AccessControlUpgradeable, ERC721Upgradeable) returns (bool) {
     return super.supportsInterface(interfaceId);

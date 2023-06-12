@@ -8,5 +8,8 @@ broadcast = 'generated/foundry/broadcast'
 cache = true
 # The cache directory if enabled
 cache_path = 'generated/foundry/cache'
-
+fs_permissions = [{ access = "read-write", path = "./"}]
+solc-version = "0.8.19"
+optimizer = true
+optimizer-runs = 0
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

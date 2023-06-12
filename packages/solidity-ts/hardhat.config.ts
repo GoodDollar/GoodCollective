@@ -35,7 +35,9 @@ if (process.env.BUILDING !== 'true') {
     console.log(chalk.yellow('--------------------------'));
     console.warn(chalk.red('🙋 Make sure to compile hardhat first: `yarn compile`'));
     console.log(chalk.yellow('...or run hardhat with process.env.BUILDING = true'));
-    console.log(chalk.yellow('If you do not compile hardhat, you cannot be able to load the tasks in the tasks folder'));
+    console.log(
+      chalk.yellow('If you do not compile hardhat, you cannot be able to load the tasks in the tasks folder')
+    );
     console.log(chalk.yellow('--------------------------'));
     console.log(e);
   }
@@ -79,11 +81,11 @@ export const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: '0.8.10',
+        version: '0.8.19',
         settings: {
           optimizer: {
             enabled: true,
-            runs: 250,
+            runs: 0,
           },
           outputSelection: {
             '*': {
