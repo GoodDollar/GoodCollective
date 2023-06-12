@@ -5,145 +5,97 @@ import "forge-std/Test.sol";
 import "../../contracts/ProvableNFT.sol";
 
 contract ProvableNFTTest is Test {
-    ProvableNFT public nft;
+  ProvableNFT public nft;
 
-    function setUp() public {
-        nft = new ProvableNFT();
-        nft.initialize("Test", "T");
-    }
+  function setUp() public {
+    nft = new ProvableNFT();
+    nft.initialize("Test", "T");
+  }
 
-    function sampleData1()
-        internal
-        pure
-        returns (ProvableNFT.EventData[] memory sampleData)
-    {
-        sampleData = new ProvableNFT.EventData[](1);
-        address[] memory contributers = new address[](1);
-        contributers[0] = 0xdA030751FF448Cf127911f0518a2B9b012f72424;
-        sampleData[0].eventType = 0;
-        sampleData[0].subtype = 0;
-        sampleData[0].quantity = 1;
-        sampleData[0].contributers = contributers;
-    }
+  function sampleData1() internal pure returns (ProvableNFT.NFTData memory sampleData) {
+    sampleData.nftUri = "uri";
+    sampleData.nftType = 2;
+    sampleData.version = 2;
+    sampleData.events = new ProvableNFT.EventData[](1);
+    address[] memory contributers = new address[](1);
+    contributers[0] = 0xdA030751FF448Cf127911f0518a2B9b012f72424;
+    sampleData.events[0].subtype = 1;
+    sampleData.events[0].quantity = 1;
+    sampleData.events[0].timestamp = 1;
+    sampleData.events[0].eventUri = "uri2";
+    sampleData.events[0].contributers = contributers;
+  }
 
-    // function test_uri() public {
-    //     assertEq(nft.uri(), "ipfs://f00");
-    // }
+  function test_correct_uri_and_owner() public {
+    ProvableNFT.NFTData memory sample = sampleData1();
+    bytes32 dh = keccak256(abi.encode(sample));
+    nft.mint(msg.sender, "ipfs://1243", dh);
+    assertEq(nft.tokenURI(uint256(dh)), "ipfs://1243");
+    assertEq(nft.ownerOf(uint256(uint256(dh))), msg.sender);
+  }
 
-    function test_correct_ipfs_prefix() public {
-        nft.mint(
-            msg.sender,
-            hex"0f015512202c5f688262e0ece8569aa6f94d60aad55ca8d9d83734e4a7430d0cff6588ec2b"
-        );
-        assertEq(
-            nft.tokenURI(
-                0x2c5f688262e0ece8569aa6f94d60aad55ca8d9d83734e4a7430d0cff6588ec2b
-            ),
-            "ipfs://f015512202c5f688262e0ece8569aa6f94d60aad55ca8d9d83734e4a7430d0cff6588ec2b"
-        );
-        assertEq(
-            nft.ownerOf(
-                uint256(
-                    0x2c5f688262e0ece8569aa6f94d60aad55ca8d9d83734e4a7430d0cff6588ec2b
-                )
-            ),
-            msg.sender
-        );
-    }
+  function test_proveNFTData_should_fail() public {
+    nft.mint(msg.sender, "", hex"5041bf1f713df204784353e82f6a4a535931cb64f1f4b4a5aeaffcb720918b22");
 
-    function test_fails_with_bad_IPFS_prefix() public {
-        vm.expectRevert();
-        nft.mint(
-            msg.sender,
-            hex"0015512202c5f688262e0ece8569aa6f94d60aad55ca8d9d83734e4a7430d0cff6588ec2b0"
-        );
-    }
+    ProvableNFT.NFTData memory sample = sampleData1();
+    vm.expectRevert();
 
-    function test_proveNFTData_should_fail() public {
-        nft.mint(
-            msg.sender,
-            hex"0f015512205041bf1f713df204784353e82f6a4a535931cb64f1f4b4a5aeaffcb720918b22" //CID of json '{"x":1}'
-        );
+    nft.proveNFTData(0x5041bf1f713df204784353e82f6a4a535931cb64f1f4b4a5aeaffcb720918b22, sample);
+  }
 
-        ProvableNFT.EventData[] memory sample = sampleData1();
-        vm.expectRevert();
+  function test_proveNFTData_should_pass() public {
+    ProvableNFT.NFTData memory sample = sampleData1();
+    bytes32 dh = keccak256(abi.encode(sample));
 
-        nft.proveNFTData(
-            0x5041bf1f713df204784353e82f6a4a535931cb64f1f4b4a5aeaffcb720918b22,
-            sample
-        );
-    }
+    nft.mint(msg.sender, "", dh);
 
-    function test_proveNFTData_should_pass() public {
-        //0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000001000000000000000000000000da030751ff448cf127911f0518a2b9b012f72424
-        //single event: type 0, subtype 0, quantity 1, contributers 0xdA030751FF448Cf127911f0518a2B9b012f72424
-        nft.mint(
-            msg.sender,
-            hex"0f015512200b68d5777707204e19637b67203f4f091ba11951a009b2e3dfc8836cb21dd5e5" //CID above ebi encoded data
-        );
+    ProvableNFT.NFTData memory data = nft.proveNFTData(uint256(dh), sample);
+    assertEq(data.nftUri, "uri");
+    assertEq(data.nftType, 2);
+    assertEq(data.version, 2);
+    assertEq(data.events[0].subtype, 1);
+    assertEq(data.events[0].quantity, 1);
+    assertEq(data.events[0].timestamp, 1);
+    assertEq(data.events[0].eventUri, "uri2");
+    assertEq(data.events[0].contributers[0], 0xdA030751FF448Cf127911f0518a2B9b012f72424);
+  }
 
-        ProvableNFT.EventData[] memory sample = sampleData1();
+  function test_mintPermissioned_non_manager_should_fail() public {
+    ProvableNFT.NFTData memory sample = sampleData1();
+    vm.expectRevert();
+    hoax(0xd1891dD9DFF0784baa1dEb361dDFCAa5aE49cc6F);
 
-        ProvableNFT.EventData[] memory data = nft.proveNFTData(
-            0x0b68d5777707204e19637b67203f4f091ba11951a009b2e3dfc8836cb21dd5e5,
-            sample
-        );
-        assertEq(data[0].eventType, 0);
-        assertEq(data[0].subtype, 0);
-        assertEq(data[0].quantity, 1);
-        assertEq(
-            data[0].contributers[0],
-            0xdA030751FF448Cf127911f0518a2B9b012f72424
-        );
-    }
+    nft.mintPermissioned(msg.sender, sample, false);
+  }
 
-    function test_mintPermissioned_non_manager_should_fail() public {
-        ProvableNFT.EventData[] memory sample = sampleData1();
-        vm.expectRevert();
+  function test_mintPermissioned_manager_should_pass() public {
+    ProvableNFT.NFTData memory sample = sampleData1();
 
-        nft.mintPermissioned(
-            msg.sender,
-            hex"0f015512200b68d5777707204e19637b67203f4f091ba11951a009b2e3dfc8836cb21dd5e5",
-            sample,
-            false
-        );
-    }
+    nft.grantRole(keccak256(abi.encodePacked("MANAGER_", sample.nftType)), 0xd1891dD9DFF0784baa1dEb361dDFCAa5aE49cc6F);
 
-    function test_mintPermissioned_manager_should_pass() public {
-        ProvableNFT.EventData[] memory sample = sampleData1();
-        nft.grantRole(
-            keccak256(abi.encodePacked("MANAGER_", sample[0].eventType)),
-            address(this)
-        );
+    hoax(address(0xd1891dD9DFF0784baa1dEb361dDFCAa5aE49cc6F), 100);
 
-        nft.mintPermissioned(
-            msg.sender,
-            hex"0f015512200b68d5777707204e19637b67203f4f091ba11951a009b2e3dfc8836cb21dd5e5",
-            sample,
-            false
-        );
-    }
+    nft.mintPermissioned(msg.sender, sample, false);
+  }
 
-    function test_mintPermissioned_manager_should_store_data() public {
-        ProvableNFT.EventData[] memory sample = sampleData1();
-        nft.grantRole(
-            keccak256(abi.encodePacked("MANAGER_", sample[0].eventType)),
-            address(this)
-        );
+  function test_mintPermissioned_manager_should_store_data() public {
+    ProvableNFT.NFTData memory sample = sampleData1();
 
-        uint256 tokenId = nft.mintPermissioned(
-            msg.sender,
-            hex"0f015512200b68d5777707204e19637b67203f4f091ba11951a009b2e3dfc8836cb21dd5e5",
-            sample,
-            true
-        );
-        ProvableNFT.EventData memory data = nft.getNFTData(tokenId, 0);
-        assertEq(data.eventType, 0);
-        assertEq(data.subtype, 0);
-        assertEq(data.quantity, 1);
-        assertEq(
-            data.contributers[0],
-            0xdA030751FF448Cf127911f0518a2B9b012f72424
-        );
-    }
+    uint256 tokenId = nft.mintPermissioned(msg.sender, sample, true);
+    ProvableNFT.NFTData memory nftData = nft.getNFTData(tokenId);
+    ProvableNFT.EventData memory data = nft.getNFTEvent(tokenId, 0);
+    ProvableNFT.EventData[] memory datas = nft.getNFTEvents(tokenId);
+
+    assertEq(nftData.nftUri, "uri", "uri");
+    assertEq(nftData.nftType, 2, "type");
+    assertEq(nftData.version, 2, "version");
+    assertEq(abi.encode(nftData.events), abi.encode(datas));
+
+    assertEq(abi.encode(data), abi.encode(datas[0]));
+    assertEq(datas[0].subtype, 1);
+    assertEq(datas[0].quantity, 1);
+    assertEq(datas[0].timestamp, 1);
+    assertEq(datas[0].eventUri, "uri2");
+    assertEq(datas[0].contributers[0], 0xdA030751FF448Cf127911f0518a2B9b012f72424);
+  }
 }
