@@ -1,5 +1,5 @@
 #! /bin/bash
-pushd ../solidity-ts
+pushd ../contracts
 yarn deploy &
 sleep 30
 popd

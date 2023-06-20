@@ -34,6 +34,6 @@
     "ethers": "^5.*"
   },
   "dependencies": {
-    "@scaffold-eth/solidity": "0.1.0"
+    "@gooddollar/goodcollective-contracts": "1.0.0"
   }
 }

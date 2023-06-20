@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { abi as ProvableNFTABI } from '@scaffold-eth/solidity/generated/foundry/artifacts/ProvableNFT.sol/ProvableNFT.json';
-import { ProvableNFT } from '@scaffold-eth/solidity/generated/contract-types/ProvableNFT';
+import { abi as ProvableNFTABI } from '@gooddollar/goodcollective-contracts/artifacts/contracts/DirectPayments/ProvableNFT.sol/ProvableNFT.json';
+import { ProvableNFT } from '@gooddollar/goodcollective-contracts/typechain-types';
 
 export type NFTData = ProvableNFT.NFTDataStruct;
 export type EventData = ProvableNFT.EventDataStruct;
@@ -13,7 +13,7 @@ export class ProvableNFTSDK {
 
   async mintNft(signer: ethers.Signer, addressTo: string, nftData: NFTData, withStore = true) {
     const connected = this.nftContract.connect(signer);
-    return connected.mintPermissioned(addressTo, nftData, withStore);
+    return connected.mintPermissioned(addressTo, nftData, withStore, []);
   }
 
   async getNft(id: string) {
