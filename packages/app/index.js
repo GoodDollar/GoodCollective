@@ -1,12 +1,12 @@
-/**
- * @format
- */
+import React from 'react';
 // Import the crypto getRandomValues shim (**BEFORE** the shims)
 import 'react-native-get-random-values';
 
 // Import the the ethers shims (**BEFORE** ethers)
 import '@ethersproject/shims';
-if (!global.navigator) global.navigator = {};
+if (!global.navigator) {
+  global.navigator = {};
+}
 global.navigator.userAgent = 'React Native';
 import 'fast-text-encoding';
 

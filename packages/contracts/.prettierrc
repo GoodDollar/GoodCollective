@@ -9,7 +9,7 @@
             "files": "*.sol",
             "options": {
                 "semi": true,
-                "printWidth": 80,
+                "printWidth": 120,
                 "tabWidth": 4,
                 "singleQuote": false
             }
@@ -17,7 +17,7 @@
         {
             "files": "*.ts",
             "options": {
-                "printWidth": 80,
+                "printWidth": 120,
                 "trailingComma": "none",
                 "semi": true,
                 "singleQuote": false,

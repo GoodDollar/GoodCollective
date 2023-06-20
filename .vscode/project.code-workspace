@@ -1,0 +1,17 @@
+{
+  "folders": [
+    {
+      "name": "ROOT",
+      "path": "../"
+    },
+    {
+      "name": "goodcollective contracts",
+      "path": "../packages/contracts"
+    },
+    {
+      "name": "goodcollective app",
+      "path": "../packages/app"
+    }
+  ],
+  "settings": {}
+}

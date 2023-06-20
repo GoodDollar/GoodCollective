@@ -82,17 +82,9 @@
     "ts-node": "^10.9.1"
   },
   "lint-staged": {
-    "packages/app/src/**/*.{ts,tsx}": [
+    "packages/app/**/*.{ts,tsx}": [
       "yarn workspace @gooddollar/goodcollective-app lint --fix",
-      "yarn workspace@gooddollar/goodcollective-app format"
-    ],
-    "packages/solidity-ts/test/**/*.ts": [
-      "yarn workspace @gooddollar/goodcollective-contracts lint --fix",
-      "yarn workspace @gooddollar/goodcollective-contracts format"
-    ],
-    "packages/solidity-ts/**/*.sol": [
-      "yarn workspace @gooddollar/goodcollective-app format",
-      "yarn workspace @gooddollar/goodcollective-app solhint --fix"
+      "yarn workspace @gooddollar/goodcollective-app format"
     ]
   }
 }

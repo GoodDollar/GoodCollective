@@ -6,24 +6,16 @@
  */
 
 import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-import {ConnectWallet} from './components/ConnectWallet';
-import {useEthers} from '@usedapp/core';
+import type { PropsWithChildren } from 'react';
+import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { ConnectWallet } from './components/ConnectWallet';
+import { useEthers } from '@usedapp/core';
 
 type SectionProps = PropsWithChildren<{
   title: string;
 }>;
 
-function Section({children, title}: SectionProps): JSX.Element {
+function Section({ children, title }: SectionProps): JSX.Element {
   return (
     <View style={styles.sectionContainer}>
       <Text style={[styles.sectionTitle]}>{title}</Text>
@@ -34,25 +26,21 @@ function Section({children, title}: SectionProps): JSX.Element {
 
 function App(): JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
-  const {account} = useEthers();
+  const { account } = useEthers();
   const backgroundStyle = {};
 
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
+      <ScrollView contentInsetAdjustmentBehavior="automatic" style={backgroundStyle}>
         <View>
           <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> xxxto change this
-            screen and then come back to see your edits.
+            Edit <Text style={styles.highlight}>App.tsx</Text> xxxto change this screen and then come back to see your
+            edits.
           </Section>
           <Section title="See Your Changes" />
           <Section title="Debug" />
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
+          <Section title="Learn More">Read the docs to discover what to do next:</Section>
           <ConnectWallet />
           <Section title="Wallet">{account}</Section>
         </View>

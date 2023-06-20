@@ -30,11 +30,7 @@ interface IIdentityV2 {
  - factory -> register the pool, claim nfttype, deploy pool
  - events
  */
-contract DirectPaymentsPool is
-    IERC721ReceiverUpgradeable,
-    AccessControlUpgradeable,
-    UUPSUpgradeable
-{
+contract DirectPaymentsPool is IERC721ReceiverUpgradeable, AccessControlUpgradeable, UUPSUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     error NOT_MANAGER();
     error ALREADY_CLAIMED(uint256);
@@ -67,7 +63,7 @@ contract DirectPaymentsPool is
     }
 
     struct SafetyLimits {
-        uint256 maxTotalPerMonth;
+        uint maxTotalPerMonth;
         uint256 maxMemberPerMonth;
         uint256 maxMemberPerDay;
     }
@@ -107,6 +103,7 @@ contract DirectPaymentsPool is
         PoolSettings memory _settings,
         SafetyLimits memory _limits
     ) external initializer {
+        uint l = 5;
         createdBy = msg.sender;
         settings = _settings;
         limits = _limits;
@@ -115,9 +112,7 @@ contract DirectPaymentsPool is
         _setupRole(DEFAULT_ADMIN_ROLE, _settings.manager);
     }
 
-    function upgradeToLatest(
-        bytes memory data
-    ) external payable virtual onlyProxy {
+    function upgradeToLatest(bytes memory data) external payable virtual onlyProxy {
         address impl = DirectPaymentsFactory(createdBy).impl();
         _authorizeUpgrade(impl);
         _upgradeToAndCallUUPS(impl, data, false);
@@ -165,10 +160,7 @@ contract DirectPaymentsPool is
                 totalRewards += reward * _data.events[i].quantity;
                 if (totalRewards > rewardsBalance) revert NO_BALANCE();
                 rewardsBalance -= totalRewards;
-                _sendReward(
-                    _data.events[i].contributers,
-                    uint128(reward * _data.events[i].quantity)
-                );
+                _sendReward(_data.events[i].contributers, uint128(reward * _data.events[i].quantity));
             }
         }
 
@@ -180,12 +172,9 @@ contract DirectPaymentsPool is
      * @param _eventType The type of the event to get the reward for.
      * @return reward amount for the specified event type.
      */
-    function _eventReward(
-        uint16 _eventType
-    ) internal view returns (uint128 reward) {
+    function _eventReward(uint16 _eventType) internal view returns (uint128 reward) {
         for (uint i = 0; i < settings.validEvents.length; i++) {
-            if (_eventType == settings.validEvents[i])
-                return settings.rewardPerEvent[i];
+            if (_eventType == settings.validEvents[i]) return settings.rewardPerEvent[i];
         }
         return 0;
     }
@@ -209,16 +198,11 @@ contract DirectPaymentsPool is
      * @param member The address of the member to enforce and update limits for.
      * @param reward The amount of rewards to enforce and update limits for.
      */
-    function _enforceAndUpdateMemberLimits(
-        address member,
-        uint128 reward
-    ) internal {
+    function _enforceAndUpdateMemberLimits(address member, uint128 reward) internal {
         if (members[member] == false) revert NOT_MEMBER(member);
 
         uint64 curMonth = _month();
-        if (
-            memberLimits[member].lastReward + 60 * 60 * 24 < block.timestamp
-        ) //more than a day passed since last reward
+        if (memberLimits[member].lastReward + 60 * 60 * 24 < block.timestamp) //more than a day passed since last reward
         {
             memberLimits[member].daily = reward;
         } else {
@@ -249,9 +233,7 @@ contract DirectPaymentsPool is
     function _enforceAndUpdateGlobalLimits(uint128 reward) internal {
         uint64 curMonth = _month();
 
-        if (
-            globalLimits.lastReward + 60 * 60 * 24 < block.timestamp
-        ) //more than a day passed since last reward
+        if (globalLimits.lastReward + 60 * 60 * 24 < block.timestamp) //more than a day passed since last reward
         {
             globalLimits.daily = reward;
         } else {
@@ -269,8 +251,7 @@ contract DirectPaymentsPool is
         globalLimits.lastReward = uint64(block.timestamp);
         globalLimits.lastMonth = curMonth;
 
-        if (globalLimits.monthly > limits.maxTotalPerMonth)
-            revert OVER_GLOBAL_LIMITS();
+        if (globalLimits.monthly > limits.maxTotalPerMonth) revert OVER_GLOBAL_LIMITS();
     }
 
     /**
@@ -289,27 +270,17 @@ contract DirectPaymentsPool is
 
     function addMember(address member, bytes memory extraData) external {
         if (address(settings.uniqunessValidator) != address(0)) {
-            address rootAddress = settings
-                .uniqunessValidator
-                .getWhitelistedRoot(member);
+            address rootAddress = settings.uniqunessValidator.getWhitelistedRoot(member);
             if (rootAddress == address(0)) revert NOT_WHITELISTED(member);
         }
 
         if (address(settings.membersValidator) != address(0)) {
-            if (
-                settings.membersValidator.isMemberValid(
-                    address(this),
-                    msg.sender,
-                    member,
-                    extraData
-                ) == false
-            ) {
+            if (settings.membersValidator.isMemberValid(address(this), msg.sender, member, extraData) == false) {
                 revert NOT_MEMBER(member);
             }
         } else {
             // if no members validator then only admin can add members
-            if (hasRole(DEFAULT_ADMIN_ROLE, msg.sender) == false)
-                revert NOT_MANAGER();
+            if (hasRole(DEFAULT_ADMIN_ROLE, msg.sender) == false) revert NOT_MANAGER();
         }
 
         members[member] = true;
@@ -320,18 +291,12 @@ contract DirectPaymentsPool is
      * @dev Removes a member from the contract.
      * @param member The address of the member to remove.
      */
-    function removeMember(
-        address member
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function removeMember(address member) external onlyRole(DEFAULT_ADMIN_ROLE) {
         members[member] = false;
         emit MemberRemoved(member);
     }
 
-    function mintNFT(
-        address _to,
-        ProvableNFT.NFTData memory _nftData,
-        bool withClaim
-    ) external onlyRole(MINTER_ROLE) {
+    function mintNFT(address _to, ProvableNFT.NFTData memory _nftData, bool withClaim) external onlyRole(MINTER_ROLE) {
         uint nftId = nft.mintPermissioned(_to, _nftData, true, "");
         if (withClaim) {
             claim(nftId, _nftData);
