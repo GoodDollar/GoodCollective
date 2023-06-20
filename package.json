@@ -60,8 +60,8 @@
   "workspaces": {
     "packages": [
       "packages/common",
-      "packages/solidity-ts",
-      "packages/vite-app-ts",
+      "packages/app",
+      "packages/contracts",
       "packages/sdk-js",
       "packages/subgraph",
       "packages/services/*",
@@ -77,46 +77,22 @@
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
     "prettier": "^2.7.1",
-    "prettier-plugin-solidity": "^1.0.0-dev.23",
     "shx": "^0.3.4",
     "syncpack": "^8.2.4",
     "ts-node": "^10.9.1"
   },
   "lint-staged": {
-    "packages/vite-app-ts/src/**/*.{ts,tsx}": [
-      "yarn workspace @scaffold-eth/vite-app lint --fix",
-      "yarn workspace @scaffold-eth/vite-app format"
+    "packages/app/src/**/*.{ts,tsx}": [
+      "yarn workspace @gooddollar/goodcollective-app lint --fix",
+      "yarn workspace@gooddollar/goodcollective-app format"
     ],
-    "packages/common/src/**/*.{ts,tsx}": [
-      "yarn workspace @scaffold-eth/common lint --fix",
-      "yarn workspace @scaffold-eth/common format"
-    ],
-    "packages/commands/src/**/*.{ts,tsx}": [
-      "yarn workspace @scaffold-eth/commands lint --fix",
-      "yarn workspace @scaffold-eth/commands format"
-    ],
-    "packages/solidity-ts/tests/**/*.ts": [
-      "yarn workspace @scaffold-eth/solidity lint --fix",
-      "yarn workspace @scaffold-eth/solidity format"
-    ],
-    "packages/solidity-ts/helpers/**/*.ts": [
-      "yarn workspace @scaffold-eth/solidity lint --fix",
-      "yarn workspace @scaffold-eth/solidity format"
-    ],
-    "packages/solidity-ts/tasks/**/*.ts": [
-      "yarn workspace @scaffold-eth/solidity lint --fix",
-      "yarn workspace @scaffold-eth/solidity format"
-    ],
-    "packages/solidity-ts/deploy/**/*.ts": [
-      "yarn workspace @scaffold-eth/solidity lint --fix",
-      "yarn workspace @scaffold-eth/solidity format"
+    "packages/solidity-ts/test/**/*.ts": [
+      "yarn workspace @gooddollar/goodcollective-contracts lint --fix",
+      "yarn workspace @gooddollar/goodcollective-contracts format"
     ],
     "packages/solidity-ts/**/*.sol": [
-      "yarn workspace @scaffold-eth/solidity format",
-      "yarn workspace @scaffold-eth/solidity solhint --fix"
+      "yarn workspace @gooddollar/goodcollective-app format",
+      "yarn workspace @gooddollar/goodcollective-app solhint --fix"
     ]
-  },
-  "volta": {
-    "node": "16.15.0"
   }
 }
