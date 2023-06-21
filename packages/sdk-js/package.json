@@ -1,6 +1,5 @@
 {
   "name": "@gooddollar/goodcollective-sdk",
-  "private": true,
   "version": "1.0.0",
   "type": "module",
   "main": "./dist/sdk.umd.cjs",
@@ -19,10 +18,11 @@
     "package.json"
   ],
   "scripts": {
+    "dev": "vite",
     "build": "tsc && vite build",
     "test:setup": "yarn exec ./scripts/deployContracts.sh",
     "test": "vitest",
-    "prepublish": "build",
+    "prepublish": "yarn build",
     "lint": "eslint .",
     "format": "prettier -w ./src ",
     "format:check": "prettier -c ./src"
@@ -38,13 +38,13 @@
     "ethers": "^5.*",
     "prettier": "^2.8.8",
     "typescript": "^5.0.2",
-    "vite": "^4.3.9",
-    "vitest": "^0.32.0"
+    "vite": "^4.3.9"
   },
   "peerDependencies": {
     "ethers": "^5.*"
   },
   "dependencies": {
-    "@gooddollar/goodcollective-contracts": "1.0.0"
+    "@gooddollar/goodcollective-contracts": "1.0.0",
+    "vitest": "^0.32.2"
   }
 }
