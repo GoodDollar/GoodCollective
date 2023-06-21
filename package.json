@@ -85,6 +85,10 @@
     "packages/app/**/*.{ts,tsx}": [
       "yarn workspace @gooddollar/goodcollective-app lint --fix",
       "yarn workspace @gooddollar/goodcollective-app format"
+    ],
+    "packages/sdk-js/**/*.{ts,tsx}": [
+      "yarn workspace @gooddollar/goodcollective-sdk lint --fix",
+      "yarn workspace @gooddollar/goodcollective-sdk format"
     ]
   }
 }

@@ -6,7 +6,9 @@ import { DirectPaymentsFactory, ProvableNFT } from '@gooddollar/goodcollective-c
 import { ProvableNFTSDK } from '../nft';
 
 const localProvider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
-const wallet = ethers.Wallet.fromMnemonic('test test test test test test test test test test test junk');
+const wallet = ethers.Wallet.fromMnemonic('test test test test test test test test test test test junk').connect(
+  localProvider
+);
 const registry = new ethers.Contract(
   Deployment['31337'][0].contracts.DirectPaymentsFactory.address,
   Deployment['31337'][0].contracts.DirectPaymentsFactory_Implementation.abi,
@@ -18,20 +20,63 @@ let sdk: ProvableNFTSDK;
 
 describe('NFT SDK', () => {
   beforeAll(async () => {
+    sdk = new ProvableNFTSDK(31337, localProvider);
     nftProxy = await registry.nft();
     deployedNFT = new ethers.Contract(nftProxy, NFTAbi.abi, localProvider) as ProvableNFT;
-    sdk = new ProvableNFTSDK(deployedNFT.address, localProvider);
+  });
+
+  it('should deploy pool', async () => {
+    const pool = await sdk.createPool(
+      wallet,
+      'test',
+      'testipfs',
+      {
+        nftType: 1,
+        manager: wallet.address,
+        membersValidator: ethers.constants.AddressZero,
+        rewardPerEvent: [10],
+        validEvents: [1],
+        rewardToken: ethers.constants.AddressZero,
+        uniqunessValidator: ethers.constants.AddressZero,
+      },
+      {
+        maxMemberPerDay: 1000,
+        maxMemberPerMonth: 10000,
+        maxTotalPerMonth: 100000,
+      }
+    );
+    expect(pool.address).not.equal(ethers.constants.AddressZero);
   });
 
   it('should be owner of NFT', async () => {
-    expect(deployedNFT.address).equal(nftProxy);
+    expect((await sdk.nftContract()).address).equal(nftProxy);
     expect(await deployedNFT.hasRole(await deployedNFT.DEFAULT_ADMIN_ROLE(), wallet.address)).equal(true);
   });
 
   it('should mint an NFT', async () => {
     const recp = ethers.Wallet.createRandom();
+    const pool = await sdk.createPool(
+      wallet,
+      'test',
+      'testipfs',
+      {
+        nftType: 2,
+        manager: wallet.address,
+        membersValidator: ethers.constants.AddressZero,
+        rewardPerEvent: [10],
+        validEvents: [1],
+        rewardToken: ethers.constants.AddressZero,
+        uniqunessValidator: ethers.constants.AddressZero,
+      },
+      {
+        maxMemberPerDay: 1000,
+        maxMemberPerMonth: 10000,
+        maxTotalPerMonth: 100000,
+      }
+    );
+    const assignedType = (await pool.settings()).nftType;
     const toMint = {
-      nftType: 1,
+      nftType: assignedType,
       nftUri: 'ipfs://test' + Math.random(),
       version: 1,
       events: [
@@ -44,7 +89,7 @@ describe('NFT SDK', () => {
         },
       ],
     };
-    const nft = await sdk.mintNft(wallet.connect(localProvider), recp.address, toMint, true);
+    const nft = await sdk.mintNft(wallet, pool.address, recp.address, toMint, false);
     const tx = await nft.wait();
 
     const mintEvent = tx.events?.find((_) => _.event === 'Transfer');

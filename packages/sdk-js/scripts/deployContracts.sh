@@ -1,5 +1,5 @@
 #! /bin/bash
 pushd ../contracts
-yarn deploy &
-sleep 30
+npx hardhat node &
+sleep 20
 popd

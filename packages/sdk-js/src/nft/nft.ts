@@ -1,22 +1,65 @@
 import { ethers } from 'ethers';
-import { abi as ProvableNFTABI } from '@gooddollar/goodcollective-contracts/artifacts/contracts/DirectPayments/ProvableNFT.sol/ProvableNFT.json';
-import { ProvableNFT } from '@gooddollar/goodcollective-contracts/typechain-types';
+import GoodCollectiveContracts from '@gooddollar/goodcollective-contracts/releases/deployment.json';
+import {
+  ProvableNFT,
+  DirectPaymentsFactory,
+  DirectPaymentsPool,
+} from '@gooddollar/goodcollective-contracts/typechain-types';
 
 export type NFTData = ProvableNFT.NFTDataStruct;
 export type EventData = ProvableNFT.EventDataStruct;
+export type PoolSettings = DirectPaymentsPool.PoolSettingsStruct;
+export type PoolLimits = DirectPaymentsPool.SafetyLimitsStruct;
+
+type Key = keyof typeof GoodCollectiveContracts;
+type Contracts = (typeof GoodCollectiveContracts)[keyof typeof GoodCollectiveContracts][0]['contracts'];
 
 export class ProvableNFTSDK {
-  nftContract: ProvableNFT;
-  constructor(nftContractAddress: string, readProvider: ethers.providers.Provider) {
-    this.nftContract = new ethers.Contract(nftContractAddress, ProvableNFTABI, readProvider) as ProvableNFT;
+  // nftContract: ProvableNFT;
+  factory: DirectPaymentsFactory;
+  contracts: Contracts;
+  pool: DirectPaymentsPool;
+  constructor(chainId: number, readProvider: ethers.providers.Provider) {
+    this.contracts = GoodCollectiveContracts[String(chainId) as Key][0].contracts;
+    const factory = this.contracts.DirectPaymentsFactory;
+    this.factory = new ethers.Contract(factory.address, factory.abi, readProvider) as DirectPaymentsFactory;
+    const nftEvents = this.contracts.ProvableNFT.abi.filter((_) => _.type === 'event');
+    this.pool = new ethers.Contract(
+      ethers.constants.AddressZero,
+      this.contracts.DirectPaymentsPool.abi.concat(nftEvents), //add events of nft so they are parsable
+      readProvider
+    ) as DirectPaymentsPool;
   }
 
-  async mintNft(signer: ethers.Signer, addressTo: string, nftData: NFTData, withStore = true) {
-    const connected = this.nftContract.connect(signer);
-    return connected.mintPermissioned(addressTo, nftData, withStore, []);
+  async nftContract() {
+    const nftContractAddress = await this.factory.nft();
+    return new ethers.Contract(
+      nftContractAddress,
+      this.contracts.ProvableNFT.abi,
+      this.factory.provider
+    ) as ProvableNFT;
+  }
+
+  async mintNft(signer: ethers.Signer, poolAddress: string, addressTo: string, nftData: NFTData, withClaim = true) {
+    const connected = this.pool.attach(poolAddress).connect(signer);
+    return connected.mintNFT(addressTo, nftData, withClaim);
   }
 
   async getNft(id: string) {
-    return this.nftContract.getNFTData(id);
+    return (await this.nftContract()).getNFTData(id);
+  }
+
+  async createPool(
+    signer: ethers.Signer,
+    projectId: string,
+    poolIpfs: string,
+    poolSettings: PoolSettings,
+    poolLimits: PoolLimits
+  ) {
+    const tx = await (
+      await this.factory.connect(signer).createPool(projectId, poolIpfs, poolSettings, poolLimits)
+    ).wait();
+    const created = tx.events?.find((_) => _.event === 'PoolCreated');
+    return this.pool.attach(created?.args?.[0]);
   }
 }
