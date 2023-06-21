@@ -1,5 +1,4 @@
 import '@nomicfoundation/hardhat-toolbox';
-import '@nomiclabs/hardhat-solhint';
 import * as dotenv from 'dotenv';
 import 'hardhat-abi-exporter';
 import 'hardhat-contract-sizer';
@@ -48,13 +47,21 @@ const config: HardhatUserConfig = {
       url: 'https://cloudflare-eth.com',
     },
     alfajores: {
+      chainId: 44787,
       url: `https://alfajores-forno.celo-testnet.org`,
       gasPrice: 5000000000,
       accounts: {
         mnemonic: process.env.MNEMONIC,
       },
+      verify: {
+        etherscan: {
+          apiKey: process.env.CELOSCAN_KEY,
+          apiUrl: 'https://api-alfajores.celoscan.io/',
+        },
+      },
     },
     celo: {
+      chainId: 42220,
       url: `https://forno.celo.org`,
       gasPrice: 5000000000,
       accounts: {
@@ -68,6 +75,13 @@ const config: HardhatUserConfig = {
       celo: process.env.CELOSCAN_KEY || '',
       alfajores: process.env.CELOSCAN_KEY || '',
     },
+    customChains: [
+      {
+        network: 'alfajores',
+        chainId: 44787,
+        urls: { browserURL: 'https://alfajores.celoscan.io/', apiURL: 'https://api-alfajores.celoscan.io/' },
+      },
+    ],
   },
   solidity: {
     compilers: [
