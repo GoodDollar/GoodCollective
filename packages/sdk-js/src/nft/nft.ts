@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BigNumberish, ethers } from 'ethers';
 import GoodCollectiveContracts from '@gooddollar/goodcollective-contracts/releases/deployment.json';
 import {
   ProvableNFT,
@@ -8,7 +8,7 @@ import {
 
 export type NFTData = ProvableNFT.NFTDataStruct;
 export type EventData = ProvableNFT.EventDataStruct;
-export type PoolSettings = DirectPaymentsPool.PoolSettingsStruct;
+export type PoolSettings = Omit<DirectPaymentsPool.PoolSettingsStruct, 'nftType'> & { nftType?: BigNumberish };
 export type PoolLimits = DirectPaymentsPool.SafetyLimitsStruct;
 
 type Key = keyof typeof GoodCollectiveContracts;
@@ -56,8 +56,11 @@ export class ProvableNFTSDK {
     poolSettings: PoolSettings,
     poolLimits: PoolLimits
   ) {
+    poolSettings.nftType = 0; // force some type, this will be re-assigned by the factory
     const tx = await (
-      await this.factory.connect(signer).createPool(projectId, poolIpfs, poolSettings, poolLimits)
+      await this.factory
+        .connect(signer)
+        .createPool(projectId, poolIpfs, poolSettings as DirectPaymentsPool.PoolSettingsStruct, poolLimits)
     ).wait();
     const created = tx.events?.find((_) => _.event === 'PoolCreated');
     return this.pool.attach(created?.args?.[0]);

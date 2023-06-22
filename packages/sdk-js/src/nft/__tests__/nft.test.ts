@@ -34,7 +34,6 @@ describe('NFT SDK', () => {
       'test',
       'testipfs',
       {
-        nftType: 1,
         manager: wallet.address,
         membersValidator: ethers.constants.AddressZero,
         rewardPerEvent: [10],

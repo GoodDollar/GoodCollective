@@ -1,123 +1,148 @@
-# 🏗 Scaffold-Eth Typescript
+# GoodCollective
 
 ## Features
 
-This is the typescript repo of scaffold-eth. Use scaffold-eth-typescript with:
+This is the repo for the GoodCollective protocol and dapp, use it to:
 
-- A react frontend running with `nextjs` or `vite`.
-- Solidity toolkit of `hardhat` or `foundry`
-- It has the a command line system that allows you to choose a **react frontend** or **solidity toolkit**
+- Create pools for rewarding climate stewards
+- Create Basic Income pools with dynamic members
 
 ## Quick Start
 
 ### Fork or clone the repo
 
-- You can use the use the template link: [scaffold-eth-typescript template](https://github.com/scaffold-eth/scaffold-eth-typescript/generate)
 - You can clone the repo with git
   ```bash
-  git clone https://github.com/scaffold-eth/scaffold-eth-typescript.git
+  git clone https://github.com/GoodDollar/GoodCollective.git
   ```
+- install dependencies
+  `yarn install`
 
-### Starting the App
+### Deploying contracts for local development
 
-Running the app
+To start a local node with the deployed contracts:
 
-1. install your dependencies, `open a new command prompt`
-
-   ```bash
-   yarn install
-   ```
-
-2. Create a default `scaffold.config.json` configuration file
+1. run
 
    ```bash
-   yarn create-config
-   ```
-
-3. start a local hardhat node (chain)
-
-   ```bash
-   yarn chain
-   ```
-
-4. Run the app, `open a new command prompt terminal`
-
-   ```bash
-   # in a new terminal
-   # compile your contracts
-   yarn compile
-   # deploy your hardhat contracts
+   cd packages/contracts
    yarn deploy
-   # start the react app (vite)
-   yarn start
    ```
 
-5. Open http://localhost:3000 to see your front end
+2. You can now import types,contracts and deployed addresses
+   see `packages/nft/nft.js` for example:
 
-## Configuration
+   ```typescript
+   import GoodCollectiveContracts from '@gooddollar/goodcollective-contracts/releases/deployment.json';
+   import {
+     ProvableNFT,
+     DirectPaymentsFactory,
+     DirectPaymentsPool,
+   } from '@gooddollar/goodcollective-contracts/typechain-types';
 
-Scaffold uses `scaffold.config.json` as a configuration file located in `/packages/common/scaffold.config.json`. You can create the config file by running the command `yarn create-config`.
+   const registry = new ethers.Contract(
+     GoodCollectiveContracts['31337'][0].contracts.DirectPaymentsFactory.address,
+     GoodCollectiveContracts['31337'][0].contracts.DirectPaymentsFactory_Implementation.abi,
+     localProvider
+   ) as DirectPaymentsFactory;
+   ```
 
-### Command line help
+## Using the sdk
 
-```bash
-use `-h` with any command for help.  e.g. yarn set-react -h
+- Using the sdk you can create a new DirectPaymentsPool and mint climate actions NFTs
+- Upon minting the NFT the pool will distribute rewards according to the NFT data, if there's enough G$ balance in the pool.
+
+### Creating a rewards pool
+
+```typescript
+import { ProvableNFTSDK, PoolLimits, PoolSettings } from '@gooddollar/goodcollective-sdk';
+
+const wallet = ethers.getSigner();
+const readProvider = new ethers.providers.JsonRpcProvider('https://alfajores-forno.celo-testnet.org');
+const chainId = 44787;
+sdk = new ProvableNFTSDK(chainId, readProvider); //contracts data by chainId is read from @gooddollar/goodcollective-contracts/releases/deployment.json
+const poolSettings: PoolSettings = {
+  manager: wallet.address,
+  membersValidator: ethers.constants.AddressZero,
+  rewardPerEvent: [10],
+  validEvents: [1],
+  rewardToken: ethers.constants.AddressZero,
+  uniqunessValidator: ethers.constants.AddressZero,
+};
+const poolLimits: PoolLimits = {
+  maxMemberPerDay: 1000,
+  maxMemberPerMonth: 10000,
+  maxTotalPerMonth: 100000,
+};
+const projectId = 'Detrash'; //the first pool created with a project id will also be the owner of the project id, and only their managers can open pools with same projectid
+const projectAttributesIpfs = 'ipfs://<cid>'; //json file with project attributes
+const pool = await sdk.createPool(wallet, projectId, projectAttributesIpfs, poolSettings, poolLimits);
+// console.log(pool.address) // pool address
+// console.log(await pool.settings()) // view the assigned nftType
 ```
 
-### Configure react and solidity toolkit
+### Minting an nft
 
-You can change the configuration file to pick different frontends and solidity toolkits.
+> **Notice**  
+> If there are not enough funds in the pool, minting will revert, there's an option to pass `false` to `withClaim` to mint without triggering the reward distribution.
+> Later the reward can be claimed by calling `claim(uint256 nftId)`
 
-```bash
-yarn set-react `nextjs` or `vite`
-yarn set-solidity `hardhat` or `foundry`
+```typescript
+const assignedType = (await pool.settings()).nftType;
+const toMint = {
+  nftType: assignedType,
+  nftUri: 'ipfs://test' + Math.random(),
+  version: 1,
+  events: [
+    {
+      eventUri: 'ipfs://event1',
+      subtype: 1,
+      contributers: [wallet.address],
+      timestamp: 1000000,
+      quantity: ethers.BigNumber.from(10),
+    },
+  ],
+};
+const withClaim = true;
+const nft = await sdk.mintNft(wallet, pool.address, recp.address, toMint, withClaim);
+const tx = await nft.wait();
 ```
 
-### Target network
+## NFT architecture
 
-Set your `targetNetwork` in the config. This is the network the solidity toolkit is deploying against.
+```solidity
+    struct NFTData {
+        uint32 nftType; // should be non zero, automatically assigned by the DirectPaymentFactory
+        uint16 version; // version should be updatd by the pool/nftType manager
+        string nftUri; // extra data related to nft that was minted (usually "proof of..."), or general data like the event types
+        EventData[] events; // list of climate action events that this nft represent
+    }
 
-Set your `availableNetworks` in the config. This is the networks the frontend is available in.
-
-You can configure it from the **config file** or from **command line**.
-
-```bash
-yarn set-network -h
-yarn set-network 'localhost' 'localhost, mainnet'
+    struct EventData {
+        uint16 subtype; // event type should be managed by the pool/nftType manager. type number to human readable should be supplied in the ipfs data of the nft or event
+        uint32 timestamp; // when event happened (unix timestamp, ie seconds)
+        uint256 quantity; // arbitrary quantity relevant to the event, used to calcualte the reward
+        string eventUri; //extra data related to event stored on ipfs or other external storage
+        address[] contributers; // reward will be split between the event contributers
+    }
 ```
 
-### More commands
+The direct payments pool will send rewards per each event using the following formula:
 
-You can see all the other commands by using `yarn scaffold`
-
-## Solidity Tookits Details
-
-### Hardhat
-
-Everything will be installed with `yarn install`.
-
-You can use hardhat with right context using
-
-```bash
-yarn hardhat
+```
+eventIndex = find indexOf event.subtype in settings.validEvents
+rewardPerContributer = settings.rewardsPerEvent[eventIndex] * event.quantity / contributers.length
 ```
 
-### Foundry
+## Running the app
 
-Make sure you install foundry
+- The app is designed as a webapp but using [react-native-web](https://necolas.github.io/react-native-web/docs/) so it should also compile to native.
 
-1. Make sure you install foundry first. Use `curl -L https://foundry.paradigm.xyz | bash` to install foundryup
-
-   > You can see more details here. https://book.getfoundry.sh/getting-started/installation
-
-2. Run `yarn install:foundry` to install or update foundry in the right folder. It will also run _forge install_ automatically with the right context.
-
-You can use foundry commands with the right context
+- to run on ios/android follow the instructions for react-native to install [ios](https://reactnative.dev/docs/environment-setup?platform=ios)/[android](https://reactnative.dev/docs/environment-setup?platform=android) development frameworks
 
 ```bash
-yarn forge
-yarn anvil
-yarn cast
+ cd packages/app
+ yarn web (or yarn android or yarn ios)
 ```
 
 ## Directories
@@ -125,93 +150,20 @@ yarn cast
 The directories that you'll use are:
 
 ```bash
-packages/solidity-ts/
+Solidity contracts
+packages/contracts/
 
-And one of either:
-packages/vite-app-ts/
-packages/next-app-ts/
+React Native Web App
+packages/app/
+
+Typescript sdk to interact with the contracts
+packages/sdk-js/
 ```
-
-### More Info
-
-Other commands
-
-```bash
-# rebuild all contracts, incase of inconsistent state
-yarn contracts:clean
-yarn contracts:build
-# run hardhat commands for the workspace, or see all tasks
-yarn hardhat 'xxx'
-# run forge, anvil or
-yarn forge
-yarn anvil
-yarn cast
-```
-
-Other folders
-
-```bash
-# for subgraph checkout README.md in following directories
-packages/subgraph/
-packages/services/
-```
-
-## Guides
-
-Everything you need to build on Ethereum! 🚀 Quickly experiment with Solidity using a frontend that adapts to your smart contract:
-
-![image](https://user-images.githubusercontent.com/2653167/124158108-c14ca380-da56-11eb-967e-69cde37ca8eb.png)
-
-- 🔏 Edit your smart contract `YourContract.sol` in `packages/solidity-ts/contracts`
-- 📝 Edit your frontend `MainPage.tsx` in `packages/vite-app-ts/src`
-- 💼 Edit your deployment scripts in `packages/solidity-ts/deploy/hardhat-deploy`
-- 📱 Open http://localhost:3000 to see the app
-- 👷🏽‍♂️ run `yarn hardhat` to get a list of all the tasks. Run `yarn hardhat taskname` to run the task.
-
-<br/><br/><br/>
-
----
-
-# Documentation
-
-Check out [eth-hooks docs](https://scaffold-eth.github.io/eth-ui) for example of how to use hooks
-
-## Video Tutorials
-
-Tutorial using the CLI
-
-- [Scaffold-eth-typescript Tutorial: Foundry, NextJS, CLI](https://www.youtube.com/watch?v=bEd6wV2H28g)
-
-Eth-hooks v4 & scaffold-eth-typescript overview
-
-- [Getting Started with eth-hooks and scaffold-eth-typescript](https://www.youtube.com/watch?v=a7W9nTX8qLk&t=3s)
-- [eth-hooks v4](https://www.youtube.com/watch?v=STxAdE8wQwY&t=86s)
-
-## 🏃💨 Speedrun Ethereum
-
-Register as a builder [here](https://speedrunethereum.com) and start on some of the challenges and build a portfolio.
-
-> 🏁 Make sure to click on the typescript tab!
-
-<br/><br/><br/>
-
----
-
-# Extra!
 
 ## 💬 Support Chat
 
-Join the telegram [support chat 💬](https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA) to ask questions and find others building with 🏗 scaffold-eth!
-
-## 🛠 Buidl
-
-Check out
-
-- [Typescript challenges](https://github.com/scaffold-eth/scaffold-eth-typescript-challenges)
-- [Typescript examples](https://github.com/scaffold-eth/scaffold-eth-typescript-examples)
-- [Vanilla JS active branches](https://github.com/scaffold-eth/scaffold-eth/branches/active)
-- Join/fund the 🏰 [BuidlGuidl](https://BuidlGuidl.com)!
+Join the telegram [support chat 💬](https://t.me/gooddollarbounties) to ask questions and find others building with GoodDollar and GoodCollective
 
 ### 🙏🏽 Support us!
 
-Please check out our [Gitcoin grant](https://gitcoin.co/grants/2851/scaffold-eth) too!
+Please check out our ...
