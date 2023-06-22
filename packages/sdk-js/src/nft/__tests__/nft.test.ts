@@ -1,7 +1,6 @@
 import { expect, it, describe, beforeAll } from 'vitest';
 import * as ethers from 'ethers';
-import Deployment from '@gooddollar/goodcollective-contracts/releases/deployment.json';
-import NFTAbi from '@gooddollar/goodcollective-contracts/artifacts/contracts/DirectPayments/ProvableNFT.sol/ProvableNFT.json';
+import GoodCollectiveContracts from '@gooddollar/goodcollective-contracts/releases/deployment.json';
 import { DirectPaymentsFactory, ProvableNFT } from '@gooddollar/goodcollective-contracts/typechain-types';
 import { ProvableNFTSDK } from '../nft';
 
@@ -10,8 +9,8 @@ const wallet = ethers.Wallet.fromMnemonic('test test test test test test test te
   localProvider
 );
 const registry = new ethers.Contract(
-  Deployment['31337'][0].contracts.DirectPaymentsFactory.address,
-  Deployment['31337'][0].contracts.DirectPaymentsFactory_Implementation.abi,
+  GoodCollectiveContracts['31337'][0].contracts.DirectPaymentsFactory.address,
+  GoodCollectiveContracts['31337'][0].contracts.DirectPaymentsFactory_Implementation.abi,
   localProvider
 ) as DirectPaymentsFactory;
 let nftProxy: string;
@@ -22,7 +21,11 @@ describe('NFT SDK', () => {
   beforeAll(async () => {
     sdk = new ProvableNFTSDK(31337, localProvider);
     nftProxy = await registry.nft();
-    deployedNFT = new ethers.Contract(nftProxy, NFTAbi.abi, localProvider) as ProvableNFT;
+    deployedNFT = new ethers.Contract(
+      nftProxy,
+      GoodCollectiveContracts['31337'][0].contracts.ProvableNFT.abi,
+      localProvider
+    ) as ProvableNFT;
   });
 
   it('should deploy pool', async () => {

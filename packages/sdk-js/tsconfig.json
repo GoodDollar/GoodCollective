@@ -10,17 +10,20 @@
     "allowSyntheticDefaultImports": true,
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
+    "noEmit": false,
+    /* we use tsc only to emit type declerations build is by vite*/
+    "emitDeclarationOnly": true,
     "declaration": true,
     "declarationDir": "types",
+    "outDir": "dist",
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["./src"],
+  "exclude": ["node_modules/**", "**/__tests__"]
 }

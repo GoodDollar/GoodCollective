@@ -72,5 +72,6 @@ yarn-error.log*
 # misc
 .DS_Store
 *.pem
-packages/common/src/scaffold.config.json
 packages/contracts/deployments
+package.json
+types
