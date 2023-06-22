@@ -1,7 +1,7 @@
 {
   "name": "@gooddollar/goodcollective-contracts",
   "packageManager": "yarn@3.2.1",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "types": "./typechain-types/index.ts",
   "files": [
@@ -54,6 +54,8 @@
     "lint:sol:fix": "solhint 'contracts/**/*.sol' --fix",
     "test": "npx hardhat test",
     "test:coverage": "npx hardhat coverage",
-    "deploy": "hardhat deploy --export-all ./releases/deployment.json"
+    "deploy": "hardhat deploy --export-all ./releases/deployment.json",
+    "prepublish": "yarn version patch && yarn compile",
+    "publish": "yarn npm publish --access public"
   }
 }

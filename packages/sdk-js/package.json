@@ -44,7 +44,7 @@
     "ethers": "^5.*"
   },
   "dependencies": {
-    "@gooddollar/goodcollective-contracts": "1.0.0"
+    "@gooddollar/goodcollective-contracts": "1"
   },
   "packageManager": "yarn@3.6.0"
 }

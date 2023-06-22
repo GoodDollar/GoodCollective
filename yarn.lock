@@ -4048,7 +4048,7 @@ __metadata:
     "@babel/preset-env": ^7.20.0
     "@babel/runtime": ^7.20.0
     "@ethersproject/shims": ^5.7.0
-    "@gooddollar/goodcollective-sdk": "workspace:^"
+    "@gooddollar/goodcollective-sdk": 1
     "@gooddollar/web3sdk-v2": ^0.1.103
     "@react-native-aria/interactions": ^0.2.10
     "@react-native-async-storage/async-storage": ^1.18.2
@@ -4094,7 +4094,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@gooddollar/goodcollective-contracts@1.0.0, @gooddollar/goodcollective-contracts@workspace:packages/contracts":
+"@gooddollar/goodcollective-contracts@1.0.1, @gooddollar/goodcollective-contracts@workspace:packages/contracts":
   version: 0.0.0-use.local
   resolution: "@gooddollar/goodcollective-contracts@workspace:packages/contracts"
   dependencies:
@@ -4130,11 +4130,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@gooddollar/goodcollective-sdk@workspace:^, @gooddollar/goodcollective-sdk@workspace:packages/sdk-js":
+"@gooddollar/goodcollective-sdk@1, @gooddollar/goodcollective-sdk@workspace:packages/sdk-js":
   version: 0.0.0-use.local
   resolution: "@gooddollar/goodcollective-sdk@workspace:packages/sdk-js"
   dependencies:
-    "@gooddollar/goodcollective-contracts": 1.0.0
+    "@gooddollar/goodcollective-contracts": 1.0.1
     "@types/eslint": ^8.40.2
     "@typescript-eslint/eslint-plugin": ^5.60.0
     "@typescript-eslint/parser": ^5.60.0
