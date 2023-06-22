@@ -73,5 +73,5 @@ yarn-error.log*
 .DS_Store
 *.pem
 packages/contracts/deployments
-package.json
-types
+**/types
+packages/sdk-js/.yarn/install-state.gz
