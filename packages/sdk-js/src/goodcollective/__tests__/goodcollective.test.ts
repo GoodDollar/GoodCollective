@@ -31,7 +31,7 @@ let sdk: GoodCollectiveSDK;
 describe('GoodCollective SDK', () => {
   beforeAll(async () => {
     console.log(contracts);
-    sdk = new GoodCollectiveSDK(31337, localProvider);
+    sdk = new GoodCollectiveSDK('31337', localProvider, 'hardhat');
     nftProxy = await registry.nft();
     deployedNFT = new ethers.Contract(nftProxy, contracts.ProvableNFT.abi, localProvider) as ProvableNFT;
   });
@@ -213,7 +213,7 @@ describe('GoodCollective SDK', () => {
       minReturn: 100000,
       path: '0x',
       swapFrom: gooddollar.address,
-      deadline: Date.now(),
+      deadline: (Date.now() + 1000000 / 1000).toFixed(0),
     });
 
     expect(tx.wait()).not.rejects;

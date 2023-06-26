@@ -30,10 +30,12 @@ export class GoodCollectiveSDK {
   contracts: Contracts;
   pool: DirectPaymentsPool;
   superfluidSDK: Promise<Framework>;
-  chainId: number;
-  constructor(chainId: number, readProvider: ethers.providers.Provider) {
+  chainId: Key;
+  constructor(chainId: Key, readProvider: ethers.providers.Provider, network?: string) {
     this.chainId = chainId;
-    this.contracts = GoodCollectiveContracts[String(chainId) as Key][0].contracts;
+    this.contracts = (GoodCollectiveContracts[chainId] as Array<any>).find((_) => (network ? _.name === network : true))
+      ?.contracts as Contracts;
+
     const factory = this.contracts.DirectPaymentsFactory;
     this.factory = new ethers.Contract(factory.address, factory.abi, readProvider) as DirectPaymentsFactory;
     const nftEvents = this.contracts.ProvableNFT.abi.filter((_) => _.type === 'event');
@@ -44,9 +46,9 @@ export class GoodCollectiveSDK {
     ) as DirectPaymentsPool;
     // initialize framework
     const opts = {
-      chainId,
+      chainId: Number(chainId),
       provider: readProvider,
-      resolverAddress: SF_RESOLVERS[String(chainId)],
+      resolverAddress: SF_RESOLVERS[chainId],
       protocolReleaseVersion: 'test',
     };
     this.superfluidSDK = Framework.create(opts);
@@ -140,11 +142,11 @@ export class GoodCollectiveSDK {
     const sdk = await this.superfluidSDK;
     const token = (await this.pool.attach(poolAddress).settings()).rewardToken;
     const st = await sdk.loadSuperToken(token);
-    const signerAdress = await signer.getAddress();
+    const signerAddress = await signer.getAddress();
 
     const flowAction = st.createFlow({
       receiver: poolAddress,
-      sender: signerAdress,
+      sender: signerAddress,
       flowRate: flowRate,
       overrides: { ...CHAIN_OVERRIDES[this.chainId] },
     });
@@ -166,12 +168,13 @@ export class GoodCollectiveSDK {
     const sdk = await this.superfluidSDK;
     const token = (await this.pool.attach(poolAddress).settings()).rewardToken;
     const st = await sdk.loadSuperToken(token);
-    const signerAdress = await signer.getAddress();
-    const appAction = this.pool.interface.encodeFunctionData('handleSwap', [swap, signerAdress, '0x']);
+    const signerAddress = await signer.getAddress();
+
+    const appAction = this.pool.interface.encodeFunctionData('handleSwap', [swap, signerAddress, '0x']);
 
     const flowAction = st.createFlow({
       receiver: poolAddress,
-      sender: signerAdress,
+      sender: signerAddress,
       flowRate: flowRate,
       overrides: { ...CHAIN_OVERRIDES[this.chainId] },
     });
@@ -208,9 +211,9 @@ export class GoodCollectiveSDK {
     const sdk = await this.superfluidSDK;
     const token = await this.rewardToken(poolAddress);
     const approve = token.approve({ amount, receiver: poolAddress, overrides: { ...CHAIN_OVERRIDES[this.chainId] } });
-    const signerAdress = await signer.getAddress();
+    const signerAddress = await signer.getAddress();
 
-    const appAction = this.pool.interface.encodeFunctionData('support', [signerAdress, amount, '0x']);
+    const appAction = this.pool.interface.encodeFunctionData('support', [signerAddress, amount, '0x']);
     const supportAction = sdk.host.callAppAction(poolAddress, appAction, { ...CHAIN_OVERRIDES[this.chainId] });
     const op = sdk.batchCall([approve, supportAction]);
 
