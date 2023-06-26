@@ -4094,7 +4094,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@gooddollar/goodcollective-contracts@^1.0.1, @gooddollar/goodcollective-contracts@workspace:packages/contracts":
+"@gooddollar/goodcollective-contracts@^1.0.2, @gooddollar/goodcollective-contracts@workspace:packages/contracts":
   version: 0.0.0-use.local
   resolution: "@gooddollar/goodcollective-contracts@workspace:packages/contracts"
   dependencies:
@@ -4137,7 +4137,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@gooddollar/goodcollective-sdk@workspace:packages/sdk-js"
   dependencies:
-    "@gooddollar/goodcollective-contracts": ^1.0.1
+    "@gooddollar/goodcollective-contracts": ^1.0.2
     "@superfluid-finance/sdk-core": ^0.6.6
     "@types/eslint": ^8.40.2
     "@typescript-eslint/eslint-plugin": ^5.60.0
