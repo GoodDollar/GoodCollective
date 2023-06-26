@@ -60,7 +60,9 @@ describe('DirectPaymentsPool Claim', () => {
     nft = (await upgrades.deployProxy(factory, ['nft', 'cc'], { kind: 'uups' })) as ProvableNFT;
     const Pool = await ethers.getContractFactory('DirectPaymentsPool');
 
-    pool = (await upgrades.deployProxy(Pool, [nft.address, poolSettings, poolLimits])) as DirectPaymentsPool;
+    pool = (await upgrades.deployProxy(Pool, [nft.address, poolSettings, poolLimits], {
+      constructorArgs: [await gdframework.GoodDollar.getHost(), ethers.constants.AddressZero],
+    })) as DirectPaymentsPool;
     await pool.deployed();
     const tx = await nft.mintPermissioned(signers[0].address, nftSample, true, []);
     await gdframework.GoodDollar.mint(pool.address, ethers.constants.WeiPerEther.mul(100000));

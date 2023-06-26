@@ -9,6 +9,7 @@ import { IERC721ReceiverUpgradeable } from "@openzeppelin/contracts-upgradeable/
 
 import { ProvableNFT } from "./ProvableNFT.sol";
 import { DirectPaymentsFactory } from "./DirectPaymentsFactory.sol";
+import "../GoodCollective/GoodCollectiveSuperApp.sol";
 
 interface IMembersValidator {
     function isMemberValid(
@@ -30,7 +31,12 @@ interface IIdentityV2 {
  - factory -> register the pool, claim nfttype, deploy pool
  - events
  */
-contract DirectPaymentsPool is IERC721ReceiverUpgradeable, AccessControlUpgradeable, UUPSUpgradeable {
+contract DirectPaymentsPool is
+    IERC721ReceiverUpgradeable,
+    AccessControlUpgradeable,
+    GoodCollectiveSuperApp,
+    UUPSUpgradeable
+{
     using SafeERC20Upgradeable for IERC20Upgradeable;
     error NOT_MANAGER();
     error ALREADY_CLAIMED(uint256);
@@ -86,6 +92,9 @@ contract DirectPaymentsPool is IERC721ReceiverUpgradeable, AccessControlUpgradea
     LimitsData public globalLimits;
     address public createdBy;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor(ISuperfluid _host, ISwapRouter _swapRouter) GoodCollectiveSuperApp(_host, _swapRouter) {}
+
     /**
      * @dev Authorizes an upgrade for the implementation contract.
      * @param impl The address of the new implementation contract.
@@ -103,13 +112,14 @@ contract DirectPaymentsPool is IERC721ReceiverUpgradeable, AccessControlUpgradea
         PoolSettings memory _settings,
         SafetyLimits memory _limits
     ) external initializer {
-        uint l = 5;
         createdBy = msg.sender;
         settings = _settings;
         limits = _limits;
         nft = _nft;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(DEFAULT_ADMIN_ROLE, _settings.manager);
+
+        setSuperToken(ISuperToken(address(settings.rewardToken)));
     }
 
     function upgradeToLatest(bytes memory data) external payable virtual onlyProxy {

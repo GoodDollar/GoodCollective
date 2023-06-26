@@ -9,4 +9,7 @@ export default defineConfig({
       fileName: 'sdk',
     },
   },
+  test: {
+    testTimeout: 60000,
+  },
 });

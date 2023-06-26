@@ -4109,13 +4109,16 @@ __metadata:
     "@openzeppelin/contracts-upgradeable": 4.8.3
     "@openzeppelin/hardhat-upgrades": 1.20.0
     "@superfluid-finance/ethereum-contracts": ^1.7.0
+    "@superfluid-finance/sdk-core": ^0.6.6
     "@typechain/ethers-v5": ^10.1.0
     "@types/chai": ^4.2.0
     "@types/mocha": ">=9.1.0"
     "@types/prettier": ^2
     "@typescript-eslint/eslint-plugin": ^5.60.0
+    "@uniswap/v3-periphery": ^1.4.3
     chai: ^4.2.0
     dotenv: ^16.3.1
+    graphql: ^16.7.1
     hardhat: 2.14.*
     hardhat-abi-exporter: ^2.10.1
     hardhat-contract-sizer: ^2.10.0
@@ -4135,12 +4138,14 @@ __metadata:
   resolution: "@gooddollar/goodcollective-sdk@workspace:packages/sdk-js"
   dependencies:
     "@gooddollar/goodcollective-contracts": 1.0.1
+    "@superfluid-finance/sdk-core": ^0.6.6
     "@types/eslint": ^8.40.2
     "@typescript-eslint/eslint-plugin": ^5.60.0
     "@typescript-eslint/parser": ^5.60.0
     eslint: ^8.43.0
     eslint-config-prettier: ^8.8.0
     ethers: 5
+    graphql: ^16.7.1
     prettier: ^2.8.8
     typescript: 5
     vite: ^4.3.9
@@ -5607,7 +5612,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomiclabs/hardhat-ethers@npm:^2.0.0":
+"@nomiclabs/hardhat-ethers@npm:^2.0.0, @nomiclabs/hardhat-ethers@npm:^2.2.1":
   version: 2.2.3
   resolution: "@nomiclabs/hardhat-ethers@npm:2.2.3"
   peerDependencies:
@@ -5705,6 +5710,13 @@ __metadata:
   version: 4.9.2
   resolution: "@openzeppelin/contracts-upgradeable@npm:4.9.2"
   checksum: 88df083e886006b9fac61848edf224a725b99e1b8a302173165a857e3bbc1d00d61cb9c71590b37d955b179fe23652fc157347a086dbaad8f66ce8470603f151
+  languageName: node
+  linkType: hard
+
+"@openzeppelin/contracts@npm:3.4.2-solc-0.7":
+  version: 3.4.2-solc-0.7
+  resolution: "@openzeppelin/contracts@npm:3.4.2-solc-0.7"
+  checksum: 1a6048f31ed560c34429a05e534102c51124ecaf113aca7ebeb7897cfaaf61007cdd7952374c282adaeb79b04ee86ee80b16eed28b62fc6d60e3ffcd7a696895
   languageName: node
   linkType: hard
 
@@ -8341,6 +8353,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@superfluid-finance/ethereum-contracts@npm:1.6.0":
+  version: 1.6.0
+  resolution: "@superfluid-finance/ethereum-contracts@npm:1.6.0"
+  dependencies:
+    "@decentral.ee/web3-helpers": 0.5.3
+    "@openzeppelin/contracts": 4.8.2
+    "@superfluid-finance/js-sdk": 0.6.3
+    "@truffle/contract": 4.6.18
+    ethereumjs-tx: 2.1.2
+    ethereumjs-util: 7.1.5
+    stack-trace: 0.0.10
+  checksum: c9a3db9159a24f64580ac220cc27138b90edb3d78b32a892086cdff68a19c146216739b83845b877b547d87745d03c0cd3601c47969f4957effb7f513be07790
+  languageName: node
+  linkType: hard
+
 "@superfluid-finance/ethereum-contracts@npm:^1.4.3, @superfluid-finance/ethereum-contracts@npm:^1.7.0":
   version: 1.7.0
   resolution: "@superfluid-finance/ethereum-contracts@npm:1.7.0"
@@ -8391,6 +8418,24 @@ __metadata:
     ethers: ^5.6.9
     graphql: ^16.0.0
   checksum: fc7fab91a95fdb109390dcf221a37f5eab12a8abfa0dd31a82bae4b72ca9aa6237b9f9ab3d27eea0589dc5ff8595ae4af15a2020f0d4b7adf00f7fed525a4e98
+  languageName: node
+  linkType: hard
+
+"@superfluid-finance/sdk-core@npm:^0.6.6":
+  version: 0.6.6
+  resolution: "@superfluid-finance/sdk-core@npm:0.6.6"
+  dependencies:
+    "@nomiclabs/hardhat-ethers": ^2.2.1
+    "@superfluid-finance/ethereum-contracts": 1.6.0
+    "@superfluid-finance/metadata": "git+https://github.com/superfluid-finance/metadata.git"
+    browserify: ^17.0.0
+    graphql-request: ^4.3.0
+    lodash: ^4.17.21
+    tsify: ^5.0.4
+  peerDependencies:
+    ethers: ^5.6.9
+    graphql: ^16.0.0
+  checksum: d02176bbf8b08ac60401a927caa2be04b2e02e5a674b3d994e4faf2f7c5678b999e433ca7c7d4a47bf5f859246315e6e17d413066039cce16aadc776e99dd5f1
   languageName: node
   linkType: hard
 
@@ -10544,6 +10589,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@uniswap/lib@npm:^4.0.1-alpha":
+  version: 4.0.1-alpha
+  resolution: "@uniswap/lib@npm:4.0.1-alpha"
+  checksum: d7bbacccef40966af16c7e215ab085f575686d316b2802c9e1cfd03f7ad351970e547535670a28b2279c3cfcc4fb02888614c46f94efe2987af2309f3ec86127
+  languageName: node
+  linkType: hard
+
 "@uniswap/sdk@npm:^3.0.3":
   version: 3.0.3
   resolution: "@uniswap/sdk@npm:3.0.3"
@@ -10579,10 +10631,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uniswap/v2-core@npm:^1.0.0":
+"@uniswap/v2-core@npm:1.0.1, @uniswap/v2-core@npm:^1.0.0":
   version: 1.0.1
   resolution: "@uniswap/v2-core@npm:1.0.1"
   checksum: eaa118fe45eac2e80b7468547ce2cde12bd3c8157555d2e40e0462a788c9506c6295247b511382da85e44a89ad92aff7bb3433b23bfbd2eeea23942ecd46e979
+  languageName: node
+  linkType: hard
+
+"@uniswap/v3-core@npm:1.0.0":
+  version: 1.0.0
+  resolution: "@uniswap/v3-core@npm:1.0.0"
+  checksum: 0e7654cfbf9885f1ca94446c3b220aeddb039af7892bc4ae94669512570ceefdf1ce6c2b0703396927d5a203d7c6c5ccaf8bd61426e52372aafb6ada64141055
+  languageName: node
+  linkType: hard
+
+"@uniswap/v3-periphery@npm:^1.4.3":
+  version: 1.4.3
+  resolution: "@uniswap/v3-periphery@npm:1.4.3"
+  dependencies:
+    "@openzeppelin/contracts": 3.4.2-solc-0.7
+    "@uniswap/lib": ^4.0.1-alpha
+    "@uniswap/v2-core": 1.0.1
+    "@uniswap/v3-core": 1.0.0
+    base64-sol: 1.0.1
+  checksum: 50636951fc0a7737cfeef988ab38f4ddf26f6165a19df95b84294929088cc8b05fdbc7910168610ce9daebcce5d7a408fa5a02228ef9dfb73c23c695acc8b741
   languageName: node
   linkType: hard
 
@@ -13404,6 +13476,13 @@ __metadata:
   version: 1.5.1
   resolution: "base64-js@npm:1.5.1"
   checksum: 669632eb3745404c2f822a18fc3a0122d2f9a7a13f7fb8b5823ee19d1d2ff9ee5b52c53367176ea4ad093c332fd5ab4bd0ebae5a8e27917a4105a4cfc86b1005
+  languageName: node
+  linkType: hard
+
+"base64-sol@npm:1.0.1":
+  version: 1.0.1
+  resolution: "base64-sol@npm:1.0.1"
+  checksum: be0f9e8cf3c744256913223fbae8187773f530cc096e98a77f49ef0bd6cedeb294d15a784e439419f7cb99f07bf85b08999169feafafa1a9e29c3affc0bc6d0a
   languageName: node
   linkType: hard
 
@@ -20896,6 +20975,13 @@ __metadata:
   version: 16.6.0
   resolution: "graphql@npm:16.6.0"
   checksum: bf1d9e3c1938ce3c1a81e909bd3ead1ae4707c577f91cff1ca2eca474bfbc7873d5d7b942e1e9777ff5a8304421dba57a4b76d7a29eb19de8711cb70e3c2415e
+  languageName: node
+  linkType: hard
+
+"graphql@npm:^16.7.1":
+  version: 16.7.1
+  resolution: "graphql@npm:16.7.1"
+  checksum: c924d8428daf0e96a5ea43e9bc3cd1b6802899907d284478ac8f705c8fd233a0a51eef915f7569fb5de8acb2e85b802ccc6c85c2b157ad805c1e9adba5a299bd
   languageName: node
   linkType: hard
 
