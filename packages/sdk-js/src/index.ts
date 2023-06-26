@@ -1,1 +1,1 @@
-export * from './nft/nft';
+export * from './goodcollective/goodcollective';

@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "build": "tsc && vite build",
+    "build": "rm -fr dist types && tsc && vite build",
     "test:setup": "yarn exec ./scripts/deployContracts.sh",
     "test": "vitest",
     "prepublish": "yarn build",
@@ -44,7 +44,7 @@
     "ethers": "^5.*"
   },
   "dependencies": {
-    "@gooddollar/goodcollective-contracts": "1.0.1",
+    "@gooddollar/goodcollective-contracts": "^1.0.1",
     "@superfluid-finance/sdk-core": "^0.6.6",
     "graphql": "^16.7.1"
   },
