@@ -213,7 +213,7 @@ describe('GoodCollective SDK', () => {
       minReturn: 100000,
       path: '0x',
       swapFrom: gooddollar.address,
-      timestamp: Date.now(),
+      deadline: Date.now(),
     });
 
     expect(tx.wait()).not.rejects;

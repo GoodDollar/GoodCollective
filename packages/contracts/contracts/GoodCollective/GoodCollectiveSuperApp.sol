@@ -40,7 +40,7 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         address swapFrom;
         uint256 amount;
         uint256 minReturn;
-        uint256 timestamp;
+        uint256 deadline;
         bytes path;
     }
 
@@ -151,7 +151,7 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
             ISwapRouter.ExactInputParams memory params = ISwapRouter.ExactInputParams({
                 path: _customData.path,
                 recipient: _sender,
-                deadline: _customData.timestamp,
+                deadline: _customData.deadline,
                 amountIn: _customData.amount,
                 amountOutMinimum: _customData.minReturn
             });
@@ -163,7 +163,7 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
                 tokenOut: address(superToken),
                 fee: 10000,
                 recipient: _sender,
-                deadline: _customData.timestamp,
+                deadline: _customData.deadline,
                 amountIn: _customData.amount,
                 amountOutMinimum: _customData.minReturn,
                 sqrtPriceLimitX96: 0

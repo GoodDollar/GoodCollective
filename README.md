@@ -30,7 +30,7 @@ To start a local node with the deployed contracts:
    ```
 
 2. You can now import types,contracts and deployed addresses
-   see `packages/nft/nft.js` for example:
+   see `packages/sdk-js/goodcollective/goodcollective.js` for example:
 
    ```typescript
    import GoodCollectiveContracts from '@gooddollar/goodcollective-contracts/releases/deployment.json';
@@ -51,16 +51,17 @@ To start a local node with the deployed contracts:
 
 - Using the sdk you can create a new DirectPaymentsPool and mint climate actions NFTs
 - Upon minting the NFT the pool will distribute rewards according to the NFT data, if there's enough G$ balance in the pool.
+- Users can also use superfluid G$ streams to support pools
 
 ### Creating a rewards pool
 
 ```typescript
-import { ProvableNFTSDK, PoolLimits, PoolSettings } from '@gooddollar/goodcollective-sdk';
+import { GoodCollectiveSDK, PoolLimits, PoolSettings } from '@gooddollar/goodcollective-sdk';
 
 const wallet = ethers.getSigner();
 const readProvider = new ethers.providers.JsonRpcProvider('https://alfajores-forno.celo-testnet.org');
 const chainId = 44787;
-sdk = new ProvableNFTSDK(chainId, readProvider); //contracts data by chainId is read from @gooddollar/goodcollective-contracts/releases/deployment.json
+sdk = new GoodCollectiveSDK(chainId, readProvider); //contracts data by chainId is read from @gooddollar/goodcollective-contracts/releases/deployment.json
 const poolSettings: PoolSettings = {
   manager: wallet.address,
   membersValidator: ethers.constants.AddressZero,
@@ -106,6 +107,60 @@ const toMint = {
 const withClaim = true;
 const nft = await sdk.mintNft(wallet, pool.address, recp.address, toMint, withClaim);
 const tx = await nft.wait();
+```
+
+### Supporting a pool
+
+```/**
+   * Starts a new donation flow using Superfluid's core-sdk createFlow method.
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} poolAddress - The address of the pool contract.
+   * @param {string} flowRate - The flow rate for the new flow.
+   * @returns {Promise<ethers.ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
+   */
+  async supportFlow(signer: ethers.Signer, poolAddress: string, flowRate: string)
+```
+
+You can use supportFlowWithSWap to swap any token on uniswap (celo) to G$ and start a support stream.
+
+> **Notice**  
+> User needs to first `approve` the amount he wants to swap to the pool.
+
+```
+  /**
+   * Starts a new donation flow and executes a swap using uniswap v3 using Superfluid's core-sdk createFlow and host.callAppAction methods.
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} poolAddress - The address of the pool contract.
+   * @param {string} flowRate - The flow rate for the new flow.
+   * @param {SwapData} swap - The swap data object containing details of the swap.
+   * @returns {Promise<ethers.ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
+   */
+  async supportFlowWithSwap(signer: ethers.Signer, poolAddress: string, flowRate: string, swap: SwapData)
+```
+
+```
+/**
+   * Single donation using G$ ERC677
+   * Transfers tokens and calls onTokenTransfer function on the pool contract. ERC677
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} poolAddress - The address of the pool contract.
+   * @param {string} amount - The amount of tokens to transfer.
+   * @returns {Promise<ethers.ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
+   */
+  async supportSingleTransferAndCall(signer: ethers.Signer, poolAddress: string, amount: string)
+```
+
+```
+/**
+   * Single donation using superfluid batch call
+   * Executes a batch of operations including token approval and calling a function on the pool contract.
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} poolAddress - The address of the pool contract.
+   * @param {string} amount - The amount of tokens to transfer.
+   * @returns {Promise<ethers.ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
+   */
+  async supportSingleBatch(signer: ethers.Signer, poolAddress: string, amount: string)
+
 ```
 
 ## NFT architecture
