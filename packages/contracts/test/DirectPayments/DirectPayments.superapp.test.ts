@@ -4,7 +4,7 @@ import { deployTestFramework } from '@superfluid-finance/ethereum-contracts/dev-
 import { Framework } from '@superfluid-finance/sdk-core';
 
 import { expect } from 'chai';
-import { DirectPaymentsPool, ISuperGoodDollar, ProvableNFT } from 'typechain-types';
+import { DirectPaymentsPool, ProvableNFT } from 'typechain-types';
 import { ethers, upgrades, network } from 'hardhat';
 import ERC20ABI from '@openzeppelin/contracts/build/contracts/ERC20PresetMinterPauser.json';
 
@@ -89,16 +89,54 @@ describe('DirectPaymentsPool Superapp', () => {
   it('should be able to stream G$s', async () => {
     await gdframework.GoodDollar.mint(signer.address, ethers.constants.WeiPerEther);
     const st = await sf.loadSuperToken(gdframework.GoodDollar.address);
+    const beforeBalance = await gdframework.GoodDollar.balanceOf(pool.address);
+    const result = await st
+      .createFlow({ receiver: pool.address, sender: signer.address, flowRate: '1000000000' })
+      .exec(signer);
+    await mine(2, { interval: 5 });
+
+    expect(await gdframework.GoodDollar.balanceOf(pool.address)).gte(beforeBalance.add(1000000000 * 5));
+    const supporter = await pool.supporters(signer.address);
+    expect(supporter.contribution).equal(0);
+    expect(supporter.lastUpdated).gt(0);
+    expect(supporter.flowRate).equal(1000000000);
+  });
+
+  it('should be able to stop streaming G$s', async () => {
+    await gdframework.GoodDollar.mint(signer.address, ethers.constants.WeiPerEther);
+    const st = await sf.loadSuperToken(gdframework.GoodDollar.address);
     const result = await st
       .createFlow({ receiver: pool.address, sender: signer.address, flowRate: '1000000000' })
       .exec(signer);
     await mine(2, { interval: 5 });
 
     expect(await gdframework.GoodDollar.balanceOf(pool.address)).gte(1000000000 * 5);
+    await st.deleteFlow({ receiver: pool.address, sender: signer.address }).exec(signer);
     const supporter = await pool.supporters(signer.address);
-    expect(supporter.contribution).equal(0);
+    expect(supporter.contribution).gt(1000000000 * 5);
     expect(supporter.lastUpdated).gt(0);
-    expect(supporter.flowRate).equal(1000000000);
+    expect(supporter.flowRate).equal(0);
+  });
+
+  it.only('should be able to update streaming G$s', async () => {
+    await gdframework.GoodDollar.mint(signer.address, ethers.constants.WeiPerEther);
+    const st = await sf.loadSuperToken(gdframework.GoodDollar.address);
+    const result = await st
+      .createFlow({ receiver: pool.address, sender: signer.address, flowRate: '1000000000' })
+      .exec(signer);
+    await mine(2, { interval: 5 });
+
+    expect(await gdframework.GoodDollar.balanceOf(pool.address)).gte(1000000000 * 5);
+    const before = await pool.supporters(signer.address);
+
+    await st.updateFlow({ receiver: pool.address, sender: signer.address, flowRate: '1000' }).exec(signer);
+    await mine(2, { interval: 5 });
+    const supporter = await pool.supporters(signer.address);
+    expect(supporter.contribution)
+      .gt(1000000000 * 10)
+      .gt(before.contribution);
+    expect(supporter.lastUpdated).gt(before.lastUpdated);
+    expect(supporter.flowRate).equal('1000');
   });
 
   it('should be able to stream G$s with batch', async () => {
