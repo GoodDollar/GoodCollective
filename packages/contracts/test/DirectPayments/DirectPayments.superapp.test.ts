@@ -53,7 +53,7 @@ describe('DirectPaymentsPool Superapp', () => {
     signer = signers[0];
     poolSettings = {
       nftType: 1,
-      uniqunessValidator: ethers.constants.AddressZero,
+      uniquenessValidator: ethers.constants.AddressZero,
       rewardPerEvent: [100, 300],
       validEvents: [1, 2],
       manager: signer.address,
@@ -118,7 +118,7 @@ describe('DirectPaymentsPool Superapp', () => {
     expect(supporter.flowRate).equal(0);
   });
 
-  it.only('should be able to update streaming G$s', async () => {
+  it('should be able to update streaming G$s', async () => {
     await gdframework.GoodDollar.mint(signer.address, ethers.constants.WeiPerEther);
     const st = await sf.loadSuperToken(gdframework.GoodDollar.address);
     const result = await st

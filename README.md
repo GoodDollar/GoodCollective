@@ -64,11 +64,11 @@ const chainId = 44787;
 sdk = new GoodCollectiveSDK(chainId, readProvider); //contracts data by chainId is read from @gooddollar/goodcollective-contracts/releases/deployment.json
 const poolSettings: PoolSettings = {
   manager: wallet.address,
-  membersValidator: ethers.constants.AddressZero,
+  membersValidator: <members validaor contract address or zero>//ethers.constants.AddressZero,
   rewardPerEvent: [10],
   validEvents: [1],
-  rewardToken: ethers.constants.AddressZero,
-  uniqunessValidator: ethers.constants.AddressZero,
+  rewardToken:  <rewards token address>
+  uniqunessValidator:  <uniqueness validaor contract address or zero>//ethers.constants.
 };
 const poolLimits: PoolLimits = {
   maxMemberPerDay: 1000,

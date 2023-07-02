@@ -64,7 +64,7 @@ contract DirectPaymentsPool is
         uint128[] rewardPerEvent;
         address manager;
         IMembersValidator membersValidator;
-        IIdentityV2 uniqunessValidator;
+        IIdentityV2 uniquenessValidator;
         IERC20Upgradeable rewardToken;
     }
 
@@ -279,8 +279,8 @@ contract DirectPaymentsPool is
      */
 
     function addMember(address member, bytes memory extraData) external {
-        if (address(settings.uniqunessValidator) != address(0)) {
-            address rootAddress = settings.uniqunessValidator.getWhitelistedRoot(member);
+        if (address(settings.uniquenessValidator) != address(0)) {
+            address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
             if (rootAddress == address(0)) revert NOT_WHITELISTED(member);
         }
 

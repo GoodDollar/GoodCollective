@@ -1,7 +1,7 @@
 {
   "name": "@gooddollar/goodcollective-sdk",
   "license": "MIT",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "type": "module",
   "main": "./dist/sdk.umd.cjs",
   "module": "./dist/sdk.js",
@@ -44,7 +44,7 @@
     "ethers": "^5.*"
   },
   "dependencies": {
-    "@gooddollar/goodcollective-contracts": "^1.0.2",
+    "@gooddollar/goodcollective-contracts": "^1.0.3",
     "@superfluid-finance/sdk-core": "^0.6.6",
     "graphql": "^16.7.1"
   },

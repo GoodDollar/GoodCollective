@@ -11,6 +11,9 @@
     "solidity"
   ],
   "private": true,
+  "scripts": {
+    "publish": "yarn workspaces foreach --include '{@gooddollar/goodcollective-contracts,@gooddollar/goodcollective-sdk}' run publish"
+  },
   "workspaces": {
     "packages": [
       "packages/app",

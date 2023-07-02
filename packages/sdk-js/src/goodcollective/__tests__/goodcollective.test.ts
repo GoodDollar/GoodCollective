@@ -9,7 +9,7 @@ const wallet = ethers.Wallet.fromMnemonic('test test test test test test test te
   localProvider
 );
 const contracts =
-  GoodCollectiveContracts[31337][GoodCollectiveContracts['31337'].findIndex((_) => _.name === 'hardhat') || 0]
+  GoodCollectiveContracts[31337][GoodCollectiveContracts['31337'].findIndex((_) => _.name === 'localhost') || 0]
     .contracts;
 
 const registry = new ethers.Contract(
@@ -31,7 +31,7 @@ let sdk: GoodCollectiveSDK;
 describe('GoodCollective SDK', () => {
   beforeAll(async () => {
     console.log(contracts);
-    sdk = new GoodCollectiveSDK('31337', localProvider, 'hardhat');
+    sdk = new GoodCollectiveSDK('31337', localProvider, 'localhost');
     nftProxy = await registry.nft();
     deployedNFT = new ethers.Contract(nftProxy, contracts.ProvableNFT.abi, localProvider) as ProvableNFT;
   });
@@ -47,7 +47,7 @@ describe('GoodCollective SDK', () => {
         rewardPerEvent: [10],
         validEvents: [1],
         rewardToken: gooddollar.address,
-        uniqunessValidator: ethers.constants.AddressZero,
+        uniquenessValidator: ethers.constants.AddressZero,
       },
       {
         maxMemberPerDay: 1000,
@@ -76,7 +76,7 @@ describe('GoodCollective SDK', () => {
         rewardPerEvent: [10],
         validEvents: [1],
         rewardToken: gooddollar.address,
-        uniqunessValidator: ethers.constants.AddressZero,
+        uniquenessValidator: ethers.constants.AddressZero,
       },
       {
         maxMemberPerDay: 1000,
@@ -121,7 +121,7 @@ describe('GoodCollective SDK', () => {
         rewardPerEvent: [10],
         validEvents: [1],
         rewardToken: gooddollar.address,
-        uniqunessValidator: ethers.constants.AddressZero,
+        uniquenessValidator: ethers.constants.AddressZero,
       },
       {
         maxMemberPerDay: 1000,
@@ -146,7 +146,7 @@ describe('GoodCollective SDK', () => {
         rewardPerEvent: [10],
         validEvents: [1],
         rewardToken: gooddollar.address,
-        uniqunessValidator: ethers.constants.AddressZero,
+        uniquenessValidator: ethers.constants.AddressZero,
       },
       {
         maxMemberPerDay: 1000,
@@ -171,7 +171,7 @@ describe('GoodCollective SDK', () => {
         rewardPerEvent: [10],
         validEvents: [1],
         rewardToken: gooddollar.address,
-        uniqunessValidator: ethers.constants.AddressZero,
+        uniquenessValidator: ethers.constants.AddressZero,
       },
       {
         maxMemberPerDay: 1000,
@@ -198,7 +198,7 @@ describe('GoodCollective SDK', () => {
         rewardPerEvent: [10],
         validEvents: [1],
         rewardToken: gooddollar.address,
-        uniqunessValidator: ethers.constants.AddressZero,
+        uniquenessValidator: ethers.constants.AddressZero,
       },
       {
         maxMemberPerDay: 1000,

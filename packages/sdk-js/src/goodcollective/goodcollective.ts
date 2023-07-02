@@ -49,8 +49,9 @@ export class GoodCollectiveSDK {
       chainId: Number(chainId),
       provider: readProvider,
       resolverAddress: SF_RESOLVERS[chainId],
-      protocolReleaseVersion: 'test',
+      protocolReleaseVersion: chainId === '31337' ? 'test' : undefined,
     };
+
     this.superfluidSDK = Framework.create(opts);
   }
 

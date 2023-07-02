@@ -40,7 +40,7 @@ describe('DirectPaymentsPool Claim', () => {
     signer = signers[0];
     poolSettings = {
       nftType: 1,
-      uniqunessValidator: ethers.constants.AddressZero,
+      uniquenessValidator: ethers.constants.AddressZero,
       rewardPerEvent: [100, 300],
       validEvents: [1, 2],
       manager: signer.address,
