@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
-    "ios": "react-native run-ios",
+    "ios": "react-native run-ios --verbose",
     "lint": "eslint .",
     "format": "prettier -w ./src ",
     "format:check": "prettier -c ./src",
@@ -18,7 +18,7 @@
     "@ethersproject/shims": "^5.7.0",
     "@gooddollar/goodcollective-sdk": "1",
     "@gooddollar/web3sdk-v2": "^0.1.103",
-    "@react-native-aria/interactions": "^0.2.10",
+    "@react-native-aria/interactions": "0.2.3",
     "@react-native-async-storage/async-storage": "^1.18.2",
     "@usedapp/core": "^1.2.10",
     "@web3modal/react-native": "^1.0.0-alpha.8",
