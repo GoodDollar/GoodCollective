@@ -55,7 +55,8 @@ contract DirectPaymentsPool is
     event PoolLimitsChanged(SafetyLimits limits);
     event MemberAdded(address member);
     event MemberRemoved(address member);
-    event RewardClaimed(uint256 indexed tokenId, uint256 totalRewards);
+    event EventRewardClaimed(uint256 indexed tokenId, ProvableNFT.EventData eventData);
+    event NFTClaimed(uint256 indexed tokenId, uint256 totalRewards);
 
     // Define functions
     struct PoolSettings {
@@ -90,7 +91,7 @@ contract DirectPaymentsPool is
     mapping(address => bool) public members;
     mapping(address => LimitsData) public memberLimits;
     LimitsData public globalLimits;
-    address public createdBy;
+    DirectPaymentsFactory public registry;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(ISuperfluid _host, ISwapRouter _swapRouter) GoodCollectiveSuperApp(_host, _swapRouter) {}
@@ -101,6 +102,10 @@ contract DirectPaymentsPool is
      */
     function _authorizeUpgrade(address impl) internal virtual override {}
 
+    function getRegistry() public view override returns (DirectPaymentsFactory) {
+        return DirectPaymentsFactory(registry);
+    }
+
     /**
      * @dev Initializes the contract with the given settings and limits.
      * @param _nft The ProvableNFT contract address.
@@ -110,9 +115,10 @@ contract DirectPaymentsPool is
     function initialize(
         ProvableNFT _nft,
         PoolSettings memory _settings,
-        SafetyLimits memory _limits
+        SafetyLimits memory _limits,
+        DirectPaymentsFactory _registry
     ) external initializer {
-        createdBy = msg.sender;
+        registry = _registry;
         settings = _settings;
         limits = _limits;
         nft = _nft;
@@ -123,7 +129,7 @@ contract DirectPaymentsPool is
     }
 
     function upgradeToLatest(bytes memory data) external payable virtual onlyProxy {
-        address impl = DirectPaymentsFactory(createdBy).impl();
+        address impl = DirectPaymentsFactory(registry).impl();
         _authorizeUpgrade(impl);
         _upgradeToAndCallUUPS(impl, data, false);
     }
@@ -171,10 +177,11 @@ contract DirectPaymentsPool is
                 if (totalRewards > rewardsBalance) revert NO_BALANCE();
                 rewardsBalance -= totalRewards;
                 _sendReward(_data.events[i].contributers, uint128(reward * _data.events[i].quantity));
+                emit EventRewardClaimed(_nftId, _data.events[i]);
             }
         }
 
-        emit RewardClaimed(_nftId, totalRewards);
+        emit NFTClaimed(_nftId, totalRewards);
     }
 
     /**

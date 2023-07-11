@@ -31,9 +31,11 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
     mapping(address => PoolRegistry) public registry;
     mapping(bytes32 => DirectPaymentsPool) public projectIdToControlPool;
 
+    address public feeRecipient;
+    uint32 public feeBps;
+
     modifier onlyProjectOwnerOrNon(string memory projectId) {
         DirectPaymentsPool controlPool = projectIdToControlPool[keccak256(bytes(projectId))];
-        console.log("control:%s sender:%s %s", address(controlPool), msg.sender);
         // console.log("result %s", controlPool.hasRole(controlPool.DEFAULT_ADMIN_ROLE(), msg.sender));
         if (address(controlPool) != address(0)) {
             if (controlPool.hasRole(controlPool.DEFAULT_ADMIN_ROLE(), msg.sender) == false) {
@@ -55,15 +57,31 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
 
     function _authorizeUpgrade(address _impl) internal virtual override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
-    function initialize(address _owner, address _dpimpl, address _nftimpl) external initializer {
+    function initialize(
+        address _owner,
+        address _dpimpl,
+        address _nftimpl,
+        address _feeRecipient,
+        uint32 _feeBps
+    ) external initializer {
         nextNftType = 1;
         impl = _dpimpl;
         bytes memory initCall = abi.encodeWithSelector(ProvableNFT.initialize.selector, "DirectPayments NFT", "DPNFT");
         nft = ProvableNFT(address(new ERC1967Proxy(_nftimpl, initCall)));
+        feeRecipient = _feeRecipient;
+        feeBps = _feeBps;
 
         nft.grantRole(DEFAULT_ADMIN_ROLE, _owner);
         _setupRole(DEFAULT_ADMIN_ROLE, _owner);
     }
+
+    //TODO: implement a pool that's auto upgradeable using beacon method
+    function createBeaconPool(
+        string memory _projectId,
+        string memory _ipfs,
+        DirectPaymentsPool.PoolSettings memory _settings,
+        DirectPaymentsPool.SafetyLimits memory _limits
+    ) external onlyProjectOwnerOrNon(_projectId) returns (DirectPaymentsPool pool) {}
 
     function createPool(
         string memory _projectId,
@@ -74,7 +92,13 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         //TODO: add check if msg.sender is whitelisted
 
         _settings.nftType = nextNftType;
-        bytes memory initCall = abi.encodeWithSelector(DirectPaymentsPool.initialize.selector, nft, _settings, _limits);
+        bytes memory initCall = abi.encodeWithSelector(
+            DirectPaymentsPool.initialize.selector,
+            nft,
+            _settings,
+            _limits,
+            address(this)
+        );
         pool = DirectPaymentsPool(address(new ERC1967Proxy(impl, initCall)));
 
         nft.grantRole(nft.getManagerRole(nextNftType), _settings.manager);
@@ -104,5 +128,10 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
     function updateImpl(address _impl) external onlyRole(DEFAULT_ADMIN_ROLE) {
         impl = _impl;
         emit UpdatedImpl(_impl);
+    }
+
+    function setFeeInfo(address _feeRecipient, uint32 _feeBps) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        feeBps = _feeBps;
+        feeRecipient = _feeRecipient;
     }
 }
