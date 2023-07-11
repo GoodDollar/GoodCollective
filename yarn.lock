@@ -4050,7 +4050,7 @@ __metadata:
     "@ethersproject/shims": ^5.7.0
     "@gooddollar/goodcollective-sdk": 1
     "@gooddollar/web3sdk-v2": ^0.1.103
-    "@react-native-aria/interactions": ^0.2.10
+    "@react-native-aria/interactions": 0.2.3
     "@react-native-async-storage/async-storage": ^1.18.2
     "@react-native-community/eslint-config": ^3.2.0
     "@tsconfig/react-native": ^2.0.2
@@ -4094,7 +4094,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@gooddollar/goodcollective-contracts@^1.0.3, @gooddollar/goodcollective-contracts@workspace:packages/contracts":
+"@gooddollar/goodcollective-contracts@^1.0.4, @gooddollar/goodcollective-contracts@workspace:packages/contracts":
   version: 0.0.0-use.local
   resolution: "@gooddollar/goodcollective-contracts@workspace:packages/contracts"
   dependencies:
@@ -4137,7 +4137,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@gooddollar/goodcollective-sdk@workspace:packages/sdk-js"
   dependencies:
-    "@gooddollar/goodcollective-contracts": ^1.0.3
+    "@gooddollar/goodcollective-contracts": ^1.0.4
     "@superfluid-finance/sdk-core": ^0.6.6
     "@types/eslint": ^8.40.2
     "@typescript-eslint/eslint-plugin": ^5.60.0
@@ -6336,7 +6336,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-aria/interactions@npm:^0.2.10, @react-native-aria/interactions@npm:^0.2.2, @react-native-aria/interactions@npm:^0.2.3, @react-native-aria/interactions@npm:^0.2.7":
+"@react-native-aria/interactions@npm:0.2.3":
+  version: 0.2.3
+  resolution: "@react-native-aria/interactions@npm:0.2.3"
+  dependencies:
+    "@react-aria/interactions": ^3.3.2
+    "@react-aria/utils": ^3.6.0
+    "@react-native-aria/utils": ^0.2.4
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: f5ba09bdfadfa23236011215e2f5f918d4b740282274f6d62e5edf4ea75d99ff99c27ab4d924d482bb02e774ea4add371e363ff4e887ecee5093053843605771
+  languageName: node
+  linkType: hard
+
+"@react-native-aria/interactions@npm:^0.2.2, @react-native-aria/interactions@npm:^0.2.3, @react-native-aria/interactions@npm:^0.2.7":
   version: 0.2.10
   resolution: "@react-native-aria/interactions@npm:0.2.10"
   dependencies:
@@ -6511,7 +6525,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-aria/utils@npm:^0.2.2, @react-native-aria/utils@npm:^0.2.6, @react-native-aria/utils@npm:^0.2.7, @react-native-aria/utils@npm:^0.2.8":
+"@react-native-aria/utils@npm:^0.2.2, @react-native-aria/utils@npm:^0.2.4, @react-native-aria/utils@npm:^0.2.6, @react-native-aria/utils@npm:^0.2.7, @react-native-aria/utils@npm:^0.2.8":
   version: 0.2.8
   resolution: "@react-native-aria/utils@npm:0.2.8"
   dependencies:
