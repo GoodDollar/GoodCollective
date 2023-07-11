@@ -67,6 +67,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     proxy: {
       proxyContract: 'UUPS',
       execute: {
+        onUpgrade: {
+          methodName: 'updateImpl',
+          args: [poolimpl.address],
+        },
         init: {
           methodName: 'initialize',
           args: [deployer, poolimpl.address, nftimpl.address, feeRecipient, feeBps],

@@ -343,6 +343,94 @@
                   "type": "tuple"
                 }
               ],
+              "name": "createBeaconPool",
+              "outputs": [
+                {
+                  "internalType": "contract DirectPaymentsPool",
+                  "name": "pool",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "string",
+                  "name": "_projectId",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "_ipfs",
+                  "type": "string"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint32",
+                      "name": "nftType",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint16[]",
+                      "name": "validEvents",
+                      "type": "uint16[]"
+                    },
+                    {
+                      "internalType": "uint128[]",
+                      "name": "rewardPerEvent",
+                      "type": "uint128[]"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "manager",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IMembersValidator",
+                      "name": "membersValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IIdentityV2",
+                      "name": "uniquenessValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IERC20Upgradeable",
+                      "name": "rewardToken",
+                      "type": "address"
+                    }
+                  ],
+                  "internalType": "struct DirectPaymentsPool.PoolSettings",
+                  "name": "_settings",
+                  "type": "tuple"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "maxTotalPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerDay",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct DirectPaymentsPool.SafetyLimits",
+                  "name": "_limits",
+                  "type": "tuple"
+                }
+              ],
               "name": "createPool",
               "outputs": [
                 {
@@ -352,6 +440,32 @@
                 }
               ],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "feeBps",
+              "outputs": [
+                {
+                  "internalType": "uint32",
+                  "name": "",
+                  "type": "uint32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "feeRecipient",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -444,6 +558,16 @@
                   "internalType": "address",
                   "name": "_nftimpl",
                   "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_feeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "_feeBps",
+                  "type": "uint32"
                 }
               ],
               "name": "initialize",
@@ -570,6 +694,24 @@
                 }
               ],
               "name": "revokeRole",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_feeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "_feeBps",
+                  "type": "uint32"
+                }
+              ],
+              "name": "setFeeInfo",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -1004,6 +1146,94 @@
                   "type": "tuple"
                 }
               ],
+              "name": "createBeaconPool",
+              "outputs": [
+                {
+                  "internalType": "contract DirectPaymentsPool",
+                  "name": "pool",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "string",
+                  "name": "_projectId",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "_ipfs",
+                  "type": "string"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint32",
+                      "name": "nftType",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint16[]",
+                      "name": "validEvents",
+                      "type": "uint16[]"
+                    },
+                    {
+                      "internalType": "uint128[]",
+                      "name": "rewardPerEvent",
+                      "type": "uint128[]"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "manager",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IMembersValidator",
+                      "name": "membersValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IIdentityV2",
+                      "name": "uniquenessValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IERC20Upgradeable",
+                      "name": "rewardToken",
+                      "type": "address"
+                    }
+                  ],
+                  "internalType": "struct DirectPaymentsPool.PoolSettings",
+                  "name": "_settings",
+                  "type": "tuple"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "maxTotalPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerDay",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct DirectPaymentsPool.SafetyLimits",
+                  "name": "_limits",
+                  "type": "tuple"
+                }
+              ],
               "name": "createPool",
               "outputs": [
                 {
@@ -1013,6 +1243,32 @@
                 }
               ],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "feeBps",
+              "outputs": [
+                {
+                  "internalType": "uint32",
+                  "name": "",
+                  "type": "uint32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "feeRecipient",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -1105,6 +1361,16 @@
                   "internalType": "address",
                   "name": "_nftimpl",
                   "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_feeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "_feeBps",
+                  "type": "uint32"
                 }
               ],
               "name": "initialize",
@@ -1231,6 +1497,24 @@
                 }
               ],
               "name": "revokeRole",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_feeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "_feeBps",
+                  "type": "uint32"
+                }
+              ],
+              "name": "setFeeInfo",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -1425,6 +1709,33 @@
             {
               "inputs": [
                 {
+                  "internalType": "int96",
+                  "name": "curFeeRate",
+                  "type": "int96"
+                },
+                {
+                  "internalType": "int96",
+                  "name": "newFeeRate",
+                  "type": "int96"
+                }
+              ],
+              "name": "FEE_FLOW_FAILED",
+              "type": "error"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "int96",
+                  "name": "flowRate",
+                  "type": "int96"
+                }
+              ],
+              "name": "MIN_FLOWRATE",
+              "type": "error"
+            },
+            {
+              "inputs": [
+                {
                   "internalType": "uint256",
                   "name": "",
                   "type": "uint256"
@@ -1563,6 +1874,52 @@
               "anonymous": false,
               "inputs": [
                 {
+                  "indexed": true,
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint16",
+                      "name": "subtype",
+                      "type": "uint16"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "timestamp",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "quantity",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "string",
+                      "name": "eventUri",
+                      "type": "string"
+                    },
+                    {
+                      "internalType": "address[]",
+                      "name": "contributers",
+                      "type": "address[]"
+                    }
+                  ],
+                  "indexed": false,
+                  "internalType": "struct ProvableNFT.EventData",
+                  "name": "eventData",
+                  "type": "tuple"
+                }
+              ],
+              "name": "EventRewardClaimed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
                   "indexed": false,
                   "internalType": "uint8",
                   "name": "version",
@@ -1596,6 +1953,25 @@
                 }
               ],
               "name": "MemberRemoved",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "totalRewards",
+                  "type": "uint256"
+                }
+              ],
+              "name": "NFTClaimed",
               "type": "event"
             },
             {
@@ -1676,25 +2052,6 @@
                 }
               ],
               "name": "PoolSettingsChanged",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "totalRewards",
-                  "type": "uint256"
-                }
-              ],
-              "name": "RewardClaimed",
               "type": "event"
             },
             {
@@ -1784,8 +2141,20 @@
                 {
                   "indexed": false,
                   "internalType": "uint256",
+                  "name": "previousContribution",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
                   "name": "contribution",
                   "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "int96",
+                  "name": "previousFlowRate",
+                  "type": "int96"
                 },
                 {
                   "indexed": false,
@@ -1795,9 +2164,9 @@
                 },
                 {
                   "indexed": false,
-                  "internalType": "uint256",
-                  "name": "lastUpdated",
-                  "type": "uint256"
+                  "internalType": "bool",
+                  "name": "isFlowUpdate",
+                  "type": "bool"
                 }
               ],
               "name": "SupporterUpdated",
@@ -1863,6 +2232,19 @@
                   "internalType": "bytes32",
                   "name": "",
                   "type": "bytes32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "MIN_FLOW_RATE",
+              "outputs": [
+                {
+                  "internalType": "int96",
+                  "name": "",
+                  "type": "int96"
                 }
               ],
               "stateMutability": "view",
@@ -2136,6 +2518,24 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "cfaV1",
+              "outputs": [
+                {
+                  "internalType": "contract ISuperfluid",
+                  "name": "host",
+                  "type": "address"
+                },
+                {
+                  "internalType": "contract IConstantFlowAgreementV1",
+                  "name": "cfa",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "uint256",
@@ -2235,19 +2635,6 @@
               "type": "function"
             },
             {
-              "inputs": [],
-              "name": "createdBy",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -2261,6 +2648,47 @@
                   "internalType": "uint256",
                   "name": "",
                   "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getRealtimeStats",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "netIncome",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "totalFees",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "int96",
+                  "name": "incomeFlowRate",
+                  "type": "int96"
+                },
+                {
+                  "internalType": "int96",
+                  "name": "feeRate",
+                  "type": "int96"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getRegistry",
+              "outputs": [
+                {
+                  "internalType": "contract DirectPaymentsFactory",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -2499,6 +2927,11 @@
                   "internalType": "struct DirectPaymentsPool.SafetyLimits",
                   "name": "_limits",
                   "type": "tuple"
+                },
+                {
+                  "internalType": "contract DirectPaymentsFactory",
+                  "name": "_registry",
+                  "type": "address"
                 }
               ],
               "name": "initialize",
@@ -2768,6 +3201,19 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "registry",
+              "outputs": [
+                {
+                  "internalType": "contract DirectPaymentsFactory",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -2844,6 +3290,39 @@
                   "internalType": "contract IERC20Upgradeable",
                   "name": "rewardToken",
                   "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "stats",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "netIncome",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "totalFees",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "lastUpdate",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "lastFeeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "int96",
+                  "name": "lastIncomeRate",
+                  "type": "int96"
                 }
               ],
               "stateMutability": "view",
@@ -4742,6 +5221,94 @@
                   "type": "tuple"
                 }
               ],
+              "name": "createBeaconPool",
+              "outputs": [
+                {
+                  "internalType": "contract DirectPaymentsPool",
+                  "name": "pool",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "string",
+                  "name": "_projectId",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "_ipfs",
+                  "type": "string"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint32",
+                      "name": "nftType",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint16[]",
+                      "name": "validEvents",
+                      "type": "uint16[]"
+                    },
+                    {
+                      "internalType": "uint128[]",
+                      "name": "rewardPerEvent",
+                      "type": "uint128[]"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "manager",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IMembersValidator",
+                      "name": "membersValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IIdentityV2",
+                      "name": "uniquenessValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IERC20Upgradeable",
+                      "name": "rewardToken",
+                      "type": "address"
+                    }
+                  ],
+                  "internalType": "struct DirectPaymentsPool.PoolSettings",
+                  "name": "_settings",
+                  "type": "tuple"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "maxTotalPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerDay",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct DirectPaymentsPool.SafetyLimits",
+                  "name": "_limits",
+                  "type": "tuple"
+                }
+              ],
               "name": "createPool",
               "outputs": [
                 {
@@ -4751,6 +5318,32 @@
                 }
               ],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "feeBps",
+              "outputs": [
+                {
+                  "internalType": "uint32",
+                  "name": "",
+                  "type": "uint32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "feeRecipient",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -4843,6 +5436,16 @@
                   "internalType": "address",
                   "name": "_nftimpl",
                   "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_feeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "_feeBps",
+                  "type": "uint32"
                 }
               ],
               "name": "initialize",
@@ -4976,6 +5579,24 @@
             {
               "inputs": [
                 {
+                  "internalType": "address",
+                  "name": "_feeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "_feeBps",
+                  "type": "uint32"
+                }
+              ],
+              "name": "setFeeInfo",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
                   "internalType": "contract DirectPaymentsPool",
                   "name": "_pool",
                   "type": "address"
@@ -5073,7 +5694,7 @@
           ]
         },
         "DirectPaymentsFactory_Implementation": {
-          "address": "0x9F4362beB6e6a464192154926Dd7CeA0F2780277",
+          "address": "0x278450342505573460F6456100f694Ae5Ec2C0D7",
           "abi": [
             {
               "inputs": [],
@@ -5403,6 +6024,94 @@
                   "type": "tuple"
                 }
               ],
+              "name": "createBeaconPool",
+              "outputs": [
+                {
+                  "internalType": "contract DirectPaymentsPool",
+                  "name": "pool",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "string",
+                  "name": "_projectId",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "_ipfs",
+                  "type": "string"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint32",
+                      "name": "nftType",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint16[]",
+                      "name": "validEvents",
+                      "type": "uint16[]"
+                    },
+                    {
+                      "internalType": "uint128[]",
+                      "name": "rewardPerEvent",
+                      "type": "uint128[]"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "manager",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IMembersValidator",
+                      "name": "membersValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IIdentityV2",
+                      "name": "uniquenessValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IERC20Upgradeable",
+                      "name": "rewardToken",
+                      "type": "address"
+                    }
+                  ],
+                  "internalType": "struct DirectPaymentsPool.PoolSettings",
+                  "name": "_settings",
+                  "type": "tuple"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "maxTotalPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerDay",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct DirectPaymentsPool.SafetyLimits",
+                  "name": "_limits",
+                  "type": "tuple"
+                }
+              ],
               "name": "createPool",
               "outputs": [
                 {
@@ -5412,6 +6121,32 @@
                 }
               ],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "feeBps",
+              "outputs": [
+                {
+                  "internalType": "uint32",
+                  "name": "",
+                  "type": "uint32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "feeRecipient",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -5504,6 +6239,16 @@
                   "internalType": "address",
                   "name": "_nftimpl",
                   "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_feeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "_feeBps",
+                  "type": "uint32"
                 }
               ],
               "name": "initialize",
@@ -5630,6 +6375,24 @@
                 }
               ],
               "name": "revokeRole",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_feeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "_feeBps",
+                  "type": "uint32"
+                }
+              ],
+              "name": "setFeeInfo",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -5792,7 +6555,7 @@
           ]
         },
         "DirectPaymentsPool": {
-          "address": "0xE2CeeFB08f6729D8Ef764658750ce412B391a900",
+          "address": "0x2f9746AE2001733A0aaf0F7c63e465245dC446cf",
           "abi": [
             {
               "inputs": [
@@ -5819,6 +6582,33 @@
                 }
               ],
               "name": "ALREADY_CLAIMED",
+              "type": "error"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "int96",
+                  "name": "curFeeRate",
+                  "type": "int96"
+                },
+                {
+                  "internalType": "int96",
+                  "name": "newFeeRate",
+                  "type": "int96"
+                }
+              ],
+              "name": "FEE_FLOW_FAILED",
+              "type": "error"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "int96",
+                  "name": "flowRate",
+                  "type": "int96"
+                }
+              ],
+              "name": "MIN_FLOWRATE",
               "type": "error"
             },
             {
@@ -5962,6 +6752,52 @@
               "anonymous": false,
               "inputs": [
                 {
+                  "indexed": true,
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint16",
+                      "name": "subtype",
+                      "type": "uint16"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "timestamp",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "quantity",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "string",
+                      "name": "eventUri",
+                      "type": "string"
+                    },
+                    {
+                      "internalType": "address[]",
+                      "name": "contributers",
+                      "type": "address[]"
+                    }
+                  ],
+                  "indexed": false,
+                  "internalType": "struct ProvableNFT.EventData",
+                  "name": "eventData",
+                  "type": "tuple"
+                }
+              ],
+              "name": "EventRewardClaimed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
                   "indexed": false,
                   "internalType": "uint8",
                   "name": "version",
@@ -5995,6 +6831,25 @@
                 }
               ],
               "name": "MemberRemoved",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "totalRewards",
+                  "type": "uint256"
+                }
+              ],
+              "name": "NFTClaimed",
               "type": "event"
             },
             {
@@ -6075,25 +6930,6 @@
                 }
               ],
               "name": "PoolSettingsChanged",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "totalRewards",
-                  "type": "uint256"
-                }
-              ],
-              "name": "RewardClaimed",
               "type": "event"
             },
             {
@@ -6183,8 +7019,20 @@
                 {
                   "indexed": false,
                   "internalType": "uint256",
+                  "name": "previousContribution",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
                   "name": "contribution",
                   "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "int96",
+                  "name": "previousFlowRate",
+                  "type": "int96"
                 },
                 {
                   "indexed": false,
@@ -6194,9 +7042,9 @@
                 },
                 {
                   "indexed": false,
-                  "internalType": "uint256",
-                  "name": "lastUpdated",
-                  "type": "uint256"
+                  "internalType": "bool",
+                  "name": "isFlowUpdate",
+                  "type": "bool"
                 }
               ],
               "name": "SupporterUpdated",
@@ -6262,6 +7110,19 @@
                   "internalType": "bytes32",
                   "name": "",
                   "type": "bytes32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "MIN_FLOW_RATE",
+              "outputs": [
+                {
+                  "internalType": "int96",
+                  "name": "",
+                  "type": "int96"
                 }
               ],
               "stateMutability": "view",
@@ -6535,6 +7396,24 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "cfaV1",
+              "outputs": [
+                {
+                  "internalType": "contract ISuperfluid",
+                  "name": "host",
+                  "type": "address"
+                },
+                {
+                  "internalType": "contract IConstantFlowAgreementV1",
+                  "name": "cfa",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "uint256",
@@ -6634,19 +7513,6 @@
               "type": "function"
             },
             {
-              "inputs": [],
-              "name": "createdBy",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -6660,6 +7526,47 @@
                   "internalType": "uint256",
                   "name": "",
                   "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getRealtimeStats",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "netIncome",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "totalFees",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "int96",
+                  "name": "incomeFlowRate",
+                  "type": "int96"
+                },
+                {
+                  "internalType": "int96",
+                  "name": "feeRate",
+                  "type": "int96"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getRegistry",
+              "outputs": [
+                {
+                  "internalType": "contract DirectPaymentsFactory",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -6898,6 +7805,11 @@
                   "internalType": "struct DirectPaymentsPool.SafetyLimits",
                   "name": "_limits",
                   "type": "tuple"
+                },
+                {
+                  "internalType": "contract DirectPaymentsFactory",
+                  "name": "_registry",
+                  "type": "address"
                 }
               ],
               "name": "initialize",
@@ -7167,6 +8079,19 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "registry",
+              "outputs": [
+                {
+                  "internalType": "contract DirectPaymentsFactory",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -7243,6 +8168,39 @@
                   "internalType": "contract IERC20Upgradeable",
                   "name": "rewardToken",
                   "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "stats",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "netIncome",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "totalFees",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "lastUpdate",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "lastFeeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "int96",
+                  "name": "lastIncomeRate",
+                  "type": "int96"
                 }
               ],
               "stateMutability": "view",
