@@ -5,6 +5,7 @@ import { deployTestFramework } from '@superfluid-finance/ethereum-contracts/dev-
 import { Framework } from '@superfluid-finance/sdk-core';
 
 import { deploySuperGoodDollar } from '@gooddollar/goodprotocol';
+import GDContracts from '@gooddollar/goodprotocol/releases/deployment.json';
 import { FormatTypes } from 'ethers/lib/utils';
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -14,6 +15,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   let sfHost;
   let swapMock;
+  let feeRecipient = GDContracts[hre.network.name]?.UBIScheme || deployer;
+  let feeBps = 1000;
   if (hre.network.live === false) {
     const { frameworkDeployer } = await deployTestFramework();
     const sfFramework = await frameworkDeployer.getFramework();
@@ -66,7 +69,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       execute: {
         init: {
           methodName: 'initialize',
-          args: [deployer, poolimpl.address, nftimpl.address],
+          args: [deployer, poolimpl.address, nftimpl.address, feeRecipient, feeBps],
         },
       },
     },
