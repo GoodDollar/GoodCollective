@@ -60,7 +60,7 @@ describe('DirectPaymentsPool Claim', () => {
     nft = (await upgrades.deployProxy(factory, ['nft', 'cc'], { kind: 'uups' })) as ProvableNFT;
     const Pool = await ethers.getContractFactory('DirectPaymentsPool');
 
-    pool = (await upgrades.deployProxy(Pool, [nft.address, poolSettings, poolLimits], {
+    pool = (await upgrades.deployProxy(Pool, [nft.address, poolSettings, poolLimits, ethers.constants.AddressZero], {
       constructorArgs: [await gdframework.GoodDollar.getHost(), ethers.constants.AddressZero],
     })) as DirectPaymentsPool;
     await pool.deployed();
@@ -115,7 +115,7 @@ describe('DirectPaymentsPool Claim', () => {
       expect(globalLimits.daily).to.equal(expectedRewards);
 
       // Check that the RewardSent event was emitted with the correct parameters
-      await expect(claimTx).to.emit(pool, 'RewardClaimed').withArgs(nftSampleId, expectedRewards);
+      await expect(claimTx).to.emit(pool, 'NFTClaimed').withArgs(nftSampleId, expectedRewards);
     });
 
     it('should enforce member monthly reward limits', async () => {

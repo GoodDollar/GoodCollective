@@ -38,9 +38,13 @@ describe('DirectPaymentsFactory', () => {
     const dpimpl = await ethers.deployContract('DirectPaymentsPool', [sfFramework['host'], swapMock.address]);
 
     const nftimpl = await (await ethers.getContractFactory('ProvableNFT')).deploy();
-    factory = (await upgrades.deployProxy(f, [signer.address, dpimpl.address, nftimpl.address], {
-      kind: 'uups',
-    })) as DirectPaymentsFactory;
+    factory = (await upgrades.deployProxy(
+      f,
+      [signer.address, dpimpl.address, nftimpl.address, ethers.constants.AddressZero, 0],
+      {
+        kind: 'uups',
+      }
+    )) as DirectPaymentsFactory;
     return factory;
   };
 

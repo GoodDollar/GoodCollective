@@ -19,6 +19,8 @@ describe('DirectPaymentsPool Superapp', () => {
   let poolLimits: DirectPaymentsPool.SafetyLimitsStruct;
   let gdframework: Awaited<ReturnType<typeof deploySuperGoodDollar>>;
   let sf: Framework;
+  const baseFlowRate = ethers.BigNumber.from(400e9).toString(); //enough to pass min flow rate of 386e9
+
   const nftSample = {
     nftUri: 'uri',
     nftType: 2,
@@ -38,7 +40,6 @@ describe('DirectPaymentsPool Superapp', () => {
     const { frameworkDeployer } = await deployTestFramework();
     const sfFramework = await frameworkDeployer.getFramework();
     // initialize framework
-    console.log(sfFramework.resolver);
     const opts = {
       chainId: network.config.chainId || 31337,
       provider: ethers.provider,
@@ -74,7 +75,7 @@ describe('DirectPaymentsPool Superapp', () => {
     const swaprouter = await ethers.deployContract('SwapRouterMock', [gdframework.GoodDollar.address]);
     const Pool = await ethers.getContractFactory('DirectPaymentsPool');
 
-    pool = (await upgrades.deployProxy(Pool, [nft.address, poolSettings, poolLimits], {
+    pool = (await upgrades.deployProxy(Pool, [nft.address, poolSettings, poolLimits, ethers.constants.AddressZero], {
       constructorArgs: [await gdframework.GoodDollar.getHost(), swaprouter.address],
     })) as DirectPaymentsPool;
     await pool.deployed();
@@ -86,57 +87,78 @@ describe('DirectPaymentsPool Superapp', () => {
     await loadFixture(fixture);
   });
 
+  it('should not be able to stream less than MIN_FLOW_RATE', async () => {
+    await gdframework.GoodDollar.mint(signer.address, ethers.constants.WeiPerEther);
+    const st = await sf.loadSuperToken(gdframework.GoodDollar.address);
+    const beforeBalance = await gdframework.GoodDollar.balanceOf(pool.address);
+    await expect(
+      st
+        .createFlow({
+          receiver: pool.address,
+          sender: signer.address,
+          flowRate: ((await pool.MIN_FLOW_RATE()) - 1).toString(),
+        })
+        .exec(signer)
+    ).revertedWithCustomError(pool, 'MIN_FLOWRATE');
+  });
+
   it('should be able to stream G$s', async () => {
     await gdframework.GoodDollar.mint(signer.address, ethers.constants.WeiPerEther);
     const st = await sf.loadSuperToken(gdframework.GoodDollar.address);
     const beforeBalance = await gdframework.GoodDollar.balanceOf(pool.address);
     const result = await st
-      .createFlow({ receiver: pool.address, sender: signer.address, flowRate: '1000000000' })
+      .createFlow({ receiver: pool.address, sender: signer.address, flowRate: baseFlowRate })
       .exec(signer);
     await mine(2, { interval: 5 });
 
-    expect(await gdframework.GoodDollar.balanceOf(pool.address)).gte(beforeBalance.add(1000000000 * 5));
+    expect(await gdframework.GoodDollar.balanceOf(pool.address)).gte(beforeBalance.add(Number(baseFlowRate) * 5));
     const supporter = await pool.supporters(signer.address);
     expect(supporter.contribution).equal(0);
     expect(supporter.lastUpdated).gt(0);
-    expect(supporter.flowRate).equal(1000000000);
+    expect(supporter.flowRate).equal(Number(baseFlowRate));
   });
 
   it('should be able to stop streaming G$s', async () => {
     await gdframework.GoodDollar.mint(signer.address, ethers.constants.WeiPerEther);
     const st = await sf.loadSuperToken(gdframework.GoodDollar.address);
     const result = await st
-      .createFlow({ receiver: pool.address, sender: signer.address, flowRate: '1000000000' })
+      .createFlow({ receiver: pool.address, sender: signer.address, flowRate: baseFlowRate })
       .exec(signer);
     await mine(2, { interval: 5 });
 
-    expect(await gdframework.GoodDollar.balanceOf(pool.address)).gte(1000000000 * 5);
+    expect(await gdframework.GoodDollar.balanceOf(pool.address)).gte(Number(baseFlowRate) * 5);
     await st.deleteFlow({ receiver: pool.address, sender: signer.address }).exec(signer);
     const supporter = await pool.supporters(signer.address);
-    expect(supporter.contribution).gt(1000000000 * 5);
+    expect(supporter.contribution).gt(Number(baseFlowRate) * 5);
     expect(supporter.lastUpdated).gt(0);
     expect(supporter.flowRate).equal(0);
   });
 
   it('should be able to update streaming G$s', async () => {
-    await gdframework.GoodDollar.mint(signer.address, ethers.constants.WeiPerEther);
+    await gdframework.GoodDollar.mint(signer.address, ethers.constants.WeiPerEther.mul(10000000));
     const st = await sf.loadSuperToken(gdframework.GoodDollar.address);
     const result = await st
-      .createFlow({ receiver: pool.address, sender: signer.address, flowRate: '1000000000' })
+      .createFlow({ receiver: pool.address, sender: signer.address, flowRate: baseFlowRate })
       .exec(signer);
     await mine(2, { interval: 5 });
 
-    expect(await gdframework.GoodDollar.balanceOf(pool.address)).gte(1000000000 * 5);
+    expect(await gdframework.GoodDollar.balanceOf(pool.address)).gte(Number(baseFlowRate) * 5);
     const before = await pool.supporters(signer.address);
 
-    await st.updateFlow({ receiver: pool.address, sender: signer.address, flowRate: '1000' }).exec(signer);
+    await st
+      .updateFlow({
+        receiver: pool.address,
+        sender: signer.address,
+        flowRate: ethers.constants.WeiPerEther.toString(),
+      })
+      .exec(signer);
     await mine(2, { interval: 5 });
     const supporter = await pool.supporters(signer.address);
     expect(supporter.contribution)
-      .gt(1000000000 * 10)
+      .gt(Number(baseFlowRate) * 10)
       .gt(before.contribution);
     expect(supporter.lastUpdated).gt(before.lastUpdated);
-    expect(supporter.flowRate).equal('1000');
+    expect(supporter.flowRate).equal(ethers.constants.WeiPerEther.toString());
   });
 
   it('should be able to stream G$s with batch', async () => {
@@ -145,18 +167,18 @@ describe('DirectPaymentsPool Superapp', () => {
     const flowAction = st.createFlow({
       receiver: pool.address,
       sender: signer.address,
-      flowRate: '1000000000',
+      flowRate: baseFlowRate,
     });
 
     const bc = sf.batchCall([flowAction]);
     await bc.exec(signer);
     await mine(2, { interval: 5 });
 
-    expect(await gdframework.GoodDollar.balanceOf(pool.address)).gte(1000000000 * 5);
+    expect(await gdframework.GoodDollar.balanceOf(pool.address)).gte(Number(baseFlowRate) * 5);
     const supporter = await pool.supporters(signer.address);
     expect(supporter.contribution).equal(0);
     expect(supporter.lastUpdated).gt(0);
-    expect(supporter.flowRate).equal(1000000000);
+    expect(supporter.flowRate).equal(Number(baseFlowRate));
   });
 
   it('should be able to support with single contribution using transferAndCall', async () => {
@@ -167,7 +189,7 @@ describe('DirectPaymentsPool Superapp', () => {
     expect(await gdframework.GoodDollar.balanceOf(pool.address)).eq(1000);
     const supporter = await pool.supporters(signer.address);
     expect(supporter.contribution).equal(1000);
-    expect(supporter.lastUpdated).gt(0);
+    expect(supporter.lastUpdated).eq(0); //no update on single donation
     expect(supporter.flowRate).equal(0);
   });
 
@@ -180,7 +202,7 @@ describe('DirectPaymentsPool Superapp', () => {
     expect(await gdframework.GoodDollar.balanceOf(pool.address)).eq(1000);
     const supporter = await pool.supporters(signer.address);
     expect(supporter.contribution).equal(1000);
-    expect(supporter.lastUpdated).gt(0);
+    expect(supporter.lastUpdated).eq(0); //no update on single donation
     expect(supporter.flowRate).equal(0);
     expect(supportAction).to.emit(pool, 'SupporterUpdated').withArgs(signer.address, 1000, 0, supportAction.timestamp);
   });
@@ -214,7 +236,7 @@ describe('DirectPaymentsPool Superapp', () => {
     const flowAction = st.createFlow({
       receiver: pool.address,
       sender: signer.address,
-      flowRate: '1000000000',
+      flowRate: baseFlowRate,
     });
 
     const bc = sf.batchCall([sf.host.callAppAction(pool.address, appAction), flowAction]);
@@ -226,6 +248,6 @@ describe('DirectPaymentsPool Superapp', () => {
     const supporter = await pool.supporters(signer.address);
     expect(supporter.contribution).equal(0);
     expect(supporter.lastUpdated).gt(0);
-    expect(supporter.flowRate).equal(1000000000);
+    expect(supporter.flowRate).equal(Number(baseFlowRate));
   });
 });

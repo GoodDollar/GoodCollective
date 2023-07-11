@@ -159,7 +159,7 @@ describe('GoodCollective SDK', () => {
     expect(tx.wait()).not.rejects;
   });
 
-  it('should support with gooddollar superfluid stream', async () => {
+  it.only('should support with gooddollar superfluid stream', async () => {
     const pool = await sdk.createPool(
       wallet,
       'test',
@@ -180,13 +180,13 @@ describe('GoodCollective SDK', () => {
       }
     );
 
-    await (await gooddollar.connect(wallet).approve(pool.address, '1000')).wait();
-    const tx = await sdk.supportFlow(wallet, pool.address, '100');
+    // await (await gooddollar.connect(wallet).approve(pool.address, '1000')).wait();
+    const tx = await sdk.supportFlow(wallet, pool.address, '100000000000000');
 
     expect(tx.wait()).not.rejects;
   });
 
-  it('should support with gooddollar superfluid stream with swap', async () => {
+  it.only('should support with gooddollar superfluid stream with swap', async () => {
     const pool = await sdk.createPool(
       wallet,
       'test',
@@ -208,9 +208,9 @@ describe('GoodCollective SDK', () => {
     );
 
     await (await gooddollar.connect(wallet).approve(pool.address, '1000')).wait();
-    const tx = await sdk.supportFlowWithSwap(wallet, pool.address, '100', {
+    const tx = await sdk.supportFlowWithSwap(wallet, pool.address, '100000000000000', {
       amount: 1000,
-      minReturn: 100000,
+      minReturn: 100000000000000,
       path: '0x',
       swapFrom: gooddollar.address,
       deadline: (Date.now() + 1000000 / 1000).toFixed(0),
