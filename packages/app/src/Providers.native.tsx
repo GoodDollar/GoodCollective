@@ -11,7 +11,7 @@ if (!window) {
 }
 window.localStorage = new LocalStorage();
 // end of usedapp fix
-const projectId = 'YOUR_PROJECT_ID';
+const projectId = '62745569abcb6c8962cadf4d8568aad9';
 
 const providerMetadata = {
   name: 'YOUR_PROJECT_NAME',
