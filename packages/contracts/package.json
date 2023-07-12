@@ -58,7 +58,7 @@
     "test": "npx hardhat test",
     "test:coverage": "npx hardhat coverage",
     "deploy": "hardhat deploy --export-all ./releases/deployment.json",
-    "prepublish": "yarn version patch && yarn compile",
+    "prepublish": "yarn version patch && yarn compile && git add package.json && git commit -m \"version bump\"",
     "publish": "yarn npm publish --access public"
   }
 }

@@ -10,6 +10,7 @@ import type { PropsWithChildren } from 'react';
 import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { ConnectWallet } from './components/ConnectWallet';
 import { useEthers } from '@usedapp/core';
+import { useNativeBalance } from '@gooddollar/web3sdk-v2';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -28,13 +29,14 @@ function App(): JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
   const { account } = useEthers();
   const backgroundStyle = {};
-
+  const balance = useNativeBalance();
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <ScrollView contentInsetAdjustmentBehavior="automatic" style={backgroundStyle}>
         <View>
           <Section title="Step One">
+            {balance}
             Edit <Text style={styles.highlight}>App.tsx</Text> xxxto change this screen and then come back to see your
             edits.
           </Section>

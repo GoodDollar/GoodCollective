@@ -17,7 +17,7 @@
   "dependencies": {
     "@ethersproject/shims": "^5.7.0",
     "@gooddollar/goodcollective-sdk": "1",
-    "@gooddollar/web3sdk-v2": "^0.1.103",
+    "@gooddollar/web3sdk-v2": "^0.1.108",
     "@react-native-aria/interactions": "0.2.3",
     "@react-native-async-storage/async-storage": "^1.18.2",
     "@usedapp/core": "^1.2.10",
@@ -31,7 +31,7 @@
     "react": "18",
     "react-dom": "18",
     "react-native": "^0.71.11",
-    "react-native-aria": "^0.2.3",
+    "react-native-aria": "0.2.3",
     "react-native-dotenv": "^3.4.9",
     "react-native-get-random-values": "^1.9.0",
     "react-native-modal": "^13.0.1",
