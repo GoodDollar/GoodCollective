@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import Header from './Header';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import {WalletConnectionProvider} from "../contexts/WalletConnectionContext";
 
 interface LayoutProps {
   children: ReactNode;
@@ -11,10 +12,12 @@ function Layout({ children }: LayoutProps) {
   const scrollViewHeight = windowDimensions.height - 100;
 
   return (
-    <View style={styles.body}>
-      <Header />
-      <ScrollView style={[styles.scrollView, { maxHeight: scrollViewHeight }]}>{children}</ScrollView>
-    </View>
+    <WalletConnectionProvider>
+      <View style={styles.body}>
+        <Header />
+        <ScrollView style={[styles.scrollView, { maxHeight: scrollViewHeight }]}>{children}</ScrollView>
+      </View>
+    </WalletConnectionProvider>
   );
 }
 
