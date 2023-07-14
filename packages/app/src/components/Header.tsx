@@ -15,8 +15,7 @@ const reactUri = `data:image/svg+xml;utf8,<svg width="22" height="22" viewBox="0
 const closeUri = `data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M15 5L5 15" stroke="#2B4483" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> <path d="M5 5L15 15" stroke="#2B4483" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> </svg>`;
 
 function Header(): JSX.Element {
-  const { account } = useEthers();
-  const { connectWallet, disconnectWallet, walletName } = useWalletConnection();
+  const { connectWallet, disconnectWallet, walletAddress, walletName } = useWalletConnection();
 
   const { navigate } = useCrossNavigate();
   const [openDropdown, setOpenDropdown] = useState<boolean>(false);
@@ -24,7 +23,7 @@ function Header(): JSX.Element {
   return (
     <View style={{ position: 'relative', zIndex: 1 }}>
       <View style={styles.headerMobileContainer}>
-        {!!account && (
+        {!!walletAddress && (
           <View style={styles.walletConnectContainer}>
             <View style={styles.walletInfoContainer}>
               <View style={{ ...styles.walletWhiteContainer, width: 48 }}>
@@ -58,13 +57,19 @@ function Header(): JSX.Element {
             </TouchableOpacity>
           </View>
         )}
-        {!account && (
+        {!walletAddress && (
           <View style={styles.walletConnectContainer}>
             <TouchableOpacity style={styles.walletConnectButton} onPress={connectWallet}>
               <Text style={styles.walletConnectButtonText}>Connect Wallet</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuIconContainer}>
-              <Image source={{ uri: menuIconUri }} resizeMode="contain" style={styles.menuIcon} />
+            <TouchableOpacity
+              style={{ ...styles.menuIconContainer, maxWidth: 40, height: 40 }}
+              onPress={() => setOpenDropdown(!openDropdown)}>
+              <Image
+                source={{ uri: openDropdown ? closeUri : menuIconUri }}
+                resizeMode="contain"
+                style={styles.menuIcon}
+              />
             </TouchableOpacity>
           </View>
         )}
@@ -79,11 +84,15 @@ function Header(): JSX.Element {
       </View>
       {openDropdown && (
         <View style={styles.dropdownContainer}>
-          <TouchableOpacity style={styles.dropdownItem}>
-            <Image source={{ uri: placeholderAvatarUri }} resizeMode="contain" style={{ width: 32, height: 32 }} />
-            <Text style={styles.dropdownMyProfileText}>My Profile</Text>
-          </TouchableOpacity>
-          <View style={styles.dropdownSeparator} />
+          {!!walletAddress && (
+            <>
+              <TouchableOpacity style={styles.dropdownItem}>
+                <Image source={{ uri: placeholderAvatarUri }} resizeMode="contain" style={{ width: 32, height: 32 }} />
+                <Text style={styles.dropdownMyProfileText}>My Profile</Text>
+              </TouchableOpacity>
+              <View style={styles.dropdownSeparator} />
+            </>
+          )}
           <TouchableOpacity
             style={styles.dropdownItem}
             onPress={() => {
@@ -103,15 +112,17 @@ function Header(): JSX.Element {
             <Text style={styles.dropdownText}>Privacy Policy</Text>
           </TouchableOpacity>
           <View style={styles.dropdownSeparator} />
-          <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => {
-              disconnectWallet();
-              setOpenDropdown(false);
-            }}>
-            <Image source={{ uri: logoutUri }} resizeMode="contain" style={{ width: 20, height: 20 }} />
-            <Text style={styles.dropdownText}>Log Out</Text>
-          </TouchableOpacity>
+          {!!walletAddress && (
+            <TouchableOpacity
+              style={styles.dropdownItem}
+              onPress={() => {
+                disconnectWallet();
+                setOpenDropdown(false);
+              }}>
+              <Image source={{ uri: logoutUri }} resizeMode="contain" style={{ width: 20, height: 20 }} />
+              <Text style={styles.dropdownText}>Log Out</Text>
+            </TouchableOpacity>
+          )}
           <Text style={styles.builtByText}>v1 - Built by dOrg & GoodLabs</Text>
         </View>
       )}
