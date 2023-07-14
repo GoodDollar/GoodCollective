@@ -9,7 +9,7 @@ export const useWeb3Modal = () => {
   useEffect(() => {
     EthereumProvider.init({
       projectId, // REQUIRED your projectId
-      chains: [122, 42220], // REQUIRED chain ids
+      chains: [42220], // REQUIRED chain ids
       showQrModal: true, // REQUIRED set to "true" to use @walletconnect/modal
     }).then((_) => setProvider(_));
   }, []);

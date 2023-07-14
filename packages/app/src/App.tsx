@@ -1,72 +1,47 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
-import type { PropsWithChildren } from 'react';
-import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
-import { ConnectWallet } from './components/ConnectWallet';
-import { useEthers } from '@usedapp/core';
-import { useNativeBalance } from '@gooddollar/web3sdk-v2';
+import { SafeAreaView, StyleSheet, Platform } from 'react-native';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({ children, title }: SectionProps): JSX.Element {
-  return (
-    <View style={styles.sectionContainer}>
-      <Text style={[styles.sectionTitle]}>{title}</Text>
-      <Text style={[styles.sectionDescription]}>{children}</Text>
-    </View>
-  );
-}
+import HomePage from './pages/HomePage';
+import AboutPage from './pages/AboutPage';
+import * as WebRoute from './routes/routing.web';
+import * as MobileRoute from './routes/routing.native';
 
 function App(): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  const { account } = useEthers();
-  const backgroundStyle = {};
-  const balance = useNativeBalance();
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView contentInsetAdjustmentBehavior="automatic" style={backgroundStyle}>
-        <View>
-          <Section title="Step One">
-            {balance}
-            Edit <Text style={styles.highlight}>App.tsx</Text> xxxto change this screen and then come back to see your
-            edits.
-          </Section>
-          <Section title="See Your Changes" />
-          <Section title="Debug" />
-          <Section title="Learn More">Read the docs to discover what to do next:</Section>
-          <ConnectWallet />
-          <Section title="Wallet">{account}</Section>
-        </View>
-      </ScrollView>
+    <SafeAreaView style={styles.body}>
+      {Platform.OS !== 'web' && (
+        <MobileRoute.Router>
+          <MobileRoute.Routes>
+            <MobileRoute.Route path="/" element={<HomePage />} />
+            <MobileRoute.Route path="/about" element={<AboutPage />} />
+          </MobileRoute.Routes>
+        </MobileRoute.Router>
+      )}
+
+      {Platform.OS === 'web' && (
+        <WebRoute.Router>
+          <WebRoute.Routes>
+            <WebRoute.Route path="/" element={<HomePage />} />
+            <WebRoute.Route path="/about" element={<AboutPage />} />
+          </WebRoute.Routes>
+        </WebRoute.Router>
+      )}
+
+      {/*<DonateCard*/}
+      {/*  title={"Restoring the Kakamega Forest"}*/}
+      {/*  description="Stewards get G$ 800 each time they log a tree's status"*/}
+      {/*  name="Makena"*/}
+      {/*  actions={780}*/}
+      {/*  total={624.0}*/}
+      {/*  usd={100.9}*/}
+      {/*/>*/}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+  body: {
+    flex: 1,
   },
 });
 
