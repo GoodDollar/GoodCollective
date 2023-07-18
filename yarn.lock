@@ -4169,7 +4169,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@gooddollar/goodcollective-contracts@workspace:packages/contracts"
   dependencies:
-    "@gooddollar/goodprotocol": "file:.yalc/@gooddollar/goodprotocol"
+    "@gooddollar/goodprotocol": ^2.0.6
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.0
     "@nomicfoundation/hardhat-network-helpers": ^1.0.0
     "@nomicfoundation/hardhat-toolbox": 2.*
@@ -4253,29 +4253,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gooddollar/goodprotocol@file:.yalc/@gooddollar/goodprotocol::locator=%40gooddollar%2Fgoodcollective-contracts%40workspace%3Apackages%2Fcontracts":
-  version: 2.0.6
-  resolution: "@gooddollar/goodprotocol@file:.yalc/@gooddollar/goodprotocol#.yalc/@gooddollar/goodprotocol::hash=132802&locator=%40gooddollar%2Fgoodcollective-contracts%40workspace%3Apackages%2Fcontracts"
-  dependencies:
-    "@gooddollar/goodcontracts": ^2.6.6
-    "@jsier/retrier": ^1.2.4
-    "@openzeppelin/contracts": ^4.8.0
-    "@openzeppelin/contracts-upgradeable": ^4.8.0
-    "@openzeppelin/upgrades-core": 1.18.0
-    "@superfluid-finance/ethereum-contracts": ^1.4.3
-    "@superfluid-finance/sdk-core": ^0.5.8
-    "@typechain/hardhat": ^6.1.5
-    async-promise-pool: ^1.0.4
-    openzeppelin-solidity: ^4.3.2
-    patch-package: latest
-    press-any-key: ^0.1.1
-    truffle-plugin-verify: ^0.6.1
-    truffle-source-verify: ^0.0.6
-  checksum: f6a5c2f36facc38410fc1942ebf5e8cfd2e2a5c7200e15f4385bf83f7acb11e7bcaf6c0a7c7e9cb172102f6f2f8ce69067941793cf8572978b6b2f0cfb37867f
-  languageName: node
-  linkType: hard
-
-"@gooddollar/goodprotocol@npm:^2.0.3, @gooddollar/goodprotocol@npm:^2.0.4":
+"@gooddollar/goodprotocol@npm:^2.0.3, @gooddollar/goodprotocol@npm:^2.0.4, @gooddollar/goodprotocol@npm:^2.0.6":
   version: 2.0.6
   resolution: "@gooddollar/goodprotocol@npm:2.0.6"
   dependencies:

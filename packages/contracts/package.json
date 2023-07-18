@@ -10,7 +10,7 @@
     "releases"
   ],
   "devDependencies": {
-    "@gooddollar/goodprotocol": "file:.yalc/@gooddollar/goodprotocol",
+    "@gooddollar/goodprotocol": "^2.0.6",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
     "@nomicfoundation/hardhat-toolbox": "2.*",
