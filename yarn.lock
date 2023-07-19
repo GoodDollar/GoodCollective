@@ -2213,6 +2213,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@celo-tools/celo-ethers-wrapper@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "@celo-tools/celo-ethers-wrapper@npm:0.4.0"
+  peerDependencies:
+    ethers: ^5
+  checksum: 36021ae2c6448993985faaa0619ef919fe5209f3cdff45c329c65ed014a501abb0a375fa086c77076b2d193675cd55acd8c5b763aa865e34b23193a3e825ba6b
+  languageName: node
+  linkType: hard
+
 "@chainsafe/as-sha256@npm:^0.3.1":
   version: 0.3.1
   resolution: "@chainsafe/as-sha256@npm:0.3.1"
@@ -4115,6 +4124,7 @@ __metadata:
     "@babel/core": ^7.20.0
     "@babel/preset-env": ^7.20.0
     "@babel/runtime": ^7.20.0
+    "@celo-tools/celo-ethers-wrapper": ^0.4.0
     "@ethersproject/shims": ^5.7.0
     "@gooddollar/goodcollective-sdk": ^1.*
     "@gooddollar/web3sdk-v2": ^0.1.108

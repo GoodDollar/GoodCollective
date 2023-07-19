@@ -13,6 +13,7 @@ import { useEthers } from '@usedapp/core';
 import { useNativeBalance, ClaimSDK } from '@gooddollar/web3sdk-v2';
 import * as ethers from 'ethers';
 import { Button } from 'native-base';
+import { CeloWallet, CeloProvider } from '@celo-tools/celo-ethers-wrapper';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -50,6 +51,29 @@ function App(): JSX.Element {
   const startClaim = async () => {
     await sdk.claim();
   };
+  ``;
+  const startGasDemo = async () => {
+    const abi = ['function drip()'];
+    const p = new CeloProvider('https://alfajores-forno.celo-testnet.org');
+    const w = new CeloWallet('0xa276992c491e8ca1f41263c0b8a6867daa74b24dd2ec492cb77d6ecf4cc001bc').connect(p);
+    const gdfaucet = new ethers.Contract('0x8986F9C6b3D0b9A8b92ef7f1eF7EB9e767D414e1', abi, w);
+    try {
+      await gdfaucet.drip();
+    } catch (e) {}
+    console.log('drip done...');
+
+    const encoded = sdk
+      .getContract('GoodDollar')
+      .interface.encodeFunctionData('transfer', [account, ethers.constants.WeiPerEther]);
+    const tx = await w.sendTransaction({
+      to: '0x03d3daB843e6c03b3d271eff9178e6A96c28D25f',
+      data: encoded,
+      gasPrice: ethers.utils.parseEther('0.00005'),
+      gasLimit: 200000,
+      feeCurrency: '0x03d3daB843e6c03b3d271eff9178e6A96c28D25f',
+    });
+    console.log(tx);
+  };
 
   useEffect(() => {
     if (account) {
@@ -85,6 +109,9 @@ function App(): JSX.Element {
           </Section>
           <Section title="Claim">
             <Button onPress={startClaim}>{Number(claim).toFixed(2)} G$</Button>
+          </Section>
+          <Section title="Gas Token Demo">
+            <Button onPress={startGasDemo}>Demo</Button>
           </Section>
         </View>
       </ScrollView>
