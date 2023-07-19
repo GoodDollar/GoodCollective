@@ -5,6 +5,10 @@ import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
 import * as WebRoute from './routes/routing.web';
 import * as MobileRoute from './routes/routing.native';
+import DonatePage from './pages/DonatePage';
+import ViewCollectivePage from './pages/ViewCollectivePage';
+import ViewStewardsPage from './pages/ViewStewardsPage';
+import ViewDonorsPage from './pages/ViewDonorsPage';
 
 function App(): JSX.Element {
   return (
@@ -14,6 +18,10 @@ function App(): JSX.Element {
           <MobileRoute.Routes>
             <MobileRoute.Route path="/" element={<HomePage />} />
             <MobileRoute.Route path="/about" element={<AboutPage />} />
+            <MobileRoute.Route path="/donate" element={<DonatePage />} />
+            <MobileRoute.Route path="/viewCollective" element={<ViewCollectivePage />} />
+            <MobileRoute.Route path="/viewStewards" element={<ViewStewardsPage />} />
+            <MobileRoute.Route path="/viewDonors" element={<ViewDonorsPage />} />
           </MobileRoute.Routes>
         </MobileRoute.Router>
       )}
@@ -23,18 +31,13 @@ function App(): JSX.Element {
           <WebRoute.Routes>
             <WebRoute.Route path="/" element={<HomePage />} />
             <WebRoute.Route path="/about" element={<AboutPage />} />
+            <WebRoute.Route path="/donate" element={<DonatePage />} />
+            <WebRoute.Route path="/viewCollective" element={<ViewCollectivePage />} />
+            <WebRoute.Route path="/viewStewards" element={<ViewStewardsPage />} />
+            <WebRoute.Route path="/viewDonors" element={<ViewDonorsPage />} />
           </WebRoute.Routes>
         </WebRoute.Router>
       )}
-
-      {/*<DonateCard*/}
-      {/*  title={"Restoring the Kakamega Forest"}*/}
-      {/*  description="Stewards get G$ 800 each time they log a tree's status"*/}
-      {/*  name="Makena"*/}
-      {/*  actions={780}*/}
-      {/*  total={624.0}*/}
-      {/*  usd={100.9}*/}
-      {/*/>*/}
     </SafeAreaView>
   );
 }

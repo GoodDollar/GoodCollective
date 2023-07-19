@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import Header from './Header';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
-import {WalletConnectionProvider} from "../contexts/WalletConnectionContext";
+import { WalletConnectionProvider } from '../contexts/WalletConnectionContext';
 
 interface LayoutProps {
   children: ReactNode;

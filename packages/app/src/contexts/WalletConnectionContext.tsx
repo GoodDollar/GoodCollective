@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 import { useEthers } from '@usedapp/core';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { shortenAddress } from '../utils';
+import { useSwitchNetwork } from '@gooddollar/web3sdk-v2';
 
 interface IWalletConnectionContext {
   disconnectWallet: () => Promise<void>;
@@ -16,6 +17,7 @@ const WalletConnectionProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const { account } = useEthers();
+  const { switchNetwork } = useSwitchNetwork();
   const [{ wallet }, connect, disconnect] = useConnectWallet();
   const [, setChain] = useSetChain();
 
@@ -24,7 +26,8 @@ const WalletConnectionProvider: React.FC<{
 
   const connectWallet = async () => {
     await connect();
-    await setChain({ chainId: '42220' });
+    const x = await switchNetwork(42220);
+    console.log({ x });
   };
 
   const disconnectWallet = async () => {
