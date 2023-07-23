@@ -1,5 +1,10 @@
 const fontFamily = 'Inter';
 
+export const InterSmall = {
+  fontFamily,
+  fontWeight: 400,
+} as any;
+
 export const InterRegular = {
   fontFamily,
   fontWeight: 500,

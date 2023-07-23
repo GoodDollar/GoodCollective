@@ -1,4 +1,6 @@
-import { StyleSheet, Text, View, Image, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { InterBold, InterSemiBold, InterSmall } from '../utils/webFonts';
+import useCrossNavigate from '../routes/useCrossNavigate';
 
 interface CollectiveHomeCardProps {
   imageUrl?: string;
@@ -7,14 +9,16 @@ interface CollectiveHomeCardProps {
 }
 
 function CollectiveHomeCard({ title, description, imageUrl }: CollectiveHomeCardProps) {
+  const { navigate } = useCrossNavigate();
+
   return (
-    <View style={[styles.cardContainer, styles.elevation]}>
+    <TouchableOpacity style={[styles.cardContainer, styles.elevation]} onPress={() => navigate('/viewCollective')}>
       <Image source={{ uri: imageUrl }} style={styles.sectionImage} />
       <View style={styles.cardDescriptionContainer}>
         <Text style={styles.cardTitle}>{title}</Text>
         <Text style={styles.cardDescription}>{description}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -30,14 +34,16 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 20,
-    fontWeight: '700',
     marginTop: 0,
+    ...InterSemiBold,
   },
   cardDescription: {
     marginTop: 8,
     fontSize: 18,
     fontWeight: '400',
     color: '#5A5A5A',
+    ...InterSmall,
+    lineHeight: 24,
   },
   sectionImage: {
     resizeMode: 'cover',
@@ -48,9 +54,8 @@ const styles = StyleSheet.create({
   },
   cardDescriptionContainer: {
     height: 137,
-    paddingTop: 20,
-    paddingRight: 15,
-    paddingLeft: 15,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
   },
   elevation: {
     shadowColor: '#000000',

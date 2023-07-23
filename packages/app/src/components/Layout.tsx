@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import Header from './Header';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
-import { WalletConnectionProvider } from '../contexts/WalletConnectionContext';
+import ImpactButton from './ImpactButton';
 
 interface LayoutProps {
   children: ReactNode;
@@ -9,15 +9,14 @@ interface LayoutProps {
 
 function Layout({ children }: LayoutProps) {
   const windowDimensions = useWindowDimensions();
-  const scrollViewHeight = windowDimensions.height - 100;
+  const scrollViewHeight = windowDimensions.height - 90;
 
   return (
-    <WalletConnectionProvider>
-      <View style={styles.body}>
-        <Header />
-        <ScrollView style={[styles.scrollView, { maxHeight: scrollViewHeight }]}>{children}</ScrollView>
-      </View>
-    </WalletConnectionProvider>
+    <View style={styles.body}>
+      <Header />
+      <ScrollView style={[styles.scrollView, { maxHeight: scrollViewHeight }]}>{children}</ScrollView>
+      {/* <ImpactButton title="SEE YOUR IMPACT"/> */}
+    </View>
   );
 }
 
@@ -26,7 +25,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    padding: 15,
     flex: 1,
   },
 });

@@ -3,12 +3,15 @@ import { SafeAreaView, StyleSheet, Platform } from 'react-native';
 
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
-import * as WebRoute from './routes/routing.web';
-import * as MobileRoute from './routes/routing.native';
 import DonatePage from './pages/DonatePage';
 import ViewCollectivePage from './pages/ViewCollectivePage';
 import ViewStewardsPage from './pages/ViewStewardsPage';
 import ViewDonorsPage from './pages/ViewDonorsPage';
+import WalletProfilePage from './pages/WalletProfilePage';
+
+import * as WebRoute from './routes/routing.web';
+import * as MobileRoute from './routes/routing.native';
+import ActivityLogPage from './pages/ActivityLogPage';
 
 function App(): JSX.Element {
   return (
@@ -22,6 +25,8 @@ function App(): JSX.Element {
             <MobileRoute.Route path="/viewCollective" element={<ViewCollectivePage />} />
             <MobileRoute.Route path="/viewStewards" element={<ViewStewardsPage />} />
             <MobileRoute.Route path="/viewDonors" element={<ViewDonorsPage />} />
+            <MobileRoute.Route path="/walleetProfile" element={<WalletProfilePage />} />
+            <MobileRoute.Route path="/activityLog" element={<ActivityLogPage />} />
           </MobileRoute.Routes>
         </MobileRoute.Router>
       )}
@@ -35,6 +40,8 @@ function App(): JSX.Element {
             <WebRoute.Route path="/viewCollective" element={<ViewCollectivePage />} />
             <WebRoute.Route path="/viewStewards" element={<ViewStewardsPage />} />
             <WebRoute.Route path="/viewDonors" element={<ViewDonorsPage />} />
+            <WebRoute.Route path="/walletProfile" element={<WalletProfilePage />} />
+            <WebRoute.Route path="/activityLog" element={<ActivityLogPage />} />
           </WebRoute.Routes>
         </WebRoute.Router>
       )}

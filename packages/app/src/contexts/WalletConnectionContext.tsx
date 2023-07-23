@@ -26,8 +26,7 @@ const WalletConnectionProvider: React.FC<{
 
   const connectWallet = async () => {
     await connect();
-    const x = await switchNetwork(42220);
-    console.log({ x });
+    await switchNetwork(42220);
   };
 
   const disconnectWallet = async () => {
