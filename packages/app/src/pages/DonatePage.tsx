@@ -1,17 +1,15 @@
-import DonateCard from '../components/DonateCard';
-import Layout from '../components/Layout';
+import WalletProfile from "../components/WalletProfile";
+import Layout from "../components/Layout";
+import { WalletProfileTypes } from "../@constants/WalletProfileTypes";
+import DonateComponent from "../components/DonateComponent";
 
 function DonatePage() {
   return (
     <Layout>
-      <DonateCard
-        title={'Restoring the Kakamega Forest'}
-        description="Stewards get G$ 800 each time they log a tree's status"
-        name="Makena"
-        actions={780}
-        total={624.0}
-        usd={100.9}
-      />
+      <DonateComponent walletConected={true}
+      liquidity={false}
+      impace={false}
+       />
     </Layout>
   );
 }

@@ -1,6 +1,12 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-import { InterBold, InterSemiBold, InterRegular, InterMedium } from '../utils/webFonts';
-import EmptyProfile from './EmptyProfile';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import {
+  InterBold,
+  InterSemiBold,
+  InterRegular,
+  InterMedium,
+} from "../utils/webFonts";
+import EmptyProfile from "./EmptyProfile";
+import { WalletProfileTypes } from "../@constants/WalletProfileTypes";
 
 interface WalletProfileProps {
   imageUrl: string;
@@ -11,7 +17,7 @@ interface WalletProfileProps {
   received: number;
   collectivesTotal: number;
   collectives?: {};
-  type: string;
+  type: WalletProfileTypes;
 }
 
 function WalletDetails({
@@ -28,7 +34,7 @@ function WalletDetails({
   return (
     <View>
       {/**Steward's wallet details */}
-      {type == 'steward' && (
+      {type === WalletProfileTypes.steward && (
         <View>
           <View style={styles.row}>
             <View style={[styles.impactBar, styles.orangeBar]}></View>
@@ -66,7 +72,7 @@ function WalletDetails({
         </View>
       )}
       {/**Donor's wallet details */}
-      {type == 'donor' && (
+      {type === WalletProfileTypes.donor && (
         <View>
           <View style={styles.row}>
             <View style={[styles.impactBar, styles.greenBar]}></View>
@@ -112,12 +118,14 @@ function WalletDetails({
         </View>
       )}
       {/**Donor's wallet details */}
-      {type == 'both' && (
+      {type == WalletProfileTypes.both && (
         <View>
           <View style={styles.row}>
             <View style={[styles.impactBar, styles.greenBar]}></View>
             <View style={styles.rowContent}>
-              <Text style={styles.rowTitle}>This wallet has donated a total of</Text>
+              <Text style={styles.rowTitle}>
+                This wallet has donated a total of
+              </Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
                 <Text style={styles.rowBoldText}>780</Text>
                 <Text style={styles.rowText}> actions</Text>
@@ -137,7 +145,9 @@ function WalletDetails({
           <View style={styles.row}>
             <View style={[styles.impactBar, styles.greenBar]}></View>
             <View style={styles.rowContent}>
-              <Text style={styles.rowTitle}>This wallet's funding supported</Text>
+              <Text style={styles.rowTitle}>
+                This wallet's funding supported
+              </Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
                 <Text style={styles.rowBoldText}>780</Text>
                 <Text style={styles.rowText}> actions</Text>
@@ -168,7 +178,7 @@ function WalletDetails({
           </View>
         </View>
       )}
-      {type == 'empty' && <EmptyProfile />}
+      {type == WalletProfileTypes.empty && <EmptyProfile />}
     </View>
   );
 }
@@ -176,20 +186,20 @@ function WalletDetails({
 const styles = StyleSheet.create({
   impactBar: {
     width: 8,
-    alignSelf: 'stretch',
+    alignSelf: "stretch",
   },
   greenBar: {
-    backgroundColor: '#95EED8',
+    backgroundColor: "#95EED8",
   },
   orangeBar: {
-    backgroundColor: '#FFAD62',
+    backgroundColor: "#FFAD62",
   },
   blueBar: {
-    backgroundColor: '#B8C8F2',
+    backgroundColor: "#B8C8F2",
   },
   row: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 16,
     height: 53,
   },
@@ -205,14 +215,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     paddingHorizontal: 5,
     ...InterSemiBold,
-    color: '#5A5A5A',
+    color: "#5A5A5A",
   },
   rowText: {
     fontSize: 18,
-    fontWeight: '400',
+    fontWeight: "400",
     paddingHorizontal: 5,
-    fontFamily: 'Inter',
-    color: '#5A5A5A',
+    fontFamily: "Inter",
+    color: "#5A5A5A",
   },
 });
 

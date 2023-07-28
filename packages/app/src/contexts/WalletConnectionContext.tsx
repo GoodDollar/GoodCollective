@@ -25,8 +25,12 @@ const WalletConnectionProvider: React.FC<{
   const [walletAddress, setWalletAddress] = useState<string>('');
 
   const connectWallet = async () => {
-    await connect();
-    await switchNetwork(42220);
+    try {
+      await connect();
+      await switchNetwork(42220);
+    } catch (error) {
+      console.log("connectWallet Error - ", error);
+    }
   };
 
   const disconnectWallet = async () => {

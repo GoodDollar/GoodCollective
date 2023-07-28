@@ -1,5 +1,5 @@
-import AboutCard from '../components/AboutCard';
-import Layout from '../components/Layout';
+import AboutCard from "../components/AboutCard";
+import Layout from "../components/Layout";
 
 function AboutPage() {
   return (
