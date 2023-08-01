@@ -51,6 +51,7 @@ contract DirectPaymentsPool is
     error EMPTY_MANAGER();
 
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
+    bytes32 public constant MEMBER_ROLE = keccak256("MEMBER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER");
 
     event PoolCreated(
@@ -63,8 +64,6 @@ contract DirectPaymentsPool is
     );
     event PoolSettingsChanged(PoolSettings settings);
     event PoolLimitsChanged(SafetyLimits limits);
-    event MemberAdded(address member);
-    event MemberRemoved(address member);
     event EventRewardClaimed(uint256 indexed tokenId, ProvableNFT.EventData eventData, uint256 rewardPerContributer);
     event NFTClaimed(uint256 indexed tokenId, uint256 totalRewards, ProvableNFT.NFTData nftData);
 
@@ -98,7 +97,7 @@ contract DirectPaymentsPool is
     ProvableNFT public nft;
 
     mapping(uint256 => bool) public claimedNfts;
-    mapping(address => bool) public members;
+    mapping(address => bool) private members_unused; // using access control instead
     mapping(address => LimitsData) public memberLimits;
     LimitsData public globalLimits;
     DirectPaymentsFactory public registry;
@@ -110,7 +109,7 @@ contract DirectPaymentsPool is
      * @dev Authorizes an upgrade for the implementation contract.
      * @param impl The address of the new implementation contract.
      */
-    function _authorizeUpgrade(address impl) internal virtual override {}
+    function _authorizeUpgrade(address impl) internal virtual override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
     function getRegistry() public view override returns (DirectPaymentsFactory) {
         return DirectPaymentsFactory(registry);
@@ -137,7 +136,7 @@ contract DirectPaymentsPool is
         setSuperToken(ISuperToken(address(settings.rewardToken)));
     }
 
-    function upgradeToLatest(bytes memory data) external payable virtual onlyProxy {
+    function upgradeToLatest(bytes memory data) external payable virtual {
         address impl = DirectPaymentsFactory(registry).impl();
         _authorizeUpgrade(impl);
         _upgradeToAndCallUUPS(impl, data, false);
@@ -225,7 +224,8 @@ contract DirectPaymentsPool is
      * @param reward The amount of rewards to enforce and update limits for.
      */
     function _enforceAndUpdateMemberLimits(address member, uint128 reward) internal {
-        if (members[member] == false) revert NOT_MEMBER(member);
+        //TODO: decide if this reverts the nft claiming or we just skip the member
+        if (_addMember(member, "") == false) revert NOT_MEMBER(member);
 
         uint64 curMonth = _month();
         if (memberLimits[member].lastReward + 60 * 60 * 24 < block.timestamp) //more than a day passed since last reward
@@ -294,32 +294,23 @@ contract DirectPaymentsPool is
      * @param extraData Additional data to validate the member.
      */
 
-    function addMember(address member, bytes memory extraData) external {
+    function _addMember(address member, bytes memory extraData) internal returns (bool isMember) {
+        if (hasRole(MEMBER_ROLE, member)) return true;
+
         if (address(settings.uniquenessValidator) != address(0)) {
             address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
             if (rootAddress == address(0)) revert NOT_WHITELISTED(member);
         }
 
+        // if no members validator then anyone can join the pool
         if (address(settings.membersValidator) != address(0)) {
             if (settings.membersValidator.isMemberValid(address(this), msg.sender, member, extraData) == false) {
                 revert NOT_MEMBER(member);
             }
-        } else {
-            // if no members validator then only admin can add members
-            if (hasRole(DEFAULT_ADMIN_ROLE, msg.sender) == false) revert NOT_MANAGER();
         }
 
-        members[member] = true;
-        emit MemberAdded(member);
-    }
-
-    /**
-     * @dev Removes a member from the contract.
-     * @param member The address of the member to remove.
-     */
-    function removeMember(address member) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        members[member] = false;
-        emit MemberRemoved(member);
+        _setupRole(MEMBER_ROLE, member);
+        return true;
     }
 
     function mintNFT(address _to, ProvableNFT.NFTData memory _nftData, bool withClaim) external onlyRole(MINTER_ROLE) {
@@ -330,7 +321,7 @@ contract DirectPaymentsPool is
     }
 
     /**
-     * @dev Receives an ERC721 token and triggers a claim for rewards.
+     * @dev Receives an ERC721 token
      * @param operator The address of the operator that sent the token.
      * @param from The address of the sender that sent the token.
      * @param tokenId The ID of the token received.
