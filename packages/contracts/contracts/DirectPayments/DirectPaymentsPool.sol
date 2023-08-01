@@ -47,16 +47,26 @@ contract DirectPaymentsPool is
     error OVER_GLOBAL_LIMITS();
     error UNSUPPORTED_NFT();
     error NO_BALANCE();
+    error NFTTYPE_CHANGED();
+    error EMPTY_MANAGER();
 
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER");
 
+    event PoolCreated(
+        address indexed pool,
+        string indexed projectId,
+        string ipfs,
+        uint32 indexed nftType,
+        DirectPaymentsPool.PoolSettings poolSettings,
+        DirectPaymentsPool.SafetyLimits poolLimits
+    );
     event PoolSettingsChanged(PoolSettings settings);
     event PoolLimitsChanged(SafetyLimits limits);
     event MemberAdded(address member);
     event MemberRemoved(address member);
-    event EventRewardClaimed(uint256 indexed tokenId, ProvableNFT.EventData eventData);
-    event NFTClaimed(uint256 indexed tokenId, uint256 totalRewards);
+    event EventRewardClaimed(uint256 indexed tokenId, ProvableNFT.EventData eventData, uint256 rewardPerContributer);
+    event NFTClaimed(uint256 indexed tokenId, uint256 totalRewards, ProvableNFT.NFTData nftData);
 
     // Define functions
     struct PoolSettings {
@@ -124,7 +134,6 @@ contract DirectPaymentsPool is
         nft = _nft;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(DEFAULT_ADMIN_ROLE, _settings.manager);
-
         setSuperToken(ISuperToken(address(settings.rewardToken)));
     }
 
@@ -177,11 +186,11 @@ contract DirectPaymentsPool is
                 if (totalRewards > rewardsBalance) revert NO_BALANCE();
                 rewardsBalance -= totalRewards;
                 _sendReward(_data.events[i].contributers, uint128(reward * _data.events[i].quantity));
-                emit EventRewardClaimed(_nftId, _data.events[i]);
+                emit EventRewardClaimed(_nftId, _data.events[i], uint128(reward / _data.events[i].contributers.length));
             }
         }
 
-        emit NFTClaimed(_nftId, totalRewards);
+        emit NFTClaimed(_nftId, totalRewards, _data);
     }
 
     /**
@@ -346,5 +355,28 @@ contract DirectPaymentsPool is
         ProvableNFT.NFTData memory nftData = nft.getNFTData(tokenId);
         if (nftData.nftType != settings.nftType) revert UNSUPPORTED_NFT();
         return DirectPaymentsPool.onERC721Received.selector;
+    }
+
+    /**
+     * @dev Sets the safety limits for the pool.
+     * @param _limits The new safety limits.
+     */
+    function setPoolLimits(SafetyLimits memory _limits) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        limits = _limits;
+        emit PoolLimitsChanged(_limits);
+    }
+
+    /**
+     * @dev Sets the settings for the pool.
+     * @param _settings The new pool settings.
+     */
+    function setPoolSettings(PoolSettings memory _settings) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (_settings.nftType != settings.nftType) revert NFTTYPE_CHANGED();
+        if (_settings.manager == address(0)) revert EMPTY_MANAGER();
+
+        _revokeRole(DEFAULT_ADMIN_ROLE, settings.manager);
+        settings = _settings;
+        _setupRole(DEFAULT_ADMIN_ROLE, _settings.manager);
+        emit PoolSettingsChanged(_settings);
     }
 }

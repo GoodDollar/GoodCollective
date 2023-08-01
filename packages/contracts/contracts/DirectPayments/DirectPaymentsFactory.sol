@@ -13,7 +13,15 @@ import "hardhat/console.sol";
 contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
     error NOT_PROJECT_OWNER();
 
-    event PoolCreated(address indexed pool, string indexed projectId, string ipfs, uint32 indexed nftType);
+    event PoolCreated(
+        address indexed pool,
+        string indexed projectId,
+        string ipfs,
+        uint32 indexed nftType,
+        DirectPaymentsPool.PoolSettings poolSettings,
+        DirectPaymentsPool.SafetyLimits poolLimits
+    );
+
     event PoolDetailsChanged(address indexed pool, string ipfs);
     event PoolVerifiedChanged(address indexed pool, bool isVerified);
     event UpdatedImpl(address indexed impl);
@@ -105,12 +113,13 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         nft.grantRole(nft.getManagerRole(nextNftType), address(pool));
         pool.grantRole(pool.MINTER_ROLE(), _settings.manager);
 
+        //access control to project is determinted by the first pool access control rules
         projectIdToControlPool[keccak256(bytes(_projectId))] = pool;
         registry[address(pool)].ipfs = _ipfs;
         registry[address(pool)].projectId = _projectId;
 
         pool.renounceRole(DEFAULT_ADMIN_ROLE, address(this));
-        emit PoolCreated(address(pool), _projectId, _ipfs, nextNftType);
+        emit PoolCreated(address(pool), _projectId, _ipfs, nextNftType, _settings, _limits);
 
         nextNftType++;
     }
