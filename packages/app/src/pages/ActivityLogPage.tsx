@@ -1,11 +1,14 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
-import oceanUri from "../@constants/SafariImagePlaceholder";
-import Layout from "../components/Layout";
-import StewardList from "../components/StewardsList";
-import ImpactButton from "../components/ImpactButton";
-import { LightningIconUri } from "../@constants/LightningIcon";
-import { InterSemiBold, InterSmall } from "../utils/webFonts";
-import ActivityLog from "../components/ActivityLog";
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import oceanUri from '../@constants/SafariImagePlaceholder';
+import Layout from '../components/Layout';
+import StewardList from '../components/StewardsList';
+import ImpactButton from '../components/ImpactButton';
+import { LightningIconUri } from '../@constants/LightningIcon';
+import { InterSemiBold, InterSmall } from '../utils/webFonts';
+import ActivityLog from '../components/ActivityLog';
+import { Colors } from '../utils/colors';
+import { FruitDoveUri } from '../@constants/ProfilePictures';
+import ProfileView from '../components/ProfileComponent';
 
 function ActivityLogPage() {
   return (
@@ -13,33 +16,32 @@ function ActivityLogPage() {
       <View style={styles.body}>
         <View style={[styles.container, styles.elevation]}>
           <View>
-            <TouchableOpacity style={styles.profileView}>
-              <View style={styles.pfp}></View>
-              <View style={styles.profileText}>
-                <Text style={styles.title}>John Doe</Text>
-                <Text style={styles.line}>John.Doe.12387163</Text>
-              </View>
-            </TouchableOpacity>
+            <ProfileView
+              profileData={{
+                imageUrl: FruitDoveUri,
+                firstName: 'John',
+                lastName: 'Doe',
+                profileLink: 'https://app.prosperity.global',
+                domain: 'John.CELO',
+                userId: 'q827tbc1386..134c',
+              }}
+              condition={1}
+            />
           </View>
 
           <Text style={styles.title}>Restoring the Kakamega Forest</Text>
 
-          <View style={{ flex: 1, flexDirection: "row", gap: 8 }}>
-            <Image
-              source={{ uri: LightningIconUri }}
-              style={styles.titleIcon}
-            ></Image>
+          <View style={{ flex: 1, flexDirection: 'row', gap: 8 }}>
+            <Image source={{ uri: LightningIconUri }} style={styles.titleIcon}></Image>
             <Text style={styles.title}>Action Log</Text>
           </View>
         </View>
 
-        <View style={styles.container2}>
-          <ActivityLog />
-          <ActivityLog />
-          <ActivityLog />
-          <ActivityLog />
-          <ActivityLog />
-        </View>
+        <ActivityLog name="Silvi Tree Claim" id="0x723a86c93838c1facse....." creationDate="July 3, 2023" />
+        <ActivityLog name="Silvi Tree Claim" id="0x723a86c93838c1facse....." creationDate="July 3, 2023" />
+        <ActivityLog name="Silvi Tree Claim" id="0x723a86c93838c1facse....." creationDate="July 3, 2023" />
+        <ActivityLog name="Silvi Tree Claim" id="0x723a86c93838c1facse....." creationDate="July 3, 2023" />
+        <ActivityLog name="Silvi Tree Claim" id="0x723a86c93838c1facse....." creationDate="July 3, 2023" />
       </View>
     </Layout>
   );
@@ -48,34 +50,38 @@ function ActivityLogPage() {
 const styles = StyleSheet.create({
   body: {
     gap: 24,
+    backgroundColor: Colors.white,
   },
 
   container: {
-    width: "100%",
-    shadowColor: "#000000",
-    backgroundColor: "#FFFFFF",
+    width: '100%',
+    shadowColor: Colors.black,
+    backgroundColor: Colors.white,
     padding: 16,
     gap: 16,
     marginBottom: 1,
+    zIndex: 1,
   },
   elevation: {
-    shadowColor: "#000000",
+    shadowColor: Colors.black,
     shadowOffset: {
       width: 0,
-      height: 12,
+      height: 50,
     },
-    shadowOpacity: 0.15,
-    shadowRadius: 15,
-    elevation: 24,
+    shadowOpacity: 0.1,
+    shadowRadius: 30,
+    elevation: 60,
   },
   container2: {
     gap: 16,
-    backgroundColor: "#FDFDFD",
+    backgroundColor: Colors.white,
     padding: 16,
     paddingTop: 0,
+    zIndex: 0,
+    paddingBottom: 50,
   },
   image: {
-    width: "100%",
+    width: '100%',
     height: 192,
   },
 
@@ -86,26 +92,12 @@ const styles = StyleSheet.create({
   pfp: {
     width: 64,
     height: 64,
-    backgroundColor: "#FFF",
+    backgroundColor: Colors.white,
     borderRadius: 32,
   },
-  profileView: {
-    width: 343,
-    height: 80,
-    backgroundColor: "#F4F4F4",
-    flex: 1,
-    flexDirection: "row",
-    padding: 8,
-    borderRadius: 20,
-    alignSelf: "center",
-  },
-  profileText: {
-    padding: 8,
-    paddingLeft: 16,
-    gap: 4,
-  },
+
   line: {
-    color: "#5A5A5A",
+    color: Colors.gray[100],
     fontSize: 16,
     ...InterSmall,
   },

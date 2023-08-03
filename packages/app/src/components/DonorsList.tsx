@@ -1,90 +1,70 @@
-import React, { useState } from "react";
-import { Image, Text, TouchableOpacity, View, StyleSheet } from "react-native";
-import { InterRegular, InterSemiBold } from "../utils/webFonts";
-import { DonorBlueIcon } from "../@constants/ColorTypeIcons";
+import React, { useState } from 'react';
+import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import { InterRegular, InterSemiBold } from '../utils/webFonts';
+import { DonorBlueIcon } from '../@constants/ColorTypeIcons';
+import { Colors } from '../utils/colors';
 
 interface DonorsListProps {
   imageUrl?: string;
   username: string;
-  listType: string;
   donated: number;
 }
 
-function DonorsList({
-  imageUrl,
-  username,
-  listType,
-  donated,
-}: DonorsListProps) {
+function DonorsList({ imageUrl, username, donated }: DonorsListProps) {
   return (
     <View>
       <View style={styles.row}>
         <Image source={{ uri: DonorBlueIcon }} style={styles.firstIcon}></Image>
         <Text style={styles.rowText}>Donors</Text>
       </View>
-      {listType == "donor" &&
-        [1, 2, 3, 4, 5, 6].map((item) => (
-          <View>
-            {item == 1 && (
-              <View style={styles.row}>
-                <View style={[styles.circle, { backgroundColor: "#FFDD28" }]}>
-                  <Text style={[styles.circleText, { color: "#B29706" }]}>
-                    {item}
-                  </Text>
-                </View>
+      {[1, 2, 3, 4, 5, 6].map((item) => (
+        <View>
+          {item == 1 && (
+            <View style={styles.row}>
+              <View style={[styles.circle, { backgroundColor: Colors.yellow[100] }]}>
+                <Text style={[styles.circleText, { color: Colors.yellow[200] }]}>{item}</Text>
+              </View>
 
-                <Text style={[styles.rowText, { color: "#B29706" }]}>
-                  {username}
-                </Text>
-                <Text style={styles.rowText2}>
-                  <Text style={{ ...InterSemiBold }}>G$</Text> {donated}
-                </Text>
+              <Text style={[styles.rowText, { color: Colors.yellow[200] }]}>{username}</Text>
+              <Text style={styles.rowText2}>
+                <Text style={{ ...InterSemiBold }}>G$</Text> {donated}
+              </Text>
+            </View>
+          )}
+          {item == 2 && (
+            <View style={styles.row}>
+              <View style={[styles.circle, { backgroundColor: Colors.gray[700] }]}>
+                <Text style={[styles.circleText, { color: Colors.blue[200] }]}>{item}</Text>
               </View>
-            )}
-            {item == 2 && (
-              <View style={styles.row}>
-                <View style={[styles.circle, { backgroundColor: "#C7D4D8" }]}>
-                  <Text style={[styles.circleText, { color: "#3B7587" }]}>
-                    {item}
-                  </Text>
-                </View>
 
-                <Text style={[styles.rowText, { color: "#3B7587" }]}>
-                  {username}
-                </Text>
-                <Text style={styles.rowText2}>
-                  <Text style={{ ...InterSemiBold }}>G$</Text> {donated}
-                </Text>
+              <Text style={[styles.rowText, { color: Colors.blue[200] }]}>{username}</Text>
+              <Text style={styles.rowText2}>
+                <Text style={{ ...InterSemiBold }}>G$</Text> {donated}
+              </Text>
+            </View>
+          )}
+          {item == 3 && (
+            <View style={styles.row}>
+              <View style={[styles.circle, { backgroundColor: Colors.orange[400] }]}>
+                <Text style={[styles.circleText, { color: Colors.brown[100] }]}>{item}</Text>
               </View>
-            )}
-            {item == 3 && (
-              <View style={styles.row}>
-                <View style={[styles.circle, { backgroundColor: "#FFB674" }]}>
-                  <Text style={[styles.circleText, { color: "#945C29" }]}>
-                    {item}
-                  </Text>
-                </View>
-                <Text style={[styles.rowText, { color: "#945C29" }]}>
-                  {username}
-                </Text>
-                <Text style={styles.rowText2}>
-                  <Text style={{ ...InterSemiBold }}>G$</Text> {donated}
-                </Text>
-              </View>
-            )}
-            {item > 3 && (
-              <View style={styles.row}>
-                <Text style={styles.rowNumber}>{item}</Text>
-                <Text style={[styles.rowText, { color: "000" }]}>
-                  {username}
-                </Text>
-                <Text style={styles.rowText2}>
-                  <Text style={{ ...InterSemiBold }}>G$</Text> {donated}
-                </Text>
-              </View>
-            )}
-          </View>
-        ))}
+              <Text style={[styles.rowText, { color: Colors.brown[100] }]}>{username}</Text>
+              <Text style={styles.rowText2}>
+                <Text style={{ ...InterSemiBold }}>G$</Text> {donated}
+              </Text>
+            </View>
+          )}
+          {item > 3 && (
+            <View style={styles.row}>
+              <Text style={styles.rowNumber}>{item}</Text>
+              <Text style={[styles.rowText, { color: Colors.black }]}>{username}</Text>
+              <Text style={styles.rowText2}>
+                <Text style={{ ...InterSemiBold }}>G$</Text> {donated}
+              </Text>
+            </View>
+          )}
+        </View>
+      ))}
     </View>
   );
 }
@@ -115,7 +95,7 @@ const styles = StyleSheet.create({
   rowNumber: {
     fontSize: 16,
     lineHeight: 24,
-    color: "#000",
+    color: Colors.black,
     ...InterRegular,
   },
   groupIcon: {
@@ -123,27 +103,27 @@ const styles = StyleSheet.create({
     height: 8,
   },
   row: {
-    width: "100%",
-    backgroundColor: "#FFF",
+    width: '100%',
+    backgroundColor: Colors.white,
     flex: 1,
-    flexDirection: "row",
+    flexDirection: 'row',
     marginBottom: 24,
-    alignItems: "center",
+    alignItems: 'center',
     ...InterSemiBold,
   },
   rowText: {
     fontSize: 16,
     ...InterSemiBold,
     marginLeft: 16,
-    width: "100%",
-    color: "#000",
+    width: '100%',
+    color: Colors.black,
   },
   rowText2: {
     fontSize: 14,
     ...InterRegular,
-    textAlign: "right",
-    width: "100%",
-    color: "#5A5A5A",
+    textAlign: 'right',
+    width: '100%',
+    color: Colors.gray[100],
   },
 });
 export default DonorsList;

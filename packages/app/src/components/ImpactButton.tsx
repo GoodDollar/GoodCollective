@@ -1,6 +1,7 @@
-import { Image, Text, TouchableOpacity, View, StyleSheet } from "react-native";
-import { ChevronRightIcon } from "../@constants/ChevronIcons";
-import { InterSemiBold } from "../utils/webFonts";
+import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import { ChevronRightIcon } from '../@constants/ChevronIcons';
+import { InterSemiBold } from '../utils/webFonts';
+import { Colors } from '../utils/colors';
 
 interface ImpactButtonProps {
   title: string;
@@ -19,11 +20,11 @@ function ImpactButton({ title }: ImpactButtonProps) {
 
 const styles = StyleSheet.create({
   button: {
-    width: "100%",
+    width: '100%',
     height: 56,
-    backgroundColor: "#5B7AC6",
-    color: "#E2EAFF",
-    position: "absolute",
+    backgroundColor: Colors.purple[200],
+    color: Colors.purple[100],
+    position: 'absolute',
     bottom: 35,
     right: -1,
     paddingVertical: 8,
@@ -33,22 +34,22 @@ const styles = StyleSheet.create({
   },
   buttonContent: {
     flex: 1,
-    flexDirection: "row",
-    width: "70%",
-    alignSelf: "center",
-    alignItems: "center",
+    flexDirection: 'row',
+    width: '70%',
+    alignSelf: 'center',
+    alignItems: 'center',
   },
   buttonText: {
-    color: "#E2EAFF",
+    color: Colors.purple[100],
     fontSize: 18,
     ...InterSemiBold,
     lineHeight: 27,
-    textAlign: "center",
+    textAlign: 'center',
   },
   icon: {
     width: 24,
     height: 24,
-    color: "#FFFFFF",
+    color: Colors.black,
   },
 });
 

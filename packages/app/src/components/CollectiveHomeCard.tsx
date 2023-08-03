@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
-import { InterBold, InterSemiBold, InterSmall } from "../utils/webFonts";
-import useCrossNavigate from "../routes/useCrossNavigate";
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { InterBold, InterSemiBold, InterSmall } from '../utils/webFonts';
+import useCrossNavigate from '../routes/useCrossNavigate';
+import { Colors } from '../utils/colors';
 
 interface CollectiveHomeCardProps {
   imageUrl?: string;
@@ -8,18 +9,11 @@ interface CollectiveHomeCardProps {
   description: string;
 }
 
-function CollectiveHomeCard({
-  title,
-  description,
-  imageUrl,
-}: CollectiveHomeCardProps) {
+function CollectiveHomeCard({ title, description, imageUrl }: CollectiveHomeCardProps) {
   const { navigate } = useCrossNavigate();
 
   return (
-    <TouchableOpacity
-      style={[styles.cardContainer, styles.elevation]}
-      onPress={() => navigate("/viewCollective")}
-    >
+    <TouchableOpacity style={[styles.cardContainer, styles.elevation]} onPress={() => navigate('/viewCollective')}>
       <Image source={{ uri: imageUrl }} style={styles.sectionImage} />
       <View style={styles.cardDescriptionContainer}>
         <Text style={styles.cardTitle}>{title}</Text>
@@ -31,9 +25,9 @@ function CollectiveHomeCard({
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: "100%",
+    width: '100%',
     height: 330,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Colors.white,
     paddingTop: 0,
     borderRadius: 20,
     flex: 1,
@@ -47,15 +41,15 @@ const styles = StyleSheet.create({
   cardDescription: {
     marginTop: 8,
     fontSize: 18,
-    fontWeight: "400",
-    color: "#5A5A5A",
+    fontWeight: '400',
+    color: Colors.gray[100],
     ...InterSmall,
     lineHeight: 24,
   },
   sectionImage: {
-    resizeMode: "cover",
+    resizeMode: 'cover',
     height: 192,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
@@ -65,7 +59,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   elevation: {
-    shadowColor: "#000000",
+    shadowColor: Colors.black,
     shadowOffset: {
       width: 0,
       height: 12,

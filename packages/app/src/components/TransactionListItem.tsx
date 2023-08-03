@@ -1,34 +1,25 @@
-import React, { useState } from "react";
-import { Image, Text, TouchableOpacity, View, StyleSheet } from "react-native";
-import { InterRegular, InterSemiBold } from "../utils/webFonts";
-import {
-  ReceiveIcon,
-  SendIcon,
-  TransactionIcon,
-} from "../@constants/ColorTypeIcons";
+import React, { useState } from 'react';
+import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import { InterRegular, InterSemiBold } from '../utils/webFonts';
+import { ReceiveIcon, SendIcon, TransactionIcon } from '../@constants/ColorTypeIcons';
+import { Colors } from '../utils/colors';
 
 interface TransactionListProps {
   username: string;
-  dataUnit: string;
+  currency: string;
   amount: number;
   id: string;
   receive: boolean;
 }
 
-function TransactionListItem({
-  username,
-  dataUnit,
-  amount,
-  id,
-  receive,
-}: TransactionListProps) {
+function TransactionListItem({ username, currency, amount, id, receive }: TransactionListProps) {
   return (
     <View>
       <View style={styles.row}>
         {receive ? (
-          <View style={[styles.bar, { backgroundColor: "#95EED8" }]}></View>
+          <View style={[styles.bar, { backgroundColor: Colors.green[100] }]}></View>
         ) : (
-          <View style={[styles.bar, { backgroundColor: "#FFC48E" }]}></View>
+          <View style={[styles.bar, { backgroundColor: Colors.orange[100] }]}></View>
         )}
 
         {receive ? (
@@ -36,23 +27,22 @@ function TransactionListItem({
         ) : (
           <Image source={{ uri: SendIcon }} style={styles.rowIcon}></Image>
         )}
-        <View style={{ width: "100%" }}>
-          <View style={{ flex: 1, flexDirection: "row", alignSelf: "stretch" }}>
+        <View style={{ width: '100%' }}>
+          <View style={{ flex: 1, flexDirection: 'row', alignSelf: 'stretch' }}>
             <Text style={styles.rowInfo}>{username}</Text>
-            <Text style={styles.dataUnit}>G${"   "}</Text>
+            <Text style={styles.currency}>
+              {currency}
+              {'   '}
+            </Text>
             <Text style={styles.amount}>{amount}</Text>
           </View>
           <View>
             <Text style={styles.id}>{id}</Text>
           </View>
           <View>
-            <View style={{ flex: 1, flexDirection: "row" }}>
-              <Text style={[styles.lowerText, styles.alignLeft]}>
-                Transaccion fee{" (Gas)"}
-              </Text>
-              <Text style={[styles.lowerText, styles.alignRight]}>
-                CELO .00075
-              </Text>
+            <View style={{ flex: 1, flexDirection: 'row' }}>
+              <Text style={[styles.lowerText, styles.alignLeft]}>Transaccion fee{' (Gas)'}</Text>
+              <Text style={[styles.lowerText, styles.alignRight]}>CELO .00075</Text>
             </View>
           </View>
         </View>
@@ -70,20 +60,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     ...InterSemiBold,
     marginLeft: 16,
-    width: "100%",
-    color: "#000",
+    width: '100%',
+    color: Colors.black,
   },
   row: {
     width: 300,
-    backgroundColor: "#FFF",
     flex: 1,
-    flexDirection: "row",
+    flexDirection: 'row',
     marginVertical: 8,
     gap: 8,
+    backgroundColor: Colors.white,
   },
   bar: {
     width: 6,
-    alignSelf: "stretch",
+    alignSelf: 'stretch',
   },
   rowIcon: {
     height: 28,
@@ -93,40 +83,40 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
     ...InterSemiBold,
     fontSize: 16,
-    color: "#000",
-    width: "100%",
+    color: Colors.black,
+    width: '100%',
     marginBottom: 8,
   },
-  dataUnit: {
+  currency: {
     ...InterSemiBold,
     fontSize: 14,
-    color: "#5A5A5A",
-    textAlign: "right",
+    color: Colors.gray[100],
+    textAlign: 'right',
   },
   amount: {
     ...InterRegular,
     fontSize: 14,
-    color: "#5A5A5A",
-    textAlign: "right",
+    color: Colors.gray[100],
+    textAlign: 'right',
   },
   id: {
     ...InterRegular,
     fontSize: 10,
-    color: "#5A5A5A",
+    color: Colors.gray[100],
     marginBottom: 8,
   },
   lowerText: {
     ...InterRegular,
     fontSize: 12,
-    color: "#959090",
+    color: Colors.gray[200],
     marginBottom: 8,
-    width: "100%",
+    width: '100%',
   },
   alignLeft: {
-    textAlign: "left",
+    textAlign: 'left',
   },
   alignRight: {
-    textAlign: "right",
+    textAlign: 'right',
   },
 });
 

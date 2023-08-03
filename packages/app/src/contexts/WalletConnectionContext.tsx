@@ -29,7 +29,7 @@ const WalletConnectionProvider: React.FC<{
       await connect();
       await switchNetwork(42220);
     } catch (error) {
-      console.log("connectWallet Error - ", error);
+      console.log('connectWallet Error - ', error);
     }
   };
 

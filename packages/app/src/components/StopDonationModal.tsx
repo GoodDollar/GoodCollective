@@ -1,63 +1,38 @@
-import React, { useState } from "react";
-import {
-  Alert,
-  Modal,
-  StyleSheet,
-  Text,
-  Pressable,
-  View,
-  Image,
-  TouchableOpacity,
-} from "react-native";
-import { InterRegular, InterSemiBold } from "../utils/webFonts";
-import { CloseIcon } from "../@constants/ChevronIcons";
-import { PhoneImg } from "../@constants/PhoneImg";
-import { ThankYouImg } from "../@constants/ThankYouImg";
-import { QuestionImg } from "../@constants/QuestionImg";
+import React, { useState } from 'react';
+import { Alert, Modal, StyleSheet, Text, Pressable, View, Image, TouchableOpacity } from 'react-native';
+import { InterRegular, InterSemiBold } from '../utils/webFonts';
+import { CloseIcon } from '../@constants/ChevronIcons';
+import { PhoneImg } from '../@constants/PhoneImg';
+import { ThankYouImg } from '../@constants/ThankYouImg';
+import { QuestionImg } from '../@constants/QuestionImg';
+import useCrossNavigate from '../routes/useCrossNavigate';
+import { Colors } from '../utils/colors';
 
-const StopDonationModal = () => {
-  const [modalVisible, setModalVisible] = useState(false);
+interface StopDonationModalProps {
+  openModal: boolean;
+  setOpenModal: any;
+}
+
+const StopDonationModal = ({ openModal, setOpenModal }: StopDonationModalProps) => {
+  const { navigate } = useCrossNavigate();
   return (
     <View style={styles.centeredView}>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-          setModalVisible(!modalVisible);
-        }}
-      >
+      <Modal animationType="slide" transparent={true} visible={openModal}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.title}>
-              ARE YOU SURE YOU WANT TO STOP YOUR DONATION?
-            </Text>
+            <Text style={styles.title}>ARE YOU SURE YOU WANT TO STOP YOUR DONATION?</Text>
             <Text style={styles.paragraph}>
-              If so, please sign with your wallet. If not, please click below to
-              return to the GoodCollective you support.
+              If so, please sign with your wallet. If not, please click below to return to the GoodCollective you
+              support.
             </Text>
 
-            <Image
-              source={{ uri: QuestionImg }}
-              alt="woman"
-              style={styles.image}
-            />
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => setModalVisible(false)}
-            >
+            <Image source={{ uri: QuestionImg }} alt="woman" style={styles.image} />
+            <TouchableOpacity style={styles.button} onPress={() => setOpenModal(false)}>
               <Text style={styles.buttonText}>GO BACK</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-      <Pressable
-        style={[styles.button, styles.buttonOpen]}
-        onPress={() => setModalVisible(true)}
-      >
-        <Text style={styles.textStyle}>Show Modal</Text>
-      </Pressable>
     </View>
   );
 };
@@ -65,20 +40,20 @@ const StopDonationModal = () => {
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 22,
   },
   modalView: {
     margin: 20,
-    backgroundColor: "#CBDAFF",
+    backgroundColor: Colors.blue[100],
     borderRadius: 20,
     paddingTop: 24,
     paddingHorizontal: 24,
     paddingBottom: 40,
     gap: 24,
-    alignItems: "center",
-    shadowColor: "#000",
+    alignItems: 'center',
+    shadowColor: Colors.black,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -89,61 +64,55 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 30,
-    textAlign: "center",
+    textAlign: 'center',
     marginHorizontal: 0,
     ...InterSemiBold,
   },
   paragraph: {
     ...InterRegular,
     fontSize: 18,
-    textAlign: "center",
-    width: "100%",
+    textAlign: 'center',
+    width: '100%',
     lineHeight: 27,
   },
   image: {
-    alignSelf: "center",
+    alignSelf: 'center',
     width: 190,
     height: 224,
   },
   closeIcon: {
     width: 24,
     height: 24,
-    alignSelf: "flex-end",
+    alignSelf: 'flex-end',
   },
 
   button: {
-    backgroundColor: "#FFC48E",
-    width: "100%",
+    backgroundColor: Colors.orange[100],
+    width: '100%',
     borderRadius: 30,
     paddingTop: 12,
     paddingRight: 22,
     paddingBottom: 12,
     paddingLeft: 20,
     gap: 8,
-    alignContent: "center",
+    alignContent: 'center',
   },
   buttonText: {
     ...InterSemiBold,
     fontSize: 18,
-    textAlign: "center",
-    alignSelf: "center",
-    marginHorizontal: "35%",
+    textAlign: 'center',
+    alignSelf: 'center',
+    color: Colors.orange[300],
   },
 
-  buttonOpen: {
-    backgroundColor: "#F194FF",
-  },
-  buttonClose: {
-    backgroundColor: "#2196F3",
-  },
   textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   modalText: {
     marginBottom: 15,
-    textAlign: "center",
+    textAlign: 'center',
   },
 });
 

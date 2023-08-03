@@ -3,7 +3,7 @@ import { NativeBaseProvider } from 'native-base';
 import { ethers } from 'ethers';
 import { OnboardProvider, Web3Provider } from '@gooddollar/web3sdk-v2';
 import { useConnectWallet } from '@web3-onboard/react';
-import {WalletConnectionProvider} from "./contexts/WalletConnectionContext";
+import { WalletConnectionProvider } from './contexts/WalletConnectionContext';
 
 // wrapper around Web3Provider which initializes useDapp
 // it is required since usConnectWallet can not be used before onboardprovider is initialized
@@ -40,9 +40,7 @@ export const Providers = ({ children }: { children: any }) => {
     <NativeBaseProvider>
       <OnboardProvider>
         <Web3ProviderWrapper>
-          <WalletConnectionProvider>
-            {children}
-          </WalletConnectionProvider>
+          <WalletConnectionProvider>{children}</WalletConnectionProvider>
         </Web3ProviderWrapper>
       </OnboardProvider>
     </NativeBaseProvider>

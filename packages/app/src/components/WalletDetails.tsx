@@ -1,34 +1,31 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
-import {
-  InterBold,
-  InterSemiBold,
-  InterRegular,
-  InterMedium,
-} from "../utils/webFonts";
-import EmptyProfile from "./EmptyProfile";
-import { WalletProfileTypes } from "../@constants/WalletProfileTypes";
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { InterBold, InterSemiBold, InterRegular, InterMedium } from '../utils/webFonts';
+import EmptyProfile from './EmptyProfile';
+import { WalletProfileTypes } from '../@constants/WalletProfileTypes';
+import { Colors } from '../utils/colors';
 
 interface WalletProfileProps {
   imageUrl: string;
-  username: string;
   firstName: string;
   lastName: string;
-  actions: number;
-  received: number;
-  collectivesTotal: number;
-  collectives?: {};
-  type: WalletProfileTypes;
+  actionsPerformed: number;
+  amountReceived?: number;
+  collectivesTotal?: number;
+  creationDate?: string;
+  amountDonated?: number;
+  peopleSupported?: number;
+  walletConnected: boolean;
+  type: string;
 }
 
 function WalletDetails({
-  imageUrl,
-  username,
   firstName,
-  lastName,
-  actions,
-  received,
+  actionsPerformed,
+  amountReceived,
   collectivesTotal,
-  collectives,
+  creationDate,
+  amountDonated,
+  peopleSupported,
   type,
 }: WalletProfileProps) {
   return (
@@ -39,9 +36,9 @@ function WalletDetails({
           <View style={styles.row}>
             <View style={[styles.impactBar, styles.orangeBar]}></View>
             <View style={styles.rowContent}>
-              <Text style={styles.rowTitle}>Markena has performed</Text>
+              <Text style={styles.rowTitle}>{firstName} has performed</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
-                <Text style={styles.rowBoldText}>780</Text>
+                <Text style={styles.rowBoldText}>{actionsPerformed}</Text>
                 <Text style={styles.rowText}> actions</Text>
               </View>
             </View>
@@ -52,8 +49,8 @@ function WalletDetails({
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>And has received</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
-                <Text style={styles.rowBoldText}>780</Text>
-                <Text style={styles.rowText}> actions</Text>
+                <Text style={styles.rowBoldText}>G$</Text>
+                <Text style={styles.rowText}> {amountReceived}</Text>
               </View>
               <Text>= 113.84 USD</Text>
             </View>
@@ -64,8 +61,8 @@ function WalletDetails({
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>from the following</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
-                <Text style={styles.rowBoldText}>780</Text>
-                <Text style={styles.rowText}> actions</Text>
+                <Text style={styles.rowBoldText}>{collectivesTotal}</Text>
+                <Text style={styles.rowText}> Collectives</Text>
               </View>
             </View>
           </View>
@@ -79,8 +76,8 @@ function WalletDetails({
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>Laboso has donated a total of</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
-                <Text style={styles.rowBoldText}>780</Text>
-                <Text style={styles.rowText}> actions</Text>
+                <Text style={styles.rowBoldText}>G$</Text>
+                <Text style={styles.rowText}>{amountDonated}</Text>
               </View>
               <Text>= 2,425,52 USD</Text>
             </View>
@@ -90,7 +87,7 @@ function WalletDetails({
             <View style={[styles.impactBar, styles.greenBar]}></View>
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>Since</Text>
-              <Text style={styles.rowText}>January 24, 2023</Text>
+              <Text style={styles.rowText}>{creationDate}</Text>
             </View>
           </View>
 
@@ -99,8 +96,8 @@ function WalletDetails({
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>Laboso's funding supported</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
-                <Text style={styles.rowBoldText}>780</Text>
-                <Text style={styles.rowText}> actions</Text>
+                <Text style={styles.rowBoldText}>{peopleSupported}</Text>
+                <Text style={styles.rowText}> people</Text>
               </View>
             </View>
           </View>
@@ -117,18 +114,16 @@ function WalletDetails({
           </View>
         </View>
       )}
-      {/**Donor's wallet details */}
+      {/**Donor and Steward's wallet details */}
       {type == WalletProfileTypes.both && (
         <View>
           <View style={styles.row}>
             <View style={[styles.impactBar, styles.greenBar]}></View>
             <View style={styles.rowContent}>
-              <Text style={styles.rowTitle}>
-                This wallet has donated a total of
-              </Text>
+              <Text style={styles.rowTitle}>This wallet has donated a total of</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
-                <Text style={styles.rowBoldText}>780</Text>
-                <Text style={styles.rowText}> actions</Text>
+                <Text style={styles.rowBoldText}>G$</Text>
+                <Text style={styles.rowText}>{amountDonated}</Text>
               </View>
               <Text>= 15,000,000 USD</Text>
             </View>
@@ -138,19 +133,17 @@ function WalletDetails({
             <View style={[styles.impactBar, styles.greenBar]}></View>
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>Since</Text>
-              <Text style={styles.rowText}>March 12, 2022</Text>
+              <Text style={styles.rowText}>{creationDate}</Text>
             </View>
           </View>
 
           <View style={styles.row}>
             <View style={[styles.impactBar, styles.greenBar]}></View>
             <View style={styles.rowContent}>
-              <Text style={styles.rowTitle}>
-                This wallet's funding supported
-              </Text>
+              <Text style={styles.rowTitle}>This wallet's funding supported</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
-                <Text style={styles.rowBoldText}>780</Text>
-                <Text style={styles.rowText}> actions</Text>
+                <Text style={styles.rowBoldText}>{peopleSupported}</Text>
+                <Text style={styles.rowText}> people</Text>
               </View>
             </View>
           </View>
@@ -160,8 +153,8 @@ function WalletDetails({
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>And received</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
-                <Text style={styles.rowBoldText}>780</Text>
-                <Text style={styles.rowText}> actions</Text>
+                <Text style={styles.rowBoldText}>G$</Text>
+                <Text style={styles.rowText}>{amountReceived}</Text>
               </View>
             </View>
           </View>
@@ -171,8 +164,8 @@ function WalletDetails({
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>in the following</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
-                <Text style={styles.rowBoldText}>780</Text>
-                <Text style={styles.rowText}> actions</Text>
+                <Text style={styles.rowBoldText}>{collectivesTotal}</Text>
+                <Text style={styles.rowText}> Collectives</Text>
               </View>
             </View>
           </View>
@@ -186,20 +179,20 @@ function WalletDetails({
 const styles = StyleSheet.create({
   impactBar: {
     width: 8,
-    alignSelf: "stretch",
+    alignSelf: 'stretch',
   },
   greenBar: {
-    backgroundColor: "#95EED8",
+    backgroundColor: Colors.green[100],
   },
   orangeBar: {
-    backgroundColor: "#FFAD62",
+    backgroundColor: Colors.orange[100],
   },
   blueBar: {
-    backgroundColor: "#B8C8F2",
+    backgroundColor: Colors.purple[300],
   },
   row: {
     flex: 1,
-    flexDirection: "row",
+    flexDirection: 'row',
     marginBottom: 16,
     height: 53,
   },
@@ -215,14 +208,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     paddingHorizontal: 5,
     ...InterSemiBold,
-    color: "#5A5A5A",
+    color: Colors.gray[100],
   },
   rowText: {
     fontSize: 18,
-    fontWeight: "400",
+    fontWeight: '400',
     paddingHorizontal: 5,
-    fontFamily: "Inter",
-    color: "#5A5A5A",
+    fontFamily: 'Inter',
+    color: Colors.gray[100],
   },
 });
 

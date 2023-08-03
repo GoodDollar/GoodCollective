@@ -1,10 +1,11 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
-import oceanUri from "../@constants/SafariImagePlaceholder";
-import Layout from "../components/Layout";
-import StewardList from "../components/StewardsList";
-import ImpactButton from "../components/ImpactButton";
-import DonorsList from "../components/DonorsList";
-import { InterSemiBold } from "../utils/webFonts";
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import oceanUri from '../@constants/SafariImagePlaceholder';
+import Layout from '../components/Layout';
+import StewardList from '../components/StewardsList';
+import ImpactButton from '../components/ImpactButton';
+import DonorsList from '../components/DonorsList';
+import { InterSemiBold } from '../utils/webFonts';
+import { Colors } from '../utils/colors';
 
 function ViewDonorsPage() {
   return (
@@ -15,7 +16,7 @@ function ViewDonorsPage() {
           <Text style={styles.title}>Restoring the Kakamega Forest</Text>
         </View>
         <View style={styles.container2}>
-          <DonorsList listType="donor" username="username123" donated={10.27} />
+          <DonorsList username="username123" donated={10.27} />
         </View>
       </View>
     </Layout>
@@ -24,32 +25,32 @@ function ViewDonorsPage() {
 
 const styles = StyleSheet.create({
   donorsContainer: {
-    backgroundColor: "#e2e7eb",
+    backgroundColor: Colors.gray[800],
   },
   container: {
-    width: "100%",
+    width: '100%',
     padding: 16,
-    shadowColor: "#000000",
-    marginBottom: 25,
-    backgroundColor: "#FFFFFF",
+    shadowColor: Colors.black,
+    marginBottom: 16,
+    backgroundColor: Colors.white,
     borderRadius: 16,
   },
   container2: {
-    width: "100%",
+    width: '100%',
     padding: 16,
     gap: 24,
-    shadowColor: "#000000",
-    marginBottom: 24,
-    backgroundColor: "#FFFFFF",
+    shadowColor: Colors.black,
+    backgroundColor: Colors.white,
+    marginBottom: 50,
   },
   image: {
-    width: "100%",
+    width: '100%',
     height: 192,
   },
   title: {
     ...InterSemiBold,
     fontSize: 20,
-    color: "#000",
+    color: Colors.black,
     marginBottom: 8,
   },
 });
