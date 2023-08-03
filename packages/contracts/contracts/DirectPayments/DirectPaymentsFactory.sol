@@ -5,6 +5,9 @@ pragma solidity >=0.8.0;
 import "./DirectPaymentsPool.sol";
 import "./ProvableNFT.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
+import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
+
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
@@ -32,7 +35,7 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         string projectId;
     }
 
-    address public impl;
+    UpgradeableBeacon public impl;
     ProvableNFT public nft;
     uint32 public nextNftType;
 
@@ -73,7 +76,7 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         uint32 _feeBps
     ) external initializer {
         nextNftType = 1;
-        impl = _dpimpl;
+        impl = new UpgradeableBeacon(_dpimpl);
         nft = _nft;
         feeRecipient = _feeRecipient;
         feeBps = _feeBps;
@@ -87,7 +90,9 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         string memory _ipfs,
         DirectPaymentsPool.PoolSettings memory _settings,
         DirectPaymentsPool.SafetyLimits memory _limits
-    ) external onlyProjectOwnerOrNon(_projectId) returns (DirectPaymentsPool pool) {}
+    ) external onlyProjectOwnerOrNon(_projectId) returns (DirectPaymentsPool pool) {
+        return _createPool(_projectId, _ipfs, _settings, _limits, true);
+    }
 
     function createPool(
         string memory _projectId,
@@ -95,6 +100,16 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         DirectPaymentsPool.PoolSettings memory _settings,
         DirectPaymentsPool.SafetyLimits memory _limits
     ) external onlyProjectOwnerOrNon(_projectId) returns (DirectPaymentsPool pool) {
+        return _createPool(_projectId, _ipfs, _settings, _limits, false);
+    }
+
+    function _createPool(
+        string memory _projectId,
+        string memory _ipfs,
+        DirectPaymentsPool.PoolSettings memory _settings,
+        DirectPaymentsPool.SafetyLimits memory _limits,
+        bool useBeacon
+    ) internal returns (DirectPaymentsPool pool) {
         //TODO: add check if msg.sender is whitelisted
 
         _settings.nftType = nextNftType;
@@ -105,7 +120,12 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
             _limits,
             address(this)
         );
-        pool = DirectPaymentsPool(address(new ERC1967Proxy(impl, initCall)));
+
+        if (useBeacon) {
+            pool = DirectPaymentsPool(address(new BeaconProxy(address(impl), initCall)));
+        } else {
+            pool = DirectPaymentsPool(address(new ERC1967Proxy(impl.implementation(), initCall)));
+        }
 
         nft.grantRole(nft.getManagerRole(nextNftType), _settings.manager);
         nft.grantRole(nft.getManagerRole(nextNftType), address(pool));
@@ -133,7 +153,7 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
     }
 
     function updateImpl(address _impl) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        impl = _impl;
+        impl.upgradeTo(_impl);
         emit UpdatedImpl(_impl);
     }
 
