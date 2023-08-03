@@ -68,18 +68,16 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
     function initialize(
         address _owner,
         address _dpimpl,
-        address _nftimpl,
+        ProvableNFT _nft,
         address _feeRecipient,
         uint32 _feeBps
     ) external initializer {
         nextNftType = 1;
         impl = _dpimpl;
-        bytes memory initCall = abi.encodeWithSelector(ProvableNFT.initialize.selector, "GoodCollective NFT", "GC-NFT");
-        nft = ProvableNFT(address(new ERC1967Proxy(_nftimpl, initCall)));
+        nft = _nft;
         feeRecipient = _feeRecipient;
         feeBps = _feeBps;
 
-        nft.grantRole(DEFAULT_ADMIN_ROLE, _owner);
         _setupRole(DEFAULT_ADMIN_ROLE, _owner);
     }
 
