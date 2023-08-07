@@ -136,7 +136,7 @@ contract DirectPaymentsPool is
     }
 
     function upgradeToLatest(bytes memory data) external payable virtual {
-        address impl = DirectPaymentsFactory(registry).impl();
+        address impl = address(DirectPaymentsFactory(registry).impl());
         _authorizeUpgrade(impl);
         _upgradeToAndCallUUPS(impl, data, false);
     }
