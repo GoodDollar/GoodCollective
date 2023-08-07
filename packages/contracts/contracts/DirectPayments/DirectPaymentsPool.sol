@@ -41,22 +41,30 @@ contract DirectPaymentsPool is
     error NOT_MANAGER();
     error ALREADY_CLAIMED(uint256);
     error NFT_MISSING(uint256);
-    error NOT_MEMBER(address);
-    error NOT_WHITELISTED(address);
     error OVER_MEMBER_LIMITS(address);
     error OVER_GLOBAL_LIMITS();
     error UNSUPPORTED_NFT();
     error NO_BALANCE();
+    error NFTTYPE_CHANGED();
+    error EMPTY_MANAGER();
 
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
+    bytes32 public constant MEMBER_ROLE = keccak256("MEMBER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER");
 
+    event PoolCreated(
+        address indexed pool,
+        string indexed projectId,
+        string ipfs,
+        uint32 indexed nftType,
+        DirectPaymentsPool.PoolSettings poolSettings,
+        DirectPaymentsPool.SafetyLimits poolLimits
+    );
     event PoolSettingsChanged(PoolSettings settings);
     event PoolLimitsChanged(SafetyLimits limits);
-    event MemberAdded(address member);
-    event MemberRemoved(address member);
-    event EventRewardClaimed(uint256 indexed tokenId, ProvableNFT.EventData eventData);
-    event NFTClaimed(uint256 indexed tokenId, uint256 totalRewards);
+    event EventRewardClaimed(uint256 indexed tokenId, ProvableNFT.EventData eventData, uint256 rewardPerContributer);
+    event NFTClaimed(uint256 indexed tokenId, uint256 totalRewards, ProvableNFT.NFTData nftData);
+    event NOT_MEMBER_OR_WHITELISTED(address contributer);
 
     // Define functions
     struct PoolSettings {
@@ -88,7 +96,7 @@ contract DirectPaymentsPool is
     ProvableNFT public nft;
 
     mapping(uint256 => bool) public claimedNfts;
-    mapping(address => bool) public members;
+    mapping(address => bool) private members_unused; // using access control instead
     mapping(address => LimitsData) public memberLimits;
     LimitsData public globalLimits;
     DirectPaymentsFactory public registry;
@@ -100,7 +108,7 @@ contract DirectPaymentsPool is
      * @dev Authorizes an upgrade for the implementation contract.
      * @param impl The address of the new implementation contract.
      */
-    function _authorizeUpgrade(address impl) internal virtual override {}
+    function _authorizeUpgrade(address impl) internal virtual override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
     function getRegistry() public view override returns (DirectPaymentsFactory) {
         return DirectPaymentsFactory(registry);
@@ -124,12 +132,11 @@ contract DirectPaymentsPool is
         nft = _nft;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(DEFAULT_ADMIN_ROLE, _settings.manager);
-
         setSuperToken(ISuperToken(address(settings.rewardToken)));
     }
 
-    function upgradeToLatest(bytes memory data) external payable virtual onlyProxy {
-        address impl = DirectPaymentsFactory(registry).impl();
+    function upgradeToLatest(bytes memory data) external payable virtual {
+        address impl = address(DirectPaymentsFactory(registry).impl());
         _authorizeUpgrade(impl);
         _upgradeToAndCallUUPS(impl, data, false);
     }
@@ -177,11 +184,11 @@ contract DirectPaymentsPool is
                 if (totalRewards > rewardsBalance) revert NO_BALANCE();
                 rewardsBalance -= totalRewards;
                 _sendReward(_data.events[i].contributers, uint128(reward * _data.events[i].quantity));
-                emit EventRewardClaimed(_nftId, _data.events[i]);
+                emit EventRewardClaimed(_nftId, _data.events[i], uint128(reward / _data.events[i].contributers.length));
             }
         }
 
-        emit NFTClaimed(_nftId, totalRewards);
+        emit NFTClaimed(_nftId, totalRewards, _data);
     }
 
     /**
@@ -203,11 +210,17 @@ contract DirectPaymentsPool is
      */
     function _sendReward(address[] memory recipients, uint128 reward) internal {
         uint128 perReward = uint128(reward / recipients.length);
+        uint128 totalSent;
         for (uint i = 0; i < recipients.length; i++) {
-            _enforceAndUpdateMemberLimits(recipients[i], perReward);
-            settings.rewardToken.safeTransfer(recipients[i], perReward);
+            bool valid = _enforceAndUpdateMemberLimits(recipients[i], perReward);
+            if (valid) {
+                settings.rewardToken.safeTransfer(recipients[i], perReward);
+                totalSent += perReward;
+            } else {
+                emit NOT_MEMBER_OR_WHITELISTED(recipients[i]);
+            }
         }
-        _enforceAndUpdateGlobalLimits(reward);
+        _enforceAndUpdateGlobalLimits(totalSent);
     }
 
     /**
@@ -215,8 +228,11 @@ contract DirectPaymentsPool is
      * @param member The address of the member to enforce and update limits for.
      * @param reward The amount of rewards to enforce and update limits for.
      */
-    function _enforceAndUpdateMemberLimits(address member, uint128 reward) internal {
-        if (members[member] == false) revert NOT_MEMBER(member);
+    function _enforceAndUpdateMemberLimits(address member, uint128 reward) internal returns (bool) {
+        //dont revert on non valid members, just dont reward them (their reward is lost)
+        if (_addMember(member, "") == false) {
+            return false;
+        }
 
         uint64 curMonth = _month();
         if (memberLimits[member].lastReward + 60 * 60 * 24 < block.timestamp) //more than a day passed since last reward
@@ -241,6 +257,8 @@ contract DirectPaymentsPool is
             memberLimits[member].daily > limits.maxMemberPerDay ||
             memberLimits[member].monthly > limits.maxMemberPerMonth
         ) revert OVER_MEMBER_LIMITS(member);
+
+        return true;
     }
 
     /**
@@ -285,32 +303,23 @@ contract DirectPaymentsPool is
      * @param extraData Additional data to validate the member.
      */
 
-    function addMember(address member, bytes memory extraData) external {
+    function _addMember(address member, bytes memory extraData) internal returns (bool isMember) {
+        if (hasRole(MEMBER_ROLE, member)) return true;
+
         if (address(settings.uniquenessValidator) != address(0)) {
             address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
-            if (rootAddress == address(0)) revert NOT_WHITELISTED(member);
+            if (rootAddress == address(0)) return false;
         }
 
+        // if no members validator then anyone can join the pool
         if (address(settings.membersValidator) != address(0)) {
             if (settings.membersValidator.isMemberValid(address(this), msg.sender, member, extraData) == false) {
-                revert NOT_MEMBER(member);
+                return false;
             }
-        } else {
-            // if no members validator then only admin can add members
-            if (hasRole(DEFAULT_ADMIN_ROLE, msg.sender) == false) revert NOT_MANAGER();
         }
 
-        members[member] = true;
-        emit MemberAdded(member);
-    }
-
-    /**
-     * @dev Removes a member from the contract.
-     * @param member The address of the member to remove.
-     */
-    function removeMember(address member) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        members[member] = false;
-        emit MemberRemoved(member);
+        _setupRole(MEMBER_ROLE, member);
+        return true;
     }
 
     function mintNFT(address _to, ProvableNFT.NFTData memory _nftData, bool withClaim) external onlyRole(MINTER_ROLE) {
@@ -321,7 +330,7 @@ contract DirectPaymentsPool is
     }
 
     /**
-     * @dev Receives an ERC721 token and triggers a claim for rewards.
+     * @dev Receives an ERC721 token
      * @param operator The address of the operator that sent the token.
      * @param from The address of the sender that sent the token.
      * @param tokenId The ID of the token received.
@@ -346,5 +355,28 @@ contract DirectPaymentsPool is
         ProvableNFT.NFTData memory nftData = nft.getNFTData(tokenId);
         if (nftData.nftType != settings.nftType) revert UNSUPPORTED_NFT();
         return DirectPaymentsPool.onERC721Received.selector;
+    }
+
+    /**
+     * @dev Sets the safety limits for the pool.
+     * @param _limits The new safety limits.
+     */
+    function setPoolLimits(SafetyLimits memory _limits) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        limits = _limits;
+        emit PoolLimitsChanged(_limits);
+    }
+
+    /**
+     * @dev Sets the settings for the pool.
+     * @param _settings The new pool settings.
+     */
+    function setPoolSettings(PoolSettings memory _settings) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (_settings.nftType != settings.nftType) revert NFTTYPE_CHANGED();
+        if (_settings.manager == address(0)) revert EMPTY_MANAGER();
+
+        _revokeRole(DEFAULT_ADMIN_ROLE, settings.manager);
+        settings = _settings;
+        _setupRole(DEFAULT_ADMIN_ROLE, _settings.manager);
+        emit PoolSettingsChanged(_settings);
     }
 }

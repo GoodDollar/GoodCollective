@@ -46,7 +46,7 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         bool isFlowUpdate
     );
 
-    //TODO: ask about "view" for beforeagreement functions
+    //TODO:
     // ask about "receiver" can it be different then app?
 
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable

@@ -73,14 +73,15 @@ describe('DirectPaymentsPool Superapp with Fees', () => {
     const swapMock = await ethers.deployContract('SwapRouterMock', [gdframework.GoodDollar.address]);
     const dpimpl = await ethers.deployContract('DirectPaymentsPool', [sfFramework['host'], swapMock.address]);
 
-    const nftimpl = await (await ethers.getContractFactory('ProvableNFT')).deploy();
-    factory = (await upgrades.deployProxy(
-      f,
-      [signer.address, dpimpl.address, nftimpl.address, signers[1].address, 1000],
-      {
-        kind: 'uups',
-      }
-    )) as DirectPaymentsFactory;
+    nft = (await upgrades.deployProxy(await ethers.getContractFactory('ProvableNFT'), ['nft', 'cc'], {
+      kind: 'uups',
+    })) as ProvableNFT;
+
+    factory = (await upgrades.deployProxy(f, [signer.address, dpimpl.address, nft.address, signers[1].address, 1000], {
+      kind: 'uups',
+    })) as DirectPaymentsFactory;
+
+    await nft.grantRole(ethers.constants.HashZero, factory.address);
   });
 
   const fixture = async () => {

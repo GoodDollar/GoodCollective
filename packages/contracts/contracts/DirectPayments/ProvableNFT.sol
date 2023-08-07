@@ -19,6 +19,8 @@ contract ProvableNFT is ERC721Upgradeable, AccessControlUpgradeable, UUPSUpgrade
     bytes32 public constant MINTER_ROLE = keccak256(abi.encodePacked("MINTER"));
     bytes16 private constant _SYMBOLS = "0123456789abcdef";
 
+    event ProvableNftMinted(uint256 tokenId, address to, bytes32 nftDataHash, NFTData nftData);
+
     struct EventData {
         uint16 subtype;
         uint32 timestamp;
@@ -77,18 +79,22 @@ contract ProvableNFT is ERC721Upgradeable, AccessControlUpgradeable, UUPSUpgrade
         string memory _uri,
         bytes32 _nftDataHash
     ) public onlyManager(0) returns (uint256 tokenId) {
-        return _mint(_to, _uri, _nftDataHash, ""); //send false in calldata, assuming default receiver is a directpaymentspool. without nft data on chain it will fail.
+        NFTData memory nftData;
+
+        return _mint(_to, _uri, _nftDataHash, nftData, ""); //send false in calldata, assuming default receiver is a directpaymentspool. without nft data on chain it will fail.
     }
 
     function _mint(
         address _to,
         string memory _uri,
         bytes32 _nftDataHash,
+        NFTData memory _nftData,
         bytes memory _callData
     ) internal returns (uint256 tokenId) {
         tokenId = uint256(_nftDataHash);
         nftDatas[tokenId].nftUri = _uri;
         _safeMint(_to, tokenId, _callData);
+        emit ProvableNftMinted(tokenId, _to, _nftDataHash, _nftData);
     }
 
     /**
@@ -123,7 +129,7 @@ contract ProvableNFT is ERC721Upgradeable, AccessControlUpgradeable, UUPSUpgrade
                 store.events.push(_nftData.events[i]);
             }
         }
-        _mint(_to, _nftData.nftUri, dataHash, _callData);
+        _mint(_to, _nftData.nftUri, dataHash, _nftData, _callData);
     }
 
     function proveNFTData(uint256 _tokenId, NFTData memory _nftData) public view returns (NFTData memory data) {

@@ -22,6 +22,7 @@ import ModalTestPage from './pages/ModalTestPage';
 import { Colors } from './utils/colors';
 import { NativeBaseProvider } from 'native-base';
 
+let sdk = new ClaimSDK(new ethers.providers.JsonRpcProvider('https://forno.celo.org'), 'development-celo');
 function App(): JSX.Element {
   return (
     <NativeBaseProvider>
