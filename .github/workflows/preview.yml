@@ -27,4 +27,4 @@ jobs:
       - run: yarn vercel pull --yes --cwd packages/app/ --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
       - run: yarn vercel build --cwd packages/app --token=${{ secrets.VERCEL_TOKEN }}
       - id: deploy
-        run: echo "::set-output name=url::$(yarn vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})"
+        run: echo "::set-output name=url::$(yarn vercel deploy --prebuilt --cwd packages/app --token=${{ secrets.VERCEL_TOKEN }})"
