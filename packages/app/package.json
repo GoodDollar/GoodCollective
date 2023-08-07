@@ -11,7 +11,7 @@
     "start": "react-native start",
     "test": "jest",
     "web": "vite -c web/vite.config.ts",
-    "build:web": "tsc -p web/tsconfig.json && vite build -c web/vite.config.ts",
+    "build:web": "tsc && vite build -c web/vite.config.ts",
     "preview:web": "vite preview -c web/vite.config.ts"
   },
   "dependencies": {
