@@ -12,7 +12,11 @@
   ],
   "private": true,
   "scripts": {
-    "publish": "yarn workspaces foreach --include '{@gooddollar/goodcollective-contracts,@gooddollar/goodcollective-sdk}' run publish"
+    "publish": "yarn workspaces foreach --include '{@gooddollar/goodcollective-contracts,@gooddollar/goodcollective-sdk}' run publish",
+    "build:contracts": "yarn workspace @gooddollar/goodcollective-contracts compile",
+    "deploy:contracts": "yarn workspace @gooddollar/goodcollective-contracts deploy",
+    "test:setup": "yarn workspace @gooddollar/goodcollective-contracts test:setup",
+    "test": "yarn workspaces foreach --include '{@gooddollar/goodcollective-contracts,@gooddollar/goodcollective-sdk}' run test"
   },
   "workspaces": {
     "packages": [
