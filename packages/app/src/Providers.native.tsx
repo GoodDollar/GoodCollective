@@ -6,9 +6,9 @@ import { Web3Modal, useWeb3Modal } from '@web3modal/react-native';
 // usedapp fix for native
 import LocalStorage from '@usedapp/core/dist/cjs/src/helpers/LocalStorage';
 
-if (!window) {
-  window = {};
-}
+// if (!window) {
+//   window = {} as typeof Window;
+// }
 window.localStorage = new LocalStorage();
 // end of usedapp fix
 const projectId = '62745569abcb6c8962cadf4d8568aad9';
@@ -24,7 +24,7 @@ const providerMetadata = {
   },
 };
 
-const Web3ProviderWrapper = ({ children }) => {
+const Web3ProviderWrapper = ({ children }: { children: any }) => {
   const { provider } = useWeb3Modal();
   const web3provider = provider ? new ethers.providers.Web3Provider(provider) : undefined;
   return (

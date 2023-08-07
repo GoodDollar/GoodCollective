@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    // "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable", "dom"],
     "module": "ESNext",
     "skipLibCheck": true,
 
@@ -14,14 +14,19 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "esModuleInterop": true,
+    "skipDefaultLibCheck": true,
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "types": ["vite/client"]
+    "types": [],
+    "typeRoots": ["../node_modules/@types"]
   },
-  "include": ["."],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["./", "../src/*"],
+  "exclude": [
+    "../node_modules",
+    "../node_modules/**/*",
+  ]
+  // "references": [{ "path": "./tsconfig.node.json" }]
 }

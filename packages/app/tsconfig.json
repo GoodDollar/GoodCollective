@@ -1,3 +1,36 @@
+// {
+//   "extends": "@tsconfig/react-native/tsconfig.json",
+// }
 {
-  "extends": "@tsconfig/react-native/tsconfig.json"
+  "compilerOptions": {
+    "target": "ES2020",
+    // "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable", "dom"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "skipDefaultLibCheck": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "types": [],
+    "typeRoots": ["../node_modules/@types"]
+  },
+  "include": ["./web/**/*", "../src/*"],
+  "exclude": [
+    "node_modules",
+    "node_modules/**/*",
+    "__tests__/**/*"
+  ]
+  // "references": [{ "path": "./tsconfig.node.json" }]
 }

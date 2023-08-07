@@ -30,9 +30,9 @@ function Section({ children, title }: SectionProps): JSX.Element {
 
 let sdk = new ClaimSDK(new ethers.providers.JsonRpcProvider('https://forno.celo.org'), 'development-celo');
 function App(): JSX.Element {
-  const [status, setStatus] = useState();
-  const [faucet, setFaucet] = useState();
-  const [claim, setClaim] = useState();
+  const [status, setStatus] = useState<boolean | undefined>();
+  const [faucet, setFaucet] = useState<boolean | undefined>();
+  const [claim, setClaim] = useState<string | undefined>();
 
   const isDarkMode = useColorScheme() === 'dark';
   const { account, library } = useEthers();
@@ -45,7 +45,7 @@ function App(): JSX.Element {
   };
 
   const startFaucet = async () => {
-    await sdk.getContract('Faucet').topWallet(account);
+    await sdk.getContract('Faucet').topWallet(account ?? '');
   };
 
   const startClaim = async () => {
@@ -64,7 +64,7 @@ function App(): JSX.Element {
 
     const encoded = sdk
       .getContract('GoodDollar')
-      .interface.encodeFunctionData('transfer', [account, ethers.constants.WeiPerEther]);
+      .interface.encodeFunctionData('transfer', [account ?? '', ethers.constants.WeiPerEther]);
     const tx = await w.sendTransaction({
       to: '0x03d3daB843e6c03b3d271eff9178e6A96c28D25f',
       data: encoded,
