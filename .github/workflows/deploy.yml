@@ -1,11 +1,20 @@
 # .github/workflows/deploy.yml
-name: deploy-dev
+name: Deploy Web - Production
 on:
   push:
     branches:
       - production
-      # - production/next
   workflow_dispatch:
+    inputs:
+      release:
+        description: 'release type'
+        required: true
+        default: 'production'
+      targetbranch:
+        description: 'target deployment branch'
+        required: true
+        default: 'production'
+
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
