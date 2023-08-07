@@ -96,7 +96,7 @@ describe('DirectPaymentsPool Superapp', () => {
         .createFlow({
           receiver: pool.address,
           sender: signer.address,
-          flowRate: ((await pool.MIN_FLOW_RATE()) - 1).toString(),
+          flowRate: ((await pool.MIN_FLOW_RATE()).toNumber() - 1).toString(),
         })
         .exec(signer)
     ).revertedWithCustomError(pool, 'MIN_FLOWRATE');
@@ -204,7 +204,7 @@ describe('DirectPaymentsPool Superapp', () => {
     expect(supporter.contribution).equal(1000);
     expect(supporter.lastUpdated).eq(0); //no update on single donation
     expect(supporter.flowRate).equal(0);
-    expect(supportAction).to.emit(pool, 'SupporterUpdated').withArgs(signer.address, 1000, 0, supportAction.timestamp);
+    expect(supportAction).to.emit(pool, 'SupporterUpdated').withArgs(signer.address, 0, 1000, 0, 0, false);
   });
 
   it('should be able to swap mockToken and stream when 0 G$ balance in one batch tx', async () => {

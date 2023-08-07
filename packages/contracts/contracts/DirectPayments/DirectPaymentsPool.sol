@@ -41,8 +41,6 @@ contract DirectPaymentsPool is
     error NOT_MANAGER();
     error ALREADY_CLAIMED(uint256);
     error NFT_MISSING(uint256);
-    error NOT_MEMBER(address);
-    error NOT_WHITELISTED(address);
     error OVER_MEMBER_LIMITS(address);
     error OVER_GLOBAL_LIMITS();
     error UNSUPPORTED_NFT();
@@ -66,6 +64,7 @@ contract DirectPaymentsPool is
     event PoolLimitsChanged(SafetyLimits limits);
     event EventRewardClaimed(uint256 indexed tokenId, ProvableNFT.EventData eventData, uint256 rewardPerContributer);
     event NFTClaimed(uint256 indexed tokenId, uint256 totalRewards, ProvableNFT.NFTData nftData);
+    event NOT_MEMBER_OR_WHITELISTED(address contributer);
 
     // Define functions
     struct PoolSettings {
@@ -211,11 +210,17 @@ contract DirectPaymentsPool is
      */
     function _sendReward(address[] memory recipients, uint128 reward) internal {
         uint128 perReward = uint128(reward / recipients.length);
+        uint128 totalSent;
         for (uint i = 0; i < recipients.length; i++) {
-            _enforceAndUpdateMemberLimits(recipients[i], perReward);
-            settings.rewardToken.safeTransfer(recipients[i], perReward);
+            bool valid = _enforceAndUpdateMemberLimits(recipients[i], perReward);
+            if (valid) {
+                settings.rewardToken.safeTransfer(recipients[i], perReward);
+                totalSent += perReward;
+            } else {
+                emit NOT_MEMBER_OR_WHITELISTED(recipients[i]);
+            }
         }
-        _enforceAndUpdateGlobalLimits(reward);
+        _enforceAndUpdateGlobalLimits(totalSent);
     }
 
     /**
@@ -223,9 +228,11 @@ contract DirectPaymentsPool is
      * @param member The address of the member to enforce and update limits for.
      * @param reward The amount of rewards to enforce and update limits for.
      */
-    function _enforceAndUpdateMemberLimits(address member, uint128 reward) internal {
-        //TODO: decide if this reverts the nft claiming or we just skip the member
-        if (_addMember(member, "") == false) revert NOT_MEMBER(member);
+    function _enforceAndUpdateMemberLimits(address member, uint128 reward) internal returns (bool) {
+        //dont revert on non valid members, just dont reward them (their reward is lost)
+        if (_addMember(member, "") == false) {
+            return false;
+        }
 
         uint64 curMonth = _month();
         if (memberLimits[member].lastReward + 60 * 60 * 24 < block.timestamp) //more than a day passed since last reward
@@ -250,6 +257,8 @@ contract DirectPaymentsPool is
             memberLimits[member].daily > limits.maxMemberPerDay ||
             memberLimits[member].monthly > limits.maxMemberPerMonth
         ) revert OVER_MEMBER_LIMITS(member);
+
+        return true;
     }
 
     /**
@@ -299,13 +308,13 @@ contract DirectPaymentsPool is
 
         if (address(settings.uniquenessValidator) != address(0)) {
             address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
-            if (rootAddress == address(0)) revert NOT_WHITELISTED(member);
+            if (rootAddress == address(0)) return false;
         }
 
         // if no members validator then anyone can join the pool
         if (address(settings.membersValidator) != address(0)) {
             if (settings.membersValidator.isMemberValid(address(this), msg.sender, member, extraData) == false) {
-                revert NOT_MEMBER(member);
+                return false;
             }
         }
 
