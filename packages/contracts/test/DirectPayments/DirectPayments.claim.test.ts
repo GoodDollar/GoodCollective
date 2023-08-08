@@ -4,6 +4,7 @@ import { deployTestFramework } from '@superfluid-finance/ethereum-contracts/dev-
 import { expect } from 'chai';
 import { DirectPaymentsPool, ProvableNFT } from 'typechain-types';
 import { ethers, upgrades } from 'hardhat';
+import { MockContract, deployMockContract } from 'ethereum-waffle';
 
 type SignerWithAddress = Awaited<ReturnType<typeof ethers.getSigner>>;
 
@@ -15,6 +16,7 @@ describe('DirectPaymentsPool Claim', () => {
   let poolSettings: DirectPaymentsPool.PoolSettingsStruct;
   let poolLimits: DirectPaymentsPool.SafetyLimitsStruct;
   let gdframework: Awaited<ReturnType<typeof deploySuperGoodDollar>>;
+  let membersValidator: any;
 
   const nftSample = {
     nftUri: 'uri',
@@ -35,7 +37,9 @@ describe('DirectPaymentsPool Claim', () => {
   before(async () => {
     const { frameworkDeployer } = await deployTestFramework();
     const sfFramework = await frameworkDeployer.getFramework();
+
     signers = await ethers.getSigners();
+
     gdframework = await deploySuperGoodDollar(signers[0], sfFramework);
     signer = signers[0];
     poolSettings = {
@@ -59,14 +63,29 @@ describe('DirectPaymentsPool Claim', () => {
     const factory = await ethers.getContractFactory('ProvableNFT');
     nft = (await upgrades.deployProxy(factory, ['nft', 'cc'], { kind: 'uups' })) as ProvableNFT;
     const Pool = await ethers.getContractFactory('DirectPaymentsPool');
+    membersValidator = await deployMockContract(signers[0], [
+      'function isMemberValid(address pool,address operator,address member,bytes memory extraData) external returns (bool)',
+    ]);
 
-    pool = (await upgrades.deployProxy(Pool, [nft.address, poolSettings, poolLimits, ethers.constants.AddressZero], {
-      constructorArgs: [await gdframework.GoodDollar.getHost(), ethers.constants.AddressZero],
-    })) as DirectPaymentsPool;
+    // all members are valid by default
+    membersValidator.mock['isMemberValid'].returns(true);
+
+    pool = (await upgrades.deployProxy(
+      Pool,
+      [
+        nft.address,
+        { ...poolSettings, membersValidator: membersValidator.address },
+        poolLimits,
+        ethers.constants.AddressZero,
+      ],
+      {
+        constructorArgs: [await gdframework.GoodDollar.getHost(), ethers.constants.AddressZero],
+      }
+    )) as DirectPaymentsPool;
     await pool.deployed();
     const tx = await nft.mintPermissioned(signers[0].address, nftSample, true, []);
     await gdframework.GoodDollar.mint(pool.address, ethers.constants.WeiPerEther.mul(100000));
-    // return {pool, nft};
+    // return { pool, nft, membersValidator };
   };
 
   beforeEach(async function () {
@@ -75,16 +94,26 @@ describe('DirectPaymentsPool Claim', () => {
 
   describe('claim', () => {
     it('non member should not be able to get rewards', async () => {
-      await expect(pool['claim(uint256)'](nftSampleId)).revertedWithCustomError(pool, 'NOT_MEMBER');
+      const membersValidator = await deployMockContract(signers[0], [
+        'function isMemberValid(address pool,address operator,address member,bytes memory extraData) external returns (bool)',
+      ]);
+      membersValidator.mock['isMemberValid'].returns(false);
+
+      await pool.setPoolSettings({ ...poolSettings, membersValidator: membersValidator.address });
+      await expect(pool['claim(uint256)'](nftSampleId)).not.reverted;
+      const contributer = nftSample.events[0].contributers[0];
+      const initialBalance = await gdframework.GoodDollar.balanceOf(contributer);
+      expect(initialBalance).eq(0);
     });
 
     it('should claim the NFT when contributers are members', async () => {
-      await pool.addMember('0xdA030751FF448Cf127911f0518a2B9b012f72424', []);
       await expect(pool.connect(signers[0])['claim(uint256)'](nftSampleId)).not.reverted;
+      const contributer = nftSample.events[0].contributers[0];
+      const initialBalance = await gdframework.GoodDollar.balanceOf(contributer);
+      expect(initialBalance).gt(0);
     });
 
     it('should not be able to claim the NFT twice', async () => {
-      await pool.addMember('0xdA030751FF448Cf127911f0518a2B9b012f72424', []);
       await expect(pool.connect(signers[0])['claim(uint256)'](nftSampleId)).not.reverted;
       await expect(pool.connect(signers[0])['claim(uint256)'](nftSampleId)).revertedWithCustomError(
         pool,
@@ -95,7 +124,6 @@ describe('DirectPaymentsPool Claim', () => {
     it('should distribute rewards to the member and update limits', async () => {
       const contributer = nftSample.events[0].contributers[0];
       const initialBalance = await gdframework.GoodDollar.balanceOf(contributer);
-      await pool.addMember(contributer, []);
 
       const claimTx = await pool['claim(uint256)'](nftSampleId);
 
@@ -113,16 +141,18 @@ describe('DirectPaymentsPool Claim', () => {
       expect(globalLimits.total).to.equal(expectedRewards);
       expect(globalLimits.monthly).to.equal(expectedRewards);
       expect(globalLimits.daily).to.equal(expectedRewards);
-
+      const storedNFT = await nft.getNFTData(nftSampleId);
       // Check that the RewardSent event was emitted with the correct parameters
-      await expect(claimTx).to.emit(pool, 'NFTClaimed').withArgs(nftSampleId, expectedRewards);
+      await expect(claimTx).to.emit(pool, 'NFTClaimed');
+      const claimEvent = (await claimTx.wait()).events?.find((_) => _.event === 'NFTClaimed');
+      expect(claimEvent?.args?.tokenId).eq(nftSampleId);
+      expect(claimEvent?.args?.totalRewards).eq(expectedRewards);
     });
 
     it('should enforce member monthly reward limits', async () => {
       const block = await ethers.provider.getBlock('latest');
       await time.setNextBlockTimestamp(block.timestamp + (60 * 60 * 24 * 30 - (block.timestamp % (60 * 60 * 24 * 30))));
       const contributer = nftSample.events[0].contributers[0];
-      await pool.addMember(contributer, []);
 
       for (let i = 1; i < 12; i++) {
         const newNft = { ...nftSample, events: nftSample.events.map((_) => ({ ..._ })) };
@@ -141,7 +171,6 @@ describe('DirectPaymentsPool Claim', () => {
       const block = await ethers.provider.getBlock('latest');
       await time.setNextBlockTimestamp(block.timestamp + (60 * 60 * 24 * 30 - (block.timestamp % (60 * 60 * 24 * 30))));
       const contributer = nftSample.events[0].contributers[0];
-      await pool.addMember(contributer, []);
 
       for (let i = 1; i < 5; i++) {
         const newNft = { ...nftSample, events: nftSample.events.map((_) => ({ ..._ })) };
@@ -161,7 +190,6 @@ describe('DirectPaymentsPool Claim', () => {
 
       for (let i = 1; i < 12; i++) {
         const contributer = ethers.Wallet.createRandom();
-        await pool.addMember(contributer.address, []);
 
         const newNft = { ...nftSample, events: nftSample.events.map((_) => ({ ..._ })) };
         newNft.events[0].timestamp = nftSample.events[0].timestamp + 1000 * i;

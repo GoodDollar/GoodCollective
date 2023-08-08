@@ -12,7 +12,11 @@
   ],
   "private": true,
   "scripts": {
-    "publish": "yarn workspaces foreach --include '{@gooddollar/goodcollective-contracts,@gooddollar/goodcollective-sdk}' run publish"
+    "publish": "yarn workspaces foreach --include '{@gooddollar/goodcollective-contracts,@gooddollar/goodcollective-sdk}' run publish",
+    "build:contracts": "yarn workspace @gooddollar/goodcollective-contracts compile",
+    "deploy:contracts": "yarn workspace @gooddollar/goodcollective-contracts deploy",
+    "test:setup": "yarn workspace @gooddollar/goodcollective-contracts test:setup",
+    "test": "yarn workspaces foreach --include '{@gooddollar/goodcollective-contracts,@gooddollar/goodcollective-sdk}' run test"
   },
   "workspaces": {
     "packages": [
@@ -35,7 +39,8 @@
     "prettier": "^2.7.1",
     "shx": "^0.3.4",
     "syncpack": "^8.2.4",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "vercel": "^31.2.2"
   },
   "lint-staged": {
     "packages/app/**/*.{ts,tsx}": [

@@ -30,9 +30,9 @@ function Section({ children, title }: SectionProps): JSX.Element {
 
 let sdk = new ClaimSDK(new ethers.providers.JsonRpcProvider('https://forno.celo.org'), 'development-celo');
 function App(): JSX.Element {
-  const [status, setStatus] = useState();
-  const [faucet, setFaucet] = useState();
-  const [claim, setClaim] = useState();
+  const [status, setStatus] = useState<boolean>();
+  const [faucet, setFaucet] = useState<boolean>();
+  const [claim, setClaim] = useState<string>();
 
   const isDarkMode = useColorScheme() === 'dark';
   const { account, library } = useEthers();
@@ -41,18 +41,20 @@ function App(): JSX.Element {
 
   const startFV = async () => {
     const fvlink = await sdk.generateFVLink('Hadar', window.location.href, false);
+    console.log({ fvlink });
     Linking.openURL(fvlink);
   };
 
   const startFaucet = async () => {
-    await sdk.getContract('Faucet').topWallet(account);
+    if (account) await sdk.getContract('Faucet').topWallet(account);
   };
 
   const startClaim = async () => {
-    await sdk.claim();
+    await sdk.getContract('UBIScheme').claim();
   };
-  ``;
+
   const startGasDemo = async () => {
+    if (!account) return;
     const abi = ['function drip()'];
     const p = new CeloProvider('https://alfajores-forno.celo-testnet.org');
     const w = new CeloWallet('0xa276992c491e8ca1f41263c0b8a6867daa74b24dd2ec492cb77d6ecf4cc001bc').connect(p);
@@ -81,7 +83,6 @@ function App(): JSX.Element {
       console.log(sdk.contracts);
       sdk.isAddressVerified(account).then((_) => setStatus(_));
       sdk.checkEntitlement().then((_) => setClaim(ethers.utils.formatEther(_)));
-      console.log(sdk.getContract('Faucet').address);
 
       sdk
         .getContract('Faucet')
