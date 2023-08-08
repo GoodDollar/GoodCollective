@@ -1,8 +1,8 @@
-import React from 'react';
+import ViewCollective from '../components/ViewCollective';
+import Layout from '../components/Layout';
+import ImpactButton from '../components/ImpactButton';
 import { View } from 'react-native';
 import oceanUri from '../@constants/SafariImagePlaceholder';
-import Layout from '../components/Layout';
-import ViewCollective from '../components/ViewCollective';
 
 function ViewCollectivePage() {
   return (

@@ -20,7 +20,12 @@
   },
   "workspaces": {
     "packages": [
-      "packages/app"
+      "packages/app",
+      "packages/contracts",
+      "packages/sdk-js",
+      "packages/subgraph",
+      "packages/services/*",
+      "packages/*"
     ]
   },
   "packageManager": "yarn@3.6.0",

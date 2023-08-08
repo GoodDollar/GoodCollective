@@ -1,10 +1,10 @@
-import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import oceanUri from '../@constants/SafariImagePlaceholder';
 import Layout from '../components/Layout';
 import StewardList from '../components/StewardsList';
-import { Colors } from '../utils/colors';
+import ImpactButton from '../components/ImpactButton';
 import { InterSemiBold } from '../utils/webFonts';
+import { Colors } from '../utils/colors';
 
 function ViewStewardsPage() {
   return (

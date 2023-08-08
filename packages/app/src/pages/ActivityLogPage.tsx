@@ -1,12 +1,15 @@
-import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
-import { LightningIconUri } from '../@constants/LightningIcon';
-import { FruitDoveUri } from '../@constants/ProfilePictures';
-import ActivityLog from '../components/ActivityLog';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import oceanUri from '../@constants/SafariImagePlaceholder';
 import Layout from '../components/Layout';
-import ProfileView from '../components/ProfileComponent';
-import { Colors } from '../utils/colors';
+import StewardList from '../components/StewardsList';
+import ImpactButton from '../components/ImpactButton';
+import { LightningIconUri } from '../@constants/LightningIcon';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
+import ActivityLog from '../components/ActivityLog';
+import { Colors } from '../utils/colors';
+import { FruitDoveUri } from '../@constants/ProfilePictures';
+import ProfileView from '../components/ProfileComponent';
+import { ProfileTypes } from '../@constants/ProfileTypes';
 
 function ActivityLogPage() {
   return (
@@ -22,15 +25,15 @@ function ActivityLogPage() {
                 profileLink: 'https://app.prosperity.global',
                 domain: 'John.CELO',
                 userId: 'q827tbc1386..134c',
+                profileType: ProfileTypes.domain,
               }}
-              // condition={1} // todo: add condition
             />
           </View>
 
           <Text style={styles.title}>Restoring the Kakamega Forest</Text>
 
           <View style={{ flex: 1, flexDirection: 'row', gap: 8 }}>
-            <Image source={{ uri: LightningIconUri }} style={styles.titleIcon} />
+            <Image source={{ uri: LightningIconUri }} style={styles.titleIcon}></Image>
             <Text style={styles.title}>Action Log</Text>
           </View>
         </View>

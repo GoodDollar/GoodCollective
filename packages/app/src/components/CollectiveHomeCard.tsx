@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
+import { useMediaQuery } from 'native-base';
 
 interface CollectiveHomeCardProps {
   imageUrl?: string;
@@ -12,9 +13,14 @@ interface CollectiveHomeCardProps {
 
 function CollectiveHomeCard({ title, description, imageUrl }: CollectiveHomeCardProps) {
   const { navigate } = useCrossNavigate();
+  const [isDesktopResolution] = useMediaQuery({
+    minWidth: 612,
+  });
 
   return (
-    <TouchableOpacity style={[styles.cardContainer, styles.elevation]} onPress={() => navigate('/viewCollective')}>
+    <TouchableOpacity
+      style={[styles.cardContainer, styles.elevation, isDesktopResolution ? styles.cardContainerMobile : {}]}
+      onPress={() => navigate('/viewCollective')}>
       <Image source={{ uri: imageUrl }} style={styles.sectionImage} />
       <View style={styles.cardDescriptionContainer}>
         <Text style={styles.cardTitle}>{title}</Text>
@@ -31,8 +37,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     paddingTop: 0,
     borderRadius: 20,
-    flex: 1,
     marginBottom: 20,
+  },
+  cardContainerMobile: {
+    width: 418,
+    height: 372,
+    margin: 32,
   },
   cardTitle: {
     fontSize: 20,

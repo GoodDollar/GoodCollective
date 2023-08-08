@@ -15,7 +15,7 @@ interface DonateCardProps {
   actions: number;
   total: number;
   usd: number;
-  donor: boolean;
+  donor?: boolean;
 }
 
 function CollectiveCard({ title, description, name, actions, total, usd, donor }: DonateCardProps) {

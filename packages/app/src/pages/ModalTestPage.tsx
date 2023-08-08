@@ -1,12 +1,12 @@
-import React from 'react';
-import { useState } from 'react';
-import AproveSwapModal from '../components/AproveSwapModal';
-import CompleteDonationModal from '../components/CompleteDonationModal';
-import ErrorModal from '../components/ErrorModal';
 import Layout from '../components/Layout';
-import StopDonationModal from '../components/StopDonationModal';
+import DonateComponent from '../components/DonateComponent';
 import SwitchModal from '../components/SwitchModal';
+import CompleteDonationModal from '../components/CompleteDonationModal';
 import ThankYouModal from '../components/ThankYouModal';
+import ErrorModal from '../components/ErrorModal';
+import AproveSwapModal from '../components/AproveSwapModal';
+import StopDonationModal from '../components/StopDonationModal';
+import { useState } from 'react';
 
 function ModalTestPage() {
   const [openModal, setOpenModal] = useState(false);
