@@ -1,26 +1,28 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, Platform } from 'react-native';
+import { ClaimSDK } from '@gooddollar/web3sdk-v2';
+import * as ethers from 'ethers';
+import { Platform, SafeAreaView, StyleSheet } from 'react-native';
 
-import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
+import HomePage from './pages/HomePage';
 import ViewCollectivePage from './pages/ViewCollectivePage';
-import ViewStewardsPage from './pages/ViewStewardsPage';
 import ViewDonorsPage from './pages/ViewDonorsPage';
+import ViewStewardsPage from './pages/ViewStewardsPage';
 import WalletProfilePage from './pages/WalletProfilePage';
 
-import * as WebRoute from './routes/routing.web';
 import * as MobileRoute from './routes/routing.native';
+import * as WebRoute from './routes/routing.web';
 
 import ActivityLogPage from './pages/ActivityLogPage';
-import WalletProfilePageSteward from './pages/WalletProfilePageSteward';
 import WalletProfilePageDonor from './pages/WalletProfilePageDonor';
+import WalletProfilePageSteward from './pages/WalletProfilePageSteward';
 // import EmptyProfile from './components/EmptyProfile';
-import WalletProfilePageEmpty from './pages/WalletProfilePageEmpty';
+import { NativeBaseProvider } from 'native-base';
 import CollectiveCardPage from './pages/CollectiveCardPage';
 import DonatePage from './pages/DonatePage';
 import ModalTestPage from './pages/ModalTestPage';
+import WalletProfilePageEmpty from './pages/WalletProfilePageEmpty';
 import { Colors } from './utils/colors';
-import { NativeBaseProvider } from 'native-base';
 
 let sdk = new ClaimSDK(new ethers.providers.JsonRpcProvider('https://forno.celo.org'), 'development-celo');
 function App(): JSX.Element {
