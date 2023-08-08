@@ -8,7 +8,7 @@ module.exports = {
     'react/self-closing-com': 'off',
     'no-unused-vars': 'off',
     "@typescript-eslint/no-unused-vars": [
-      "warn", // or "error"
+      "error", // or "error"
       { 
         "argsIgnorePattern": "^_",
         "varsIgnorePattern": "^_",
