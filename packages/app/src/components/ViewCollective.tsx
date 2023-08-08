@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View, Image } from 'react-native';
 import { useState } from 'react';
-import oceanUri from '../@constants/SafariImagePlaceholder';
+// import oceanUri from '../@constants/SafariImagePlaceholder';
 import RowItem from './RowItem';
 import RoundedButton from './RoundedButton';
 import StewardList from './StewardsList';
@@ -9,7 +10,7 @@ import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
 import { AtIconUri, InstragramIconUri, LastRowIconUri, TwitterIconUri, WebIconUri } from '../@constants/ConnectIcons';
 import { CalendarIcon, GreenListIcon, SquaresIcon } from '../@constants/DetailIcons';
-import { InfoIcon, ReceiveIcon, ReceiveLightIcon, SendIcon, StewardGreenIcon } from '../@constants/ColorTypeIcons';
+import { InfoIcon, ReceiveLightIcon, SendIcon, StewardGreenIcon } from '../@constants/ColorTypeIcons';
 import { SupportImage } from '../@constants/SupportImg';
 import StopDonationModal from './StopDonationModal';
 import { Navigate } from 'react-router-native';
@@ -55,33 +56,33 @@ function ViewCollective({
 
   return (
     <View style={{ gap: 24 }}>
-      <Image source={{ uri: imageUrl }} style={styles.image}></Image>
+      <Image source={{ uri: imageUrl }} style={styles.image} />
       <View style={[styles.container]}>
         <Text style={styles.title}> {title}</Text>
         <Text style={styles.description}>{description}</Text>
         <View style={styles.icons}>
           <Link href={'/'}>
-            <Image source={{ uri: WebIconUri }} style={styles.rowIcon}></Image>
+            <Image source={{ uri: WebIconUri }} style={styles.rowIcon} />
           </Link>
 
           <Link href={'#'}>
-            <Image source={{ uri: TwitterIconUri }} style={styles.rowIcon}></Image>
+            <Image source={{ uri: TwitterIconUri }} style={styles.rowIcon} />
           </Link>
 
           <Link href={'#'}>
-            <Image source={{ uri: InstragramIconUri }} style={styles.rowIcon}></Image>
+            <Image source={{ uri: InstragramIconUri }} style={styles.rowIcon} />
           </Link>
 
           <Link href={'#'}>
-            <Image source={{ uri: AtIconUri }} style={styles.rowIcon}></Image>
+            <Image source={{ uri: AtIconUri }} style={styles.rowIcon} />
           </Link>
 
           <Link href={'#'}>
-            <Image source={{ uri: LastRowIconUri }} style={styles.rowIcon}></Image>
+            <Image source={{ uri: LastRowIconUri }} style={styles.rowIcon} />
           </Link>
         </View>
         <View style={{ flex: 1, flexDirection: 'row', gap: 8 }}>
-          <Image source={{ uri: InfoIcon }} style={styles.infoIcon}></Image>
+          <Image source={{ uri: InfoIcon }} style={styles.infoIcon} />
           <Text style={styles.description2}>Stewards get G$ 800 each time they log a tree's status.</Text>
         </View>
 
@@ -108,7 +109,7 @@ function ViewCollective({
 
         {isDonating ? (
           <View style={{ gap: 24 }}>
-            <Image source={{ uri: SupportImage }} style={styles.supportImg}></Image>
+            <Image source={{ uri: SupportImage }} style={styles.supportImg} />
             <Text style={styles.supportText}>You Support this GoodCollective!!</Text>
 
             <View style={{ gap: 16 }}>

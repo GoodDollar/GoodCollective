@@ -1,7 +1,8 @@
+import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
-import { AfricanGreyParrotUri } from '../@constants/ProfilePictures';
+// import { AfricanGreyParrotUri } from '../@constants/ProfilePictures';
 import { Link } from 'native-base';
 import { VerifiedIconUri } from '../@constants/ColorTypeIcons';
 import { ProfileTypes } from '../@constants/ProfileTypes';
@@ -14,39 +15,39 @@ interface ProfileViewProps {
     profileLink: string;
     domain: string;
     userId: string;
-    profileType: number;
+    profileType?: number;
   };
 }
 
 function ProfileView({ profileData }: ProfileViewProps) {
-  if (profileData.profileType == ProfileTypes.nameAndDomain) {
+  if (profileData.profileType === ProfileTypes.nameAndDomain) {
     return (
       <TouchableOpacity style={styles.profileView}>
-        <Image source={{ uri: profileData.imageUrl }} style={styles.pfp}></Image>
+        <Image source={{ uri: profileData.imageUrl }} style={styles.pfp} />
         <View style={styles.profileText}>
           <Text style={styles.title}>
             {profileData.firstName} {profileData.lastName}{' '}
-            <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon}></Image>
+            <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon} />
           </Text>
           <Text style={styles.line}>{profileData.domain}</Text>
         </View>
       </TouchableOpacity>
     );
   }
-  if (profileData.profileType == ProfileTypes.domain) {
+  if (profileData.profileType === ProfileTypes.domain) {
     return (
       <TouchableOpacity style={styles.profileView}>
-        <Image source={{ uri: profileData.imageUrl }} style={styles.pfp}></Image>
+        <Image source={{ uri: profileData.imageUrl }} style={styles.pfp} />
         <View style={[styles.profileText, { justifyContent: 'center' }]}>
           <Text style={styles.title}>{profileData.domain}</Text>
         </View>
       </TouchableOpacity>
     );
   }
-  if (profileData.profileType == ProfileTypes.claimDomain) {
+  if (profileData.profileType === ProfileTypes.claimDomain) {
     return (
       <TouchableOpacity style={styles.profileView}>
-        <Image source={{ uri: profileData.imageUrl }} style={styles.pfp}></Image>
+        <Image source={{ uri: profileData.imageUrl }} style={styles.pfp} />
         <View style={styles.profileText}>
           <Text style={styles.title}>{profileData.userId}</Text>
           <Link style={styles.line} href={'https://app.prosperity.global'} isExternal>
@@ -56,10 +57,10 @@ function ProfileView({ profileData }: ProfileViewProps) {
       </TouchableOpacity>
     );
   }
-  if (profileData.profileType == ProfileTypes.justId) {
+  if (profileData.profileType === ProfileTypes.justId) {
     return (
       <TouchableOpacity style={styles.profileView}>
-        <Image source={{ uri: profileData.imageUrl }} style={styles.pfp}></Image>
+        <Image source={{ uri: profileData.imageUrl }} style={styles.pfp} />
         <View style={styles.profileText}>
           <Link href="" style={styles.title}>
             {profileData.domain}

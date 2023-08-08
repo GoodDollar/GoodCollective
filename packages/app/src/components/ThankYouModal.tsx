@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Alert, Modal, StyleSheet, Text, Pressable, View, Image, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import useCrossNavigate from '../routes/useCrossNavigate';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
-import { CloseIcon } from '../@constants/ChevronIcons';
-import { PhoneImg } from '../@constants/PhoneImg';
+// import { CloseIcon } from '../@constants/ChevronIcons';
+// import { PhoneImg } from '../@constants/PhoneImg';
 import { ThankYouImg } from '../@constants/ThankYouImg';
 import { Colors } from '../utils/colors';
 
@@ -13,7 +13,7 @@ interface ThankYouModalProps {
 }
 
 const ThankYouModal = ({ openModal }: ThankYouModalProps) => {
-  const [modalVisible, setModalVisible] = useState(openModal);
+  // const [modalVisible, setModalVisible] = useState(openModal);
   const { navigate } = useCrossNavigate();
   return (
     <View style={styles.centeredView}>

@@ -1,11 +1,10 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import oceanUri from '../@constants/SafariImagePlaceholder';
-import Layout from '../components/Layout';
-import StewardList from '../components/StewardsList';
-import ImpactButton from '../components/ImpactButton';
 import DonorsList from '../components/DonorsList';
-import { InterSemiBold } from '../utils/webFonts';
+import Layout from '../components/Layout';
 import { Colors } from '../utils/colors';
+import { InterSemiBold } from '../utils/webFonts';
 
 function ViewDonorsPage() {
   return (

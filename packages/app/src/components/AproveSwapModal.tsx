@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Alert, Modal, StyleSheet, Text, Pressable, View, Image, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
 import { CloseIcon } from '../@constants/ChevronIcons';
-import { PhoneImg } from '../@constants/PhoneImg';
+// import { PhoneImg } from '../@constants/PhoneImg';
 import { AproveTokenImg } from '../@constants/AproveToken';
-import useCrossNavigate from '../routes/useCrossNavigate';
+// import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
 
 interface AproveSwapModalProps {
@@ -13,7 +13,7 @@ interface AproveSwapModalProps {
 }
 
 const AproveSwapModal = ({ openModal, setOpenModal }: AproveSwapModalProps) => {
-  const { navigate } = useCrossNavigate();
+  // const { navigate } = useCrossNavigate();
   return (
     <View style={styles.centeredView}>
       <Modal animationType="slide" transparent={true} visible={openModal}>
@@ -21,7 +21,7 @@ const AproveSwapModal = ({ openModal, setOpenModal }: AproveSwapModalProps) => {
           <View style={styles.modalView}>
             <View style={{ width: '100%', alignContent: 'flex-end' }}>
               <TouchableOpacity style={{ width: 24, height: 24, alignSelf: 'flex-end' }}>
-                <Image source={{ uri: CloseIcon }} style={styles.closeIcon}></Image>
+                <Image source={{ uri: CloseIcon }} style={styles.closeIcon} />
               </TouchableOpacity>
             </View>
             <Text style={styles.title}>APROVE TOKEN SWAP</Text>

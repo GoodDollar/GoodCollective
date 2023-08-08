@@ -1,14 +1,12 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-import oceanUri from '../@constants/SafariImagePlaceholder';
-import Layout from '../components/Layout';
-import StewardList from '../components/StewardsList';
-import ImpactButton from '../components/ImpactButton';
+import React from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { LightningIconUri } from '../@constants/LightningIcon';
-import { InterSemiBold, InterSmall } from '../utils/webFonts';
-import ActivityLog from '../components/ActivityLog';
-import { Colors } from '../utils/colors';
 import { FruitDoveUri } from '../@constants/ProfilePictures';
+import ActivityLog from '../components/ActivityLog';
+import Layout from '../components/Layout';
 import ProfileView from '../components/ProfileComponent';
+import { Colors } from '../utils/colors';
+import { InterSemiBold, InterSmall } from '../utils/webFonts';
 
 function ActivityLogPage() {
   return (
@@ -25,14 +23,14 @@ function ActivityLogPage() {
                 domain: 'John.CELO',
                 userId: 'q827tbc1386..134c',
               }}
-              condition={1}
+              // condition={1} // todo: add condition
             />
           </View>
 
           <Text style={styles.title}>Restoring the Kakamega Forest</Text>
 
           <View style={{ flex: 1, flexDirection: 'row', gap: 8 }}>
-            <Image source={{ uri: LightningIconUri }} style={styles.titleIcon}></Image>
+            <Image source={{ uri: LightningIconUri }} style={styles.titleIcon} />
             <Text style={styles.title}>Action Log</Text>
           </View>
         </View>

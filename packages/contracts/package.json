@@ -10,7 +10,7 @@
     "releases"
   ],
   "devDependencies": {
-    "@gooddollar/goodprotocol": "file:.yalc/@gooddollar/goodprotocol",
+    "@gooddollar/goodprotocol": "^2.0.9",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
     "@nomicfoundation/hardhat-toolbox": "2.*",
@@ -26,10 +26,12 @@
     "@types/chai": "^4.2.0",
     "@types/mocha": ">=9.1.0",
     "@types/prettier": "^2",
+    "@types/sinon-chai": "^3.2.3",
     "@typescript-eslint/eslint-plugin": "^5.60.0",
     "@uniswap/v3-periphery": "^1.4.3",
     "chai": "^4.2.0",
     "dotenv": "^16.3.1",
+    "ethereum-waffle": "^3.0.0",
     "graphql": "^16.7.1",
     "hardhat": "2.14.*",
     "hardhat-abi-exporter": "^2.10.1",
@@ -59,6 +61,7 @@
     "test:coverage": "npx hardhat coverage",
     "deploy": "hardhat deploy --export-all ./releases/deployment.json",
     "prepublish": "yarn version patch && yarn compile && git add package.json && git commit -m \"version bump\"",
-    "publish": "yarn npm publish --access public"
+    "publish": "yarn npm publish --access public",
+    "test:setup": "yarn exec ./scripts/deployContracts.sh"
   }
 }

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import React from 'react';
+import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
 
@@ -15,8 +15,8 @@ function ActivityLog({}: ActivityLogProps) {
   return (
     <View style={styles.container}>
       <View style={styles.row}>
-        <View style={styles.bar}></View>
-        <Image style={styles.icon} source={{ uri: ReceiveIconUri }}></Image>
+        <View style={styles.bar} />
+        <Image style={styles.icon} source={{ uri: ReceiveIconUri }} />
         <Text style={{ flex: 1, flexDirection: 'row', width: '50%' }}>
           <Text style={styles.name}>Silvi Tree Claim {'\n'}</Text>
           <Text style={styles.id}>0x723a86c93838c1facse.....</Text>

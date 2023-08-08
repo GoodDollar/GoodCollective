@@ -1,3 +1,4 @@
+import React from 'react';
 import WalletProfile from '../components/WalletProfile';
 import Layout from '../components/Layout';
 import { WalletProfileTypes } from '../@constants/WalletProfileTypes';

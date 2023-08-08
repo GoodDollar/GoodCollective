@@ -1,7 +1,6 @@
-import WalletProfile from '../components/WalletProfile';
-import Layout from '../components/Layout';
-import { WalletProfileTypes } from '../@constants/WalletProfileTypes';
+import React from 'react';
 import DonateComponent from '../components/DonateComponent';
+import Layout from '../components/Layout';
 
 function DonatePage() {
   return (

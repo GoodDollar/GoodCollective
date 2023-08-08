@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import React from 'react';
+import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
 import { StewardBlueIcon, StewardGreenIcon, VerifiedIconUri } from '../@constants/ColorTypeIcons';
-import { NoAvatarIcon } from '../@constants/EmptyPicture';
+// import { NoAvatarIcon } from '../@constants/EmptyPicture';
 import { useLocation } from 'react-router-native';
 import { Colors } from '../utils/colors';
 import profilePictureArray from '../@constants/pfps';
@@ -25,21 +25,19 @@ function StewardList({ imageUrl, listType, stewardData }: StewardListProps) {
   return (
     <View>
       <View style={styles.row}>
-        {location.pathname == '/viewCollective' && (
-          <Image source={{ uri: StewardGreenIcon }} style={styles.firstIcon}></Image>
+        {location.pathname === '/viewCollective' && (
+          <Image source={{ uri: StewardGreenIcon }} style={styles.firstIcon} />
         )}
-        {location.pathname == '/viewStewards' && (
-          <Image source={{ uri: StewardBlueIcon }} style={styles.firstIcon}></Image>
-        )}
+        {location.pathname === '/viewStewards' && <Image source={{ uri: StewardBlueIcon }} style={styles.firstIcon} />}
         <Text style={styles.rowText}>Stewards {`(${stewardLenght})`}</Text>
       </View>
       {listType == 'steward' &&
         [0, 1, 2, 3, 4, 5, 6, 7].map((item) => (
           <View style={styles.row}>
-            <Image source={{ uri: profilePictureArray[item] }} style={styles.rowImg}></Image>
+            <Image source={{ uri: profilePictureArray[item] }} style={styles.rowImg} />
             <Text style={styles.rowText}>
               {stewardData.username}{' '}
-              {stewardData.isVerified && <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon}></Image>}
+              {stewardData.isVerified && <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon} />}
             </Text>
             {stewardData.actions && <Text style={styles.rowText2}>{stewardData.actions} actions</Text>}
           </View>

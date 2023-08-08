@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import Header from './Header';
-import { StyleSheet, useWindowDimensions, View, Text, TouchableOpacity, Image, TextInput } from 'react-native';
-import ImpactButton from './ImpactButton';
+// import Header from './Header';
+import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput } from 'react-native';
+// import ImpactButton from './ImpactButton';
 import { InterRegular, InterSemiBold, InterSmall } from '../utils/webFonts';
 import { ChevronDownIcon } from '../@constants/ChevronIcons';
 import RoundedButton from './RoundedButton';
 import { InfoIconOrange } from '../@constants/ColorTypeIcons';
-import useCrossNavigate from '../routes/useCrossNavigate';
+// import useCrossNavigate from '../routes/useCrossNavigate';
 import CompleteDonationModal from './CompleteDonationModal';
 import { Colors } from '../utils/colors';
 import { Link } from 'native-base';
@@ -61,16 +61,12 @@ function getFrequencyTime(frequency: string) {
   switch (frequency) {
     case 'Daily':
       return 'Days';
-      break;
     case 'Weekly':
       return 'Weeks';
-      break;
     case 'Monthly':
       return 'Months';
-      break;
     case 'Yearly':
       return 'Years';
-      break;
   }
 }
 
@@ -100,7 +96,7 @@ function DonateComponent({
 }: DonateComponentProps) {
   const [openCurrencyDropdown, setOpenCurrencyDropdown] = useState<boolean>(false);
   const [openFrequencyDropdown, setOpenFrequencyDropdown] = useState<boolean>(false);
-  const { navigate } = useCrossNavigate();
+  // const { navigate } = useCrossNavigate();
   const [modalVisible, setModalVisible] = useState(false);
   const [currency, setCurrency] = useState('G$');
   const [frequency, setFrequency] = useState('One-Time');
@@ -116,7 +112,7 @@ function DonateComponent({
           basis.
         </Text>
       </View>
-      <View style={styles.divider}></View>
+      <View style={styles.divider} />
       <View>
         <Text style={styles.title}>Donation Currency:</Text>
         <Text style={styles.description}>You can donate using any cryptocurrency. </Text>
@@ -130,7 +126,7 @@ function DonateComponent({
               setOpenFrequencyDropdown(false);
             }}>
             <Text style={styles.buttonText}>{currency}</Text>
-            <Image source={{ uri: ChevronDownIcon }} style={styles.downIcon}></Image>
+            <Image source={{ uri: ChevronDownIcon }} style={styles.downIcon} />
           </TouchableOpacity>
           <View style={styles.form}>
             <View style={styles.upperForm}>
@@ -141,9 +137,10 @@ function DonateComponent({
                 placeholder={'00.00'}
                 style={styles.upperText2}
                 maxLength={7}
-                onChangeText={(value: any) => setAmount(value)}></TextInput>
+                onChangeText={(value: any) => setAmount(value)}
+              />
             </View>
-            <View style={styles.divider}></View>
+            <View style={styles.divider} />
             <Text style={styles.lowerText}>0.000 USD</Text>
           </View>
         </View>
@@ -168,7 +165,7 @@ function DonateComponent({
             setOpenCurrencyDropdown(false);
           }}>
           <Text style={styles.buttonText}>{frequency}</Text>
-          <Image source={{ uri: ChevronDownIcon }} style={styles.downIcon}></Image>
+          <Image source={{ uri: ChevronDownIcon }} style={styles.downIcon} />
         </TouchableOpacity>
 
         {/*Not visible at first from here */}
@@ -182,7 +179,8 @@ function DonateComponent({
                 placeholder={'0'}
                 style={styles.durationInput}
                 maxLength={2}
-                onChangeText={(value: any) => setDuration(value)}></TextInput>
+                onChangeText={(value: any) => setDuration(value)}
+              />
 
               <Text style={[styles.durationInput, styles.durationInput2]}>{getFrequencyTime(frequency)}</Text>
             </View>
@@ -244,7 +242,7 @@ function DonateComponent({
             <View style={styles.view16}>
               {insufficientLiquidity && (
                 <View style={styles.warningView}>
-                  <Image source={{ uri: InfoIconOrange }} style={styles.infoIcon}></Image>
+                  <Image source={{ uri: InfoIconOrange }} style={styles.infoIcon} />
                   <View style={styles.view16}>
                     <View style={styles.view4}>
                       <Text style={styles.warningTitle}>Insufficient liquidity!</Text>
@@ -273,7 +271,7 @@ function DonateComponent({
 
               {insufficientLiquidity && (
                 <View style={styles.warningView}>
-                  <Image source={{ uri: InfoIconOrange }} style={styles.infoIcon}></Image>
+                  <Image source={{ uri: InfoIconOrange }} style={styles.infoIcon} />
                   <View style={styles.view16}>
                     <View style={styles.view4}>
                       <Text style={styles.warningTitle}>Insufficient balance!</Text>
@@ -300,7 +298,7 @@ function DonateComponent({
 
               {priceImpace && (
                 <View style={styles.warningView}>
-                  <Image source={{ uri: InfoIconOrange }} style={styles.infoIcon}></Image>
+                  <Image source={{ uri: InfoIconOrange }} style={styles.infoIcon} />
                   <View style={styles.view16}>
                     <View style={styles.view4}>
                       <Text style={styles.warningTitle}>Price impace warning!</Text>

@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Alert, Modal, StyleSheet, Text, Pressable, View, Image, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
-import { CloseIcon } from '../@constants/ChevronIcons';
-import { PhoneImg } from '../@constants/PhoneImg';
-import { ThankYouImg } from '../@constants/ThankYouImg';
+// import { CloseIcon } from '../@constants/ChevronIcons';
+// import { PhoneImg } from '../@constants/PhoneImg';
+// import { ThankYouImg } from '../@constants/ThankYouImg';
 import { QuestionImg } from '../@constants/QuestionImg';
-import useCrossNavigate from '../routes/useCrossNavigate';
+// import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
 
 interface StopDonationModalProps {
@@ -14,7 +14,7 @@ interface StopDonationModalProps {
 }
 
 const StopDonationModal = ({ openModal, setOpenModal }: StopDonationModalProps) => {
-  const { navigate } = useCrossNavigate();
+  // const { navigate } = useCrossNavigate();
   return (
     <View style={styles.centeredView}>
       <Modal animationType="slide" transparent={true} visible={openModal}>

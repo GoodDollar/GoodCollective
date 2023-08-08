@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import React from 'react';
+import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
-import { ReceiveIcon, TransactionIcon } from '../@constants/ColorTypeIcons';
+import { TransactionIcon } from '../@constants/ColorTypeIcons';
 import TransactionListItem from './TransactionListItem';
 import { Colors } from '../utils/colors';
 
@@ -13,11 +13,11 @@ interface TransactionListProps {
 }
 
 function TransactionList({ username, currency, amount, transactionId }: TransactionListProps) {
-  const i = 0;
+  // const i = 0;
   return (
     <View style={{ paddingTop: 0 }}>
       <View style={styles.row}>
-        <Image source={{ uri: TransactionIcon }} style={styles.firstIcon}></Image>
+        <Image source={{ uri: TransactionIcon }} style={styles.firstIcon} />
         <Text style={styles.rowText}>Recent Transactions</Text>
       </View>
       {[true, false, true, true, false].map((item) => (

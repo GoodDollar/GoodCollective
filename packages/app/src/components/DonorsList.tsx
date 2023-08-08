@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import React from 'react';
+import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
 import { DonorBlueIcon } from '../@constants/ColorTypeIcons';
 import { Colors } from '../utils/colors';
@@ -14,7 +14,7 @@ function DonorsList({ imageUrl, username, donated }: DonorsListProps) {
   return (
     <View>
       <View style={styles.row}>
-        <Image source={{ uri: DonorBlueIcon }} style={styles.firstIcon}></Image>
+        <Image source={{ uri: DonorBlueIcon }} style={styles.firstIcon} />
         <Text style={styles.rowText}>Donors</Text>
       </View>
       {[1, 2, 3, 4, 5, 6].map((item) => (

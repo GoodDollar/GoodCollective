@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { NativeBaseProvider } from 'native-base';
 import { ethers } from 'ethers';
 import { OnboardProvider, Web3Provider } from '@gooddollar/web3sdk-v2';
 import { useConnectWallet } from '@web3-onboard/react';
 import { WalletConnectionProvider } from './contexts/WalletConnectionContext';
 
+type Props = {
+  children?: ReactNode;
+};
 // wrapper around Web3Provider which initializes useDapp
 // it is required since usConnectWallet can not be used before onboardprovider is initialized
 export const Celo = {
@@ -18,7 +21,7 @@ export const Celo = {
   getExplorerTransactionLink: (transactionHash: string) => `https://explorer.celo.org/tx/${transactionHash}`,
 };
 
-const Web3ProviderWrapper = ({ children }) => {
+const Web3ProviderWrapper = ({ children }: { children: any }) => {
   const [{ wallet }] = useConnectWallet();
   const defaultConfig = {
     networks: [Celo],
@@ -35,7 +38,7 @@ const Web3ProviderWrapper = ({ children }) => {
     </Web3Provider>
   );
 };
-export const Providers = ({ children }: { children: any }) => {
+export const Providers = ({ children }: Props) => {
   return (
     <NativeBaseProvider>
       <OnboardProvider>

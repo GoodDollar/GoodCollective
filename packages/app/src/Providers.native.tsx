@@ -1,17 +1,21 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { NativeBaseProvider } from 'native-base';
 import { ethers } from 'ethers';
 import { Web3Provider } from '@gooddollar/web3sdk-v2';
-import { Web3Modal, useWeb3Modal } from '@web3modal/react-native';
+import { WalletConnectModal, useWalletConnectModal } from '@walletconnect/modal-react-native';
 // usedapp fix for native
 import LocalStorage from '@usedapp/core/dist/cjs/src/helpers/LocalStorage';
 
+type Props = {
+  children?: ReactNode;
+};
+
 if (!window) {
-  window = {};
+  window = {} as any;
 }
 window.localStorage = new LocalStorage();
 // end of usedapp fix
-const projectId = 'YOUR_PROJECT_ID';
+const projectId = '62745569abcb6c8962cadf4d8568aad9';
 
 const providerMetadata = {
   name: 'YOUR_PROJECT_NAME',
@@ -24,8 +28,8 @@ const providerMetadata = {
   },
 };
 
-const Web3ProviderWrapper = ({ children }) => {
-  const { provider } = useWeb3Modal();
+const Web3ProviderWrapper = ({ children }: Props) => {
+  const { provider } = useWalletConnectModal();
   const web3provider = provider ? new ethers.providers.Web3Provider(provider) : undefined;
   return (
     <Web3Provider web3Provider={web3provider} config={{}}>
@@ -33,10 +37,10 @@ const Web3ProviderWrapper = ({ children }) => {
     </Web3Provider>
   );
 };
-export const Providers = ({ children }: { children: any }) => {
+export const Providers = ({ children }: Props) => {
   return (
     <NativeBaseProvider>
-      <Web3Modal projectId={projectId} providerMetadata={providerMetadata} />
+      <WalletConnectModal projectId={projectId} providerMetadata={providerMetadata} />
       <Web3ProviderWrapper>{children}</Web3ProviderWrapper>
     </NativeBaseProvider>
   );
