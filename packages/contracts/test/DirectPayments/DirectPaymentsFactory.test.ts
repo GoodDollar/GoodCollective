@@ -2,7 +2,7 @@ import { deploySuperGoodDollar } from '@gooddollar/goodprotocol';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { deployTestFramework } from '@superfluid-finance/ethereum-contracts/dev-scripts/deploy-test-framework';
 import { expect } from 'chai';
-import { DirectPaymentsFactory, DirectPaymentsPool } from 'typechain-types';
+import { DirectPaymentsFactory, DirectPaymentsPool, ProvableNFT } from 'typechain-types';
 import { ethers, upgrades } from 'hardhat';
 
 type SignerWithAddress = Awaited<ReturnType<typeof ethers.getSigner>>;
@@ -37,14 +37,15 @@ describe('DirectPaymentsFactory', () => {
     const swapMock = await ethers.deployContract('SwapRouterMock', [gdframework.GoodDollar.address]);
     const dpimpl = await ethers.deployContract('DirectPaymentsPool', [sfFramework['host'], swapMock.address]);
 
-    const nftimpl = await (await ethers.getContractFactory('ProvableNFT')).deploy();
-    factory = (await upgrades.deployProxy(
-      f,
-      [signer.address, dpimpl.address, nftimpl.address, ethers.constants.AddressZero, 0],
-      {
-        kind: 'uups',
-      }
-    )) as DirectPaymentsFactory;
+    const nft = (await upgrades.deployProxy(await ethers.getContractFactory('ProvableNFT'), ['nft', 'cc'], {
+      kind: 'uups',
+    })) as ProvableNFT;
+
+    factory = (await upgrades.deployProxy(f, [signer.address, dpimpl.address, nft.address, signers[1].address, 1000], {
+      kind: 'uups',
+    })) as DirectPaymentsFactory;
+
+    await nft.grantRole(ethers.constants.HashZero, factory.address);
     return factory;
   };
 

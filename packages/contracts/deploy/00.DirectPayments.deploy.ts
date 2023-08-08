@@ -10,7 +10,7 @@ import { FormatTypes } from 'ethers/lib/utils';
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { getNamedAccounts, deployments } = hre;
-  const { deploy } = deployments;
+  const { deploy, execute } = deployments;
   const { deployer } = await getNamedAccounts();
 
   let sfHost;
@@ -56,30 +56,47 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const nft = await deploy('ProvableNFT', {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
+    proxy: {
+      proxyContract: 'UUPS',
+      execute: {
+        init: {
+          methodName: 'initialize',
+          args: ['GoodCollective NFT', 'GC-NFT'],
+        },
+      },
+    },
     log: true,
   });
 
-  const nftimpl = await ethers.getContractAt('ProvableNFT', nft.address);
-  const poolimpl = await ethers.getContractAt('DirectPaymentsPool', pool.address);
-
-  await deploy('DirectPaymentsFactory', {
+  const factory = await deploy('DirectPaymentsFactory', {
     from: deployer,
     proxy: {
       proxyContract: 'UUPS',
       execute: {
         onUpgrade: {
           methodName: 'updateImpl',
-          args: [poolimpl.address],
+          args: [pool.address],
         },
         init: {
           methodName: 'initialize',
-          args: [deployer, poolimpl.address, nftimpl.address, feeRecipient, feeBps],
+          args: [deployer, pool.address, nft.address, feeRecipient, feeBps],
         },
       },
     },
     log: true,
   });
+
+  if (factory.newlyDeployed) {
+    console.log('granting nft admin rights to factory');
+    await execute('ProvableNFT', { from: deployer }, 'grantRole', ethers.constants.HashZero, factory.address);
+  }
+
+  if (pool.newlyDeployed && !factory.newlyDeployed) {
+    console.log('upgrading factory with new pool implementation');
+    await execute('DirectPaymentsFactory', { from: deployer }, 'updateImpl', pool.address);
+  }
 };
+
 export default func;
 func.tags = ['DirectPaymentsPool', 'ProvableNFT', 'DirectPaymentsFactory'];
 

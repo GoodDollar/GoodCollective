@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import React from 'react';
+import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
-import { ReceiveIcon, SendIcon, TransactionIcon } from '../@constants/ColorTypeIcons';
+import { ReceiveIcon, SendIcon } from '../@constants/ColorTypeIcons';
 import { Colors } from '../utils/colors';
 
 interface TransactionListProps {
@@ -17,15 +17,15 @@ function TransactionListItem({ username, currency, amount, id, receive }: Transa
     <View>
       <View style={styles.row}>
         {receive ? (
-          <View style={[styles.bar, { backgroundColor: Colors.green[100] }]}></View>
+          <View style={[styles.bar, { backgroundColor: Colors.green[100] }]} />
         ) : (
-          <View style={[styles.bar, { backgroundColor: Colors.orange[100] }]}></View>
+          <View style={[styles.bar, { backgroundColor: Colors.orange[100] }]} />
         )}
 
         {receive ? (
-          <Image source={{ uri: ReceiveIcon }} style={styles.rowIcon}></Image>
+          <Image source={{ uri: ReceiveIcon }} style={styles.rowIcon} />
         ) : (
-          <Image source={{ uri: SendIcon }} style={styles.rowIcon}></Image>
+          <Image source={{ uri: SendIcon }} style={styles.rowIcon} />
         )}
         <View style={{ width: '100%' }}>
           <View style={{ flex: 1, flexDirection: 'row', alignSelf: 'stretch' }}>

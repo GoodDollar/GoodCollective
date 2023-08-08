@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-import { InterBold, InterSemiBold, InterRegular, InterMedium } from '../utils/webFonts';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { InterSemiBold } from '../utils/webFonts';
 import EmptyProfile from './EmptyProfile';
 import { WalletProfileTypes } from '../@constants/WalletProfileTypes';
 import { Colors } from '../utils/colors';
@@ -34,7 +35,7 @@ function WalletDetails({
       {type === WalletProfileTypes.steward && (
         <View>
           <View style={styles.row}>
-            <View style={[styles.impactBar, styles.orangeBar]}></View>
+            <View style={[styles.impactBar, styles.orangeBar]} />
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>{firstName} has performed</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
@@ -45,7 +46,7 @@ function WalletDetails({
           </View>
 
           <View style={styles.row}>
-            <View style={[styles.impactBar, styles.orangeBar]}></View>
+            <View style={[styles.impactBar, styles.orangeBar]} />
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>And has received</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
@@ -57,7 +58,7 @@ function WalletDetails({
           </View>
 
           <View style={styles.row}>
-            <View style={[styles.impactBar, styles.orangeBar]}></View>
+            <View style={[styles.impactBar, styles.orangeBar]} />
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>from the following</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
@@ -72,7 +73,7 @@ function WalletDetails({
       {type === WalletProfileTypes.donor && (
         <View>
           <View style={styles.row}>
-            <View style={[styles.impactBar, styles.greenBar]}></View>
+            <View style={[styles.impactBar, styles.greenBar]} />
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>Laboso has donated a total of</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
@@ -84,7 +85,7 @@ function WalletDetails({
           </View>
 
           <View style={styles.row}>
-            <View style={[styles.impactBar, styles.greenBar]}></View>
+            <View style={[styles.impactBar, styles.greenBar]} />
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>Since</Text>
               <Text style={styles.rowText}>{creationDate}</Text>
@@ -92,7 +93,7 @@ function WalletDetails({
           </View>
 
           <View style={styles.row}>
-            <View style={[styles.impactBar, styles.greenBar]}></View>
+            <View style={[styles.impactBar, styles.greenBar]} />
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>Laboso's funding supported</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
@@ -103,7 +104,7 @@ function WalletDetails({
           </View>
 
           <View style={styles.row}>
-            <View style={[styles.impactBar, styles.greenBar]}></View>
+            <View style={[styles.impactBar, styles.greenBar]} />
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>in the following</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
@@ -118,7 +119,7 @@ function WalletDetails({
       {type == WalletProfileTypes.both && (
         <View>
           <View style={styles.row}>
-            <View style={[styles.impactBar, styles.greenBar]}></View>
+            <View style={[styles.impactBar, styles.greenBar]} />
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>This wallet has donated a total of</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
@@ -130,7 +131,7 @@ function WalletDetails({
           </View>
 
           <View style={styles.row}>
-            <View style={[styles.impactBar, styles.greenBar]}></View>
+            <View style={[styles.impactBar, styles.greenBar]} />
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>Since</Text>
               <Text style={styles.rowText}>{creationDate}</Text>
@@ -138,7 +139,7 @@ function WalletDetails({
           </View>
 
           <View style={styles.row}>
-            <View style={[styles.impactBar, styles.greenBar]}></View>
+            <View style={[styles.impactBar, styles.greenBar]} />
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>This wallet's funding supported</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
@@ -149,7 +150,7 @@ function WalletDetails({
           </View>
 
           <View style={styles.row}>
-            <View style={[styles.impactBar, styles.orangeBar]}></View>
+            <View style={[styles.impactBar, styles.orangeBar]} />
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>And received</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
@@ -160,7 +161,7 @@ function WalletDetails({
           </View>
 
           <View style={styles.row}>
-            <View style={[styles.impactBar, styles.blueBar]}></View>
+            <View style={[styles.impactBar, styles.blueBar]} />
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>in the following</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>

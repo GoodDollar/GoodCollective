@@ -1,5 +1,6 @@
+import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-import { InterBold, InterSemiBold, InterSmall } from '../utils/webFonts';
+import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
 

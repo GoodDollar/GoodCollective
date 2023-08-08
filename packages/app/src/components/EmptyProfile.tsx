@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-import oceanUri from '../@constants/SafariImagePlaceholder';
-import DonateCard from './CollectiveCard';
-import WalletDetails from './WalletDetails';
+import React from 'react';
+import { StyleSheet, Text, View, Image } from 'react-native';
+// import oceanUri from '../@constants/SafariImagePlaceholder';
+// import DonateCard from './CollectiveCard';
+// import WalletDetails from './WalletDetails';
 import { EmptyUri } from '../@constants/EmptyProfileImg';
 import { InterSmall } from '../utils/webFonts';
 import RoundedButton from './RoundedButton';
@@ -11,7 +12,7 @@ function EmptyProfile() {
   return (
     <View style={styles.component}>
       <Text style={styles.text}>It looks empty here. {'\n'} Donate to build your impact profile!</Text>
-      <Image source={{ uri: EmptyUri }} style={styles.image}></Image>
+      <Image source={{ uri: EmptyUri }} style={styles.image} />
       <RoundedButton
         title="Support a Collective"
         backgroundColor={Colors.green[100]}

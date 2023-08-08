@@ -1,3 +1,4 @@
+import React from 'react';
 import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import { ChevronRightIcon } from '../@constants/ChevronIcons';
 import { InterSemiBold } from '../utils/webFonts';
@@ -12,7 +13,7 @@ function ImpactButton({ title }: ImpactButtonProps) {
     <TouchableOpacity style={styles.button}>
       <View style={styles.buttonContent}>
         <Text style={styles.buttonText}>{title}</Text>
-        <Image source={{ uri: ChevronRightIcon }} style={styles.icon}></Image>
+        <Image source={{ uri: ChevronRightIcon }} style={styles.icon} />
       </View>
     </TouchableOpacity>
   );

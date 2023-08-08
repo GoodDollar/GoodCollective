@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Image, TouchableOpacity, Text } from 'react-native';
 import useCrossNavigate from '../routes/useCrossNavigate';
-import { useEthers } from '@usedapp/core';
+// import { useEthers } from '@usedapp/core';
 import { useWalletConnection } from '../contexts/WalletConnectionContext';
 import { InterRegular } from '../utils/webFonts';
 import { Colors } from '../utils/colors';

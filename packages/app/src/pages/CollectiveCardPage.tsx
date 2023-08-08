@@ -1,7 +1,8 @@
+import React from 'react';
 import DonateCard from '../components/CollectiveCard';
 import Layout from '../components/Layout';
 
-function CollectiveCardPage() {
+function CollectiveCardPage({ donor = false }) {
   return (
     <Layout>
       <DonateCard
@@ -11,6 +12,7 @@ function CollectiveCardPage() {
         actions={780}
         total={624.0}
         usd={100.9}
+        donor={donor}
       />
     </Layout>
   );

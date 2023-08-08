@@ -159,7 +159,7 @@ describe('GoodCollective SDK', () => {
     expect(tx.wait()).not.rejects;
   });
 
-  it.only('should support with gooddollar superfluid stream', async () => {
+  it('should support with gooddollar superfluid stream', async () => {
     const pool = await sdk.createPool(
       wallet,
       'test',
@@ -186,7 +186,7 @@ describe('GoodCollective SDK', () => {
     expect(tx.wait()).not.rejects;
   });
 
-  it.only('should support with gooddollar superfluid stream with swap', async () => {
+  it('should support with gooddollar superfluid stream with swap', async () => {
     const pool = await sdk.createPool(
       wallet,
       'test',

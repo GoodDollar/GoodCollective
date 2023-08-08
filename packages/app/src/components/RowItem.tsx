@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import React from 'react';
+import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
 
@@ -14,7 +14,7 @@ interface RowItemProps {
 function RowItem({ rowInfo, rowData, balance, currency, imageUrl }: RowItemProps) {
   return (
     <View style={styles.row}>
-      <Image source={{ uri: imageUrl }} style={styles.rowIcon}></Image>
+      <Image source={{ uri: imageUrl }} style={styles.rowIcon} />
       <Text style={styles.rowInfo}>{rowInfo}</Text>
       <Text style={styles.rowData}>
         <View style={{ gap: 2 }}>

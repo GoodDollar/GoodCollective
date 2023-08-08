@@ -14,7 +14,7 @@ import * as MobileRoute from './routes/routing.native';
 import ActivityLogPage from './pages/ActivityLogPage';
 import WalletProfilePageSteward from './pages/WalletProfilePageSteward';
 import WalletProfilePageDonor from './pages/WalletProfilePageDonor';
-import EmptyProfile from './components/EmptyProfile';
+// import EmptyProfile from './components/EmptyProfile';
 import WalletProfilePageEmpty from './pages/WalletProfilePageEmpty';
 import CollectiveCardPage from './pages/CollectiveCardPage';
 import DonatePage from './pages/DonatePage';
