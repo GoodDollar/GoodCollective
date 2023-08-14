@@ -32,6 +32,10 @@ jobs:
         run: |
           yarn build:contracts
 
+      - name: 'setup test contracts'
+        run: |
+          yarn test:setup
+
       - name: 'test sdk & contracts'
         run: |
           yarn test
