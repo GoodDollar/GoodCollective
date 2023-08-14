@@ -1,5 +1,16 @@
-import { log } from '@graphprotocol/graph-ts';
-import { Address, Bytes, BigInt } from '@graphprotocol/graph-ts';
+import { Address, log } from '@graphprotocol/graph-ts';
+import {
+  PoolCreated,
+  PoolDetailsChanged,
+  PoolVerifiedChanged,
+} from '../../generated/DirectPaymentsFactory/DirectPaymentsFactory';
+import {
+  EventRewardClaimed,
+  NFTClaimed,
+  PoolLimitsChanged,
+  PoolSettingsChanged,
+} from '../../generated/DirectPaymentPool/DirectPaymentPool';
+import { Claim, DirectPaymentPool, PoolSettings, SafetyLimits, EventData } from '../../generated/schema';
 
 export function handlePoolCreated(event: PoolCreated): void {
   const poolAddress = event.params.pool;
@@ -9,19 +20,20 @@ export function handlePoolCreated(event: PoolCreated): void {
   const poolSettings = event.params.poolSettings;
   const poolLimits = event.params.poolLimits;
 
-  let directPaymentPool = DirectPaymentPool.load(poolAddress.toHexString());
-  let directPaymentPoolSettings = PoolSettings.load(poolAddress.toHexString());
-  let directPaymentPoolLimits = SafetyLimits.load(poolAddress.toHexString());
+  let directPaymentPool = DirectPaymentPool.load(event.address.toHexString());
+  let directPaymentPoolSettings = PoolSettings.load(event.address.toHexString());
+  let directPaymentPoolLimits = SafetyLimits.load(event.address.toHexString());
   if (directPaymentPool === null) {
-    directPaymentPool = new DirectPaymentPool(poolAddress.toHexString());
-    directPaymentPoolSettings = new PoolSettings(poolAddress.toHexString());
-    directPaymentPoolLimits = new SafteyLimits(poolAddress.toHexString());
+    directPaymentPool = new DirectPaymentPool(event.address.toHexString());
+    directPaymentPoolSettings = new PoolSettings(event.address.toHexString());
+    directPaymentPoolLimits = new SafetyLimits(event.address.toHexString());
 
     // Pool
-    directPaymentPool.id = projectID;
+    directPaymentPool.id = event.address.toHexString();
     directPaymentPool.ipfs = ipfsHash;
-    directPaymentPool.poolAddress = poolAddress;
+    directPaymentPool.poolAddress = poolAddress.toHexString();
     directPaymentPool.isVerified = false;
+    directPaymentPool.projectId = projectID.toHexString();
     directPaymentPool.save();
 
     // Pool Settings
@@ -36,7 +48,6 @@ export function handlePoolCreated(event: PoolCreated): void {
     //  Pool Limits
     directPaymentPoolLimits.id = poolAddress.toHexString();
     directPaymentPoolLimits.maxTotalPerMonth = poolLimits.maxTotalPerMonth;
-    directPaymentPoolLimits.maxMemberPerMonth = poolSettings.maxMemberPerMonth;
     directPaymentPoolLimits.maxMemberPerDay = poolLimits.maxMemberPerDay;
     directPaymentPoolLimits.save();
   }
@@ -69,14 +80,13 @@ export function handlePoolVerifiedChange(event: PoolVerifiedChanged): void {
 }
 
 export function handlePoolSettingsChange(event: PoolSettingsChanged): void {
-  const poolAddress = event.params.pool;
   const poolSettings = event.params.settings;
-  let directPaymentPoolSettings = SafetyLimits.load(poolAddress.toHexString());
+  let directPaymentPoolSettings = PoolSettings.load(event.address.toHexString());
   if (directPaymentPoolSettings === null) {
     log.error('Missing Payment Pool {}', [event.address.toHex()]);
     return;
   }
-  if (poolSettings.nftType != null) {
+  if (!poolSettings.nftType) {
     directPaymentPoolSettings.nftType = poolSettings.nftType;
     directPaymentPoolSettings.save();
   }
@@ -84,47 +94,80 @@ export function handlePoolSettingsChange(event: PoolSettingsChanged): void {
     directPaymentPoolSettings.validEvents = poolSettings.validEvents;
     directPaymentPoolSettings.save();
   }
-  if (poolSettings.rewardPerEvent != null) {
-    directPaymentPoolSettings.rewardPerEvent = poolSettings.rewardPerEvent;
-    directPaymentPoolSettings.save();
-  }
-  if (poolSettings.manager != null) {
+  if (!poolSettings.manager) {
     directPaymentPoolSettings.manager = poolSettings.manager;
     directPaymentPoolSettings.save();
   }
-  if (poolSettings.membersValidator != null) {
+  if (!poolSettings.membersValidator) {
     directPaymentPoolSettings.membersValidator = poolSettings.membersValidator;
     directPaymentPoolSettings.save();
   }
-  if (poolSettings.uniquenessValidator != null) {
+  if (!poolSettings.uniquenessValidator) {
     directPaymentPoolSettings.uniquenessValidator = poolSettings.uniquenessValidator;
     directPaymentPoolSettings.save();
   }
-  if (poolSettings.rewardToken != null) {
+  if (!poolSettings.rewardToken) {
     directPaymentPoolSettings.rewardToken = poolSettings.rewardToken;
     directPaymentPoolSettings.save();
   }
 }
 
 export function handlePoolLimitsChange(event: PoolLimitsChanged): void {
-  const poolAddress = event.params.pool;
   const poolLimits = event.params.limits;
-  let directPaymentPoolLimits = SafetyLimits.load(poolAddress.toHexString());
+  let directPaymentPoolLimits = SafetyLimits.load(event.address.toHexString());
 
   if (directPaymentPoolLimits === null) {
     log.error('Missing Payment Pool {}', [event.address.toHex()]);
     return;
   }
-  if (poolLimits.maxTotalPerMonth != null) {
+  if (!poolLimits.maxTotalPerMonth) {
     directPaymentPoolLimits.maxTotalPerMonth = poolLimits.maxTotalPerMonth;
     directPaymentPoolLimits.save();
   }
-  if (poolLimits.maxMemberPerMonth != null) {
+  if (!poolLimits.maxMemberPerMonth) {
     directPaymentPoolLimits.maxMemberPerMonth = poolLimits.maxMemberPerMonth;
     directPaymentPoolLimits.save();
   }
-  if (poolLimits.maxMemberPerDay != null) {
+  if (!poolLimits.maxMemberPerDay) {
     directPaymentPoolLimits.maxMemberPerDay = poolLimits.maxMemberPerDay;
     directPaymentPoolLimits.save();
   }
+}
+
+export function handleRewardClaim(event: EventRewardClaimed): void {
+  const claimId = event.params.tokenId;
+  const rewardCount = event.params.rewardPerContributer;
+  const eventsData = event.params.eventData;
+
+  let eventData = EventData.load(claimId.toHexString());
+  let claim = Claim.load(claimId.toHexString());
+  if (claim === null) {
+    claim = new Claim(claimId.toHexString());
+    claim.rewardPerContributor = rewardCount;
+    claim.save();
+  }
+  if (eventData) {
+    eventData.subtype = eventsData.subtype;
+    eventData.timestamp = eventsData.timestamp;
+    eventData.quantity = eventsData.quantity;
+    eventData.eventUri = eventsData.eventUri;
+    eventData.save();
+  }
+}
+
+export function handleClaim(event: NFTClaimed): void {
+  const claimId = event.params.tokenId;
+  const totalRewards = event.params.totalRewards;
+  const nftData = event.params.nftData;
+  let claim = Claim.load(claimId.toHexString());
+  if (claim === null) {
+    log.error('Missing Claim {}', [event.address.toHex()]);
+    return;
+  }
+
+  claim.totalRewards = totalRewards;
+  claim.nftType = nftData.nftType;
+  claim.version = nftData.version;
+  claim.nftUri = nftData.nftUri;
+  claim.save();
 }
