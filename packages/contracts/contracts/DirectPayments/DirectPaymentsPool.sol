@@ -60,10 +60,19 @@ contract DirectPaymentsPool is
         DirectPaymentsPool.PoolSettings poolSettings,
         DirectPaymentsPool.SafetyLimits poolLimits
     );
+
     event PoolSettingsChanged(PoolSettings settings);
     event PoolLimitsChanged(SafetyLimits limits);
-    event EventRewardClaimed(uint256 indexed tokenId, ProvableNFT.EventData eventData, uint256 rewardPerContributer);
-    event NFTClaimed(uint256 indexed tokenId, uint256 totalRewards, ProvableNFT.NFTData nftData);
+    event EventRewardClaimed(
+        uint256 indexed tokenId,
+        uint16 eventType,
+        uint32 eventTimestamp,
+        uint256 eventQuantity,
+        string eventUri,
+        address[] contributers,
+        uint256 rewardPerContributer
+    );
+    event NFTClaimed(uint256 indexed tokenId, uint256 totalRewards);
     event NOT_MEMBER_OR_WHITELISTED(address contributer);
 
     // Define functions
@@ -184,11 +193,19 @@ contract DirectPaymentsPool is
                 if (totalRewards > rewardsBalance) revert NO_BALANCE();
                 rewardsBalance -= totalRewards;
                 _sendReward(_data.events[i].contributers, uint128(reward * _data.events[i].quantity));
-                emit EventRewardClaimed(_nftId, _data.events[i], uint128(reward / _data.events[i].contributers.length));
+                emit EventRewardClaimed(
+                    _nftId,
+                    _data.events[i].subtype,
+                    _data.events[i].timestamp,
+                    _data.events[i].quantity,
+                    _data.events[i].eventUri,
+                    _data.events[i].contributers,
+                    uint128(reward / _data.events[i].contributers.length)
+                );
             }
         }
 
-        emit NFTClaimed(_nftId, totalRewards, _data);
+        emit NFTClaimed(_nftId, totalRewards);
     }
 
     /**

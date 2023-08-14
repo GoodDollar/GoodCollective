@@ -9,7 +9,7 @@ import {
   NFTClaimed,
   PoolLimitsChanged,
   PoolSettingsChanged,
-} from '../../generated/DirectPaymentPool/DirectPaymentPool';
+} from '../../generated/DirectPaymentPools/DirectPaymentPool';
 import { Claim, DirectPaymentPool, PoolSettings, SafetyLimits, EventData } from '../../generated/schema';
 
 export function handlePoolCreated(event: PoolCreated): void {

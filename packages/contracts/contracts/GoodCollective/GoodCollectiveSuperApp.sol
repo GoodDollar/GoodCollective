@@ -12,6 +12,7 @@ import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
 import "../DirectPayments/DirectPaymentsFactory.sol";
+import "../utils/SwapLibrary.sol";
 
 // import "hardhat/console.sol";
 
@@ -51,22 +52,6 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
 
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
     ISwapRouter public immutable swapRouter;
-
-    /**
-     * @dev A struct containing information about a token swap
-     * @param swapFrom The address of the token being swapped
-     * @param amount The amount of tokens being swapped
-     * @param minReturn The minimum amount of tokens to be received in the swap
-     * @param timestamp The deadline for the swap to occur
-     * @param path The path of tokens to take in a uniswap v3 multi-hop swap, encoded as bytes
-     */
-    struct SwapData {
-        address swapFrom;
-        uint256 amount;
-        uint256 minReturn;
-        uint256 deadline;
-        bytes path;
-    }
 
     struct SupporterData {
         uint256 contribution;
@@ -197,42 +182,11 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
      * @return Returns the context of the transaction
      */
     function handleSwap(
-        SwapData memory _customData,
+        SwapLibrary.SwapData memory _customData,
         address _sender,
         bytes memory _ctx
     ) external onlyHostOrSender(_sender) returns (bytes memory) {
-        // Transfer the tokens from the sender to this contract
-        TransferHelper.safeTransferFrom(_customData.swapFrom, _sender, address(this), _customData.amount);
-
-        // Approve the router to spend the tokens
-        TransferHelper.safeApprove(_customData.swapFrom, address(swapRouter), _customData.amount);
-
-        if (_customData.path.length > 0) {
-            // If a path is provided, execute a multi-hop swap
-            ISwapRouter.ExactInputParams memory params = ISwapRouter.ExactInputParams({
-                path: _customData.path,
-                recipient: _sender,
-                deadline: _customData.deadline,
-                amountIn: _customData.amount,
-                amountOutMinimum: _customData.minReturn
-            });
-            swapRouter.exactInput(params);
-        } else {
-            // If no path is provided, execute a single-hop swap
-            ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
-                tokenIn: _customData.swapFrom,
-                tokenOut: address(superToken),
-                fee: 10000,
-                recipient: _sender,
-                deadline: _customData.deadline,
-                amountIn: _customData.amount,
-                amountOutMinimum: _customData.minReturn,
-                sqrtPriceLimitX96: 0
-            });
-
-            // Execute the swap using `exactInputSingle`
-            swapRouter.exactInputSingle(params);
-        }
+        SwapLibrary.handleSwap(swapRouter, _customData, address(superToken), _sender);
 
         // Return the context of the transaction
         return _ctx;
@@ -392,6 +346,9 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         TransferHelper.safeTransfer(address(superToken), recipient, fee);
     }
 
+    /**
+     * for methods that can be called via superfluid batch or directly
+     */
     modifier onlyHostOrSender(address _sender) {
         if (msg.sender != _sender && msg.sender != address(host)) revert ONLY_HOST_OR_SENDER(msg.sender);
         _;
