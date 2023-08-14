@@ -161,7 +161,7 @@ export function handleClaim(event: NFTClaimed): void {
   const nftData = event.params.nftData;
   let claim = Claim.load(claimId.toHexString());
   if (claim === null) {
-    log.error('Missing Claim {}', [event.address.toHex()]);
+    log.error('Missing Claim Entity {}', [event.address.toHex()]);
     return;
   }
 
