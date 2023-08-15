@@ -4,15 +4,26 @@ import {
   ProvableNFT,
   DirectPaymentsFactory,
   DirectPaymentsPool,
-  GoodCollectiveSuperApp,
 } from '@gooddollar/goodcollective-contracts/typechain-types';
 import { Framework } from '@superfluid-finance/sdk-core';
+import { SwapLibrary } from '@gooddollar/goodcollective-contracts/typechain-types';
+import { NFTStorage, File, CIDString } from 'nft.storage';
 
 export type NFTData = ProvableNFT.NFTDataStruct;
 export type EventData = ProvableNFT.EventDataStruct;
 export type PoolSettings = Omit<DirectPaymentsPool.PoolSettingsStruct, 'nftType'> & { nftType?: BigNumberish };
 export type PoolLimits = DirectPaymentsPool.SafetyLimitsStruct;
-export type SwapData = GoodCollectiveSuperApp.SwapDataStruct;
+export type SwapData = SwapLibrary.SwapDataStruct;
+export type PoolAttributes = {
+  name: string;
+  description: string;
+  twitter: string;
+  email: string;
+};
+export type SDKOptions = {
+  network?: string;
+  nftStorageKey?: string;
+};
 
 type Key = keyof typeof GoodCollectiveContracts;
 type Contracts = (typeof GoodCollectiveContracts)[keyof typeof GoodCollectiveContracts][0]['contracts'];
@@ -25,16 +36,20 @@ const CHAIN_OVERRIDES: { [key: string]: object } = {
   44787: { gasPrice: 5e9 },
   42220: { gasPrice: 5e9 },
 };
+
 export class GoodCollectiveSDK {
   factory: DirectPaymentsFactory;
   contracts: Contracts;
   pool: DirectPaymentsPool;
   superfluidSDK: Promise<Framework>;
   chainId: Key;
-  constructor(chainId: Key, readProvider: ethers.providers.Provider, network?: string) {
+  nftStorage: NFTStorage;
+
+  constructor(chainId: Key, readProvider: ethers.providers.Provider, options: SDKOptions = {}) {
     this.chainId = chainId;
-    this.contracts = (GoodCollectiveContracts[chainId] as Array<any>).find((_) => (network ? _.name === network : true))
-      ?.contracts as Contracts;
+    this.contracts = (GoodCollectiveContracts[chainId] as Array<any>).find((_) =>
+      options.network ? _.name === options.network : true
+    )?.contracts as Contracts;
 
     const factory = this.contracts.DirectPaymentsFactory;
     this.factory = new ethers.Contract(factory.address, factory.abi, readProvider) as DirectPaymentsFactory;
@@ -53,6 +68,9 @@ export class GoodCollectiveSDK {
     };
 
     this.superfluidSDK = Framework.create(opts);
+    this.nftStorage = new NFTStorage({
+      token: options.nftStorageKey || '',
+    });
   }
 
   /**
@@ -103,6 +121,33 @@ export class GoodCollectiveSDK {
    */
   async getNft(id: string) {
     return (await this.nftContract()).getNFTData(id);
+  }
+
+  async savePoolToIPFS(attrs: PoolAttributes): Promise<CIDString> {
+    const data = Buffer.from(JSON.stringify(attrs));
+    const file = new File([data], 'pool.json', { type: 'application/json' });
+    const uri = await this.nftStorage.storeBlob(file);
+    console.log({ uri });
+    return uri;
+  }
+  /**
+   * Creates a new DirectPaymentsPool contract instance and returns it.
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} projectId - The ID of the project associated with the new pool.
+   * @param {PoolAttributes} poolAttributes - Pool data to save to ipfs
+   * @param {PoolSettings} poolSettings - The settings for the new pool.
+   * @param {PoolLimits} poolLimits - The limits for the new pool.
+   * @returns {Promise<DirectPaymentsPool>} A promise that resolves to the new DirectPaymentsPool contract instance.
+   */
+  async createPoolWithAttributes(
+    signer: ethers.Signer,
+    projectId: string,
+    poolAttributes: PoolAttributes,
+    poolSettings: PoolSettings,
+    poolLimits: PoolLimits
+  ) {
+    const uri = await this.savePoolToIPFS(poolAttributes);
+    return this.createPool(signer, projectId, uri, poolSettings, poolLimits);
   }
 
   /**

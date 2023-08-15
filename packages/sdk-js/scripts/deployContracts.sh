@@ -1,5 +1,4 @@
 #! /bin/bash
 pushd ../contracts
-yarn deploy &
-sleep 20
+yarn test:setup
 popd

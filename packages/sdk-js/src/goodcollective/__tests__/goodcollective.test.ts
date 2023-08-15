@@ -30,10 +30,23 @@ let sdk: GoodCollectiveSDK;
 
 describe('GoodCollective SDK', () => {
   beforeAll(async () => {
-    console.log(contracts);
-    sdk = new GoodCollectiveSDK('31337', localProvider, 'localhost');
+    sdk = new GoodCollectiveSDK('31337', localProvider, {
+      network: 'localhost',
+      nftStorageKey: process.env.VITE_NFTSTORAGE_KEY,
+    });
     nftProxy = await registry.nft();
     deployedNFT = new ethers.Contract(nftProxy, contracts.ProvableNFT.abi, localProvider) as ProvableNFT;
+  });
+
+  it('should create ipfs file for pool', async () => {
+    const uri = await sdk.savePoolToIPFS({
+      name: 'xx',
+      description: 'zz',
+      twitter: '@ss',
+      email: 'x@sag.com',
+    });
+
+    expect(uri).not.empty;
   });
 
   it('should deploy pool', async () => {
