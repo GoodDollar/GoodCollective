@@ -28,11 +28,11 @@ dataSources:
 
       file: ./src/mappings/pool.ts
   - kind: ethereum
-    name: DirectPaymentPools
+    name: DirectPaymentsPools
     network: alfajores
     source:
       address: '0xf5059a5D33d5853360D16C683c16e67980206f36'
-      abi: DirectPaymentPool
+      abi: DirectPaymentsPool
       startBlock: 19246160
     mapping:
       kind: ethereum/events
@@ -44,7 +44,7 @@ dataSources:
         - PoolSettings
         - Claim
       abis:
-        - name: DirectPaymentPool
+        - name: DirectPaymentsPool
           file: ./abis/DirectPaymentsPool.json
       eventHandlers:
         - event: PoolSettingsChanged((uint32,uint16[],uint128[],address,address,address,address))
