@@ -6,7 +6,7 @@ import {
   DirectPaymentsPool,
 } from '@gooddollar/goodcollective-contracts/typechain-types';
 import { Framework } from '@superfluid-finance/sdk-core';
-import { SwapLibrary } from '@gooddollar/goodcollective-contracts/typechain-types';
+import { SwapLibrary } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/GoodCollective/GoodCollectiveSuperApp';
 import { NFTStorage, File, CIDString } from 'nft.storage';
 
 export type NFTData = ProvableNFT.NFTDataStruct;
