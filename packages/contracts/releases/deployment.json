@@ -600,7 +600,7 @@
               "name": "impl",
               "outputs": [
                 {
-                  "internalType": "address",
+                  "internalType": "contract UpgradeableBeacon",
                   "name": "",
                   "type": "address"
                 }
@@ -1469,7 +1469,7 @@
               "name": "impl",
               "outputs": [
                 {
-                  "internalType": "address",
+                  "internalType": "contract UpgradeableBeacon",
                   "name": "",
                   "type": "address"
                 }
@@ -2000,37 +2000,34 @@
                   "type": "uint256"
                 },
                 {
-                  "components": [
-                    {
-                      "internalType": "uint16",
-                      "name": "subtype",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "uint32",
-                      "name": "timestamp",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "quantity",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "string",
-                      "name": "eventUri",
-                      "type": "string"
-                    },
-                    {
-                      "internalType": "address[]",
-                      "name": "contributers",
-                      "type": "address[]"
-                    }
-                  ],
                   "indexed": false,
-                  "internalType": "struct ProvableNFT.EventData",
-                  "name": "eventData",
-                  "type": "tuple"
+                  "internalType": "uint16",
+                  "name": "eventType",
+                  "type": "uint16"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint32",
+                  "name": "eventTimestamp",
+                  "type": "uint32"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "eventQuantity",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "string",
+                  "name": "eventUri",
+                  "type": "string"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address[]",
+                  "name": "contributers",
+                  "type": "address[]"
                 },
                 {
                   "indexed": false,
@@ -2069,61 +2066,6 @@
                   "internalType": "uint256",
                   "name": "totalRewards",
                   "type": "uint256"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16",
-                      "name": "version",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "string",
-                      "name": "nftUri",
-                      "type": "string"
-                    },
-                    {
-                      "components": [
-                        {
-                          "internalType": "uint16",
-                          "name": "subtype",
-                          "type": "uint16"
-                        },
-                        {
-                          "internalType": "uint32",
-                          "name": "timestamp",
-                          "type": "uint32"
-                        },
-                        {
-                          "internalType": "uint256",
-                          "name": "quantity",
-                          "type": "uint256"
-                        },
-                        {
-                          "internalType": "string",
-                          "name": "eventUri",
-                          "type": "string"
-                        },
-                        {
-                          "internalType": "address[]",
-                          "name": "contributers",
-                          "type": "address[]"
-                        }
-                      ],
-                      "internalType": "struct ProvableNFT.EventData[]",
-                      "name": "events",
-                      "type": "tuple[]"
-                    }
-                  ],
-                  "indexed": false,
-                  "internalType": "struct ProvableNFT.NFTData",
-                  "name": "nftData",
-                  "type": "tuple"
                 }
               ],
               "name": "NFTClaimed",
@@ -3054,7 +2996,7 @@
                       "type": "bytes"
                     }
                   ],
-                  "internalType": "struct GoodCollectiveSuperApp.SwapData",
+                  "internalType": "struct SwapLibrary.SwapData",
                   "name": "_customData",
                   "type": "tuple"
                 },
@@ -4105,61 +4047,6 @@
                   "internalType": "bytes32",
                   "name": "nftDataHash",
                   "type": "bytes32"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16",
-                      "name": "version",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "string",
-                      "name": "nftUri",
-                      "type": "string"
-                    },
-                    {
-                      "components": [
-                        {
-                          "internalType": "uint16",
-                          "name": "subtype",
-                          "type": "uint16"
-                        },
-                        {
-                          "internalType": "uint32",
-                          "name": "timestamp",
-                          "type": "uint32"
-                        },
-                        {
-                          "internalType": "uint256",
-                          "name": "quantity",
-                          "type": "uint256"
-                        },
-                        {
-                          "internalType": "string",
-                          "name": "eventUri",
-                          "type": "string"
-                        },
-                        {
-                          "internalType": "address[]",
-                          "name": "contributers",
-                          "type": "address[]"
-                        }
-                      ],
-                      "internalType": "struct ProvableNFT.EventData[]",
-                      "name": "events",
-                      "type": "tuple[]"
-                    }
-                  ],
-                  "indexed": false,
-                  "internalType": "struct ProvableNFT.NFTData",
-                  "name": "nftData",
-                  "type": "tuple"
                 }
               ],
               "name": "ProvableNftMinted",
@@ -5314,61 +5201,6 @@
                   "internalType": "bytes32",
                   "name": "nftDataHash",
                   "type": "bytes32"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16",
-                      "name": "version",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "string",
-                      "name": "nftUri",
-                      "type": "string"
-                    },
-                    {
-                      "components": [
-                        {
-                          "internalType": "uint16",
-                          "name": "subtype",
-                          "type": "uint16"
-                        },
-                        {
-                          "internalType": "uint32",
-                          "name": "timestamp",
-                          "type": "uint32"
-                        },
-                        {
-                          "internalType": "uint256",
-                          "name": "quantity",
-                          "type": "uint256"
-                        },
-                        {
-                          "internalType": "string",
-                          "name": "eventUri",
-                          "type": "string"
-                        },
-                        {
-                          "internalType": "address[]",
-                          "name": "contributers",
-                          "type": "address[]"
-                        }
-                      ],
-                      "internalType": "struct ProvableNFT.EventData[]",
-                      "name": "events",
-                      "type": "tuple[]"
-                    }
-                  ],
-                  "indexed": false,
-                  "internalType": "struct ProvableNFT.NFTData",
-                  "name": "nftData",
-                  "type": "tuple"
                 }
               ],
               "name": "ProvableNftMinted",
@@ -7035,37 +6867,34 @@
                   "type": "uint256"
                 },
                 {
-                  "components": [
-                    {
-                      "internalType": "uint16",
-                      "name": "subtype",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "uint32",
-                      "name": "timestamp",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "quantity",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "string",
-                      "name": "eventUri",
-                      "type": "string"
-                    },
-                    {
-                      "internalType": "address[]",
-                      "name": "contributers",
-                      "type": "address[]"
-                    }
-                  ],
                   "indexed": false,
-                  "internalType": "struct ProvableNFT.EventData",
-                  "name": "eventData",
-                  "type": "tuple"
+                  "internalType": "uint16",
+                  "name": "eventType",
+                  "type": "uint16"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint32",
+                  "name": "eventTimestamp",
+                  "type": "uint32"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "eventQuantity",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "string",
+                  "name": "eventUri",
+                  "type": "string"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address[]",
+                  "name": "contributers",
+                  "type": "address[]"
                 },
                 {
                   "indexed": false,
@@ -7104,61 +6933,6 @@
                   "internalType": "uint256",
                   "name": "totalRewards",
                   "type": "uint256"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16",
-                      "name": "version",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "string",
-                      "name": "nftUri",
-                      "type": "string"
-                    },
-                    {
-                      "components": [
-                        {
-                          "internalType": "uint16",
-                          "name": "subtype",
-                          "type": "uint16"
-                        },
-                        {
-                          "internalType": "uint32",
-                          "name": "timestamp",
-                          "type": "uint32"
-                        },
-                        {
-                          "internalType": "uint256",
-                          "name": "quantity",
-                          "type": "uint256"
-                        },
-                        {
-                          "internalType": "string",
-                          "name": "eventUri",
-                          "type": "string"
-                        },
-                        {
-                          "internalType": "address[]",
-                          "name": "contributers",
-                          "type": "address[]"
-                        }
-                      ],
-                      "internalType": "struct ProvableNFT.EventData[]",
-                      "name": "events",
-                      "type": "tuple[]"
-                    }
-                  ],
-                  "indexed": false,
-                  "internalType": "struct ProvableNFT.NFTData",
-                  "name": "nftData",
-                  "type": "tuple"
                 }
               ],
               "name": "NFTClaimed",
@@ -8089,7 +7863,7 @@
                       "type": "bytes"
                     }
                   ],
-                  "internalType": "struct GoodCollectiveSuperApp.SwapData",
+                  "internalType": "struct SwapLibrary.SwapData",
                   "name": "_customData",
                   "type": "tuple"
                 },
@@ -8975,61 +8749,6 @@
                   "internalType": "bytes32",
                   "name": "nftDataHash",
                   "type": "bytes32"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16",
-                      "name": "version",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "string",
-                      "name": "nftUri",
-                      "type": "string"
-                    },
-                    {
-                      "components": [
-                        {
-                          "internalType": "uint16",
-                          "name": "subtype",
-                          "type": "uint16"
-                        },
-                        {
-                          "internalType": "uint32",
-                          "name": "timestamp",
-                          "type": "uint32"
-                        },
-                        {
-                          "internalType": "uint256",
-                          "name": "quantity",
-                          "type": "uint256"
-                        },
-                        {
-                          "internalType": "string",
-                          "name": "eventUri",
-                          "type": "string"
-                        },
-                        {
-                          "internalType": "address[]",
-                          "name": "contributers",
-                          "type": "address[]"
-                        }
-                      ],
-                      "internalType": "struct ProvableNFT.EventData[]",
-                      "name": "events",
-                      "type": "tuple[]"
-                    }
-                  ],
-                  "indexed": false,
-                  "internalType": "struct ProvableNFT.NFTData",
-                  "name": "nftData",
-                  "type": "tuple"
                 }
               ],
               "name": "ProvableNftMinted",
@@ -10276,61 +9995,6 @@
                   "internalType": "bytes32",
                   "name": "nftDataHash",
                   "type": "bytes32"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16",
-                      "name": "version",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "string",
-                      "name": "nftUri",
-                      "type": "string"
-                    },
-                    {
-                      "components": [
-                        {
-                          "internalType": "uint16",
-                          "name": "subtype",
-                          "type": "uint16"
-                        },
-                        {
-                          "internalType": "uint32",
-                          "name": "timestamp",
-                          "type": "uint32"
-                        },
-                        {
-                          "internalType": "uint256",
-                          "name": "quantity",
-                          "type": "uint256"
-                        },
-                        {
-                          "internalType": "string",
-                          "name": "eventUri",
-                          "type": "string"
-                        },
-                        {
-                          "internalType": "address[]",
-                          "name": "contributers",
-                          "type": "address[]"
-                        }
-                      ],
-                      "internalType": "struct ProvableNFT.EventData[]",
-                      "name": "events",
-                      "type": "tuple[]"
-                    }
-                  ],
-                  "indexed": false,
-                  "internalType": "struct ProvableNFT.NFTData",
-                  "name": "nftData",
-                  "type": "tuple"
                 }
               ],
               "name": "ProvableNftMinted",
@@ -11918,7 +11582,7 @@
               "name": "impl",
               "outputs": [
                 {
-                  "internalType": "address",
+                  "internalType": "contract UpgradeableBeacon",
                   "name": "",
                   "type": "address"
                 }
@@ -12853,7 +12517,7 @@
               "name": "impl",
               "outputs": [
                 {
-                  "internalType": "address",
+                  "internalType": "contract UpgradeableBeacon",
                   "name": "",
                   "type": "address"
                 }
@@ -13143,7 +12807,7 @@
       "chainId": "44787",
       "contracts": {
         "DirectPaymentsFactory": {
-          "address": "0xA7Ea41C1A8aaD503e0D57CfdeE4f7D63Ac1a53a4",
+          "address": "0xab51c7641Ae2bdf7cA2269cC64ddc3B4B560296f",
           "abi": [
             {
               "anonymous": false,
@@ -13738,7 +13402,7 @@
               "name": "impl",
               "outputs": [
                 {
-                  "internalType": "address",
+                  "internalType": "contract UpgradeableBeacon",
                   "name": "",
                   "type": "address"
                 }
@@ -14020,7 +13684,7 @@
           ]
         },
         "DirectPaymentsFactory_Implementation": {
-          "address": "0x7aB8C0E4cc2Ff438C84FffE70b8557Cb59eD8b5d",
+          "address": "0x4B9D5d475ED4b6a631E3a897BB8eeE848f57c0Fe",
           "abi": [
             {
               "inputs": [],
@@ -14607,7 +14271,7 @@
               "name": "impl",
               "outputs": [
                 {
-                  "internalType": "address",
+                  "internalType": "contract UpgradeableBeacon",
                   "name": "",
                   "type": "address"
                 }
@@ -14873,7 +14537,7 @@
           ]
         },
         "DirectPaymentsFactory_Proxy": {
-          "address": "0xA7Ea41C1A8aaD503e0D57CfdeE4f7D63Ac1a53a4",
+          "address": "0xab51c7641Ae2bdf7cA2269cC64ddc3B4B560296f",
           "abi": [
             {
               "inputs": [
@@ -14947,7 +14611,7 @@
           ]
         },
         "DirectPaymentsPool": {
-          "address": "0x34cf3a1102384f9E6B071fD339f06bBAFA6C753f",
+          "address": "0x66C2397aB1EF38e47640D2ECccf8cEA1e3D4034B",
           "abi": [
             {
               "inputs": [
@@ -15138,37 +14802,34 @@
                   "type": "uint256"
                 },
                 {
-                  "components": [
-                    {
-                      "internalType": "uint16",
-                      "name": "subtype",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "uint32",
-                      "name": "timestamp",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "quantity",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "string",
-                      "name": "eventUri",
-                      "type": "string"
-                    },
-                    {
-                      "internalType": "address[]",
-                      "name": "contributers",
-                      "type": "address[]"
-                    }
-                  ],
                   "indexed": false,
-                  "internalType": "struct ProvableNFT.EventData",
-                  "name": "eventData",
-                  "type": "tuple"
+                  "internalType": "uint16",
+                  "name": "eventType",
+                  "type": "uint16"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint32",
+                  "name": "eventTimestamp",
+                  "type": "uint32"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "eventQuantity",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "string",
+                  "name": "eventUri",
+                  "type": "string"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address[]",
+                  "name": "contributers",
+                  "type": "address[]"
                 },
                 {
                   "indexed": false,
@@ -15207,61 +14868,6 @@
                   "internalType": "uint256",
                   "name": "totalRewards",
                   "type": "uint256"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16",
-                      "name": "version",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "string",
-                      "name": "nftUri",
-                      "type": "string"
-                    },
-                    {
-                      "components": [
-                        {
-                          "internalType": "uint16",
-                          "name": "subtype",
-                          "type": "uint16"
-                        },
-                        {
-                          "internalType": "uint32",
-                          "name": "timestamp",
-                          "type": "uint32"
-                        },
-                        {
-                          "internalType": "uint256",
-                          "name": "quantity",
-                          "type": "uint256"
-                        },
-                        {
-                          "internalType": "string",
-                          "name": "eventUri",
-                          "type": "string"
-                        },
-                        {
-                          "internalType": "address[]",
-                          "name": "contributers",
-                          "type": "address[]"
-                        }
-                      ],
-                      "internalType": "struct ProvableNFT.EventData[]",
-                      "name": "events",
-                      "type": "tuple[]"
-                    }
-                  ],
-                  "indexed": false,
-                  "internalType": "struct ProvableNFT.NFTData",
-                  "name": "nftData",
-                  "type": "tuple"
                 }
               ],
               "name": "NFTClaimed",
@@ -16192,7 +15798,7 @@
                       "type": "bytes"
                     }
                   ],
-                  "internalType": "struct GoodCollectiveSuperApp.SwapData",
+                  "internalType": "struct SwapLibrary.SwapData",
                   "name": "_customData",
                   "type": "tuple"
                 },
@@ -16924,7 +16530,7 @@
           ]
         },
         "ProvableNFT": {
-          "address": "0x4C81775468548a91Da83962EfB2B35870bcc39EC",
+          "address": "0x3B2A0566895B0c0640dB30602A44A847BE7b0873",
           "abi": [
             {
               "anonymous": false,
@@ -17099,61 +16705,6 @@
                   "internalType": "bytes32",
                   "name": "nftDataHash",
                   "type": "bytes32"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16",
-                      "name": "version",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "string",
-                      "name": "nftUri",
-                      "type": "string"
-                    },
-                    {
-                      "components": [
-                        {
-                          "internalType": "uint16",
-                          "name": "subtype",
-                          "type": "uint16"
-                        },
-                        {
-                          "internalType": "uint32",
-                          "name": "timestamp",
-                          "type": "uint32"
-                        },
-                        {
-                          "internalType": "uint256",
-                          "name": "quantity",
-                          "type": "uint256"
-                        },
-                        {
-                          "internalType": "string",
-                          "name": "eventUri",
-                          "type": "string"
-                        },
-                        {
-                          "internalType": "address[]",
-                          "name": "contributers",
-                          "type": "address[]"
-                        }
-                      ],
-                      "internalType": "struct ProvableNFT.EventData[]",
-                      "name": "events",
-                      "type": "tuple[]"
-                    }
-                  ],
-                  "indexed": false,
-                  "internalType": "struct ProvableNFT.NFTData",
-                  "name": "nftData",
-                  "type": "tuple"
                 }
               ],
               "name": "ProvableNftMinted",
@@ -18154,7 +17705,7 @@
           ]
         },
         "ProvableNFT_Implementation": {
-          "address": "0x380bb7909ca609aF82f01FBE7784Ed3f4CEd3069",
+          "address": "0x2931aB8757bA4253423F3Bc1C1e080daeac586e8",
           "abi": [
             {
               "inputs": [
@@ -18308,61 +17859,6 @@
                   "internalType": "bytes32",
                   "name": "nftDataHash",
                   "type": "bytes32"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16",
-                      "name": "version",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "string",
-                      "name": "nftUri",
-                      "type": "string"
-                    },
-                    {
-                      "components": [
-                        {
-                          "internalType": "uint16",
-                          "name": "subtype",
-                          "type": "uint16"
-                        },
-                        {
-                          "internalType": "uint32",
-                          "name": "timestamp",
-                          "type": "uint32"
-                        },
-                        {
-                          "internalType": "uint256",
-                          "name": "quantity",
-                          "type": "uint256"
-                        },
-                        {
-                          "internalType": "string",
-                          "name": "eventUri",
-                          "type": "string"
-                        },
-                        {
-                          "internalType": "address[]",
-                          "name": "contributers",
-                          "type": "address[]"
-                        }
-                      ],
-                      "internalType": "struct ProvableNFT.EventData[]",
-                      "name": "events",
-                      "type": "tuple[]"
-                    }
-                  ],
-                  "indexed": false,
-                  "internalType": "struct ProvableNFT.NFTData",
-                  "name": "nftData",
-                  "type": "tuple"
                 }
               ],
               "name": "ProvableNftMinted",
@@ -19360,7 +18856,7 @@
           ]
         },
         "ProvableNFT_Proxy": {
-          "address": "0x4C81775468548a91Da83962EfB2B35870bcc39EC",
+          "address": "0x3B2A0566895B0c0640dB30602A44A847BE7b0873",
           "abi": [
             {
               "inputs": [
