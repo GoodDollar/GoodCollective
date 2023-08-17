@@ -29,15 +29,32 @@ jobs:
 
       - run: yarn install --immutable
 
+      - uses: marceloprado/has-changed-path@v1.0.1
+        id: changed-contracts
+        with:
+          paths: packages/contracts .github
+
+      - uses: marceloprado/has-changed-path@v1.0.1
+        id: changed-sdk
+        with:
+          paths: packages/sdk-js .github
+
+      - uses: marceloprado/has-changed-path@v1.0.1
+        id: changed-app
+        with:
+          paths: packages/app .github
+
       - name: 'Build contracts'
+        if: steps.changed-contracts.outputs.changed == 'true'
         run: |
           yarn build:contracts
 
-      - name: 'setup test contracts'
+      - name: 'setup test contracts for sdk'
         run: |
           yarn test:setup
 
       - name: 'test sdk & contracts'
+        if: steps.changed-contracts.outputs.changed == 'true' || steps.changed-sdk.outputs.changed == 'true'
         run: |
           yarn test
 
@@ -46,5 +63,6 @@ jobs:
       #     pkill -f "hardhat node"
 
       - name: 'Build app production'
+        if: steps.changed-app.outputs.changed == 'true'
         run: |
           yarn build:app
