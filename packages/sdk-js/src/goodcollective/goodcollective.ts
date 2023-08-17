@@ -127,7 +127,6 @@ export class GoodCollectiveSDK {
     const data = Buffer.from(JSON.stringify(attrs));
     const file = new File([data], 'pool.json', { type: 'application/json' });
     const uri = await this.nftStorage.storeBlob(file);
-    console.log({ uri });
     return uri;
   }
   /**

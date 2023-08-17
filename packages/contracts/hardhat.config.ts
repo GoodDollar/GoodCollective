@@ -4,6 +4,7 @@ import 'hardhat-abi-exporter';
 import 'hardhat-contract-sizer';
 import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-deploy';
+import 'hardhat-celo';
 import { HardhatUserConfig } from 'hardhat/config';
 
 dotenv.config();
@@ -66,6 +67,12 @@ const config: HardhatUserConfig = {
       gasPrice: 5000000000,
       accounts: {
         mnemonic: process.env.MNEMONIC,
+      },
+      verify: {
+        etherscan: {
+          apiKey: process.env.CELOSCAN_KEY,
+          apiUrl: 'https://api.celoscan.io/',
+        },
       },
     },
   },

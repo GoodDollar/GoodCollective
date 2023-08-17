@@ -9,7 +9,7 @@ const wallet = ethers.Wallet.fromMnemonic('test test test test test test test te
   localProvider
 );
 const contracts =
-  GoodCollectiveContracts[31337][GoodCollectiveContracts['31337'].findIndex((_) => _.name === 'localhost') || 0]
+  GoodCollectiveContracts['31337'][GoodCollectiveContracts['31337'].findIndex((_) => _.name === 'localhost') || 0]
     .contracts;
 
 const registry = new ethers.Contract(
