@@ -9,6 +9,7 @@ import { HardhatUserConfig } from 'hardhat/config';
 
 dotenv.config();
 
+const mnemonic = process.env.MNEMONIC || '';
 const config: HardhatUserConfig = {
   contractSizer: {
     alphaSort: true,
@@ -52,7 +53,7 @@ const config: HardhatUserConfig = {
       url: `https://alfajores-forno.celo-testnet.org`,
       gasPrice: 5000000000,
       accounts: {
-        mnemonic: process.env.MNEMONIC,
+        mnemonic: mnemonic,
       },
       verify: {
         etherscan: {
@@ -66,7 +67,7 @@ const config: HardhatUserConfig = {
       url: `https://forno.celo.org`,
       gasPrice: 5000000000,
       accounts: {
-        mnemonic: process.env.MNEMONIC,
+        mnemonic: mnemonic,
       },
       verify: {
         etherscan: {
