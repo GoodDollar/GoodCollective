@@ -4352,7 +4352,7 @@ __metadata:
     dotenv: ^16.3.1
     ethereum-waffle: ^3.0.0
     graphql: ^16.7.1
-    hardhat: 2.14.*
+    hardhat: ^2.17.1
     hardhat-abi-exporter: ^2.10.1
     hardhat-celo: ^0.0.4
     hardhat-contract-sizer: ^2.10.0
@@ -23384,9 +23384,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat@npm:2.14.*":
-  version: 2.14.1
-  resolution: "hardhat@npm:2.14.1"
+"hardhat@npm:^2.17.1":
+  version: 2.17.1
+  resolution: "hardhat@npm:2.17.1"
   dependencies:
     "@ethersproject/abi": ^5.1.2
     "@metamask/eth-sig-util": ^4.0.0
@@ -23404,7 +23404,6 @@ __metadata:
     "@sentry/node": ^5.18.1
     "@types/bn.js": ^5.1.0
     "@types/lru-cache": ^5.1.0
-    abort-controller: ^3.0.0
     adm-zip: ^0.4.16
     aggregate-error: ^3.0.0
     ansi-escapes: ^4.3.0
@@ -23427,7 +23426,6 @@ __metadata:
     mnemonist: ^0.38.0
     mocha: ^10.0.0
     p-map: ^4.0.0
-    qs: ^6.7.0
     raw-body: ^2.4.1
     resolve: 1.17.0
     semver: ^6.3.0
@@ -23448,7 +23446,7 @@ __metadata:
       optional: true
   bin:
     hardhat: internal/cli/bootstrap.js
-  checksum: 151fda00b4cbc049c29af4249755ee28af7a588d66fed1ff308b2b19e260462649798a13acbc758e24fbfdc8a90fd43809c9cf2d3383fbab3eea0d0e0b00bb22
+  checksum: 4986fd535d82e6c6c9e50627daf95b68b97c850dd57fb5b31ac62945c6bcecd2e48e3dbce1d3dec324a01bf903c9cd13c095cc68c3a68cf586880b4b05125254
   languageName: node
   linkType: hard
 
@@ -32305,7 +32303,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:6.11.0, qs@npm:^6.10.3, qs@npm:^6.4.0, qs@npm:^6.7.0":
+"qs@npm:6.11.0, qs@npm:^6.10.3, qs@npm:^6.4.0":
   version: 6.11.0
   resolution: "qs@npm:6.11.0"
   dependencies:
