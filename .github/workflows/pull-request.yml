@@ -32,17 +32,17 @@ jobs:
       - uses: marceloprado/has-changed-path@v1.0.1
         id: changed-contracts
         with:
-          paths: packages/contracts .github
+          paths: packages/contracts .github/workflows
 
       - uses: marceloprado/has-changed-path@v1.0.1
         id: changed-sdk
         with:
-          paths: packages/sdk-js .github
+          paths: packages/sdk-js .github/workflows
 
       - uses: marceloprado/has-changed-path@v1.0.1
         id: changed-app
         with:
-          paths: packages/app .github
+          paths: packages/app .github/workflows
 
       - name: 'Build contracts'
         if: steps.changed-contracts.outputs.changed == 'true'
@@ -54,7 +54,7 @@ jobs:
           yarn test:setup
 
       - name: 'test sdk & contracts'
-        if: steps.changed-contracts.outputs.changed == 'true' || steps.changed-sdk.outputs.changed == 'true'
+        if: ${{ steps.changed-contracts.outputs.changed == 'true' || steps.changed-sdk.outputs.changed == 'true' }}
         run: |
           yarn test
 
