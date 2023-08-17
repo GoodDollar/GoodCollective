@@ -1,7 +1,10 @@
 // Run with npx ts-node --esm
 import * as ethers from 'ethers';
 import { GoodCollectiveSDK } from '../src/goodcollective/goodcollective';
+import { config } from 'dotenv';
 
+config();
+console.log(process.env);
 // const provider = new ethers.providers.JsonRpcProvider('https://alfajores-forno.celo-testnet.org');
 const provider = new ethers.providers.JsonRpcProvider('https://forno.celo.org');
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY || '').connect(provider);

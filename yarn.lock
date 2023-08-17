@@ -4376,6 +4376,7 @@ __metadata:
     "@types/eslint": ^8.40.2
     "@typescript-eslint/eslint-plugin": ^5.60.0
     "@typescript-eslint/parser": ^5.60.0
+    dotenv: ^16.3.1
     eslint: ^8.43.0
     eslint-config-prettier: ^8.8.0
     ethers: 5
