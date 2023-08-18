@@ -5,7 +5,6 @@ export function handleNftMint(event: ProvableNftMinted): void {
   const tokenID = event.params.tokenId.toString();
   const to = event.params.to.toHexString();
   const nftHash = event.params.nftDataHash.toHexString();
-  const nftData = event.params.nftData;
 
   let provableNFT = ProvableNFT.load(tokenID);
   if (provableNFT === null) {

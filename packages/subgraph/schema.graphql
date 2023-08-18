@@ -39,29 +39,22 @@ type ProvableNFT @entity {
   id: ID!
   owner: String!
   hash: String!
-  nftType: BigInt!
-  version: Int!
-  nftUri: String!
-  events: [EventData!] @derivedFrom(field: "provableNFT")
 }
 
 type EventData @entity {
   id: String!
-  subtype: Int!
-  timestamp: BigInt!
+  eventType: Int!
+  eventTimestamp: BigInt!
   quantity: BigInt!
   eventUri: String!
-  contributors: [String!]!
-  provableNFT: ProvableNFT
+  eventQuantity: BigInt!
+  rewardPerContributer: BigInt!
+  contributors: [Bytes!]!
   claim: Claim
 }
 
 type Claim @entity {
   id: String!
-  rewardPerContributor: BigInt
-  totalRewards: BigInt
-  nftType: BigInt
-  version: Int
-  nftUri: String
+  totalRewards: BigInt!
   events: [EventData!] @derivedFrom(field: "claim")
 }

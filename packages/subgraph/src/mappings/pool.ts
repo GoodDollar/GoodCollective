@@ -9,7 +9,8 @@ import {
   NFTClaimed,
   PoolLimitsChanged,
   PoolSettingsChanged,
-} from '../../generated/DirectPaymentPools/DirectPaymentPool';
+} from '../../generated/DirectPaymentsPools/DirectPaymentsPool';
+
 import { Claim, DirectPaymentPool, PoolSettings, SafetyLimits, EventData } from '../../generated/schema';
 
 export function handlePoolCreated(event: PoolCreated): void {
@@ -136,38 +137,41 @@ export function handlePoolLimitsChange(event: PoolLimitsChanged): void {
 
 export function handleRewardClaim(event: EventRewardClaimed): void {
   const claimId = event.params.tokenId;
-  const rewardCount = event.params.rewardPerContributer;
-  const eventsData = event.params.eventData;
+  const eventType = event.params.eventType;
+  const eventTimestamp = event.params.eventTimestamp;
+  const eventQuantity = event.params.eventQuantity;
+  const eventUri = event.params.eventUri;
+  const contributers = event.params.contributers;
+  const rewardPerContributer = event.params.rewardPerContributer;
 
   let eventData = EventData.load(claimId.toHexString());
-  let claim = Claim.load(claimId.toHexString());
-  if (claim === null) {
-    claim = new Claim(claimId.toHexString());
-    claim.rewardPerContributor = rewardCount;
-    claim.save();
-  }
-  if (eventData) {
-    eventData.subtype = eventsData.subtype;
-    eventData.timestamp = eventsData.timestamp;
-    eventData.quantity = eventsData.quantity;
-    eventData.eventUri = eventsData.eventUri;
+  if (eventData === null) {
+    eventData = new EventData(claimId.toHexString());
+    eventData.eventType = eventType;
+    eventData.eventTimestamp = eventTimestamp;
+    eventData.eventQuantity = eventQuantity;
+    eventData.eventUri = eventUri;
+
+    for (let i = 0; i < contributers.length; i++) {
+      eventData.contributors.push(contributers[i]);
+      eventData.save();
+    }
+
+    eventData.rewardPerContributer = rewardPerContributer;
     eventData.save();
   }
 }
 
+// event NFTClaimed(uint256 indexed tokenId, uint256 totalRewards);
+
 export function handleClaim(event: NFTClaimed): void {
   const claimId = event.params.tokenId;
   const totalRewards = event.params.totalRewards;
-  const nftData = event.params.nftData;
   let claim = Claim.load(claimId.toHexString());
   if (claim === null) {
-    log.error('Missing Claim Entity {}', [event.address.toHex()]);
-    return;
+    claim = new Claim(claimId.toHexString());
+    claim.id = claimId.toHexString();
+    claim.totalRewards = totalRewards;
+    claim.save();
   }
-
-  claim.totalRewards = totalRewards;
-  claim.nftType = nftData.nftType;
-  claim.version = nftData.version;
-  claim.nftUri = nftData.nftUri;
-  claim.save();
 }
