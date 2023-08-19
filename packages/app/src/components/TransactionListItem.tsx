@@ -27,22 +27,25 @@ function TransactionListItem({ username, currency, amount, id, receive }: Transa
         ) : (
           <Image source={{ uri: SendIcon }} style={styles.rowIcon} />
         )}
-        <View style={{ width: '100%' }}>
-          <View style={{ flex: 1, flexDirection: 'row', alignSelf: 'stretch' }}>
+        <View style={{ flex:1 }}>
+          <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={styles.rowInfo}>{username}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
             <Text style={styles.currency}>
               {currency}
               {'   '}
             </Text>
             <Text style={styles.amount}>{amount}</Text>
+            </View>
           </View>
           <View>
             <Text style={styles.id}>{id}</Text>
           </View>
           <View>
-            <View style={{ flex: 1, flexDirection: 'row' }}>
+            <View style={{  flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <Text style={[styles.lowerText, styles.alignLeft]}>Transaccion fee{' (Gas)'}</Text>
-              <Text style={[styles.lowerText, styles.alignRight]}>CELO .00075</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+              <Text style={[styles.lowerText, styles.alignRight]}>CELO .00075</Text></View>
             </View>
           </View>
         </View>
@@ -64,7 +67,7 @@ const styles = StyleSheet.create({
     color: Colors.black,
   },
   row: {
-    width: 300,
+
     flex: 1,
     flexDirection: 'row',
     marginVertical: 8,

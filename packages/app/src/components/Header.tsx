@@ -53,7 +53,7 @@ function Header(): JSX.Element {
                       width: 48,
                       ...InterRegular,
                     }}>
-                    <Text style={{ ...InterRegular }}>CELO</Text>
+                    <Text style={{ ...InterRegular }}>Celo</Text>
                   </View>
                   <View
                     style={{
@@ -97,12 +97,12 @@ function Header(): JSX.Element {
                       width: 48,
                       ...InterRegular,
                     }}>
-                    <Text style={{ ...InterRegular }}>CELO</Text>
+                    <Text style={{ ...InterRegular }}>Celo</Text>
                   </View>
                   <View
                     style={{
                       ...styles.walletWhiteContainer,
-                      width: 238,
+                      flex: 5,
                       justifyContent: 'space-between',
                     }}>
                     <Text style={styles.amountText}>0.758 CELO</Text>
@@ -138,9 +138,11 @@ function Header(): JSX.Element {
             <TouchableOpacity style={styles.walletConnectButton} onPress={connectWallet}>
               <Text style={styles.walletConnectButtonText}>Connect Wallet</Text>
             </TouchableOpacity>
+            <View style={styles.menuContainerFlex}>
             <TouchableOpacity style={styles.menuIconContainer} onPress={() => setOpenDropdown(!openDropdown)}>
               <Image source={{ uri: menuIconUri }} resizeMode="contain" style={styles.menuIcon} />
             </TouchableOpacity>
+            </View>
           </View>
         )}
         {!walletAddress && isDesktopResolution && (
@@ -153,7 +155,7 @@ function Header(): JSX.Element {
               />
             </View>
             <View>
-              <TouchableOpacity style={styles.walletConnectButton}>
+              <TouchableOpacity style={styles.walletConnectButtonDesktop}>
                 <Text style={styles.walletConnectButtonText}>Connect Wallet</Text>
               </TouchableOpacity>
             </View>
@@ -237,25 +239,43 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.purple[200],
     borderRadius: 12,
     marginRight: 10,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex:5
+  },
+  walletConnectButtonDesktop: {
+    width: 295,
+    height: 40,
+    backgroundColor: Colors.purple[200],
+    borderRadius: 12,
+    marginRight: 10,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   walletConnectButtonText: {
     fontSize: 18,
     color: Colors.white,
-    fontWeight: 'bold',
-    alignSelf: 'center',
-    textTransform: 'uppercase',
-    marginTop: 10,
+    fontWeight:500,
+    textAlign: 'center',
+    
   },
   menuIconContainer: {
     backgroundColor: Colors.purple[300],
     borderRadius: 40,
-    width: 40,
+    width: 44,
     height: 44,
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  menuContainerFlex:{
+    flex:0.5,
+
+
+  },
   menuIconContainerMobile: {
+    
     flex: 0,
   },
   walletInfoContainerDesktop: {
@@ -294,7 +314,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   walletInfoContainer: {
-    flex: 1,
+    flex: 5,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -303,13 +323,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 5,
+    padding: 8,
     height: 40,
-    marginRight: 15,
+    marginRight: 8,
+    justifyContent:'center',
+    textAlign:'center'
   },
   amountText: {
     color: Colors.gray[100],
     fontSize: 16,
+    fontWeight:400,
     ...InterRegular,
   },
   walletConnected: {
@@ -328,7 +351,7 @@ const styles = StyleSheet.create({
     color: Colors.purple[400],
     fontSize: 12,
     flex: 1,
-    marginLeft: 10,
+    marginLeft: 1,
     ...InterRegular,
   },
   builtByText: {
