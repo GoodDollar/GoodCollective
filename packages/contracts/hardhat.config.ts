@@ -8,6 +8,7 @@ import { HardhatUserConfig } from "hardhat/config";
 
 dotenv.config();
 
+const mnemonic = process.env.MNEMONIC || "";
 const config: HardhatUserConfig = {
     contractSizer: {
         alphaSort: true,

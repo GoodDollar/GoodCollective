@@ -6399,284 +6399,15 @@
           ]
         }
       }
-    },
+    }
+  ],
+  "42220": [
     {
-      "name": "hardhat",
-      "chainId": "31337",
+      "name": "celo",
+      "chainId": "42220",
       "contracts": {
-        "SwapRouterMock": {
-          "address": "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E",
-          "abi": [
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "token",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "nonpayable",
-              "type": "constructor"
-            },
-            {
-              "inputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "bytes",
-                      "name": "path",
-                      "type": "bytes"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "recipient",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "deadline",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "amountIn",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "amountOutMinimum",
-                      "type": "uint256"
-                    }
-                  ],
-                  "internalType": "struct ISwapRouter.ExactInputParams",
-                  "name": "params",
-                  "type": "tuple"
-                }
-              ],
-              "name": "exactInput",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "amountOut",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "payable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "address",
-                      "name": "tokenIn",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "tokenOut",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "uint24",
-                      "name": "fee",
-                      "type": "uint24"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "recipient",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "deadline",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "amountIn",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "amountOutMinimum",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint160",
-                      "name": "sqrtPriceLimitX96",
-                      "type": "uint160"
-                    }
-                  ],
-                  "internalType": "struct ISwapRouter.ExactInputSingleParams",
-                  "name": "params",
-                  "type": "tuple"
-                }
-              ],
-              "name": "exactInputSingle",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "amountOut",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "payable",
-              "type": "function"
-            }
-          ]
-        },
-        "GoodDollar": {
-          "address": "0x09635F643e140090A9A8Dcd712eD6285858ceBef",
-          "abi": [
-            "constructor(address _host)",
-            "error SF_TOKEN_AGREEMENT_ALREADY_EXISTS()",
-            "error SF_TOKEN_AGREEMENT_DOES_NOT_EXIST()",
-            "error SF_TOKEN_BURN_INSUFFICIENT_BALANCE()",
-            "error SF_TOKEN_MOVE_INSUFFICIENT_BALANCE()",
-            "error SF_TOKEN_ONLY_HOST()",
-            "error SF_TOKEN_ONLY_LISTED_AGREEMENT()",
-            "error SUPER_TOKEN_APPROVE_FROM_ZERO_ADDRESS()",
-            "error SUPER_TOKEN_APPROVE_TO_ZERO_ADDRESS()",
-            "error SUPER_TOKEN_BURN_FROM_ZERO_ADDRESS()",
-            "error SUPER_TOKEN_CALLER_IS_NOT_OPERATOR_FOR_HOLDER()",
-            "error SUPER_TOKEN_INFLATIONARY_DEFLATIONARY_NOT_SUPPORTED()",
-            "error SUPER_TOKEN_MINT_TO_ZERO_ADDRESS()",
-            "error SUPER_TOKEN_NOT_ERC777_TOKENS_RECIPIENT()",
-            "error SUPER_TOKEN_NO_UNDERLYING_TOKEN()",
-            "error SUPER_TOKEN_ONLY_HOST()",
-            "error SUPER_TOKEN_ONLY_SELF()",
-            "error SUPER_TOKEN_TRANSFER_FROM_ZERO_ADDRESS()",
-            "error SUPER_TOKEN_TRANSFER_TO_ZERO_ADDRESS()",
-            "event AgreementCreated(address indexed agreementClass, bytes32 id, bytes32[] data)",
-            "event AgreementLiquidated(address indexed agreementClass, bytes32 id, address indexed penaltyAccount, address indexed rewardAccount, uint256 rewardAmount)",
-            "event AgreementLiquidatedBy(address liquidatorAccount, address indexed agreementClass, bytes32 id, address indexed penaltyAccount, address indexed bondAccount, uint256 rewardAmount, uint256 bailoutAmount)",
-            "event AgreementLiquidatedV2(address indexed agreementClass, bytes32 id, address indexed liquidatorAccount, address indexed targetAccount, address rewardAmountReceiver, uint256 rewardAmount, int256 targetAccountBalanceDelta, bytes liquidationTypeData)",
-            "event AgreementStateUpdated(address indexed agreementClass, address indexed account, uint256 slotId)",
-            "event AgreementTerminated(address indexed agreementClass, bytes32 id)",
-            "event AgreementUpdated(address indexed agreementClass, bytes32 id, bytes32[] data)",
-            "event Approval(address indexed owner, address indexed spender, uint256 value)",
-            "event AuthorizedOperator(address indexed operator, address indexed tokenHolder)",
-            "event Bailout(address indexed bailoutAccount, uint256 bailoutAmount)",
-            "event Burned(address indexed operator, address indexed from, uint256 amount, bytes data, bytes operatorData)",
-            "event CodeUpdated(bytes32 uuid, address codeAddress)",
-            "event Initialized(uint8 version)",
-            "event Minted(address indexed operator, address indexed to, uint256 amount, bytes data, bytes operatorData)",
-            "event Paused(address account)",
-            "event RevokedOperator(address indexed operator, address indexed tokenHolder)",
-            "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
-            "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
-            "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
-            "event Sent(address indexed operator, address indexed from, address indexed to, uint256 amount, bytes data, bytes operatorData)",
-            "event TokenDowngraded(address indexed account, uint256 amount)",
-            "event TokenUpgraded(address indexed account, uint256 amount)",
-            "event Transfer(address indexed from, address indexed to, uint256 value, bytes data)",
-            "event Transfer(address indexed from, address indexed to, uint256 value)",
-            "event TransferFee(address from, address to, uint256 amount, uint256 fee, bool senderPays)",
-            "event Unpaused(address account)",
-            "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
-            "function DOMAIN_SEPARATOR() view returns (bytes32)",
-            "function MINTER_ROLE() view returns (bytes32)",
-            "function PAUSER_ROLE() view returns (bytes32)",
-            "function addMinter(address _minter)",
-            "function addPauser(address _pauser)",
-            "function allowance(address account, address spender) view returns (uint256)",
-            "function approve(address spender, uint256 amount) returns (bool)",
-            "function authorizeOperator(address operator)",
-            "function balanceOf(address account) view returns (uint256 balance)",
-            "function burn(uint256 amount)",
-            "function burn(uint256 amount, bytes data)",
-            "function burnFrom(address account, uint256 amount)",
-            "function cap() view returns (uint256)",
-            "function castrate()",
-            "function createAgreement(bytes32 id, bytes32[] data)",
-            "function decimals() pure returns (uint8)",
-            "function decreaseAllowance(address spender, uint256 subtractedValue) returns (bool)",
-            "function defaultOperators() view returns (address[])",
-            "function disableHostOperations() view returns (bool)",
-            "function downgrade(uint256 amount)",
-            "function enableHostOperations(bool enabled)",
-            "function feeRecipient() view returns (address)",
-            "function formula() view returns (address)",
-            "function getAccountActiveAgreements(address account) view returns (address[])",
-            "function getAgreementData(address agreementClass, bytes32 id, uint256 dataLength) view returns (bytes32[] data)",
-            "function getAgreementStateSlot(address agreementClass, address account, uint256 slotId, uint256 dataLength) view returns (bytes32[] slotData)",
-            "function getCodeAddress() view returns (address codeAddress)",
-            "function getFees(uint256 amount, address sender, address recipient) view returns (uint256 fee, bool senderPays)",
-            "function getFees(uint256 amount) view returns (uint256 fee, bool senderPays)",
-            "function getHost() view returns (address host)",
-            "function getRoleAdmin(bytes32 role) view returns (bytes32)",
-            "function getRoleMember(bytes32 role, uint256 index) view returns (address)",
-            "function getRoleMemberCount(bytes32 role) view returns (uint256)",
-            "function getUnderlyingToken() view returns (address)",
-            "function grantRole(bytes32 role, address account)",
-            "function granularity() pure returns (uint256)",
-            "function hasRole(bytes32 role, address account) view returns (bool)",
-            "function identity() view returns (address)",
-            "function increaseAllowance(address spender, uint256 addedValue) returns (bool)",
-            "function initialize(address underlyingToken, uint8 underlyingDecimals, string n, string s)",
-            "function initialize(string n, string s, uint256 _cap, address _formula, address _identity, address _feeRecipient, address _owner)",
-            "function isAccountCritical(address account, uint256 timestamp) view returns (bool isCritical)",
-            "function isAccountCriticalNow(address account) view returns (bool isCritical)",
-            "function isAccountSolvent(address account, uint256 timestamp) view returns (bool isSolvent)",
-            "function isAccountSolventNow(address account) view returns (bool isSolvent)",
-            "function isMinter(address _minter) view returns (bool)",
-            "function isOperatorFor(address operator, address tokenHolder) view returns (bool)",
-            "function isPauser(address _pauser) view returns (bool)",
-            "function makeLiquidationPayoutsV2(bytes32 id, bytes liquidationTypeData, address liquidatorAccount, bool useDefaultRewardAccount, address targetAccount, uint256 rewardAmount, int256 targetAccountBalanceDelta)",
-            "function mint(address to, uint256 amount) returns (bool)",
-            "function name() view returns (string)",
-            "function nonces(address owner) view returns (uint256)",
-            "function operationApprove(address account, address spender, uint256 amount)",
-            "function operationDowngrade(address account, uint256 amount)",
-            "function operationTransferFrom(address account, address spender, address recipient, uint256 amount)",
-            "function operationUpgrade(address account, uint256 amount)",
-            "function operatorBurn(address account, uint256 amount, bytes data, bytes operatorData)",
-            "function operatorSend(address sender, address recipient, uint256 amount, bytes data, bytes operatorData)",
-            "function owner() view returns (address)",
-            "function pause()",
-            "function paused() view returns (bool)",
-            "function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
-            "function proxiableUUID() pure returns (bytes32)",
-            "function realtimeBalanceOf(address account, uint256 timestamp) view returns (int256 availableBalance, uint256 deposit, uint256 owedDeposit)",
-            "function realtimeBalanceOfNow(address account) view returns (int256 availableBalance, uint256 deposit, uint256 owedDeposit, uint256 timestamp)",
-            "function renounceMinter()",
-            "function renounceRole(bytes32 role, address account)",
-            "function revokeOperator(address operator)",
-            "function revokeRole(bytes32 role, address account)",
-            "function selfApproveFor(address account, address spender, uint256 amount)",
-            "function selfBurn(address account, uint256 amount, bytes userData)",
-            "function selfMint(address account, uint256 amount, bytes userData)",
-            "function selfTransferFrom(address holder, address spender, address recipient, uint256 amount)",
-            "function send(address recipient, uint256 amount, bytes data)",
-            "function setFeeRecipient(address _feeRecipient)",
-            "function setFormula(address _formula)",
-            "function setIdentity(address _identity)",
-            "function settleBalance(address account, int256 delta)",
-            "function supportsInterface(bytes4 interfaceId) view returns (bool)",
-            "function symbol() view returns (string)",
-            "function terminateAgreement(bytes32 id, uint256 dataLength)",
-            "function totalSupply() view returns (uint256)",
-            "function transfer(address to, uint256 amount) returns (bool)",
-            "function transferAll(address recipient)",
-            "function transferAndCall(address to, uint256 amount, bytes data) returns (bool)",
-            "function transferFrom(address holder, address recipient, uint256 amount) returns (bool)",
-            "function transferOwnership(address _owner)",
-            "function unpause()",
-            "function updateAgreementData(bytes32 id, bytes32[] data)",
-            "function updateAgreementStateSlot(address account, uint256 slotId, bytes32[] slotData)",
-            "function updateCode(address newAddress)",
-            "function upgrade(uint256 amount)",
-            "function upgradeTo(address to, uint256 amount, bytes data)"
-          ]
-        },
-        "SuperFluidResolver": {
-          "address": "0x41549B6C39A529EA574f35b745b00f716869D2a0",
-          "abi": []
-        },
         "DirectPaymentsPool": {
-          "address": "0x9E545E3C0baAB3E08CdfD552C960A1050f373042",
+          "address": "0x4BEde11080fCA6CfBc28F04C7375Ca0e60a6b1d1",
           "abi": [
             {
               "inputs": [
@@ -8595,7 +8326,7 @@
           ]
         },
         "ProvableNFT_Implementation": {
-          "address": "0xa82fF9aFd8f496c3d6ac40E2a0F282E47488CFc9",
+          "address": "0xF7b9212c53B677f02c475077b48E3a6EB6dCA8D6",
           "abi": [
             {
               "inputs": [
@@ -9746,7 +9477,7 @@
           ]
         },
         "ProvableNFT_Proxy": {
-          "address": "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8",
+          "address": "0x2AF5DB8249229ba696E0bac1a382aDb1fee040A6",
           "abi": [
             {
               "inputs": [
@@ -9820,7 +9551,7 @@
           ]
         },
         "ProvableNFT": {
-          "address": "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8",
+          "address": "0x2AF5DB8249229ba696E0bac1a382aDb1fee040A6",
           "abi": [
             {
               "anonymous": false,
@@ -10995,7 +10726,7 @@
           ]
         },
         "DirectPaymentsFactory_Implementation": {
-          "address": "0x851356ae760d987E095750cCeb3bC6014560891C",
+          "address": "0x4982A0A0E51c1eB25553724A149E108893bE0D4A",
           "abi": [
             {
               "inputs": [],
@@ -11848,7 +11579,7 @@
           ]
         },
         "DirectPaymentsFactory_Proxy": {
-          "address": "0xf5059a5D33d5853360D16C683c16e67980206f36",
+          "address": "0x58b5E37c5aFad520dD93E92A5D11B8721A9115F0",
           "abi": [
             {
               "inputs": [
@@ -11922,7 +11653,7 @@
           ]
         },
         "DirectPaymentsFactory": {
-          "address": "0xf5059a5D33d5853360D16C683c16e67980206f36",
+          "address": "0x58b5E37c5aFad520dD93E92A5D11B8721A9115F0",
           "abi": [
             {
               "anonymous": false,
@@ -12807,7 +12538,7 @@
       "chainId": "44787",
       "contracts": {
         "DirectPaymentsFactory": {
-          "address": "0xab51c7641Ae2bdf7cA2269cC64ddc3B4B560296f",
+          "address": "0xA4c2627C61cEf9f05A172A3bD4bb44832fc5fF5f",
           "abi": [
             {
               "anonymous": false,
@@ -13684,7 +13415,7 @@
           ]
         },
         "DirectPaymentsFactory_Implementation": {
-          "address": "0x4B9D5d475ED4b6a631E3a897BB8eeE848f57c0Fe",
+          "address": "0x644702e628ca6F66c801d6995961951AeFA2fe17",
           "abi": [
             {
               "inputs": [],
@@ -14537,7 +14268,7 @@
           ]
         },
         "DirectPaymentsFactory_Proxy": {
-          "address": "0xab51c7641Ae2bdf7cA2269cC64ddc3B4B560296f",
+          "address": "0xA4c2627C61cEf9f05A172A3bD4bb44832fc5fF5f",
           "abi": [
             {
               "inputs": [
@@ -14611,7 +14342,7 @@
           ]
         },
         "DirectPaymentsPool": {
-          "address": "0x66C2397aB1EF38e47640D2ECccf8cEA1e3D4034B",
+          "address": "0x4865aFc4a6Ccf36415dC5c012AE23F31fD70Ee70",
           "abi": [
             {
               "inputs": [
@@ -16530,7 +16261,7 @@
           ]
         },
         "ProvableNFT": {
-          "address": "0x3B2A0566895B0c0640dB30602A44A847BE7b0873",
+          "address": "0x954F5E80Ec1471B6FFBbe5b8c0cAe93DB405d44f",
           "abi": [
             {
               "anonymous": false,
@@ -17705,7 +17436,7 @@
           ]
         },
         "ProvableNFT_Implementation": {
-          "address": "0x2931aB8757bA4253423F3Bc1C1e080daeac586e8",
+          "address": "0xD30BBF7E4485A24627f709e81b01783D359C5933",
           "abi": [
             {
               "inputs": [
@@ -18856,7 +18587,7 @@
           ]
         },
         "ProvableNFT_Proxy": {
-          "address": "0x3B2A0566895B0c0640dB30602A44A847BE7b0873",
+          "address": "0x954F5E80Ec1471B6FFBbe5b8c0cAe93DB405d44f",
           "abi": [
             {
               "inputs": [
