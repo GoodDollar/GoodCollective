@@ -4,9 +4,9 @@ schema:
 dataSources:
   - kind: ethereum
     name: DirectPaymentsFactory
-    network: celo-alfajores
+    network: { { network } }
     source:
-      address: '0xab51c7641Ae2bdf7cA2269cC64ddc3B4B560296f'
+      address: { { DirectPaymentsFactoryAddress } }
       abi: DirectPaymentsFactory
       startBlock: 19375523
     mapping:
@@ -29,9 +29,9 @@ dataSources:
       file: ./src/mappings/pool.ts
   - kind: ethereum
     name: DirectPaymentsPools
-    network: celo-alfajores
+    network: { { network } }
     source:
-      address: '0x66C2397aB1EF38e47640D2ECccf8cEA1e3D4034B'
+      address: { { DirectPaymentsPoolAddress } }
       abi: DirectPaymentsPool
       startBlock: 19375523
     mapping:
@@ -59,9 +59,9 @@ dataSources:
       file: ./src/mappings/pool.ts
   - kind: ethereum
     name: ProvableNFT
-    network: celo-alfajores
+    network: { { network } }
     source:
-      address: '0x3B2A0566895B0c0640dB30602A44A847BE7b0873'
+      address: { { ProvableNFTAddress } }
       abi: ProvableNFT
       startBlock: 19375523
     mapping:
