@@ -132,7 +132,8 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         pool.grantRole(pool.MINTER_ROLE(), _settings.manager);
 
         //access control to project is determinted by the first pool access control rules
-        projectIdToControlPool[keccak256(bytes(_projectId))] = pool;
+        if (address(projectIdToControlPool[keccak256(bytes(_projectId))]) == address(0))
+            projectIdToControlPool[keccak256(bytes(_projectId))] = pool;
         registry[address(pool)].ipfs = _ipfs;
         registry[address(pool)].projectId = _projectId;
 

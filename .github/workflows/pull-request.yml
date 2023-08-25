@@ -21,18 +21,51 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          # for has changed path
+          fetch-depth: 5
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
       - run: yarn install --immutable
 
+      - uses: marceloprado/has-changed-path@v1.0.1
+        id: changed-contracts
+        with:
+          paths: packages/contracts .github/workflows
+
+      - uses: marceloprado/has-changed-path@v1.0.1
+        id: changed-sdk
+        with:
+          paths: packages/sdk-js .github/workflows
+
+      - uses: marceloprado/has-changed-path@v1.0.1
+        id: changed-app
+        with:
+          paths: packages/app .github/workflows
+
+      - name: 'changed paths'
+        env:
+          CHANGED_APP: ${{ steps.changed-app.outputs.changed == 'true' }}
+          CHANGED_CONTRACTS: ${{ steps.changed-contracts.outputs.changed == 'true' }}
+          CHANGED_SDK: ${{ steps.changed-sdk.outputs.changed == 'true' }}
+        run: |
+          echo "$CHANGED_APP $CHANGED_CONTRACTS $CHANGED_SDK"
+
       - name: 'Build contracts'
+        if: steps.changed-contracts.outputs.changed == 'true'
         run: |
           yarn build:contracts
 
+      - name: 'setup test contracts for sdk'
+        run: |
+          yarn test:setup
+
       - name: 'test sdk & contracts'
+        if: ${{ steps.changed-contracts.outputs.changed == 'true' || steps.changed-sdk.outputs.changed == 'true' }}
         run: |
           yarn test
 
@@ -41,5 +74,6 @@ jobs:
       #     pkill -f "hardhat node"
 
       - name: 'Build app production'
+        if: steps.changed-app.outputs.changed == 'true'
         run: |
           yarn build:app

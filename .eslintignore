@@ -8,4 +8,5 @@ node_modules/
 **/*.json
 **/*.png
 **/*.svg
+**/*.yaml
 **/generated/**/*
