@@ -27,8 +27,8 @@ dataSources:
           handler: handlePoolVerifiedChange
 
       file: ./src/mappings/pool.ts
-  - kind: ethereum
-    name: DirectPaymentsPools
+  - kind: ethereum/contract
+    name: DirectPaymentsFactory
     network: {{network}} 
     source:
       address: '{{DirectPaymentsPoolAddress}}'
