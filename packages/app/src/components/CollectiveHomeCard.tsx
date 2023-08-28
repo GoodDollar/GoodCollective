@@ -20,7 +20,7 @@ function CollectiveHomeCard({ title, description, imageUrl }: CollectiveHomeCard
   return (
     <TouchableOpacity
       style={[styles.cardContainer, styles.elevation, isDesktopResolution ? styles.cardContainerMobile : {}]}
-      onPress={() => navigate('/viewCollective')}>
+      onPress={() => navigate('/collective/123')}>
       <Image source={{ uri: imageUrl }} style={styles.sectionImage} />
       <View style={styles.cardDescriptionContainer}>
         <Text style={styles.cardTitle}>{title}</Text>

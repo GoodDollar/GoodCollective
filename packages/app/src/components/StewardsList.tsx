@@ -32,12 +32,8 @@ function StewardList({ imageUrl, listType, stewardData, stewards, hideTitle }: S
     <View style={{ flex: 1 }}>
       {!hideTitle && (
         <View style={styles.row}>
-          {location.pathname === '/viewCollective' && (
-            <Image source={{ uri: StewardGreenIcon }} style={styles.firstIcon} />
-          )}
-          {location.pathname === '/viewStewards' && (
-            <Image source={{ uri: StewardBlueIcon }} style={styles.firstIcon} />
-          )}
+          {listType !== 'steward' && <Image source={{ uri: StewardGreenIcon }} style={styles.firstIcon} />}
+          {listType === 'steward' && <Image source={{ uri: StewardBlueIcon }} style={styles.firstIcon} />}
           <Text style={styles.rowText}>Stewards {`(25)`}</Text>
         </View>
       )}

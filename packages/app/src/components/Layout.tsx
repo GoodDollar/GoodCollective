@@ -31,8 +31,7 @@ function Layout({ children }: LayoutProps) {
       ) : (
         <ScrollView style={[styles.scrollView, { maxHeight: scrollViewHeight }]}>{children}</ScrollView>
       )}
-      {location.pathname === '/viewCollective' && !isDesktopResolution && <ImpactButton title="SEE YOUR IMPACT" />}
-      {location.pathname === '/viewStewards' && !isDesktopResolution && <ImpactButton title="SEE YOUR IMPACT" />}
+      {location.pathname.includes('collective') && !isDesktopResolution && <ImpactButton title="SEE YOUR IMPACT" />}
     </View>
   );
 }

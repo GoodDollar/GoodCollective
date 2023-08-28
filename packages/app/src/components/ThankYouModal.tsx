@@ -26,7 +26,7 @@ const ThankYouModal = ({ openModal }: ThankYouModalProps) => {
               To stop your donation, visit the Restoring the Kakamega Forest GoodCollective page.
             </Text>
             <Image source={{ uri: ThankYouImg }} alt="woman" style={styles.image} />
-            <TouchableOpacity style={styles.button} onPress={() => navigate('/walletProfile')}>
+            <TouchableOpacity style={styles.button} onPress={() => navigate('/profile/abc123')}>
               <Text style={styles.buttonText}>GO TO PROFILE</Text>
             </TouchableOpacity>
           </View>

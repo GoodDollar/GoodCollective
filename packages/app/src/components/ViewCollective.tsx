@@ -131,7 +131,7 @@ function ViewCollective({
                         fontSize={18}
                         seeType={true}
                         onPress={() => {
-                          navigate('/viewDonors');
+                          navigate('/collective/123/donors');
                         }}
                       />
                     </View>
@@ -155,7 +155,7 @@ function ViewCollective({
                       color={Colors.purple[200]}
                       fontSize={18}
                       seeType={true}
-                      onPress={() => navigate('/viewDonors')}
+                      onPress={() => navigate('/collective/123/donors')}
                     />
                   </View>
                 )}
@@ -210,7 +210,7 @@ function ViewCollective({
                 color={Colors.purple[200]}
                 fontSize={18}
                 seeType={true}
-                onPress={() => navigate('/viewStewards')}
+                onPress={() => navigate('/collective/123/stewards')}
               />
             </View>
             <View style={[styles.container, styles.mobileContainer]}>
@@ -306,7 +306,7 @@ function ViewCollective({
                 fontSize={18}
                 seeType={true}
                 onPress={() => {
-                  navigate('/viewDonors');
+                  navigate('/collective/123/donors');
                 }}
               />
             </View>
@@ -330,7 +330,7 @@ function ViewCollective({
               color={Colors.purple[200]}
               fontSize={18}
               seeType={true}
-              onPress={() => navigate('/viewDonors')}
+              onPress={() => navigate('/collective/123/donors')}
             />
           </View>
         )}
@@ -351,7 +351,7 @@ function ViewCollective({
           color={Colors.purple[200]}
           fontSize={18}
           seeType={true}
-          onPress={() => navigate('/viewStewards')}
+          onPress={() => navigate('/collective/123/stewards')}
         />
       </View>
       <View style={styles.container}>
@@ -367,7 +367,7 @@ function ViewCollective({
           color={Colors.purple[200]}
           fontSize={18}
           seeType={true}
-          onPress={() => navigate('/activityLog')}
+          onPress={() => navigate('/profile/abc123/activity')}
         />
       </View>
       <StopDonationModal openModal={modalVisible} setOpenModal={setModalVisible} />
