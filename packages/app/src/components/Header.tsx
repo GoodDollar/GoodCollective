@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Image, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View, Image, TouchableOpacity, Text, TextStyle } from 'react-native';
 import useCrossNavigate from '../routes/useCrossNavigate';
-// import { useEthers } from '@usedapp/core';
 import { useWalletConnection } from '../contexts/WalletConnectionContext';
 import { InterRegular } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
@@ -139,9 +138,9 @@ function Header(): JSX.Element {
               <Text style={styles.walletConnectButtonText}>Connect Wallet</Text>
             </TouchableOpacity>
             <View style={styles.menuContainerFlex}>
-            <TouchableOpacity style={styles.menuIconContainer} onPress={() => setOpenDropdown(!openDropdown)}>
-              <Image source={{ uri: menuIconUri }} resizeMode="contain" style={styles.menuIcon} />
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.menuIconContainer} onPress={() => setOpenDropdown(!openDropdown)}>
+                <Image source={{ uri: menuIconUri }} resizeMode="contain" style={styles.menuIcon} />
+              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -155,7 +154,7 @@ function Header(): JSX.Element {
               />
             </View>
             <View>
-              <TouchableOpacity style={styles.walletConnectButtonDesktop}>
+              <TouchableOpacity style={styles.walletConnectButtonDesktop} onPress={connectWallet}>
                 <Text style={styles.walletConnectButtonText}>Connect Wallet</Text>
               </TouchableOpacity>
             </View>
@@ -242,7 +241,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    flex:5
+    flex: 1,
   },
   walletConnectButtonDesktop: {
     width: 295,
@@ -257,10 +256,9 @@ const styles = StyleSheet.create({
   walletConnectButtonText: {
     fontSize: 18,
     color: Colors.white,
-    fontWeight:500,
+    fontWeight: 500,
     textAlign: 'center',
-    
-  },
+  } as TextStyle,
   menuIconContainer: {
     backgroundColor: Colors.purple[300],
     borderRadius: 40,
@@ -269,13 +267,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  menuContainerFlex:{
-    flex:0.5,
-
-
+  menuContainerFlex: {
+    flex: 0.5,
   },
   menuIconContainerMobile: {
-    
     flex: 0,
   },
   walletInfoContainerDesktop: {
@@ -326,13 +321,13 @@ const styles = StyleSheet.create({
     padding: 8,
     height: 40,
     marginRight: 8,
-    justifyContent:'center',
-    textAlign:'center'
+    justifyContent: 'center',
+    textAlign: 'center',
   },
   amountText: {
     color: Colors.gray[100],
     fontSize: 16,
-    fontWeight:400,
+    fontWeight: 400,
     ...InterRegular,
   },
   walletConnected: {

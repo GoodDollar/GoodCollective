@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native'
 import ImpactButton from './ImpactButton';
 import { useLocation } from 'react-router-native';
 import { Colors } from '../utils/colors';
+import { useMediaQuery } from 'native-base';
 
 interface LayoutProps {
   children: ReactNode;
@@ -12,15 +13,26 @@ interface LayoutProps {
 function Layout({ children }: LayoutProps) {
   const windowDimensions = useWindowDimensions();
   const scrollViewHeight = windowDimensions.height - 90;
+  const [isDesktopResolution] = useMediaQuery({
+    minWidth: 612,
+  });
 
   const location = useLocation();
+  const bodyStyles = {
+    ...styles.body,
+    backgroundColor: isDesktopResolution ? Colors.brown[200] : Colors.gray[400],
+  };
 
   return (
-    <View style={styles.body}>
+    <View style={bodyStyles}>
       <Header />
-      <ScrollView style={[styles.scrollView, { maxHeight: scrollViewHeight }]}>{children}</ScrollView>
-      {location.pathname === '/viewCollective' && <ImpactButton title="SEE YOUR IMPACT" />}
-      {location.pathname === '/viewStewards' && <ImpactButton title="SEE YOUR IMPACT" />}
+      {isDesktopResolution ? (
+        <View style={styles.desktopScrollView}>{children}</View>
+      ) : (
+        <ScrollView style={[styles.scrollView, { maxHeight: scrollViewHeight }]}>{children}</ScrollView>
+      )}
+      {location.pathname === '/viewCollective' && !isDesktopResolution && <ImpactButton title="SEE YOUR IMPACT" />}
+      {location.pathname === '/viewStewards' && !isDesktopResolution && <ImpactButton title="SEE YOUR IMPACT" />}
     </View>
   );
 }
@@ -29,10 +41,13 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     paddingBottom: 24,
-    backgroundColor: Colors.white,
   },
   scrollView: {
     flex: 1,
+  },
+  desktopScrollView: {
+    paddingHorizontal: 64,
+    paddingVertical: 40,
   },
 });
 

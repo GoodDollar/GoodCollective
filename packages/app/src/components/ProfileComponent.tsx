@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
 // import { AfricanGreyParrotUri } from '../@constants/ProfilePictures';
-import { Link } from 'native-base';
+import { Link, useMediaQuery } from 'native-base';
 import { VerifiedIconUri } from '../@constants/ColorTypeIcons';
 import { ProfileTypes } from '../@constants/ProfileTypes';
 
@@ -20,9 +20,18 @@ interface ProfileViewProps {
 }
 
 function ProfileView({ profileData }: ProfileViewProps) {
+  const [isDesktopResolution] = useMediaQuery({
+    minWidth: 612,
+  });
+
+  const resizableProfileView = {
+    ...styles.profileView,
+    ...(isDesktopResolution ? styles.profileDesktopView : {}),
+  };
+
   if (profileData.profileType === ProfileTypes.nameAndDomain) {
     return (
-      <TouchableOpacity style={styles.profileView}>
+      <TouchableOpacity style={resizableProfileView}>
         <Image source={{ uri: profileData.imageUrl }} style={styles.pfp} />
         <View style={styles.profileText}>
           <Text style={styles.title}>
@@ -36,7 +45,7 @@ function ProfileView({ profileData }: ProfileViewProps) {
   }
   if (profileData.profileType === ProfileTypes.domain) {
     return (
-      <TouchableOpacity style={styles.profileView}>
+      <TouchableOpacity style={resizableProfileView}>
         <Image source={{ uri: profileData.imageUrl }} style={styles.pfp} />
         <View style={[styles.profileText, { justifyContent: 'center' }]}>
           <Text style={styles.title}>{profileData.domain}</Text>
@@ -46,7 +55,7 @@ function ProfileView({ profileData }: ProfileViewProps) {
   }
   if (profileData.profileType === ProfileTypes.claimDomain) {
     return (
-      <TouchableOpacity style={styles.profileView}>
+      <TouchableOpacity style={resizableProfileView}>
         <Image source={{ uri: profileData.imageUrl }} style={styles.pfp} />
         <View style={styles.profileText}>
           <Text style={styles.title}>{profileData.userId}</Text>
@@ -59,7 +68,7 @@ function ProfileView({ profileData }: ProfileViewProps) {
   }
   if (profileData.profileType === ProfileTypes.justId) {
     return (
-      <TouchableOpacity style={styles.profileView}>
+      <TouchableOpacity style={resizableProfileView}>
         <Image source={{ uri: profileData.imageUrl }} style={styles.pfp} />
         <View style={styles.profileText}>
           <Link href="" style={styles.title}>
@@ -80,7 +89,7 @@ const styles = StyleSheet.create({
     borderRadius: 32,
   },
   profileView: {
-    width: 343,
+    width: 345,
     height: 80,
     backgroundColor: Colors.gray[400],
     flex: 1,
@@ -88,6 +97,9 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 20,
     alignSelf: 'center',
+  },
+  profileDesktopView: {
+    width: '100%',
   },
   profileText: {
     padding: 8,

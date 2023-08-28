@@ -32,7 +32,7 @@ function ActivityLogPage() {
 
           <Text style={styles.title}>Restoring the Kakamega Forest</Text>
 
-          <View style={{ flex: 1, flexDirection: 'row', gap: 8,alignItems:'center' }}>
+          <View style={{ flex: 1, flexDirection: 'row', gap: 8, alignItems: 'center' }}>
             <Image source={{ uri: LightningIconUri }} style={styles.titleIcon}></Image>
             <Text style={styles.title}>Action Log</Text>
           </View>

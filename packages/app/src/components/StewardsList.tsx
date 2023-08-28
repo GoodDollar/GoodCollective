@@ -6,10 +6,12 @@ import { StewardBlueIcon, StewardGreenIcon, VerifiedIconUri } from '../@constant
 import { useLocation } from 'react-router-native';
 import { Colors } from '../utils/colors';
 import profilePictureArray from '../@constants/pfps';
+import { useMediaQuery } from 'native-base';
 
-let stewardLenght = 25;
+const placeholderUsers = [0, 1, 2, 3, 4, 5, 6];
 
 interface StewardListProps {
+  hideTitle?: boolean;
   imageUrl?: string;
   listType: string;
   stewardData: {
@@ -17,31 +19,41 @@ interface StewardListProps {
     actions?: number;
     isVerified: boolean;
   };
+  stewards?: any[];
 }
 
-function StewardList({ imageUrl, listType, stewardData }: StewardListProps) {
+function StewardList({ imageUrl, listType, stewardData, stewards, hideTitle }: StewardListProps) {
   const location = useLocation();
+  const [isDesktopResolution] = useMediaQuery({
+    minWidth: 612,
+  });
 
   return (
-    <View>
-      <View style={styles.row}>
-        {location.pathname === '/viewCollective' && (
-          <Image source={{ uri: StewardGreenIcon }} style={styles.firstIcon} />
-        )}
-        {location.pathname === '/viewStewards' && <Image source={{ uri: StewardBlueIcon }} style={styles.firstIcon} />}
-        <Text style={styles.rowText}>Stewards {`(${stewardLenght})`}</Text>
+    <View style={{ flex: 1 }}>
+      {!hideTitle && (
+        <View style={styles.row}>
+          {location.pathname === '/viewCollective' && (
+            <Image source={{ uri: StewardGreenIcon }} style={styles.firstIcon} />
+          )}
+          {location.pathname === '/viewStewards' && (
+            <Image source={{ uri: StewardBlueIcon }} style={styles.firstIcon} />
+          )}
+          <Text style={styles.rowText}>Stewards {`(25)`}</Text>
+        </View>
+      )}
+      <View style={styles.list}>
+        {listType == 'steward' &&
+          (isDesktopResolution ? placeholderUsers.slice(0, 6) : placeholderUsers.slice(0, 5)).map((item) => (
+            <View style={styles.row}>
+              <Image source={{ uri: profilePictureArray[item] }} style={styles.rowImg} />
+              <Text style={styles.rowText}>
+                {stewardData.username}{' '}
+                {stewardData.isVerified && <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon} />}
+              </Text>
+              {stewardData.actions && <Text style={styles.rowText2}>{stewardData.actions} actions</Text>}
+            </View>
+          ))}
       </View>
-      {listType == 'steward' &&
-        [0, 1, 2, 3, 4, 5, 6, 7].map((item) => (
-          <View style={styles.row}>
-            <Image source={{ uri: profilePictureArray[item] }} style={styles.rowImg} />
-            <Text style={styles.rowText}>
-              {stewardData.username}{' '}
-              {stewardData.isVerified && <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon} />}
-            </Text>
-            {stewardData.actions && <Text style={styles.rowText2}>{stewardData.actions} actions</Text>}
-          </View>
-        ))}
     </View>
   );
 }
@@ -95,6 +107,10 @@ const styles = StyleSheet.create({
   },
   stewardRow: {
     ...InterSemiBold,
+  },
+  list: {
+    maxHeight: 400,
+    overflow: 'scroll',
   },
 });
 export default StewardList;

@@ -68,7 +68,7 @@ function CollectiveCard({ title, description, name, actions, total, usd, donor }
 const styles = StyleSheet.create({
   cardContainer: {
     width: '90%',
-    height: 330,
+    height: 'auto',
     backgroundColor: Colors.white,
     paddingHorizontal: 12,
     paddingVertical: 16,

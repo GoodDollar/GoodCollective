@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
 // import oceanUri from '../@constants/SafariImagePlaceholder';
 import RowItem from './RowItem';
@@ -16,7 +16,9 @@ import StopDonationModal from './StopDonationModal';
 import { Navigate } from 'react-router-native';
 import ThankYouModal from './ThankYouModal';
 import { Colors } from '../utils/colors';
-import { Link } from 'native-base';
+import { Link, useMediaQuery } from 'native-base';
+import { ChevronLeftIcon } from '../@constants/ChevronIcons';
+import Breadcrumb from './Breadcrumb';
 
 interface ViewCollectiveProps {
   imageUrl?: string;
@@ -53,6 +55,179 @@ function ViewCollective({
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisible2, setModalVisible2] = useState(false);
   const { navigate } = useCrossNavigate();
+  const [isDesktopResolution] = useMediaQuery({
+    minWidth: 612,
+  });
+
+  if (isDesktopResolution) {
+    return (
+      <>
+        <View style={{ gap: 24 }}>
+          <Breadcrumb />
+          <View style={styles.collectiveDesktopBox}>
+            <View style={{ flex: 1, flexDirection: 'row', width: '100%' }}>
+              <Image source={{ uri: imageUrl }} style={styles.imageMobile} />
+
+              <View style={styles.collectiveDesktopData}>
+                <Text style={[styles.title, styles.titleMobile]}>{title}</Text>
+                <Text style={styles.description}>{description}</Text>
+                <View style={[styles.icons, { position: 'absolute', bottom: 0, left: 25 }]}>
+                  <Link href={'/'}>
+                    <Image source={{ uri: WebIconUri }} style={styles.rowIcon} />
+                  </Link>
+
+                  <Link href={'#'}>
+                    <Image source={{ uri: TwitterIconUri }} style={styles.rowIcon} />
+                  </Link>
+
+                  <Link href={'#'}>
+                    <Image source={{ uri: InstragramIconUri }} style={styles.rowIcon} />
+                  </Link>
+
+                  <Link href={'#'}>
+                    <Image source={{ uri: AtIconUri }} style={styles.rowIcon} />
+                  </Link>
+
+                  <Link href={'#'}>
+                    <Image source={{ uri: LastRowIconUri }} style={styles.rowIcon} />
+                  </Link>
+                </View>
+              </View>
+
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: 'column',
+                }}>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <Image source={{ uri: InfoIcon }} style={styles.infoIcon} />
+                  <Text style={styles.description2}>Stewards get G$ 800 each time they log a tree's status.</Text>
+                </View>
+
+                {isDonating ? (
+                  <View style={{ gap: 24, height: 230 }}>
+                    {!isDesktopResolution && (
+                      <>
+                        <Image source={{ uri: SupportImage }} style={styles.supportImg} />
+                        <Text style={styles.supportText}>You Support this GoodCollective!!</Text>
+                      </>
+                    )}
+                    <View style={{ gap: 16 }}>
+                      <RoundedButton
+                        title="Stop your donation"
+                        backgroundColor={Colors.orange[100]}
+                        color={Colors.orange[200]}
+                        fontSize={18}
+                        seeType={false}
+                        onPress={() => {
+                          setModalVisible(true);
+                          console.log(modalVisible);
+                        }}
+                      />
+                      <RoundedButton
+                        title="See all donors"
+                        backgroundColor={Colors.purple[100]}
+                        color={Colors.purple[200]}
+                        fontSize={18}
+                        seeType={true}
+                        onPress={() => {
+                          navigate('/viewDonors');
+                        }}
+                      />
+                    </View>
+                  </View>
+                ) : (
+                  <View style={{ gap: 16, height: 230 }}>
+                    <RoundedButton
+                      title="Donate"
+                      backgroundColor={Colors.green[100]}
+                      color={Colors.green[200]}
+                      fontSize={18}
+                      seeType={false}
+                      onPress={() => {
+                        setModalVisible2(true);
+                        console.log(modalVisible2);
+                      }}
+                    />
+                    <RoundedButton
+                      title="See all donors"
+                      backgroundColor={Colors.purple[100]}
+                      color={Colors.purple[200]}
+                      fontSize={18}
+                      seeType={true}
+                      onPress={() => navigate('/viewDonors')}
+                    />
+                  </View>
+                )}
+              </View>
+            </View>
+
+            <View style={styles.collectiveDesktopTimeline}>
+              <View style={{ flex: 1 }}>
+                <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={creationDate} />
+                <RowItem imageUrl={StewardGreenIcon} rowInfo="Stewards Paid" rowData={stewardsPaid} />
+                <RowItem imageUrl={GreenListIcon} rowInfo="# of Payments Made" rowData={paymentsMade} currency="" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <RowItem
+                  imageUrl={ReceiveLightIcon}
+                  rowInfo="Total Donations Received"
+                  rowData={donationsReceived}
+                  currency="G$"
+                  balance={4807487}
+                />
+                <RowItem
+                  imageUrl={SendIcon}
+                  rowInfo="Total Paid Out"
+                  rowData={totalPaidOut}
+                  currency="G$"
+                  balance={5188754}
+                />
+                <RowItem
+                  imageUrl={SquaresIcon}
+                  rowInfo="Current Pool"
+                  rowData={currentPool}
+                  currency="G$"
+                  balance={1500}
+                />
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.collectiveDesktopActions}>
+            <View style={[styles.container, styles.mobileContainer]}>
+              <StewardList
+                stewardData={{
+                  username: 'username123',
+                  isVerified: true,
+                  actions: 730,
+                }}
+                listType="steward"
+              />
+              <RoundedButton
+                title="See all stewards"
+                backgroundColor={Colors.purple[100]}
+                color={Colors.purple[200]}
+                fontSize={18}
+                seeType={true}
+                onPress={() => navigate('/viewStewards')}
+              />
+            </View>
+            <View style={[styles.container, styles.mobileContainer]}>
+              <TransactionList
+                username="username123"
+                currency="G$"
+                amount={2400}
+                transactionId="18347cg786hfc6f29837r6hd23"
+              />
+            </View>
+          </View>
+          <StopDonationModal openModal={modalVisible} setOpenModal={setModalVisible} />
+          <ThankYouModal openModal={modalVisible2} setOpenModal={setModalVisible2} />
+        </View>
+      </>
+    );
+  }
 
   return (
     <View style={{ gap: 24 }}>
@@ -216,14 +391,29 @@ const styles = StyleSheet.create({
     shadowRadius: 30,
     elevation: 15,
   },
+  mobileContainer: {
+    maxWidth: 640,
+    height: 540,
+    borderRadius: 16,
+  },
   image: {
     width: '100%',
     height: 192,
+  },
+  imageMobile: {
+    width: '100%',
+    maxWidth: 512,
+    height: 290,
+    borderRadius: 20,
   },
   title: {
     ...InterSemiBold,
     fontSize: 20,
     color: Colors.black,
+  },
+  titleMobile: {
+    fontSize: 24,
+    marginBottom: 10,
   },
   infoIcon: {
     height: 20,
@@ -270,6 +460,33 @@ const styles = StyleSheet.create({
     color: Colors.purple[400],
     ...InterSemiBold,
   },
+  collectiveDesktopBox: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: Colors.white,
+    padding: 16,
+    borderRadius: 16,
+  },
+  collectiveDesktopData: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    height: 290,
+    paddingHorizontal: 25,
+    position: 'relative',
+  },
+  collectiveDesktopTimeline: {
+    flex: 1,
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+    gap: 30,
+    marginTop: 35,
+  },
+  collectiveDesktopActions: { flex: 1, flexDirection: 'row', justifyContent: 'space-between' },
 });
 
 export default ViewCollective;
