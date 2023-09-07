@@ -3,7 +3,6 @@ import { useEthers } from '@usedapp/core';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { shortenAddress } from '../utils';
 import { useSwitchNetwork } from '@gooddollar/web3sdk-v2';
-
 interface IWalletConnectionContext {
   disconnectWallet: () => Promise<void>;
   connectWallet: () => Promise<void>;

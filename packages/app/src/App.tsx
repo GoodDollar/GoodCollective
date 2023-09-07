@@ -1,6 +1,4 @@
 import React from 'react';
-import { ClaimSDK } from '@gooddollar/web3sdk-v2';
-import * as ethers from 'ethers';
 import { Platform, SafeAreaView, StyleSheet } from 'react-native';
 
 import AboutPage from './pages/AboutPage';
@@ -24,7 +22,6 @@ import ModalTestPage from './pages/ModalTestPage';
 import WalletProfilePageEmpty from './pages/WalletProfilePageEmpty';
 import { Colors } from './utils/colors';
 
-let sdk = new ClaimSDK(new ethers.providers.JsonRpcProvider('https://forno.celo.org'), 'development-celo');
 function App(): JSX.Element {
   return (
     <NativeBaseProvider>
