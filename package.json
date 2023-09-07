@@ -16,7 +16,8 @@
     "build:contracts": "yarn workspace @gooddollar/goodcollective-contracts compile",
     "deploy:contracts": "yarn workspace @gooddollar/goodcollective-contracts deploy",
     "test:setup": "yarn workspace @gooddollar/goodcollective-contracts test:setup",
-    "test": "yarn workspaces foreach --include '{@gooddollar/goodcollective-contracts,@gooddollar/goodcollective-sdk}' run test"
+    "test": "yarn workspaces foreach --include '{@gooddollar/goodcollective-contracts,@gooddollar/goodcollective-sdk}' run test",
+    "build:app": "yarn workspace @gooddollar/goodcollective-app build:web"
   },
   "workspaces": {
     "packages": [

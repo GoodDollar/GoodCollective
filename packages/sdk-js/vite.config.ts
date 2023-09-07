@@ -16,6 +16,7 @@ export default defineConfig({
       entry: './src/index.ts',
       name: 'sdk',
       fileName: 'sdk',
+      formats: ['cjs', 'es'],
     },
   },
   test: {

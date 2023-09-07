@@ -1,0 +1,60 @@
+type DirectPaymentPool @entity {
+  id: String!
+  ipfs: String!
+  nftType: BigInt!
+  validEvents: [Int!]!
+  rewardPerEvent: [Int!]!
+  manager: Bytes!
+  membersValidator: Bytes!
+  uniquenessValidator: String
+  rewardToken: String!
+  projectId: String!
+  isVerified: Boolean!
+  limits: SafetyLimits!
+  nft: ProvableNFT!
+  claimedNfts: [String!]!
+  members: [String!]!
+  poolAddress: String!
+}
+
+type PoolSettings @entity {
+  id: String!
+  nftType: BigInt!
+  validEvents: [Int!]!
+  rewardPerEvent: [Int!]!
+  manager: Bytes!
+  membersValidator: Bytes!
+  uniquenessValidator: Bytes!
+  rewardToken: Bytes!
+}
+
+type SafetyLimits @entity {
+  id: String!
+  maxTotalPerMonth: BigInt!
+  maxMemberPerMonth: BigInt!
+  maxMemberPerDay: BigInt!
+}
+
+type ProvableNFT @entity {
+  id: ID!
+  owner: String!
+  hash: String!
+}
+
+type EventData @entity {
+  id: String!
+  eventType: Int!
+  eventTimestamp: BigInt!
+  quantity: BigInt!
+  eventUri: String!
+  eventQuantity: BigInt!
+  rewardPerContributer: BigInt!
+  contributors: [Bytes!]!
+  claim: Claim
+}
+
+type Claim @entity {
+  id: String!
+  totalRewards: BigInt!
+  events: [EventData!] @derivedFrom(field: "claim")
+}

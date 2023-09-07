@@ -32,9 +32,8 @@ tenderly.yaml
 
 #subgraph
 packages/subgraph/config/config.json
-packages/subgraph/subgraph.yaml
 packages/subgraph/generated
-packages/subgraph/abis/*
+packages/subgraph/abis/*.json
 
 # dependencies, yarn, etc
 /node_modules
@@ -77,3 +76,4 @@ packages/contracts/deployments
 packages/sdk-js/.yarn/install-state.gz
 .vercel
 .vscode/settings.json
+packages/sdk-js/.env
