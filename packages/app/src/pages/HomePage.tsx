@@ -26,7 +26,7 @@ function HomePage() {
             />
           ))}
         </View>
-        <Link href="#" style={[styles.buttonContainer]}>
+        <Link href="https://gooddollar.typeform.com/creategood" isExternal style={[styles.buttonContainer]}>
           <TouchableOpacity style={[styles.button, isDesktopResolution ? styles.buttonDesktop : {}]}>
             <Text style={styles.buttonText}>Create a GoodCollective</Text>
             <Image source={{ uri: ForwardIconUri }} resizeMode="contain" style={styles.forwardIcon} />
