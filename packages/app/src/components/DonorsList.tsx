@@ -15,7 +15,7 @@ function DonorsList({ imageUrl, username, donated }: DonorsListProps) {
     <View>
       <View style={styles.row}>
         <Image source={{ uri: DonorBlueIcon }} style={styles.firstIcon} />
-        <Text style={styles.rowText}>Donors</Text>
+        <Text style={styles.title}>Donors</Text>
       </View>
       {[1, 2, 3, 4, 5, 6].map((item) => (
         <View>
@@ -25,9 +25,9 @@ function DonorsList({ imageUrl, username, donated }: DonorsListProps) {
                 <Text style={[styles.circleText, { color: Colors.yellow[200] }]}>{item}</Text>
               </View>
 
-              <Text style={[styles.rowText, { color: Colors.yellow[200] }]}>{username}</Text>
-              <Text style={styles.rowText2}>
-                <Text style={{ ...InterSemiBold }}>G$</Text> {donated}
+              <Text style={[styles.title, { color: Colors.yellow[200] }]}>{username}</Text>
+              <Text style={styles.totalDonated}>
+                <Text style={styles.currency}>G$</Text> {donated}
               </Text>
             </View>
           )}
@@ -37,9 +37,9 @@ function DonorsList({ imageUrl, username, donated }: DonorsListProps) {
                 <Text style={[styles.circleText, { color: Colors.blue[200] }]}>{item}</Text>
               </View>
 
-              <Text style={[styles.rowText, { color: Colors.blue[200] }]}>{username}</Text>
-              <Text style={styles.rowText2}>
-                <Text style={{ ...InterSemiBold }}>G$</Text> {donated}
+              <Text style={[styles.title, { color: Colors.blue[200] }]}>{username}</Text>
+              <Text style={styles.totalDonated}>
+                <Text style={styles.currency}>G$</Text> {donated}
               </Text>
             </View>
           )}
@@ -48,18 +48,18 @@ function DonorsList({ imageUrl, username, donated }: DonorsListProps) {
               <View style={[styles.circle, { backgroundColor: Colors.orange[400] }]}>
                 <Text style={[styles.circleText, { color: Colors.brown[100] }]}>{item}</Text>
               </View>
-              <Text style={[styles.rowText, { color: Colors.brown[100] }]}>{username}</Text>
-              <Text style={styles.rowText2}>
-                <Text style={{ ...InterSemiBold }}>G$</Text> {donated}
+              <Text style={[styles.title, { color: Colors.brown[100] }]}>{username}</Text>
+              <Text style={styles.totalDonated}>
+                <Text style={styles.currency}>G$</Text> {donated}
               </Text>
             </View>
           )}
           {item > 3 && (
             <View style={styles.row}>
               <Text style={styles.rowNumber}>{item}</Text>
-              <Text style={[styles.rowText, { color: Colors.black }]}>{username}</Text>
-              <Text style={styles.rowText2}>
-                <Text style={{ ...InterSemiBold }}>G$</Text> {donated}
+              <Text style={[styles.title, { color: Colors.black }]}>{username}</Text>
+              <Text style={styles.totalDonated}>
+                <Text style={styles.currency}>G$</Text> {donated}
               </Text>
             </View>
           )}
@@ -111,19 +111,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...InterSemiBold,
   },
-  rowText: {
+  title: {
     fontSize: 16,
     ...InterSemiBold,
     marginLeft: 16,
     width: '100%',
     color: Colors.black,
   },
-  rowText2: {
+  totalDonated: {
     fontSize: 14,
     ...InterRegular,
     textAlign: 'right',
     width: '100%',
     color: Colors.gray[100],
   },
+  currency: styles.currency,
 });
 export default DonorsList;

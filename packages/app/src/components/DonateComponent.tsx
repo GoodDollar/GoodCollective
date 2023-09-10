@@ -1,81 +1,17 @@
 import React, { useEffect, useState } from 'react';
 // import Header from './Header';
-import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput } from 'react-native';
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 // import ImpactButton from './ImpactButton';
 import { InterRegular, InterSemiBold, InterSmall } from '../utils/webFonts';
-import { ChevronDownIcon } from '../@constants/ChevronIcons';
 import RoundedButton from './RoundedButton';
 import { InfoIconOrange } from '../@constants/ColorTypeIcons';
 // import useCrossNavigate from '../routes/useCrossNavigate';
 import CompleteDonationModal from './CompleteDonationModal';
 import { Colors } from '../utils/colors';
-import { Link } from 'native-base';
+import { Link, useMediaQuery } from 'native-base';
+import Dropdown from './Dropdown';
+import { getButtonBGC, getButtonText, getButtonTextColor, getFrequencyTime, getTotalAmount } from '../utils';
 import { useGetTokenPrice } from '../hooks/useGetTokenPrice';
-
-function getButtonBGC(insufficientLiquidity: boolean, priceImpace: boolean, insufficientBalance: boolean) {
-  if (insufficientLiquidity || insufficientBalance) {
-    return Colors.gray[1000];
-  } else if (priceImpace) {
-    return Colors.orange[100];
-  } else {
-    return Colors.green[100];
-  }
-}
-
-function getDropdownBGC(openModal: boolean) {
-  if (openModal) {
-    return Colors.blue[100];
-  } else {
-    return Colors.purple[100];
-  }
-}
-function getButtonText(insufficientLiquidity: boolean, priceImpace: boolean, insufficientBalance: boolean) {
-  if (insufficientLiquidity) {
-    return 'Insufficient liquidity for this trade';
-  } else if (priceImpace) {
-    return 'Confirm & Swap Anyway';
-  } else if (insufficientBalance) {
-    return 'Confirm & Swap Anyway';
-  } else {
-    return 'Confirm';
-  }
-}
-function getButtonTextColor(insufficientLiquidity: boolean, priceImpace: boolean, insufficientBalance: boolean) {
-  if (insufficientLiquidity || insufficientBalance) {
-    return Colors.gray[300];
-  } else if (priceImpace) {
-    return Colors.black;
-  } else {
-    return Colors.green[200];
-  }
-}
-
-function renderDropdownItemText(current: string, selection: string) {
-  if (current == selection) {
-    return <Text style={[styles.dropdownText, { ...InterSemiBold }]}>{selection}</Text>;
-  } else {
-    return <Text style={[styles.dropdownText]}>{selection}</Text>;
-  }
-}
-
-function getFrequencyTime(frequency: string) {
-  switch (frequency) {
-    case 'Daily':
-      return 'Days';
-    case 'Weekly':
-      return 'Weeks';
-    case 'Monthly':
-      return 'Months';
-    case 'Yearly':
-      return 'Years';
-  }
-}
-
-function getTotalAmount(duration: number, amount: number) {
-  const total = duration * amount;
-
-  return total;
-}
 
 interface DonateComponentProps {
   walletConected: boolean;
@@ -88,6 +24,23 @@ interface DonateComponentProps {
   };
 }
 
+const currencyOptions = [
+  { value: 'G$', label: 'G$' },
+  { value: 'CELO', label: 'CELO' },
+  { value: 'cUSD', label: 'cUSD' },
+  { value: 'RECY', label: 'RECY' },
+  { value: 'WBTC', label: 'WBTC' },
+  { value: 'WETH', label: 'WETH' },
+];
+
+const frequencyOptions = [
+  { value: 'One-Time', label: 'One-Time' },
+  { value: 'Daily', label: 'Daily' },
+  { value: 'Weekly', label: 'Weekly' },
+  { value: 'Monthly', label: 'Monthly' },
+  { value: 'Yearly', label: 'Yearly' },
+];
+
 function DonateComponent({
   walletConected,
   insufficientLiquidity,
@@ -95,9 +48,6 @@ function DonateComponent({
   insufficientBalance,
   currentCollective,
 }: DonateComponentProps) {
-  const { getPrice } = useGetTokenPrice();
-  const [openCurrencyDropdown, setOpenCurrencyDropdown] = useState<boolean>(false);
-  const [openFrequencyDropdown, setOpenFrequencyDropdown] = useState<boolean>(false);
   // const { navigate } = useCrossNavigate();
   const [modalVisible, setModalVisible] = useState(false);
   const [currency, setCurrency] = useState('G$');
@@ -105,6 +55,7 @@ function DonateComponent({
   const [duration, setDuration] = useState(1);
   const [amount, setAmount] = useState(0);
   const [usdValue, setUsdValue] = useState<number>();
+  const { getPrice } = useGetTokenPrice();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const tokenMapping = {
@@ -137,102 +88,163 @@ function DonateComponent({
     // }
   }, [amount, currency, getPrice, usdValue, setUsdValue]);
 
+  const [isDesktopResolution] = useMediaQuery({
+    minWidth: 612,
+  });
+
   return (
-    <View style={styles.body}>
+    <View style={[styles.body, isDesktopResolution && styles.bodyDesktop]}>
       <View>
         <Text style={styles.title}>Donate</Text>
         <Text style={styles.description}>
-          Support {currentCollective.name} by donating any amount you want either one time or on a recurring monthly
-          basis.
+          Support {currentCollective.name}{' '}
+          {isDesktopResolution && (
+            <>
+              <br />
+            </>
+          )}
+          by donating any amount you want either one time or on a recurring monthly basis.
         </Text>
       </View>
       <View style={styles.divider} />
-      <View>
-        <Text style={styles.title}>Donation Currency:</Text>
-        <Text style={styles.description}>You can donate using any cryptocurrency. </Text>
-      </View>
-      <View>
-        <View style={styles.row}>
-          <TouchableOpacity
-            style={[styles.button, styles.row, { backgroundColor: getDropdownBGC(openCurrencyDropdown) }]}
-            onPress={() => {
-              setOpenCurrencyDropdown(!openCurrencyDropdown);
-              setOpenFrequencyDropdown(false);
-            }}>
-            <Text style={styles.buttonText}>{currency}</Text>
-            <Image source={{ uri: ChevronDownIcon }} style={styles.downIcon} />
-          </TouchableOpacity>
-          <View style={styles.form}>
-            <View style={styles.upperForm}>
-              <Text style={styles.upperText}>{currency}</Text>
-              <TextInput
-                keyboardType="decimal-pad"
-                multiline={false}
-                placeholder={'0.00'}
-                style={styles.upperText2}
-                maxLength={7}
-                onChangeText={(value: string) => {
-                  const numericValue = parseFloat(value); // Convert the input value to a number
-                  setAmount(isNaN(numericValue) ? 0 : numericValue); // Set amount to 0 if parsing fails
-                }}
-              />
-            </View>
-            <View style={styles.divider} />
-            <Text style={styles.lowerText}>{usdValue} USD</Text>
+
+      {!isDesktopResolution && (
+        <>
+          <View>
+            <Text style={styles.title}>Donation Currency:</Text>
+            <Text style={styles.description}>You can donate using any cryptocurrency. </Text>
           </View>
-        </View>
-      </View>
-
-      <View style={{ gap: 17 }}>
-        <View style={styles.view16}>
-          <Text style={styles.title}>Donation Frequency</Text>
-          <Text style={styles.description}>How often do you want to donate this {'\n'} amount?</Text>
-        </View>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            styles.row,
-            {
-              width: '100%',
-              backgroundColor: getDropdownBGC(openFrequencyDropdown),
-            },
-          ]}
-          onPress={() => {
-            setOpenFrequencyDropdown(!openFrequencyDropdown);
-            setOpenCurrencyDropdown(false);
-          }}>
-          <Text style={styles.buttonText}>{frequency}</Text>
-          <Image source={{ uri: ChevronDownIcon }} style={styles.downIcon} />
-        </TouchableOpacity>
-
-        {/*Not visible at first from here */}
-        {frequency != 'One-Time' && (
-          <View style={[styles.row, styles.view16]}>
-            <Text style={styles.title}>For How Long: </Text>
-            <View style={styles.button2}>
-              <TextInput
-                keyboardType="decimal-pad"
-                multiline={false}
-                placeholder={'0'}
-                style={styles.durationInput}
-                maxLength={2}
-                onChangeText={(value: any) => setDuration(value)}
-              />
-
-              <Text style={[styles.durationInput, styles.durationInput2]}>{getFrequencyTime(frequency)}</Text>
+          <View>
+            <View style={styles.row}>
+              <Dropdown value={currency} onSelect={(value: string) => setCurrency(value)} options={currencyOptions} />
+              <View style={styles.form}>
+                <View style={styles.upperForm}>
+                  <Text style={styles.headerLabel}>{currency}</Text>
+                  <TextInput
+                    keyboardType="decimal-pad"
+                    multiline={false}
+                    placeholder={'00.00'}
+                    style={styles.subHeading}
+                    maxLength={7}
+                    onChangeText={(value: any) => setAmount(value)}
+                  />
+                </View>
+                <View style={styles.divider} />
+                <Text style={styles.lowerText}>0.000 USD</Text>
+              </View>
             </View>
           </View>
-        )}
+        </>
+      )}
+
+      {isDesktopResolution && (
+        <View style={styles.donationCurrencyHeader}>
+          <View style={styles.donationAction}>
+            <View>
+              <Text style={styles.title}>Donation Currency:</Text>
+              <Text style={styles.description}>You can donate using any cryptocurrency. </Text>
+            </View>
+            <View>
+              <View style={styles.row}>
+                <Dropdown value={currency} onSelect={(value: string) => setCurrency(value)} options={currencyOptions} />
+                <View style={styles.form}>
+                  <View style={styles.upperForm}>
+                    <Text style={styles.headerLabel}>{currency}</Text>
+                    <TextInput
+                      keyboardType="decimal-pad"
+                      multiline={false}
+                      placeholder={'00.00'}
+                      style={styles.subHeading}
+                      maxLength={7}
+                      onChangeText={(value: any) => setAmount(value)}
+                    />
+                  </View>
+                  <View style={styles.divider} />
+                  <Text style={styles.lowerText}>0.000 USD</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.donationAction}>
+            <View style={styles.actionBox}>
+              <Text style={styles.title}>Donation Frequency</Text>
+              <Text style={styles.description}>
+                How often do you want to donate this {!isDesktopResolution && <br />} amount?
+              </Text>
+            </View>
+            <Dropdown value={frequency} onSelect={(value: string) => setFrequency(value)} options={frequencyOptions} />
+          </View>
+          <View>
+            {frequency !== 'One-Time' && (
+              <View style={[styles.row, styles.actionBox, isDesktopResolution && { flex: 1, flexDirection: 'column' }]}>
+                <Text style={styles.title}>For How Long: </Text>
+                <View
+                  style={[
+                    styles.frequencyDetails,
+                    isDesktopResolution && {
+                      flex: 1,
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    },
+                  ]}>
+                  <TextInput
+                    keyboardType="decimal-pad"
+                    multiline={false}
+                    placeholder={'0'}
+                    style={styles.durationInput}
+                    maxLength={2}
+                    onChangeText={(value: string) => setDuration(Number(value))}
+                  />
+
+                  <Text style={[styles.durationInput, styles.durationLabel]}>{getFrequencyTime(frequency)}</Text>
+                </View>
+              </View>
+            )}
+          </View>
+        </View>
+      )}
+
+      <View style={styles.frecuencyWrapper}>
+        <>
+          {!isDesktopResolution && (
+            <>
+              <Dropdown
+                value={frequency}
+                onSelect={(value: string) => setFrequency(value)}
+                options={frequencyOptions}
+              />
+              {frequency !== 'One-Time' && (
+                <View style={[styles.row, styles.actionBox]}>
+                  <Text style={styles.title}>For How Long: </Text>
+                  <View style={styles.frequencyDetails}>
+                    <TextInput
+                      keyboardType="decimal-pad"
+                      multiline={false}
+                      placeholder={'0'}
+                      style={styles.durationInput}
+                      maxLength={2}
+                      onChangeText={(value: any) => setDuration(value)}
+                    />
+
+                    <Text style={[styles.durationInput, styles.durationLabel]}>{getFrequencyTime(frequency)}</Text>
+                  </View>
+                </View>
+              )}
+            </>
+          )}
+        </>
 
         {walletConected && (
-          <View style={styles.view16}>
+          <View style={styles.actionBox}>
             <View style={styles.reviewContainer}>
               <View>
                 <Text style={styles.title}>Review Your Donation</Text>
                 <Text style={styles.reviewDesc}>
                   Your donation will be made in GoodDollars, the currency in use by this GoodCollective. {'\n'}
                   Your donation will be streamed using Superfluid. {'\n'}
-                  <Text style={{ fontStyle: 'italic' }}>
+                  <Text style={styles.italic}>
                     <Link
                       style={styles.reviewDesc}
                       href={'https://gooddollar.notion.site/How-does-Superfluid-work-ab31eaaef75f4e3db36db615fcb578d1'}
@@ -245,10 +257,10 @@ function DonateComponent({
               <View style={styles.reviewRow}>
                 <Text style={styles.reviewSubtitle}>Donation Amount:</Text>
                 <View>
-                  <Text style={[styles.upperText2, { textAlign: 'right' }]}>
-                    {currency} <Text style={styles.upperText}>{amount}</Text>
+                  <Text style={[styles.subHeading, { textAlign: 'right' }]}>
+                    {currency} <Text style={styles.headerLabel}>{amount}</Text>
                   </Text>
-                  <Text style={styles.lowerText2}>{usdValue} USD</Text>
+                  <Text style={styles.descriptionLabel}>~1,000,000 USD</Text>
                 </View>
               </View>
 
@@ -257,8 +269,8 @@ function DonateComponent({
                   <View style={styles.reviewRow}>
                     <Text style={styles.reviewSubtitle}>Donation Duration:</Text>
                     <View>
-                      <Text style={[styles.upperText2, { textAlign: 'right' }]}>
-                        {duration} <Text style={styles.upperText}>{getFrequencyTime(frequency)}</Text>
+                      <Text style={[styles.subHeading, { textAlign: 'right' }]}>
+                        {duration} <Text style={styles.headerLabel}>{getFrequencyTime(frequency)}</Text>
                       </Text>
                     </View>
                   </View>
@@ -266,28 +278,28 @@ function DonateComponent({
                   <View style={styles.reviewRow}>
                     <Text style={styles.reviewSubtitle}>Total Amount:</Text>
                     <View>
-                      <Text style={[styles.upperText2, { textAlign: 'right' }]}>
-                        {currency} <Text style={styles.upperText}>{getTotalAmount(duration, amount)}</Text>
+                      <Text style={[styles.subHeading, { textAlign: 'right' }]}>
+                        {currency} <Text style={styles.headerLabel}>{getTotalAmount(duration, amount)}</Text>
                       </Text>
-                      <Text style={styles.lowerText2}>~1,000,000 USD</Text>
+                      <Text style={styles.descriptionLabel}>~1,000,000 USD</Text>
                     </View>
                   </View>
                 </View>
               )}
             </View>
 
-            <View style={styles.view16}>
+            <View style={styles.actionBox}>
               {insufficientLiquidity && (
                 <View style={styles.warningView}>
                   <Image source={{ uri: InfoIconOrange }} style={styles.infoIcon} />
-                  <View style={styles.view16}>
-                    <View style={styles.view4}>
+                  <View style={styles.actionBox}>
+                    <View style={styles.actionHeader}>
                       <Text style={styles.warningTitle}>Insufficient liquidity!</Text>
                       <Text style={styles.warningLine}>
                         There is not enough liquidity between your chosen currency and GoodDollar to proceed.
                       </Text>
                     </View>
-                    <View style={styles.view8}>
+                    <View style={styles.actionContent}>
                       <Text style={styles.warningTitle}>You may:</Text>
                       <Text style={styles.warningLine}>
                         1. Try with another currency {'\n'}
@@ -309,12 +321,12 @@ function DonateComponent({
               {insufficientLiquidity && (
                 <View style={styles.warningView}>
                   <Image source={{ uri: InfoIconOrange }} style={styles.infoIcon} />
-                  <View style={styles.view16}>
-                    <View style={styles.view4}>
+                  <View style={styles.actionBox}>
+                    <View style={styles.actionHeader}>
                       <Text style={styles.warningTitle}>Insufficient balance!</Text>
                       <Text style={styles.warningLine}>There is not enough balance in your wallet to proceed.</Text>
                     </View>
-                    <View style={styles.view8}>
+                    <View style={styles.actionContent}>
                       <Text style={styles.warningTitle}>You may:</Text>
                       <Text style={styles.warningLine}>
                         1. Reduce your donation amount {'\n'}
@@ -336,8 +348,8 @@ function DonateComponent({
               {priceImpace && (
                 <View style={styles.warningView}>
                   <Image source={{ uri: InfoIconOrange }} style={styles.infoIcon} />
-                  <View style={styles.view16}>
-                    <View style={styles.view4}>
+                  <View style={styles.actionBox}>
+                    <View style={styles.actionHeader}>
                       <Text style={styles.warningTitle}>Price impace warning!</Text>
                       <Text style={styles.warningLine}>
                         Due to low liquidity between your chosen currency and GoodDollar,
@@ -345,7 +357,7 @@ function DonateComponent({
                         when swapped.
                       </Text>
                     </View>
-                    <View style={styles.view8}>
+                    <View style={styles.actionContent}>
                       <Text style={styles.warningTitle}>You may:</Text>
                       <Text style={styles.warningLine}>
                         1. Proceed and accept the price slip {'\n'}
@@ -383,116 +395,6 @@ function DonateComponent({
           />
         </TouchableOpacity>
       </View>
-      {openCurrencyDropdown && (
-        <View style={styles.dropdownContainer1}>
-          <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => {
-              setCurrency('G$');
-              setOpenCurrencyDropdown(false);
-            }}>
-            {renderDropdownItemText(currency, 'G$')}
-          </TouchableOpacity>
-          <View style={styles.dropdownSeparator} />
-
-          <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => {
-              setCurrency('CELO');
-              setOpenCurrencyDropdown(false);
-            }}>
-            {renderDropdownItemText(currency, 'CELO')}
-          </TouchableOpacity>
-
-          <View style={styles.dropdownSeparator} />
-          <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => {
-              setCurrency('cUSD');
-              setOpenCurrencyDropdown(false);
-            }}>
-            {renderDropdownItemText(currency, 'cUSD')}
-          </TouchableOpacity>
-          <View style={styles.dropdownSeparator} />
-
-          <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => {
-              setCurrency('RECY');
-              setOpenCurrencyDropdown(false);
-            }}>
-            {renderDropdownItemText(currency, 'RECY')}
-          </TouchableOpacity>
-
-          <View style={styles.dropdownSeparator} />
-          <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => {
-              setCurrency('WBTC');
-              setOpenCurrencyDropdown(false);
-            }}>
-            {renderDropdownItemText(currency, 'WBTC')}
-          </TouchableOpacity>
-          <View style={styles.dropdownSeparator} />
-
-          <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => {
-              setCurrency('WETH');
-              setOpenCurrencyDropdown(false);
-            }}>
-            {renderDropdownItemText(currency, 'WETH')}
-          </TouchableOpacity>
-        </View>
-      )}
-      {openFrequencyDropdown && (
-        <View style={styles.dropdownContainer2}>
-          <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => {
-              setFrequency('One-Time');
-              setOpenFrequencyDropdown(false);
-            }}>
-            {renderDropdownItemText(frequency, 'One-Time')}
-          </TouchableOpacity>
-          <View style={styles.dropdownSeparator} />
-          <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => {
-              setFrequency('Daily');
-              setOpenFrequencyDropdown(false);
-            }}>
-            <Text style={styles.dropdownText}>{renderDropdownItemText(frequency, 'Daily')}</Text>
-          </TouchableOpacity>
-          <View style={styles.dropdownSeparator} />
-          <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => {
-              setFrequency('Weekly');
-              setOpenFrequencyDropdown(false);
-            }}>
-            {renderDropdownItemText(frequency, 'Weekly')}
-          </TouchableOpacity>
-          <View style={styles.dropdownSeparator} />
-          <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => {
-              setFrequency('Monthly');
-              setOpenFrequencyDropdown(false);
-            }}>
-            {renderDropdownItemText(frequency, 'Monthly')}
-          </TouchableOpacity>
-          <View style={styles.dropdownSeparator} />
-          <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => {
-              setFrequency('Yearly');
-              setOpenFrequencyDropdown(false);
-            }}>
-            {renderDropdownItemText(frequency, 'Yearly')}
-          </TouchableOpacity>
-        </View>
-      )}
       <CompleteDonationModal openModal={modalVisible} setOpenModal={setModalVisible} />
     </View>
   );
@@ -505,6 +407,9 @@ const styles = StyleSheet.create({
     paddingTop: 32,
     paddingHorizontal: 16,
     backgroundColor: Colors.white,
+  },
+  bodyDesktop: {
+    borderRadius: 30,
   },
   title: {
     lineHeight: 25,
@@ -526,7 +431,7 @@ const styles = StyleSheet.create({
   },
   form: {
     alignItems: 'center',
-    width: '70%',
+    flexGrow: 1,
     justifyContent: 'center',
   },
   upperForm: {
@@ -537,30 +442,25 @@ const styles = StyleSheet.create({
     width: '50%',
     paddingLeft: '25%',
   },
-  form2: {
-    alignItems: 'center',
-    width: '100%',
-    justifyContent: 'center',
+  actionContent: {
     gap: 8,
   },
-  view8: {
-    gap: 8,
-  },
-  view16: {
+  actionBox: {
     gap: 16,
     flex: 1,
+    zIndex: -1,
   },
   row: {
     flexDirection: 'row',
     gap: 8,
   },
-  upperText: {
+  headerLabel: {
     fontSize: 18,
     lineHeight: 27,
     color: Colors.gray[100],
     ...InterSmall,
   },
-  upperText2: {
+  subHeading: {
     fontSize: 20,
     lineHeight: 27,
     ...InterSemiBold,
@@ -576,15 +476,7 @@ const styles = StyleSheet.create({
 
     ...InterRegular,
   },
-  button: {
-    gap: 2,
-    borderRadius: 12,
-    padding: 16,
-    width: 105,
-    height: 59,
-    justifyContent: 'space-between',
-  },
-  button2: {
+  frequencyDetails: {
     gap: 8,
     backgroundColor: Colors.purple[100],
     paddingTop: 2,
@@ -598,26 +490,21 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 27,
     ...InterSemiBold,
-    textAlign: 'right',
+    // textAlign: 'right',
     width: '20%',
     color: Colors.purple[400],
+    textAlign: 'center',
   },
-  durationInput2: {
+  durationLabel: {
     ...InterSmall,
     textAlign: 'left',
     width: 'auto',
-  },
-  buttonText: {
-    color: Colors.purple[400],
-    fontSize: 18,
-    lineHeight: 27,
-    ...InterSemiBold,
   },
   downIcon: {
     width: 24,
     height: 24,
   },
-  lowerText2: {
+  descriptionLabel: {
     fontSize: 12,
     lineHeight: 18,
     textAlign: 'right',
@@ -646,7 +533,7 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
   },
-  view4: {
+  actionHeader: {
     gap: 4,
     width: '100%',
   },
@@ -661,70 +548,6 @@ const styles = StyleSheet.create({
     color: Colors.orange[300],
     fontSize: 14,
     lineHeight: 21,
-  },
-  dropdownContainer1: {
-    height: 'auto',
-    width: '26%',
-    backgroundColor: Colors.white,
-    paddingTop: 10,
-    paddingBottom: 10,
-    position: 'absolute',
-    zIndex: 2,
-    top: 310,
-    left: 16,
-    borderRadius: 12,
-    shadowColor: Colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 12,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 15,
-    elevation: 24,
-  },
-  dropdownContainer2: {
-    height: 'auto',
-    width: '92%',
-    backgroundColor: Colors.white,
-    paddingTop: 10,
-    paddingBottom: 10,
-    position: 'absolute',
-    zIndex: 2,
-    top: 500,
-    left: 16,
-    borderRadius: 12,
-    shadowColor: Colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 12,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 15,
-    elevation: 24,
-  },
-  dropdownItem: {
-    flex: 1,
-    padding: 5,
-    width: '100%',
-    alignItems: 'center',
-  },
-  dropdownSeparator: {
-    width: '100%',
-    height: 2,
-    backgroundColor: Colors.gray[600],
-    marginTop: 5,
-    marginBottom: 5,
-  },
-  dropdownMyProfileText: {
-    fontSize: 18,
-    marginLeft: 15,
-    color: Colors.purple[400],
-  },
-  dropdownText: {
-    ...InterSmall,
-    fontSize: 14,
-    color: Colors.purple[400],
-    textAlign: 'center',
   },
   reviewContainer: {
     width: '100%',
@@ -750,6 +573,10 @@ const styles = StyleSheet.create({
     color: Colors.gray[100],
     ...InterSmall,
   },
+  italic: { fontStyle: 'italic' },
+  frecuencyWrapper: { gap: 17, zIndex: -1 },
+  donationAction: { width: 'auto', flexGrow: 1 },
+  donationCurrencyHeader: { flexDirection: 'row', width: 'auto', gap: 20 },
 });
 
 export default DonateComponent;

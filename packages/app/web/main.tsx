@@ -7,7 +7,6 @@ import { publicProvider } from 'wagmi/providers/public';
 import { infuraProvider } from 'wagmi/providers/infura';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
-import { UserProvider } from '../src/contexts/UserContext';
 
 const { publicClient, webSocketPublicClient } = configureChains(
   [celo],
@@ -36,9 +35,7 @@ const config = createConfig({
 ReactDOM.render(
   <React.StrictMode>
     <WagmiConfig config={config}>
-      <UserProvider>
-        <App />
-      </UserProvider>
+      <App />
     </WagmiConfig>
   </React.StrictMode>,
   document.getElementById('root')

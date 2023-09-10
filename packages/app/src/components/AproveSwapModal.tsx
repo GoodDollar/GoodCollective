@@ -6,6 +6,7 @@ import { CloseIcon } from '../@constants/ChevronIcons';
 import { AproveTokenImg } from '../@constants/AproveToken';
 // import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
+import { modalStyles } from './shared';
 
 interface AproveSwapModalProps {
   openModal: boolean;
@@ -19,8 +20,8 @@ const AproveSwapModal = ({ openModal, setOpenModal }: AproveSwapModalProps) => {
       <Modal animationType="slide" transparent={true} visible={openModal}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <View style={{ width: '100%', alignContent: 'flex-end' }}>
-              <TouchableOpacity style={{ width: 24, height: 24, alignSelf: 'flex-end' }}>
+            <View style={modalStyles.modalCloseIconWrapper}>
+              <TouchableOpacity style={modalStyles.modalCloseIcon}>
                 <Image source={{ uri: CloseIcon }} style={styles.closeIcon} />
               </TouchableOpacity>
             </View>

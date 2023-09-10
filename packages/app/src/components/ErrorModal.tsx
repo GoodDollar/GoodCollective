@@ -19,8 +19,8 @@ const ErrorModal = ({ openModal, setOpenModal }: ErrorModalProps) => {
       <Modal animationType="slide" transparent={true} visible={openModal}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <View style={{ width: '100%', alignContent: 'flex-end' }}>
-              <TouchableOpacity style={{ width: 24, height: 24, alignSelf: 'flex-end' }}>
+            <View style={styles.modalCloseIconWrapper}>
+              <TouchableOpacity style={styles.modalCloseIcon}>
                 <Image source={{ uri: CloseIcon }} style={styles.closeIcon} />
               </TouchableOpacity>
             </View>
@@ -116,6 +116,8 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: 'center',
   },
+  modalCloseIconWrapper: { width: '100%', alignContent: 'flex-end' },
+  modalCloseIcon: { width: 24, height: 24, alignSelf: 'flex-end' },
 });
 
 export default ErrorModal;

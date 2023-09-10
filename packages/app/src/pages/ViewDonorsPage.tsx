@@ -15,7 +15,7 @@ function ViewDonorsPage() {
         <View style={[styles.container]}>
           <Text style={styles.title}>Restoring the Kakamega Forest</Text>
         </View>
-        <View style={styles.container2}>
+        <View style={styles.donorsList}>
           <DonorsList username="username123" donated={10.27} />
         </View>
       </View>
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderRadius: 16,
   },
-  container2: {
+  donorsList: {
     width: '100%',
     padding: 16,
     gap: 24,

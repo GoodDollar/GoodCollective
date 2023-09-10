@@ -41,5 +41,6 @@ export const Colors = {
   },
   brown: {
     100: '#945C29',
+    200: '#f2f2f2',
   },
 };

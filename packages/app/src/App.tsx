@@ -22,7 +22,6 @@ import ModalTestPage from './pages/ModalTestPage';
 import WalletProfilePageEmpty from './pages/WalletProfilePageEmpty';
 
 import { Colors } from './utils/colors';
-import ProfilePage from './pages/ProfilePage';
 
 function App(): JSX.Element {
   return (
@@ -34,13 +33,13 @@ function App(): JSX.Element {
               <MobileRoute.Route path="/" element={<HomePage />} />
               <MobileRoute.Route path="/about" element={<AboutPage />} />
               <MobileRoute.Route path="/cards" element={<CollectiveCardPage />} />
-              <MobileRoute.Route path="/viewCollective" element={<ViewCollectivePage />} />
-              <MobileRoute.Route path="/viewStewards" element={<ViewStewardsPage />} />
-              <MobileRoute.Route path="/viewDonors" element={<ViewDonorsPage />} />
-              <MobileRoute.Route path="/walletProfile" element={<WalletProfilePage />} />
-              <MobileRoute.Route path="/walletProfileSteward" element={<WalletProfilePageSteward />} />
-              <MobileRoute.Route path="/walletProfileDonor" element={<WalletProfilePageDonor />} />
-              <MobileRoute.Route path="/activityLog" element={<ActivityLogPage />} />
+              <MobileRoute.Route path="/collective/:id" element={<ViewCollectivePage />} />
+              <MobileRoute.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
+              <MobileRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
+              <MobileRoute.Route path="/profile/:id" element={<WalletProfilePage />} />
+              <MobileRoute.Route path="/profile/:id/stewards" element={<WalletProfilePageSteward />} />
+              <MobileRoute.Route path="/profile/:id/donors" element={<WalletProfilePageDonor />} />
+              <MobileRoute.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
               <MobileRoute.Route path="/walletEmpty" element={<WalletProfilePageEmpty />} />
               <MobileRoute.Route path="/modalTest" element={<ModalTestPage />} />
               <MobileRoute.Route path="/donate" element={<DonatePage />} />
@@ -54,12 +53,14 @@ function App(): JSX.Element {
               <WebRoute.Route path="/" element={<HomePage />} />
               <WebRoute.Route path="/about" element={<AboutPage />} />
               <WebRoute.Route path="/cards" element={<CollectiveCardPage />} />
-              <WebRoute.Route path="/viewCollective" element={<ViewCollectivePage />} />
-              <WebRoute.Route path="/viewStewards" element={<ViewStewardsPage />} />
-              <WebRoute.Route path="/viewDonors" element={<ViewDonorsPage />} />
-              <WebRoute.Route path="/walletProfile/:ethAddress" element={<ProfilePage />} />
-              <WebRoute.Route path="/activityLog" element={<ActivityLogPage />} />
-              <WebRoute.Route path="/walletEmpty/:ethAddress" element={<WalletProfilePageEmpty />} />
+              <WebRoute.Route path="/collective/:id" element={<ViewCollectivePage />} />
+              <WebRoute.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
+              <WebRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
+              <WebRoute.Route path="/profile/:id" element={<WalletProfilePage />} />
+              <WebRoute.Route path="/profile/:id/stewards" element={<WalletProfilePageSteward />} />
+              <WebRoute.Route path="/profile/:id/donors" element={<WalletProfilePageDonor />} />
+              <WebRoute.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
+              <WebRoute.Route path="/walletEmpty" element={<WalletProfilePageEmpty />} />
               <WebRoute.Route path="/donate" element={<DonatePage />} />
               <WebRoute.Route path="/modalTest" element={<ModalTestPage />} />
             </WebRoute.Routes>

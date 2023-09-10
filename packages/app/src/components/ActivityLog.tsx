@@ -17,14 +17,13 @@ function ActivityLog({}: ActivityLogProps) {
       <View style={styles.row}>
         <View style={styles.bar} />
         <Image style={styles.icon} source={{ uri: ReceiveIconUri }} />
-        <Text style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-
+        <Text style={styles.logProfileDetails}>
           <Text style={styles.name}>Silvi Tree Claim {'\n'}</Text>
           <Text style={styles.id}>0x723a86c93838c1facse.....</Text>
-
         </Text>
-        <View style={{ alignItems: 'flex-end' }}>
-        <Text style={styles.date}>July 3, 2023</Text></View>
+        <View style={styles.logDate}>
+          <Text style={styles.date}>July 3, 2023</Text>
+        </View>
       </View>
     </View>
   );
@@ -34,8 +33,8 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     backgroundColor: Colors.white,
-    paddingLeft:16,
-    paddingRight:16
+    paddingLeft: 16,
+    paddingRight: 16,
   },
   row: {
     width: '100%',
@@ -74,5 +73,7 @@ const styles = StyleSheet.create({
     lineHeight: 15,
     ...InterRegular,
   },
+  logProfileDetails: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  logDate: { alignItems: 'flex-end' },
 });
 export default ActivityLog;

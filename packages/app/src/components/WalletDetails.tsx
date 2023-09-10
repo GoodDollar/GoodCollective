@@ -126,7 +126,7 @@ function WalletDetails({
                 <Text style={styles.rowBoldText}>G$</Text>
                 <Text style={styles.rowText}>{amountDonated}</Text>
               </View>
-              <Text>= 15,000,000 USD</Text>
+              <Text style={styles.formattedUsd}>= 15,000,000 USD</Text>
             </View>
           </View>
 
@@ -218,6 +218,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter',
     color: Colors.gray[100],
   },
+  formattedUsd: { paddingVertical: 25, paddingHorizontal: 5 },
 });
 
 export default WalletDetails;

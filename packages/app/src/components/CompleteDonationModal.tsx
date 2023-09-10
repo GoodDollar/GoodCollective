@@ -5,6 +5,7 @@ import { CloseIcon } from '../@constants/ChevronIcons';
 import { PhoneImg } from '../@constants/PhoneImg';
 // import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
+import { modalStyles } from './shared';
 
 interface CompleteDonationModalProps {
   openModal: boolean;
@@ -18,9 +19,9 @@ const CompleteDonationModal = ({ openModal, setOpenModal }: CompleteDonationModa
       <Modal animationType="slide" transparent={true} visible={openModal}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <View style={{ width: '100%', alignContent: 'flex-end' }}>
+            <View style={modalStyles.modalCloseIconWrapper}>
               <TouchableOpacity
-                style={{ width: 24, height: 24, alignSelf: 'flex-end' }}
+                style={modalStyles.modalCloseIcon}
                 onPress={() => {
                   setOpenModal(false);
                   console.log(openModal);

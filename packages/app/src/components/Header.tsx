@@ -56,7 +56,7 @@ function Header(): JSX.Element {
   }, [address, chain?.id]);
 
   return (
-    <View style={{ position: 'relative', zIndex: 1 }}>
+    <View style={styles.headerOverlay}>
       <View style={styles.headerMobileContainer}>
         {!!address && (
           <View style={styles.walletConnectContainer}>
@@ -285,6 +285,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignItems: 'center',
   },
+  headerOverlay: { position: 'relative', zIndex: 1 },
   walletConnectButton: {
     width: 295,
     height: 40,
@@ -447,6 +448,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     color: Colors.purple[400],
   },
+  headerIcon: { width: 25, height: 25 },
 });
 
 export default Header;
