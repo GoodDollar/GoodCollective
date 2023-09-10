@@ -29,12 +29,12 @@ function StewardList({ imageUrl, listType, stewardData, stewards, hideTitle }: S
   });
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.stewardsHeader}>
       {!hideTitle && (
         <View style={styles.row}>
           {listType !== 'steward' && <Image source={{ uri: StewardGreenIcon }} style={styles.firstIcon} />}
           {listType === 'steward' && <Image source={{ uri: StewardBlueIcon }} style={styles.firstIcon} />}
-          <Text style={styles.rowText}>Stewards {`(25)`}</Text>
+          <Text style={styles.title}>Stewards {`(25)`}</Text>
         </View>
       )}
       <View style={styles.list}>
@@ -42,11 +42,11 @@ function StewardList({ imageUrl, listType, stewardData, stewards, hideTitle }: S
           (isDesktopResolution ? placeholderUsers.slice(0, 6) : placeholderUsers.slice(0, 5)).map((item) => (
             <View style={styles.row}>
               <Image source={{ uri: profilePictureArray[item] }} style={styles.rowImg} />
-              <Text style={styles.rowText}>
+              <Text style={styles.title}>
                 {stewardData.username}{' '}
                 {stewardData.isVerified && <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon} />}
               </Text>
-              {stewardData.actions && <Text style={styles.rowText2}>{stewardData.actions} actions</Text>}
+              {stewardData.actions && <Text style={styles.totalActions}>{stewardData.actions} actions</Text>}
             </View>
           ))}
       </View>
@@ -55,6 +55,7 @@ function StewardList({ imageUrl, listType, stewardData, stewards, hideTitle }: S
 }
 
 const styles = StyleSheet.create({
+  stewardsHeader: { flex: 1 },
   firstIcon: {
     height: 32,
     width: 32,
@@ -84,14 +85,14 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     alignItems: 'center',
   },
-  rowText: {
+  title: {
     fontSize: 16,
     ...InterSemiBold,
     marginLeft: 16,
     width: '100%',
     color: Colors.black,
   },
-  rowText2: {
+  totalActions: {
     fontSize: 14,
     ...InterRegular,
     textAlign: 'right',

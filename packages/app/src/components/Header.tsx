@@ -26,7 +26,7 @@ function Header(): JSX.Element {
   const [openDropdown, setOpenDropdown] = useState<boolean>(false);
 
   return (
-    <View style={{ position: 'relative', zIndex: 1 }}>
+    <View style={styles.headerOverlay}>
       <View style={styles.headerMobileContainer}>
         {!!walletAddress && (
           <View style={styles.walletConnectContainer}>
@@ -62,11 +62,7 @@ function Header(): JSX.Element {
                     }}>
                     <Text style={styles.amountText}>0.758 CELO</Text>
                     <View style={styles.walletConnected}>
-                      <Image
-                        source={{ uri: placeholderAvatarUri }}
-                        resizeMode="contain"
-                        style={{ width: 25, height: 25 }}
-                      />
+                      <Image source={{ uri: placeholderAvatarUri }} resizeMode="contain" style={styles.headerIcon} />
                       <Text style={styles.walletConnectedText}>Luis.celo</Text>
                     </View>
                   </View>
@@ -106,11 +102,7 @@ function Header(): JSX.Element {
                     }}>
                     <Text style={styles.amountText}>0.758 CELO</Text>
                     <View style={styles.walletConnected}>
-                      <Image
-                        source={{ uri: placeholderAvatarUri }}
-                        resizeMode="contain"
-                        style={{ width: 25, height: 25 }}
-                      />
+                      <Image source={{ uri: placeholderAvatarUri }} resizeMode="contain" style={styles.headerIcon} />
                       <Text style={styles.walletConnectedText}>Luis.celo</Text>
                     </View>
                   </View>
@@ -232,6 +224,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignItems: 'center',
   },
+  headerOverlay: { position: 'relative', zIndex: 1 },
   walletConnectButton: {
     width: 295,
     height: 40,
@@ -394,6 +387,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     color: Colors.purple[400],
   },
+  headerIcon: { width: 25, height: 25 },
 });
 
 export default Header;

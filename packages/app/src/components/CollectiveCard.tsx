@@ -28,17 +28,17 @@ function CollectiveCard({ title, description, name, actions, total, usd, donor }
       )}
 
       <Text style={styles.title}>{title}</Text>
-      <View style={{ flex: 1, flexDirection: 'row', gap: 8 }}>
+      <View style={styles.cardDescription}>
         <Image source={{ uri: InfoIcon }} style={styles.infoIcon} />
         <Text style={styles.description}>{description}</Text>
       </View>
 
-      <View style={styles.subcontainer}>
+      <View style={styles.actionsContent}>
         <View style={{ gap: 2 }}>
           <Text style={styles.info}>{name} has performed</Text>
           <View style={styles.row}>
             <Text style={[styles.bold, { textDecorationLine: 'underline' }]}>{actions}</Text>
-            <Text style={styles.data1}> actions</Text>
+            <Text style={styles.performedActions}> actions</Text>
           </View>
         </View>
 
@@ -46,10 +46,10 @@ function CollectiveCard({ title, description, name, actions, total, usd, donor }
           <Text style={styles.info}>Towards this collective, and received</Text>
           <View style={styles.row}>
             <Text style={styles.bold}>G$ </Text>
-            <Text style={styles.data2}>{total}</Text>
+            <Text style={styles.totalReceived}>{total}</Text>
           </View>
 
-          <Text style={{ ...InterSmall, fontSize: 12, color: '#959090' }}>= {usd} USD</Text>
+          <Text style={styles.formattedUsd}>= {usd} USD</Text>
         </View>
       </View>
 
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     gap: 24,
   },
-  subcontainer: {
+  actionsContent: {
     gap: 16,
   },
   infoIcon: {
@@ -119,13 +119,13 @@ const styles = StyleSheet.create({
     color: Colors.black,
     ...InterSemiBold,
   },
-  data1: {
+  performedActions: {
     fontSize: 18,
     color: Colors.gray[100],
     textDecorationLine: 'underline',
     ...InterSmall,
   },
-  data2: {
+  totalReceived: {
     fontSize: 18,
     color: Colors.gray[100],
     ...InterSmall,
@@ -140,6 +140,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: 0,
   },
+  formattedUsd: { ...InterSmall, fontSize: 12, color: '#959090' },
+  cardDescription: { flex: 1, flexDirection: 'row', gap: 8 },
 });
 
 export default CollectiveCard;

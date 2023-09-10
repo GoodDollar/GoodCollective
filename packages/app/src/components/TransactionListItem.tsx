@@ -28,9 +28,9 @@ function TransactionListItem({ username, currency, amount, id, receive }: Transa
           <Image source={{ uri: SendIcon }} style={styles.rowIcon} />
         )}
         <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={styles.txDetails}>
             <Text style={styles.rowInfo}>{username}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+            <View style={styles.txCurrency}>
               <Text style={styles.currency}>
                 {currency}
                 {'   '}
@@ -42,9 +42,9 @@ function TransactionListItem({ username, currency, amount, id, receive }: Transa
             <Text style={styles.id}>{id}</Text>
           </View>
           <View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View style={styles.txDetails}>
               <Text style={[styles.lowerText, styles.alignLeft]}>Transaccion fee{' (Gas)'}</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+              <View style={styles.txTotal}>
                 <Text style={[styles.lowerText, styles.alignRight]}>CELO .00075</Text>
               </View>
             </View>
@@ -121,6 +121,9 @@ const styles = StyleSheet.create({
   alignRight: {
     textAlign: 'right',
   },
+  txDetails: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  txCurrency: { flexDirection: 'row', alignItems: 'flex-end' },
+  txTotal: { flexDirection: 'row', alignItems: 'flex-end' },
 });
 
 export default TransactionListItem;

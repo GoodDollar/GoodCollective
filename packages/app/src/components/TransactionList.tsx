@@ -24,7 +24,7 @@ function TransactionList({ username, currency, amount, transactionId, transactio
   });
 
   return (
-    <View style={{ paddingTop: 0 }}>
+    <View style={styles.txContainer}>
       <View style={styles.row}>
         <Image source={{ uri: TransactionIcon }} style={styles.firstIcon} />
         <Text style={styles.rowText}>Recent Transactions</Text>
@@ -54,6 +54,9 @@ function TransactionList({ username, currency, amount, transactionId, transactio
 }
 
 const styles = StyleSheet.create({
+  txContainer: {
+    paddingTop: 0,
+  },
   firstIcon: {
     height: 32,
     width: 32,

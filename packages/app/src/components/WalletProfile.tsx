@@ -51,7 +51,7 @@ function WalletProfile({
     return (
       <>
         <Breadcrumb />
-        <View style={{ flexDirection: 'row', gap: 30 }}>
+        <View style={styles.profileContentBox}>
           <View style={[styles.container, styles.desktopContainer]}>
             <View style={{ gap: 24 }}>
               <ProfileView
@@ -184,6 +184,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     height: '100%',
   },
+  profileContentBox: { flexDirection: 'row', gap: 30, marginTop: 20 },
   pfp: {
     width: 64,
     height: 64,

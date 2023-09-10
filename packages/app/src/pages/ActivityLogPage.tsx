@@ -32,7 +32,7 @@ function ActivityLogPage() {
 
           <Text style={styles.title}>Restoring the Kakamega Forest</Text>
 
-          <View style={{ flex: 1, flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+          <View style={styles.logHeader}>
             <Image source={{ uri: LightningIconUri }} style={styles.titleIcon}></Image>
             <Text style={styles.title}>Action Log</Text>
           </View>
@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
     marginBottom: 1,
     zIndex: 1,
   },
+  logHeader: { flex: 1, flexDirection: 'row', gap: 8, alignItems: 'center' },
   elevation: {
     shadowColor: Colors.black,
     shadowOffset: {
@@ -72,14 +73,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 30,
     elevation: 60,
-  },
-  container2: {
-    gap: 16,
-    backgroundColor: Colors.white,
-    padding: 16,
-    paddingTop: 0,
-    zIndex: 0,
-    paddingBottom: 50,
   },
   image: {
     width: '100%',

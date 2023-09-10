@@ -3,15 +3,20 @@ import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import { ChevronRightIcon } from '../@constants/ChevronIcons';
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
+import { useMediaQuery } from 'native-base';
 
 interface ImpactButtonProps {
   title: string;
 }
 
 function ImpactButton({ title }: ImpactButtonProps) {
+  const [isDesktopResolution] = useMediaQuery({
+    minWidth: 612,
+  });
+
   return (
-    <TouchableOpacity style={styles.button}>
-      <View style={styles.buttonContent}>
+    <TouchableOpacity style={[styles.button, isDesktopResolution && styles.desktopButton]}>
+      <View style={[styles.buttonContent, isDesktopResolution && styles.buttonDesktopContent]}>
         <Text style={styles.buttonText}>{title}</Text>
         <Image source={{ uri: ChevronRightIcon }} style={styles.icon} />
       </View>
@@ -29,6 +34,16 @@ const styles = StyleSheet.create({
     bottom: 35,
     paddingVertical: 8,
     gap: 8,
+  },
+  desktopButton: {
+    position: 'relative',
+    borderRadius: 16,
+    width: '50%',
+  },
+  buttonDesktopContent: {
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 20,
   },
   buttonContent: {
     flex: 1,

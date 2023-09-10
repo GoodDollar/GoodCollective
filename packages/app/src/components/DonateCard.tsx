@@ -27,7 +27,7 @@ function DonateCard({ title, description, name, actions, total, usd }: DonateCar
           <Text style={styles.info}>{name} has performed</Text>
           <View style={styles.row}>
             <Text style={[styles.bold, { textDecorationLine: 'underline' }]}>{actions}</Text>
-            <Text style={styles.data1}> actions</Text>
+            <Text style={styles.performedActions}> actions</Text>
           </View>
         </View>
 
@@ -35,10 +35,10 @@ function DonateCard({ title, description, name, actions, total, usd }: DonateCar
           <Text style={styles.info}>Towards this collective, and received</Text>
           <View style={styles.row}>
             <Text style={styles.bold}>G$ </Text>
-            <Text style={styles.data2}>{total}</Text>
+            <Text style={styles.totalReceived}>{total}</Text>
           </View>
 
-          <Text style={{ ...InterSmall, fontSize: 12, color: '#959090' }}>= {usd} USD</Text>
+          <Text style={styles.formattedUsd}>= {usd} USD</Text>
         </View>
       </View>
 
@@ -101,13 +101,13 @@ const styles = StyleSheet.create({
     color: '#000000',
     ...InterSemiBold,
   },
-  data1: {
+  performedActions: {
     fontSize: 18,
     color: '#5A5A5A',
     textDecorationLine: 'underline',
     ...InterSmall,
   },
-  data2: {
+  totalReceived: {
     fontSize: 18,
     color: '#5A5A5A',
     ...InterSmall,
@@ -122,6 +122,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: 0,
   },
+  formattedUsd: { ...InterSmall, fontSize: 12, color: '#959090' },
 });
 
 export default DonateCard;

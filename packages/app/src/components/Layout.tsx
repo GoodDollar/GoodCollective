@@ -27,7 +27,10 @@ function Layout({ children }: LayoutProps) {
     <View style={bodyStyles}>
       <Header />
       {isDesktopResolution ? (
-        <View style={styles.desktopScrollView}>{children}</View>
+        <View style={styles.desktopScrollView}>
+          {children}
+          {location.pathname.includes('collective') && <ImpactButton title="SEE YOUR IMPACT" />}
+        </View>
       ) : (
         <ScrollView style={[styles.scrollView, { maxHeight: scrollViewHeight }]}>{children}</ScrollView>
       )}
@@ -47,6 +50,7 @@ const styles = StyleSheet.create({
   desktopScrollView: {
     paddingHorizontal: 64,
     paddingVertical: 40,
+    height: '100vh',
   },
 });
 
