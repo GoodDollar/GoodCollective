@@ -45,8 +45,8 @@ function WalletProfile({
           <ProfileView
             profileData={{
               imageUrl: FruitDoveUri,
-              firstName: 'John',
-              lastName: 'Doe',
+              firstName: firstName,
+              lastName: lastName,
               profileLink: 'https://app.prosperity.global',
               domain: 'John.CELO',
               userId: 'q827tbc1386..134c',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 // import Header from './Header';
 import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput } from 'react-native';
 // import ImpactButton from './ImpactButton';
@@ -10,6 +10,7 @@ import { InfoIconOrange } from '../@constants/ColorTypeIcons';
 import CompleteDonationModal from './CompleteDonationModal';
 import { Colors } from '../utils/colors';
 import { Link } from 'native-base';
+import { useGetTokenPrice } from '../hooks/useGetTokenPrice';
 
 function getButtonBGC(insufficientLiquidity: boolean, priceImpace: boolean, insufficientBalance: boolean) {
   if (insufficientLiquidity || insufficientBalance) {
@@ -94,6 +95,7 @@ function DonateComponent({
   insufficientBalance,
   currentCollective,
 }: DonateComponentProps) {
+  const { getPrice } = useGetTokenPrice();
   const [openCurrencyDropdown, setOpenCurrencyDropdown] = useState<boolean>(false);
   const [openFrequencyDropdown, setOpenFrequencyDropdown] = useState<boolean>(false);
   // const { navigate } = useCrossNavigate();
@@ -102,6 +104,38 @@ function DonateComponent({
   const [frequency, setFrequency] = useState('One-Time');
   const [duration, setDuration] = useState(1);
   const [amount, setAmount] = useState(0);
+  const [usdValue, setUsdValue] = useState<number>();
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const tokenMapping = {
+    CELO: '0x471EcE3750Da237f93B8E339c536989b8978a438',
+    cUSD: '0x765de816845861e75a25fca122bb6898b8b1282a',
+    WBTC: '0xD629eb00dEced2a080B7EC630eF6aC117e614f1b',
+    // Add other tokens here if needed
+  };
+
+  useEffect(() => {
+    if (currency === 'WBTC') {
+      getPrice('0xD629eb00dEced2a080B7EC630eF6aC117e614f1b').then((res: any) => {
+        setUsdValue(res * amount);
+      });
+    }
+    if (currency === 'cUSD') {
+      getPrice('0x765de816845861e75a25fca122bb6898b8b1282a').then((res: any) => {
+        setUsdValue(res * amount);
+      });
+    }
+    if (currency === 'CELO') {
+      getPrice('0x471EcE3750Da237f93B8E339c536989b8978a438').then((res: any) => {
+        setUsdValue(res * amount);
+      });
+    }
+    // if (currency === 'G$') {
+    //   getPrice('0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A').then((res: any) => {
+    //     setUsdValue(res * amount);
+    //   });
+    // }
+  }, [amount, currency, getPrice, usdValue, setUsdValue]);
 
   return (
     <View style={styles.body}>
@@ -134,14 +168,17 @@ function DonateComponent({
               <TextInput
                 keyboardType="decimal-pad"
                 multiline={false}
-                placeholder={'00.00'}
+                placeholder={'0.00'}
                 style={styles.upperText2}
                 maxLength={7}
-                onChangeText={(value: any) => setAmount(value)}
+                onChangeText={(value: string) => {
+                  const numericValue = parseFloat(value); // Convert the input value to a number
+                  setAmount(isNaN(numericValue) ? 0 : numericValue); // Set amount to 0 if parsing fails
+                }}
               />
             </View>
             <View style={styles.divider} />
-            <Text style={styles.lowerText}>0.000 USD</Text>
+            <Text style={styles.lowerText}>{usdValue} USD</Text>
           </View>
         </View>
       </View>
@@ -211,7 +248,7 @@ function DonateComponent({
                   <Text style={[styles.upperText2, { textAlign: 'right' }]}>
                     {currency} <Text style={styles.upperText}>{amount}</Text>
                   </Text>
-                  <Text style={styles.lowerText2}>~1,000,000 USD</Text>
+                  <Text style={styles.lowerText2}>{usdValue} USD</Text>
                 </View>
               </View>
 
@@ -342,7 +379,7 @@ function DonateComponent({
             color={getButtonTextColor(insufficientLiquidity, priceImpace, insufficientBalance)}
             fontSize={18}
             seeType={false}
-            onPress={() => setModalVisible(!modalVisible)}
+            onPress={() => console.log('flow being created')}
           />
         </TouchableOpacity>
       </View>

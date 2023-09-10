@@ -21,7 +21,7 @@ function ViewCollectivePage() {
           donationsReceived={300200000}
           totalPaidOut={299920000}
           currentPool={381000}
-          isDonating={true}
+          isDonating={false}
         />
       </View>
     </Layout>

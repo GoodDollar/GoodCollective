@@ -3,14 +3,21 @@ import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import { ChevronRightIcon } from '../@constants/ChevronIcons';
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
+import useCrossNavigate from '../routes/useCrossNavigate';
 
 interface ImpactButtonProps {
   title: string;
+  path: string;
 }
 
-function ImpactButton({ title }: ImpactButtonProps) {
+function ImpactButton({ title, path }: ImpactButtonProps) {
+  const { navigate } = useCrossNavigate();
   return (
-    <TouchableOpacity style={styles.button}>
+    <TouchableOpacity
+      style={styles.button}
+      onPress={() => {
+        navigate(`${path}`);
+      }}>
       <View style={styles.buttonContent}>
         <Text style={styles.buttonText}>{title}</Text>
         <Image source={{ uri: ChevronRightIcon }} style={styles.icon} />

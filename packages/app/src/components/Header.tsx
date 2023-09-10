@@ -21,7 +21,7 @@ const reactUri = `data:image/svg+xml;utf8,<svg width="22" height="22" viewBox="0
 const closeUri = `data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M15 5L5 15" stroke="#2B4483" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> <path d="M5 5L15 15" stroke="#2B4483" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> </svg>`;
 
 function Header(): JSX.Element {
-  const { connect, connectors } = useConnect();
+  const { connect, connectors, isLoading, pendingConnector } = useConnect();
   const { chain } = useNetwork();
 
   const { address } = useAccount();
@@ -69,11 +69,13 @@ function Header(): JSX.Element {
                   flexDirection: 'row',
                 }}>
                 <View style={[styles.logoContainerImage, styles.logoContainerImageDesktop]}>
-                  <Image
-                    source={{ uri: logoUri }}
-                    resizeMode="contain"
-                    style={[styles.logoImage, styles.logoImageDesktop]}
-                  />
+                  <TouchableOpacity onPress={() => navigate('/')}>
+                    <Image
+                      source={{ uri: logoUri }}
+                      resizeMode="contain"
+                      style={[styles.logoImage, styles.logoImageDesktop]}
+                    />
+                  </TouchableOpacity>
                 </View>
                 <View style={[styles.walletInfoContainer, styles.walletInfoContainerDesktop]}>
                   <View
@@ -194,9 +196,12 @@ function Header(): JSX.Element {
                   <TouchableOpacity
                     style={styles.walletConnectButtonDesktop}
                     disabled={!connector.ready}
-                    key={connector.id}
                     onPress={() => connect({ connector })}>
-                    <Text style={styles.walletConnectButtonText}>Connect Wallet</Text>
+                    <Text key={connector.id} style={styles.walletConnectButtonText}>
+                      {connector.name}
+                      {!connector.ready && ' (unsupported)'}
+                      {isLoading && connector.id === pendingConnector?.id && ' (connecting)'}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </>
@@ -218,7 +223,11 @@ function Header(): JSX.Element {
         <View style={styles.dropdownContainer}>
           {!!address && (
             <>
-              <TouchableOpacity style={styles.dropdownItem}>
+              <TouchableOpacity
+                style={styles.dropdownItem}
+                onPress={() => {
+                  navigate('/walletProfile/' + address);
+                }}>
                 <Image source={{ uri: placeholderAvatarUri }} resizeMode="contain" style={{ width: 32, height: 32 }} />
                 <Text style={styles.dropdownMyProfileText}>My Profile</Text>
               </TouchableOpacity>
@@ -249,6 +258,7 @@ function Header(): JSX.Element {
             onPress={async () => {
               await disconnect();
               setOpenDropdown(false);
+              navigate('/');
             }}>
             <Image source={{ uri: logoutUri }} resizeMode="contain" style={{ width: 20, height: 20 }} />
             <Text style={styles.dropdownText}>Log Out</Text>

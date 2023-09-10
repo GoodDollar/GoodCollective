@@ -145,8 +145,7 @@ function ViewCollective({
               fontSize={18}
               seeType={false}
               onPress={() => {
-                setModalVisible2(true);
-                console.log(modalVisible2);
+                navigate('/donate');
               }}
             />
             <RoundedButton

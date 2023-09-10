@@ -20,7 +20,9 @@ import CollectiveCardPage from './pages/CollectiveCardPage';
 import DonatePage from './pages/DonatePage';
 import ModalTestPage from './pages/ModalTestPage';
 import WalletProfilePageEmpty from './pages/WalletProfilePageEmpty';
+
 import { Colors } from './utils/colors';
+import ProfilePage from './pages/ProfilePage';
 
 function App(): JSX.Element {
   return (
@@ -55,11 +57,9 @@ function App(): JSX.Element {
               <WebRoute.Route path="/viewCollective" element={<ViewCollectivePage />} />
               <WebRoute.Route path="/viewStewards" element={<ViewStewardsPage />} />
               <WebRoute.Route path="/viewDonors" element={<ViewDonorsPage />} />
-              <WebRoute.Route path="/walletProfile" element={<WalletProfilePage />} />
-              <WebRoute.Route path="/walletProfileSteward" element={<WalletProfilePageSteward />} />
-              <WebRoute.Route path="/walletProfileDonor" element={<WalletProfilePageDonor />} />
+              <WebRoute.Route path="/walletProfile/:ethAddress" element={<ProfilePage />} />
               <WebRoute.Route path="/activityLog" element={<ActivityLogPage />} />
-              <WebRoute.Route path="/walletEmpty" element={<WalletProfilePageEmpty />} />
+              <WebRoute.Route path="/walletEmpty/:ethAddress" element={<WalletProfilePageEmpty />} />
               <WebRoute.Route path="/donate" element={<DonatePage />} />
               <WebRoute.Route path="/modalTest" element={<ModalTestPage />} />
             </WebRoute.Routes>

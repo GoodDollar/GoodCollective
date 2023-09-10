@@ -6,6 +6,7 @@ import { InterRegular, InterSemiBold } from '../utils/webFonts';
 // import { PhoneImg } from '../@constants/PhoneImg';
 import { ThankYouImg } from '../@constants/ThankYouImg';
 import { Colors } from '../utils/colors';
+import { useAccount } from 'wagmi';
 
 interface ThankYouModalProps {
   openModal: boolean;
@@ -15,6 +16,7 @@ interface ThankYouModalProps {
 const ThankYouModal = ({ openModal }: ThankYouModalProps) => {
   // const [modalVisible, setModalVisible] = useState(openModal);
   const { navigate } = useCrossNavigate();
+  const { address } = useAccount();
   return (
     <View style={styles.centeredView}>
       <Modal animationType="slide" transparent={true} visible={openModal}>
@@ -26,7 +28,7 @@ const ThankYouModal = ({ openModal }: ThankYouModalProps) => {
               To stop your donation, visit the Restoring the Kakamega Forest GoodCollective page.
             </Text>
             <Image source={{ uri: ThankYouImg }} alt="woman" style={styles.image} />
-            <TouchableOpacity style={styles.button} onPress={() => navigate('/walletProfile')}>
+            <TouchableOpacity style={styles.button} onPress={() => navigate('/walletProfile/' + address)}>
               <Text style={styles.buttonText}>GO TO PROFILE</Text>
             </TouchableOpacity>
           </View>
