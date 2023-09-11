@@ -61,13 +61,7 @@ function Header(): JSX.Element {
         {!!address && (
           <View style={styles.walletConnectContainer}>
             {isDesktopResolution && (
-              <View
-                style={{
-                  width: '100%',
-                  flex: 1,
-                  justifyContent: 'space-between',
-                  flexDirection: 'row',
-                }}>
+              <View style={styles.desktopWrapper}>
                 <View style={[styles.logoContainerImage, styles.logoContainerImageDesktop]}>
                   <TouchableOpacity onPress={() => navigate('/')}>
                     <Image
@@ -393,6 +387,12 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+  },
+  desktopWrapper: {
+    width: '100%',
+    flex: 1,
     justifyContent: 'space-between',
     flexDirection: 'row',
   },
