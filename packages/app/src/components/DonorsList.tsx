@@ -126,8 +126,7 @@ const styles = StyleSheet.create({
     color: Colors.gray[100],
   },
   currency: {
-    fontSize: 14,
-    ...InterRegular,
+    ...InterSemiBold,
   },
 });
 export default DonorsList;
