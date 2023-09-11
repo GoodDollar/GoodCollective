@@ -18,7 +18,7 @@ function HomePage() {
     <Layout>
       <View style={styles.body}>
         <View style={[styles.sectionContainer, isDesktopResolution ? styles.sectionContainerDesktop : {}]}>
-          {[1, 2, 3, 4, 5, 6].map((item) => (
+          {[1, 2, 3].map((item) => (
             <CollectiveHomeCard
               title="Cleaning the Ocean"
               description="This is a short bio that describes the work this group is doing and why people should support it."
