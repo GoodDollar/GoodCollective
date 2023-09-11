@@ -125,6 +125,8 @@ const styles = StyleSheet.create({
     width: '100%',
     color: Colors.gray[100],
   },
-  currency: styles.currency,
+  currency: {
+    ...InterSemiBold,
+  },
 });
 export default DonorsList;
