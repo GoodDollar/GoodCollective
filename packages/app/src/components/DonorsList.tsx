@@ -10,7 +10,7 @@ interface DonorsListProps {
   donated: number;
 }
 
-function DonorsList({ imageUrl, username, donated }: DonorsListProps) {
+function DonorsList({ username, donated }: DonorsListProps) {
   return (
     <View>
       <View style={styles.row}>
@@ -125,6 +125,9 @@ const styles = StyleSheet.create({
     width: '100%',
     color: Colors.gray[100],
   },
-  currency: styles.currency,
+  currency: {
+    fontSize: 14,
+    ...InterRegular,
+  },
 });
 export default DonorsList;

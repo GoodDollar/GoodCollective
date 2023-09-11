@@ -32,14 +32,14 @@ function Layout({ children }: LayoutProps) {
         <View style={styles.desktopScrollView}>
           {children}
           {location.pathname.includes('collective') && (
-            <ImpactButton title="SEE YOUR IMPACT" path={'/walletProfile/' + address} />
+            <ImpactButton title="SEE YOUR IMPACT" path={'/profile/' + address + 'donors'} />
           )}
         </View>
       ) : (
         <ScrollView style={[styles.scrollView, { maxHeight: scrollViewHeight }]}>{children}</ScrollView>
       )}
       {location.pathname.includes('collective') && !isDesktopResolution && (
-        <ImpactButton title="SEE YOUR IMPACT" path={'/walletProfile/' + address} />
+        <ImpactButton title="SEE YOUR IMPACT" path={'/profile/' + address + 'donors'} />
       )}
     </View>
   );

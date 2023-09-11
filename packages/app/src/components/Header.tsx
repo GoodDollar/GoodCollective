@@ -226,7 +226,7 @@ function Header(): JSX.Element {
               <TouchableOpacity
                 style={styles.dropdownItem}
                 onPress={() => {
-                  navigate('/walletProfile/' + address);
+                  navigate('/profile/' + address);
                 }}>
                 <Image source={{ uri: placeholderAvatarUri }} resizeMode="contain" style={{ width: 32, height: 32 }} />
                 <Text style={styles.dropdownMyProfileText}>My Profile</Text>
