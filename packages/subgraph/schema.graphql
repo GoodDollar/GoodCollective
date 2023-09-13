@@ -1,4 +1,42 @@
+type account @entity {
+  " Wallet address "
+  id: String!
+  " Users role "
+  roleType: String!
+  " Optional field if the user is a steward "
+  steward: Steward
+  " Optional field if the user is a donor "
+  donor: Donor
+}
+
+type Steward @entity {
+  " { Transaction hash }{ user address} "
+  id: String!
+  " Number of actions performed "
+  actions: BigInt!
+  " NFT's minted to steward"
+  nft: [NFT!]! @derivedFrom(field: "steward")
+  "Total amount of G$ received"
+  totalAmountGDollar: BigInt!
+  " Collectives the steward is apart of "
+  collective: [Collective!]! @derivedFrom(field: "steward")
+}
+
+type Donor @entity {
+  " { Transaction hash }{ user address} "
+  id: String!
+  " Date the user became a donor "
+  joined: Int!
+  " Total amount donated "
+  totalDonated: BigInt
+  " Total collectives supported "
+  support: BigInt
+  " Collectives the donor is apart of "
+  collective: [Collective!]! @derivedFrom(field: "collective")
+}
+
 type DirectPaymentPool @entity {
+  "This is the address source"
   id: String!
   ipfs: String!
   nftType: BigInt!
@@ -15,6 +53,7 @@ type DirectPaymentPool @entity {
   claimedNfts: [String!]!
   members: [String!]!
   poolAddress: String!
+  timestamp: BigInt!
 }
 
 type PoolSettings @entity {

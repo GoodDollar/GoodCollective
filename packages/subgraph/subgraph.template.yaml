@@ -4,7 +4,7 @@ schema:
 dataSources:
   - kind: ethereum
     name: DirectPaymentsFactory
-    network: {{network}}
+    network: { { network } }
     source:
       address: '{{DirectPaymentsFactoryAddress}}'
       abi: DirectPaymentsFactory
@@ -28,10 +28,8 @@ dataSources:
 
       file: ./src/mappings/pool.ts
   - kind: ethereum/contract
-    name: DirectPaymentsFactory
-    network: {{network}} 
+    name: DirectPaymentsPool
     source:
-      address: '{{DirectPaymentsPoolAddress}}'
       abi: DirectPaymentsPool
       startBlock: 19375523
     mapping:
@@ -59,7 +57,7 @@ dataSources:
       file: ./src/mappings/pool.ts
   - kind: ethereum
     name: ProvableNFT
-    network: {{network}}
+    network: { { network } }
     source:
       address: '{{ProvableNFTAddress}}'
       abi: ProvableNFT
