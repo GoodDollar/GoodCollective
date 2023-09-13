@@ -44,7 +44,8 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         uint256 contribution,
         int96 previousFlowRate,
         int96 flowRate,
-        bool isFlowUpdate
+        bool isFlowUpdate,
+        address pool
     );
 
     //TODO:
@@ -161,7 +162,8 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
     function support(
         address _sender,
         uint256 _amount,
-        bytes memory _ctx
+        bytes memory _ctx,
+        address pool
     ) external onlyHostOrSender(_sender) returns (bytes memory) {
         if (_amount == 0) revert ZERO_AMOUNT();
 
@@ -169,7 +171,7 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         TransferHelper.safeTransferFrom(address(superToken), _sender, address(this), _amount);
 
         // Update the contribution amount for the sender in the supporters mapping
-        _updateSupporter(_sender, int256(_amount), 0, ""); //we pass empty ctx since this is not a flow but a single donation
+        _updateSupporter(_sender, int256(_amount), 0, "", pool); //we pass empty ctx since this is not a flow but a single donation
 
         return _ctx;
     }
@@ -202,9 +204,10 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         ISuperToken /*superToken*/,
         address _sender,
         bytes calldata _ctx
+        address pool
     ) internal virtual override returns (bytes memory /*newCtx*/) {
         // Update the supporter's information
-        return _updateSupporter(_sender, 0, 0, _ctx);
+        return _updateSupporter(_sender, 0, 0, _ctx, pool);
     }
 
     /**
@@ -220,10 +223,11 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         address _sender,
         int96 _previousFlowRate,
         uint256 _lastUpdated,
-        bytes calldata _ctx
+        bytes calldata _ctx,
+        address pool
     ) internal virtual override returns (bytes memory /*newCtx*/) {
         // Update the supporter's information
-        return _updateSupporter(_sender, _previousFlowRate, _lastUpdated, _ctx);
+        return _updateSupporter(_sender, _previousFlowRate, _lastUpdated, _ctx, pool);
     }
 
     /**
@@ -240,10 +244,11 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         address /*receiver*/,
         int96 _previousFlowRate,
         uint256 _lastUpdated,
-        bytes calldata _ctx
+        bytes calldata _ctx,
+        address pool
     ) internal virtual override returns (bytes memory /*newCtx*/) {
         // Update the supporter's information
-        return _updateSupporter(_sender, _previousFlowRate, _lastUpdated, _ctx);
+        return _updateSupporter(_sender, _previousFlowRate, _lastUpdated, _ctx, pool);
     }
 
     /**
@@ -257,7 +262,8 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         address _supporter,
         int256 _previousFlowRateOrAmount,
         uint256 _lastUpdated,
-        bytes memory _ctx
+        bytes memory _ctx,
+        address pool
     ) internal returns (bytes memory newCtx) {
         newCtx = _ctx;
         bool _isFlow = _ctx.length > 0;
@@ -288,7 +294,8 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
             supporters[_supporter].contribution,
             _isFlow ? int96(int256(_previousFlowRateOrAmount)) : int96(0),
             flowRate,
-            _isFlow
+            _isFlow,
+            pool
         );
     }
 
