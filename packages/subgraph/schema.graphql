@@ -1,38 +1,21 @@
-type account @entity {
-  " Wallet address "
-  id: String!
-  " Users role "
-  roleType: String!
-  " Optional field if the user is a steward "
-  steward: Steward
-  " Optional field if the user is a donor "
-  donor: Donor
-}
-
 type Steward @entity {
-  " { Transaction hash }{ user address} "
+  "{ user address} "
   id: String!
   " Number of actions performed "
-  actions: BigInt!
+  actions: Int!
   " NFT's minted to steward"
-  nft: [NFT!]! @derivedFrom(field: "steward")
-  "Total amount of G$ received"
-  totalAmountGDollar: BigInt!
+  nft: [ProvableNFT!]! @derivedFrom(field: "steward")
   " Collectives the steward is apart of "
-  collective: [Collective!]! @derivedFrom(field: "steward")
+  collective: [DirectPaymentPool!]! @derivedFrom(field: "steward")
 }
 
 type Donor @entity {
-  " { Transaction hash }{ user address} "
+  "{ user address} "
   id: String!
   " Date the user became a donor "
   joined: Int!
   " Total amount donated "
   totalDonated: BigInt
-  " Total collectives supported "
-  support: BigInt
-  " Collectives the donor is apart of "
-  collective: [Collective!]! @derivedFrom(field: "collective")
 }
 
 type DirectPaymentPool @entity {
@@ -45,6 +28,8 @@ type DirectPaymentPool @entity {
   manager: Bytes!
   membersValidator: Bytes!
   uniquenessValidator: String
+  collective: Donor
+  steward: Steward
   rewardToken: String!
   projectId: String!
   isVerified: Boolean!
@@ -78,6 +63,7 @@ type ProvableNFT @entity {
   id: ID!
   owner: String!
   hash: String!
+  steward: Steward
 }
 
 type EventData @entity {

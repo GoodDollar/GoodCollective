@@ -9,9 +9,9 @@ import {
   NFTClaimed,
   PoolLimitsChanged,
   PoolSettingsChanged,
-} from '../../generated/DirectPaymentsPools/DirectPaymentsPool';
+} from '../../generated/DirectPaymentsPool/DirectPaymentsPool';
 
-import { Claim, DirectPaymentPool, PoolSettings, SafetyLimits, EventData } from '../../generated/schema';
+import { Claim, DirectPaymentPool, PoolSettings, SafetyLimits, EventData, Steward } from '../../generated/schema';
 
 export function handlePoolCreated(event: PoolCreated): void {
   const poolAddress = event.params.pool;
@@ -21,31 +21,38 @@ export function handlePoolCreated(event: PoolCreated): void {
   const poolSettings = event.params.poolSettings;
   const poolLimits = event.params.poolLimits;
 
-  let directPaymentPool = DirectPaymentPool.create(poolAddress.toHexString());
-  let directPaymentPoolSettings = PoolSettings.create(poolAddress.toHexString());
-  let directPaymentPoolLimits = SafetyLimits.create(poolAddress.toHexString());
-  // Pool
-  directPaymentPool.id = event.address.toHexString();
-  directPaymentPool.ipfs = ipfsHash;
-  directPaymentPool.poolAddress = poolAddress.toHexString();
-  directPaymentPool.isVerified = false;
-  directPaymentPool.projectId = projectID.toHexString();
-  directPaymentPool.save();
+  let directPaymentPool = DirectPaymentPool.load(poolAddress.toHexString());
+  let directPaymentPoolSettings = PoolSettings.load(poolAddress.toHexString());
+  let directPaymentPoolLimits = SafetyLimits.load(poolAddress.toHexString());
+  if (directPaymentPool === null) {
+    directPaymentPool = new DirectPaymentPool(poolAddress.toHexString());
+    directPaymentPoolSettings = new PoolSettings(poolAddress.toHexString());
+    directPaymentPoolLimits = new SafetyLimits(poolAddress.toHexString());
 
-  // Pool Settings
-  directPaymentPoolSettings.id = poolAddress.toHexString();
-  directPaymentPoolSettings.nftType = nftType;
-  directPaymentPoolSettings.manager = poolSettings.manager;
-  directPaymentPoolSettings.membersValidator = poolSettings.membersValidator;
-  directPaymentPoolSettings.uniquenessValidator = poolSettings.uniquenessValidator;
-  directPaymentPoolSettings.rewardToken = poolSettings.rewardToken;
-  directPaymentPoolSettings.save();
+    // Pool
+    directPaymentPool.id = poolAddress.toHexString();
+    directPaymentPool.ipfs = ipfsHash;
+    directPaymentPool.poolAddress = poolAddress.toHexString();
+    directPaymentPool.isVerified = false;
+    directPaymentPool.projectId = projectID.toHexString();
+    directPaymentPool.timestamp = event.block.timestamp.toI32();
+    directPaymentPool.save();
 
-  //  Pool Limits
-  directPaymentPoolLimits.id = poolAddress.toHexString();
-  directPaymentPoolLimits.maxTotalPerMonth = poolLimits.maxTotalPerMonth;
-  directPaymentPoolLimits.maxMemberPerDay = poolLimits.maxMemberPerDay;
-  directPaymentPoolLimits.save();
+    // Pool Settings
+    directPaymentPoolSettings.id = poolAddress.toHexString();
+    directPaymentPoolSettings.nftType = nftType;
+    directPaymentPoolSettings.manager = poolSettings.manager;
+    directPaymentPoolSettings.membersValidator = poolSettings.membersValidator;
+    directPaymentPoolSettings.uniquenessValidator = poolSettings.uniquenessValidator;
+    directPaymentPoolSettings.rewardToken = poolSettings.rewardToken;
+    directPaymentPoolSettings.save();
+
+    //  Pool Limits
+    directPaymentPoolLimits.id = poolAddress.toHexString();
+    directPaymentPoolLimits.maxTotalPerMonth = poolLimits.maxTotalPerMonth;
+    directPaymentPoolLimits.maxMemberPerDay = poolLimits.maxMemberPerDay;
+    directPaymentPoolLimits.save();
+  }
 }
 
 export function handlePoolDetailsChanged(event: PoolDetailsChanged): void {
