@@ -19,7 +19,7 @@ contract ProvableNFT is ERC721Upgradeable, AccessControlUpgradeable, UUPSUpgrade
     bytes32 public constant MINTER_ROLE = keccak256(abi.encodePacked("MINTER"));
     bytes16 private constant _SYMBOLS = "0123456789abcdef";
 
-    event ProvableNftMinted(uint256 tokenId, address to, bytes32 nftDataHash);
+    event ProvableNftMinted(uint256 tokenId, address to, bytes32 nftDataHash, address pool);
 
     struct EventData {
         uint16 subtype;
@@ -75,11 +75,16 @@ contract ProvableNFT is ERC721Upgradeable, AccessControlUpgradeable, UUPSUpgrade
      * @param _nftDataHash The hash of the NFT's data.
      * @return tokenId ID of the newly minted NFT.
      */
-    function mint(address _to, string memory _uri, bytes32 _nftDataHash) public returns (uint256 tokenId) {
+    function mint(
+        address _to,
+        string memory _uri,
+        bytes32 _nftDataHash,
+        address pool
+    ) public returns (uint256 tokenId) {
         _onlyManager(0);
         NFTData memory nftData;
 
-        return _mint(_to, _uri, _nftDataHash, nftData, ""); //send false in calldata, assuming default receiver is a directpaymentspool. without nft data on chain it will fail.
+        return _mint(_to, _uri, _nftDataHash, nftData, "", pool); //send false in calldata, assuming default receiver is a directpaymentspool. without nft data on chain it will fail.
     }
 
     function _mint(
@@ -87,12 +92,13 @@ contract ProvableNFT is ERC721Upgradeable, AccessControlUpgradeable, UUPSUpgrade
         string memory _uri,
         bytes32 _nftDataHash,
         NFTData memory /*_nftData*/,
-        bytes memory _callData
+        bytes memory _callData,
+        address pool
     ) internal returns (uint256 tokenId) {
         tokenId = uint256(_nftDataHash);
         nftDatas[tokenId].nftUri = _uri;
         _safeMint(_to, tokenId, _callData);
-        emit ProvableNftMinted(tokenId, _to, _nftDataHash);
+        emit ProvableNftMinted(tokenId, _to, _nftDataHash, pool);
     }
 
     /**
@@ -112,7 +118,8 @@ contract ProvableNFT is ERC721Upgradeable, AccessControlUpgradeable, UUPSUpgrade
         address _to,
         NFTData memory _nftData,
         bool _withStore,
-        bytes memory _callData
+        bytes memory _callData,
+        address pool
     ) external returns (uint256 tokenId) {
         _onlyManager(_nftData.nftType);
         if (_nftData.nftType == 0) revert BAD_NFTTYPE();
@@ -128,7 +135,7 @@ contract ProvableNFT is ERC721Upgradeable, AccessControlUpgradeable, UUPSUpgrade
                 store.events.push(_nftData.events[i]);
             }
         }
-        _mint(_to, _nftData.nftUri, dataHash, _nftData, _callData);
+        _mint(_to, _nftData.nftUri, dataHash, _nftData, _callData, pool);
     }
 
     function proveNFTData(uint256 _tokenId, NFTData memory _nftData) public view returns (NFTData memory data) {

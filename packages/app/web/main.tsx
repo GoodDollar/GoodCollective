@@ -7,6 +7,7 @@ import { publicProvider } from 'wagmi/providers/public';
 import { infuraProvider } from 'wagmi/providers/infura';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 
 const { publicClient, webSocketPublicClient } = configureChains(
   [celo],
@@ -25,6 +26,11 @@ const connectors = [
   }),
 ];
 
+const apolloClient = new ApolloClient({
+  uri: 'https://api.thegraph.com/subgraphs/name/gooddollar/goodsubgraphs',
+  cache: new InMemoryCache(),
+});
+
 const config = createConfig({
   autoConnect: true,
   connectors,
@@ -35,7 +41,9 @@ const config = createConfig({
 ReactDOM.render(
   <React.StrictMode>
     <WagmiConfig config={config}>
-      <App />
+      <ApolloProvider client={apolloClient}>
+        <App />
+      </ApolloProvider>
     </WagmiConfig>
   </React.StrictMode>,
   document.getElementById('root')

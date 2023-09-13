@@ -4,6 +4,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: DirectPaymentsFactory
+    # prettier-ignore
     network: {{network}}
     source:
       address: '{{DirectPaymentsFactoryAddress}}'
@@ -29,6 +30,7 @@ dataSources:
       file: ./src/mappings/pool.ts
   - kind: ethereum/contract
     name: DirectPaymentsPool
+    # prettier-ignore
     network: {{network}}
     source:
       abi: DirectPaymentsPool
@@ -58,6 +60,7 @@ dataSources:
       file: ./src/mappings/pool.ts
   - kind: ethereum
     name: ProvableNFT
+    # prettier-ignore
     network: {{network}}
     source:
       address: '{{ProvableNFTAddress}}'
@@ -73,7 +76,7 @@ dataSources:
         - name: ProvableNFT
           file: ./abis/ProvableNFT.json
       eventHandlers:
-        - event: ProvableNftMinted(uint256,address,bytes32)
+        - event: ProvableNftMinted(uint256,address,bytes32,address)
           handler: handleNftMint
 
       file: ./src/mappings/ProvableNFT.ts

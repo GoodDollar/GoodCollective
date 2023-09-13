@@ -321,8 +321,9 @@ contract DirectPaymentsPool is
      */
 
     function _addMember(address member, bytes memory extraData) internal returns (bool isMember) {
-        if (hasRole(MEMBER_ROLE, member)) return true;
-
+        {
+            if (hasRole(MEMBER_ROLE, member)) return true;
+        }
         if (address(settings.uniquenessValidator) != address(0)) {
             address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
             if (rootAddress == address(0)) return false;
@@ -339,10 +340,18 @@ contract DirectPaymentsPool is
         return true;
     }
 
-    function mintNFT(address _to, ProvableNFT.NFTData memory _nftData, bool withClaim) external onlyRole(MINTER_ROLE) {
-        uint nftId = nft.mintPermissioned(_to, _nftData, true, "");
-        if (withClaim) {
-            claim(nftId, _nftData);
+    function mintNFT(
+        address _to,
+        ProvableNFT.NFTData memory _nftData,
+        bool withClaim,
+        address pool
+    ) external onlyRole(MINTER_ROLE) {
+        {
+            uint nftId = nft.mintPermissioned(_to, _nftData, true, "", pool);
+
+            if (withClaim) {
+                claim(nftId, _nftData);
+            }
         }
     }
 

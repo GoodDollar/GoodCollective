@@ -142,12 +142,17 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
      * @param _amount The amount of tokens being transferred
      * @return bool Returns true to indicate that the transfer was successful
      */
-    function onTokenTransfer(address _sender, uint256 _amount, bytes calldata /*_data*/) external returns (bool) {
+    function onTokenTransfer(
+        address _sender,
+        uint256 _amount,
+        bytes calldata /*_data*/,
+        address pool
+    ) external returns (bool) {
         if (msg.sender != address(superToken)) revert UNSUPPORTED_TOKEN();
         if (_amount == 0) revert ZERO_AMOUNT();
 
         // Update the contribution amount for the sender in the supporters mapping
-        _updateSupporter(_sender, int256(_amount), 0, "");
+        _updateSupporter(_sender, int256(_amount), 0, "", pool);
 
         return true;
     }
@@ -203,9 +208,9 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
     function onFlowCreated(
         ISuperToken /*superToken*/,
         address _sender,
-        bytes calldata _ctx
+        bytes calldata _ctx,
         address pool
-    ) internal virtual override returns (bytes memory /*newCtx*/) {
+    ) internal virtual returns (bytes memory /*newCtx*/) {
         // Update the supporter's information
         return _updateSupporter(_sender, 0, 0, _ctx, pool);
     }
@@ -225,7 +230,7 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         uint256 _lastUpdated,
         bytes calldata _ctx,
         address pool
-    ) internal virtual override returns (bytes memory /*newCtx*/) {
+    ) internal virtual returns (bytes memory /*newCtx*/) {
         // Update the supporter's information
         return _updateSupporter(_sender, _previousFlowRate, _lastUpdated, _ctx, pool);
     }
@@ -246,7 +251,7 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         uint256 _lastUpdated,
         bytes calldata _ctx,
         address pool
-    ) internal virtual override returns (bytes memory /*newCtx*/) {
+    ) internal virtual returns (bytes memory /*newCtx*/) {
         // Update the supporter's information
         return _updateSupporter(_sender, _previousFlowRate, _lastUpdated, _ctx, pool);
     }

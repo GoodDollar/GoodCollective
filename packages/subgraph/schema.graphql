@@ -2,7 +2,7 @@ type Steward @entity {
   "{ user address} "
   id: String!
   " Number of actions performed "
-  actions: Int!
+  actions: Int
   " NFT's minted to steward"
   nft: [ProvableNFT!]! @derivedFrom(field: "steward")
   " Collectives the steward is apart of "
@@ -38,7 +38,7 @@ type DirectPaymentPool @entity {
   claimedNfts: [String!]!
   members: [String!]!
   poolAddress: String!
-  timestamp: BigInt!
+  timestamp: Int!
 }
 
 type PoolSettings @entity {

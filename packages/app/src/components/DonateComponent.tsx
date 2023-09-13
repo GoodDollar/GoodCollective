@@ -81,11 +81,9 @@ function DonateComponent({
         setUsdValue(res * amount);
       });
     }
-    // if (currency === 'G$') {
-    //   getPrice('0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A').then((res: any) => {
-    //     setUsdValue(res * amount);
-    //   });
-    // }
+    if (currency === 'G$') {
+      setUsdValue(0.00018672442844237 * amount);
+    }
   }, [amount, currency, getPrice, usdValue, setUsdValue]);
 
   const [isDesktopResolution] = useMediaQuery({
@@ -123,14 +121,14 @@ function DonateComponent({
                   <TextInput
                     keyboardType="decimal-pad"
                     multiline={false}
-                    placeholder={'00.00'}
+                    placeholder={'0.00'}
                     style={styles.subHeading}
                     maxLength={7}
                     onChangeText={(value: any) => setAmount(value)}
                   />
                 </View>
                 <View style={styles.divider} />
-                <Text style={styles.lowerText}>0.000 USD</Text>
+                <Text style={styles.lowerText}>{usdValue} USD</Text>
               </View>
             </View>
           </View>
@@ -153,14 +151,14 @@ function DonateComponent({
                     <TextInput
                       keyboardType="decimal-pad"
                       multiline={false}
-                      placeholder={'00.00'}
+                      placeholder={'0.00'}
                       style={styles.subHeading}
                       maxLength={7}
                       onChangeText={(value: any) => setAmount(value)}
                     />
                   </View>
                   <View style={styles.divider} />
-                  <Text style={styles.lowerText}>0.000 USD</Text>
+                  <Text style={styles.lowerText}>{usdValue} USD</Text>
                 </View>
               </View>
             </View>
@@ -260,7 +258,7 @@ function DonateComponent({
                   <Text style={[styles.subHeading, { textAlign: 'right' }]}>
                     {currency} <Text style={styles.headerLabel}>{amount}</Text>
                   </Text>
-                  <Text style={styles.descriptionLabel}>~1,000,000 USD</Text>
+                  <Text style={styles.descriptionLabel}>{usdValue} USD</Text>
                 </View>
               </View>
 
@@ -281,7 +279,7 @@ function DonateComponent({
                       <Text style={[styles.subHeading, { textAlign: 'right' }]}>
                         {currency} <Text style={styles.headerLabel}>{getTotalAmount(duration, amount)}</Text>
                       </Text>
-                      <Text style={styles.descriptionLabel}>~1,000,000 USD</Text>
+                      <Text style={styles.descriptionLabel}>{usdValue} USD</Text>
                     </View>
                   </View>
                 </View>

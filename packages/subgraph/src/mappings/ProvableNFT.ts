@@ -7,13 +7,12 @@ export function handleNftMint(event: ProvableNftMinted): void {
   const nftHash = event.params.nftDataHash.toHexString();
 
   let provableNFT = ProvableNFT.load(tokenID);
-  let steward = Steward.load(to);
+  let steward = Steward.load(to + event.params.pool.toHexString());
   if (provableNFT === null) {
     provableNFT = new ProvableNFT(tokenID);
-    steward = new Steward(to);
-    steward.actions = steward.actions.plus(1);
+    steward = new Steward(to + event.params.pool.toHexString());
     provableNFT.id = tokenID;
-    provableNFT.steward = to;
+    provableNFT.steward = to + event.params.pool.toHexString();
     provableNFT.owner = provableNFT.hash = nftHash;
     provableNFT.save();
   }
