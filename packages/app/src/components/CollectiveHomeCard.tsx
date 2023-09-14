@@ -9,9 +9,10 @@ interface CollectiveHomeCardProps {
   imageUrl?: string;
   title: string;
   description: string;
+  route: any;
 }
 
-function CollectiveHomeCard({ title, description, imageUrl }: CollectiveHomeCardProps) {
+function CollectiveHomeCard({ title, description, imageUrl, route }: CollectiveHomeCardProps) {
   const { navigate } = useCrossNavigate();
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
@@ -20,7 +21,7 @@ function CollectiveHomeCard({ title, description, imageUrl }: CollectiveHomeCard
   return (
     <TouchableOpacity
       style={[styles.cardContainer, styles.elevation, isDesktopResolution ? styles.cardContainerMobile : {}]}
-      onPress={() => navigate('/collective/123')}>
+      onPress={() => navigate(`/collective/${route}`)}>
       <Image source={{ uri: imageUrl }} style={styles.sectionImage} />
       <View style={styles.cardDescriptionContainer}>
         <Text style={styles.cardTitle}>{title}</Text>

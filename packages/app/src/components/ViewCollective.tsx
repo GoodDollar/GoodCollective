@@ -17,18 +17,20 @@ import ThankYouModal from './ThankYouModal';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import Breadcrumb from './Breadcrumb';
+import { formatTime } from '../hooks/functions/formatTime';
 
 interface ViewCollectiveProps {
-  imageUrl?: string;
-  title?: string;
+  imageUrl?: any;
+  title?: any;
   description?: string;
-  stewardsDesc?: string;
-  creationDate?: string;
-  stewardsPaid?: number;
-  paymentsMade?: number;
-  donationsReceived?: number;
-  totalPaidOut?: number;
-  currentPool?: number;
+  stewardsDesc?: any;
+  creationDate?: any;
+  stewardsPaid?: any;
+  paymentsMade?: any;
+  donationsReceived?: any;
+  totalPaidOut?: any;
+  currentPool?: any;
+  route?: any;
 
   stewards?: {};
   recentTransactions?: {};
@@ -49,6 +51,7 @@ function ViewCollective({
   stewards,
   recentTransactions,
   isDonating,
+  route,
 }: ViewCollectiveProps) {
   const [stopDonationModal, setStopDonationModal] = useState(false);
   const [donateModal, setDonateModal] = useState(false);
@@ -69,11 +72,11 @@ function ViewCollective({
           fontSize={18}
           seeType={true}
           onPress={() => {
-            navigate('/collective/123/donors');
+            navigate(`/collective/${route}/donors`);
           }}
         />
       ),
-    [navigate, isDesktopResolution]
+    [navigate, isDesktopResolution, route]
   )();
 
   if (isDesktopResolution) {
@@ -149,7 +152,7 @@ function ViewCollective({
                       fontSize={18}
                       seeType={false}
                       onPress={() => {
-                        setDonateModal(true);
+                        navigate(`/donate/${route}`);
                       }}
                     />
                     {renderDonorsButton}
@@ -160,32 +163,61 @@ function ViewCollective({
 
             <View style={styles.collectiveDesktopTimeline}>
               <View style={{ flex: 1 }}>
-                <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={creationDate} />
-                <RowItem imageUrl={StewardGreenIcon} rowInfo="Stewards Paid" rowData={stewardsPaid} />
-                <RowItem imageUrl={GreenListIcon} rowInfo="# of Payments Made" rowData={paymentsMade} currency="" />
+                <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(creationDate as any)} />
+                <RowItem
+                  imageUrl={StewardGreenIcon}
+                  rowInfo="Stewards Paid"
+                  rowData={stewardsPaid?.length ? stewardsPaid : 0}
+                />
+
+                <RowItem
+                  imageUrl={GreenListIcon}
+                  rowInfo="# of Payments Made"
+                  rowData={paymentsMade?.length ? paymentsMade : 0}
+                  currency=""
+                />
               </View>
               <View style={{ flex: 1 }}>
-                <RowItem
-                  imageUrl={ReceiveLightIcon}
-                  rowInfo="Total Donations Received"
-                  rowData={donationsReceived}
-                  currency="G$"
-                  balance={4807487}
-                />
-                <RowItem
-                  imageUrl={SendIcon}
-                  rowInfo="Total Paid Out"
-                  rowData={totalPaidOut}
-                  currency="G$"
-                  balance={5188754}
-                />
-                <RowItem
-                  imageUrl={SquaresIcon}
-                  rowInfo="Current Pool"
-                  rowData={currentPool}
-                  currency="G$"
-                  balance={1500}
-                />
+                {donationsReceived ? (
+                  <RowItem
+                    imageUrl={ReceiveLightIcon}
+                    rowInfo="Total Donations Received"
+                    rowData={donationsReceived}
+                    currency="G$"
+                    balance={0.00018672442844237 * donationsReceived}
+                  />
+                ) : (
+                  <RowItem
+                    imageUrl={ReceiveLightIcon}
+                    rowInfo="Total Donations Received"
+                    rowData={0}
+                    currency="G$"
+                    balance={0}
+                  />
+                )}
+
+                {totalPaidOut.length ? (
+                  <RowItem
+                    imageUrl={SendIcon}
+                    rowInfo="Total Paid Out"
+                    rowData={totalPaidOut}
+                    currency="G$"
+                    balance={0.00018672442844237 * totalPaidOut}
+                  />
+                ) : (
+                  <RowItem imageUrl={SendIcon} rowInfo="Total Paid Out" rowData={0} currency="G$" balance={0} />
+                )}
+                {currentPool.length ? (
+                  <RowItem
+                    imageUrl={SquaresIcon}
+                    rowInfo="Current Pool"
+                    rowData={currentPool}
+                    currency="G$"
+                    balance={0.00018672442844237 * currentPool}
+                  />
+                ) : (
+                  <RowItem imageUrl={SquaresIcon} rowInfo="Current Pool" rowData={0} currency="G$" balance={0} />
+                )}
               </View>
             </View>
           </View>
@@ -219,7 +251,7 @@ function ViewCollective({
             </View>
           </View>
           <StopDonationModal openModal={stopDonationModal} setOpenModal={setStopDonationModal} />
-          <ThankYouModal openModal={donateModal} setOpenModal={setDonateModal} />
+          {/* <ThankYouModal openModal={donateModal} setOpenModal={setDonateModal} /> */}
         </View>
       </>
     );
@@ -258,24 +290,44 @@ function ViewCollective({
         </View>
 
         <View style={styles.rowContainer}>
-          <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={creationDate} />
-          <RowItem imageUrl={StewardGreenIcon} rowInfo="Stewards Paid" rowData={stewardsPaid} />
-          <RowItem imageUrl={GreenListIcon} rowInfo="# of Payments Made" rowData={paymentsMade} currency="" />
+          <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(creationDate as any)} />
+          <RowItem
+            imageUrl={StewardGreenIcon}
+            rowInfo="Stewards Paid"
+            rowData={stewardsPaid?.length ? stewardsPaid : 0}
+            currency="G$"
+            balance={stewardsPaid?.length ? 0.00018672442844237 * stewardsPaid : 0}
+          />
+          <RowItem
+            imageUrl={GreenListIcon}
+            rowInfo="# of Payments Made"
+            rowData={paymentsMade?.length ? paymentsMade : 0}
+            currency=""
+          />
           <RowItem
             imageUrl={ReceiveLightIcon}
             rowInfo="Total Donations Received"
-            rowData={donationsReceived}
+            rowData={donationsReceived?.length ? donationsReceived : 0}
             currency="G$"
-            balance={4807487}
+            balance={donationsReceived?.length ? 0.00018672442844237 * donationsReceived : 0}
           />
           <RowItem
             imageUrl={SendIcon}
             rowInfo="Total Paid Out"
-            rowData={totalPaidOut}
+            rowData={totalPaidOut?.length ? totalPaidOut : 0}
             currency="G$"
-            balance={5188754}
+            balance={totalPaidOut?.length ? 0.00018672442844237 * totalPaidOut : 0}
           />
-          <RowItem imageUrl={SquaresIcon} rowInfo="Current Pool" rowData={currentPool} currency="G$" balance={1500} />
+          <RowItem
+            imageUrl={SquaresIcon}
+            rowInfo="Current Pool"
+            rowData={currentPool?.length ? currentPool : 0}
+            currency="G$"
+            balance={currentPool?.length ? 0.00018672442844237 * currentPool : 0}
+          />
+          In this code, we're checking if each of the values (donationsReceived, totalPaidOut, and currentPool) is
+          truthy (not null or undefined) before rendering the corresponding section. If the value is truthy, it will use
+          the actual value; otherwise, it will use 0 as the default value.
         </View>
 
         {isDonating ? (
@@ -307,8 +359,7 @@ function ViewCollective({
               fontSize={18}
               seeType={false}
               onPress={() => {
-                setDonateModal(true);
-                console.log(donateModal);
+                navigate(`/donate/${route}`);
               }}
             />
             {renderDonorsButton}
