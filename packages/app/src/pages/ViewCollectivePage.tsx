@@ -17,7 +17,6 @@ function ViewCollectivePage() {
     const t: any = [];
     Promise.all(
       request.map((e: any) => {
-        console.log(e.ipfs);
         return axios.get(`https://gateway.pinata.cloud/ipfs/${e.ipfs}`).then(async (res) => {
           t.push({
             name: res.data?.name,
@@ -35,7 +34,6 @@ function ViewCollectivePage() {
     });
   }, [request]);
 
-  console.log(subData);
   return (
     <Layout>
       <>

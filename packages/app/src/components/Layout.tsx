@@ -13,7 +13,7 @@ interface LayoutProps {
 
 function Layout({ children }: LayoutProps) {
   const windowDimensions = useWindowDimensions();
-  const scrollViewHeight = windowDimensions.height - 90;
+  const scrollViewHeight = windowDimensions.height - 100;
   const { address } = useAccount();
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,

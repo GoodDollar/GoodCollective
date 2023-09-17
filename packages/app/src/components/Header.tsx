@@ -6,7 +6,7 @@ import { InterRegular } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
 import { useMediaQuery } from 'native-base';
 import { useAccount, useConnect, useNetwork, useDisconnect } from 'wagmi';
-import { fetchBalance, fetchEnsName } from '@wagmi/core';
+import { fetchBalance, fetchEnsName } from 'wagmi/actions';
 import { formatAmount } from '../hooks/functions/formatAmount';
 import displayAddress from '../hooks/functions/displayAddress';
 
@@ -24,7 +24,6 @@ function Header(): JSX.Element {
   const { connect, connectors, isLoading, pendingConnector } = useConnect();
   const { chain } = useNetwork();
   const { disconnect } = useDisconnect();
-
   const { address } = useAccount();
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
@@ -37,13 +36,11 @@ function Header(): JSX.Element {
 
   React.useMemo(() => {
     if (!address) return;
-    console.log('hit');
     fetchBalance({
-      addressOrName: address,
+      address: address,
       chainId: chain?.id,
       token: '0x471EcE3750Da237f93B8E339c536989b8978a438',
     }).then((res) => {
-      console.log(res);
       setTokenBalance(res.formatted);
     });
   }, [address, chain?.id]);
@@ -90,6 +87,7 @@ function Header(): JSX.Element {
                       justifyContent: 'space-between',
                     }}>
                     <Text style={styles.amountText}>{formatAmount(tokenBalance as any)}</Text>
+
                     <View style={styles.walletConnected}>
                       {/* <Image
                         source={{ uri: placeholderAvatarUri }}

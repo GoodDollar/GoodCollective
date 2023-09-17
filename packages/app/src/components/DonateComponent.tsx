@@ -12,7 +12,7 @@ import { Link, useMediaQuery } from 'native-base';
 import Dropdown from './Dropdown';
 import { getButtonBGC, getButtonText, getButtonTextColor, getFrequencyTime, getTotalAmount } from '../utils';
 import { useGetTokenPrice } from '../hooks/useGetTokenPrice';
-
+import { useContractCalls } from '../hooks/useContractCalls';
 interface DonateComponentProps {
   walletConected: boolean;
   insufficientLiquidity: boolean;
@@ -56,6 +56,7 @@ function DonateComponent({
   const [amount, setAmount] = useState(0);
   const [usdValue, setUsdValue] = useState<number>();
   const { getPrice } = useGetTokenPrice();
+  const { supportFlowWithSwap } = useContractCalls();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const tokenMapping = {
@@ -389,7 +390,7 @@ function DonateComponent({
             color={getButtonTextColor(insufficientLiquidity, priceImpace, insufficientBalance)}
             fontSize={18}
             seeType={false}
-            onPress={() => console.log('flow being created')}
+            onPress={() => supportFlowWithSwap()}
           />
         </TouchableOpacity>
       </View>

@@ -62,9 +62,13 @@ function HomePage() {
           ) : (
             // Render the data when it's available
             subData?.map((t: any, index: number) => (
-              <div key={index}>
-                <CollectiveHomeCard route={t.id} title={t.name} description={t.description} imageUrl={oceanUri} />
-              </div>
+              <CollectiveHomeCard
+                key={index}
+                route={t.id}
+                title={t.name}
+                description={t.description}
+                imageUrl={oceanUri}
+              />
             ))
           )}
         </View>

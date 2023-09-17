@@ -31,17 +31,17 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import { Colors } from './utils/colors';
 
 function App(): JSX.Element {
-  const { chains, publicClient, webSocketPublicClient } = configureChains(
+  const { publicClient, webSocketPublicClient } = configureChains(
     [celo],
     [infuraProvider({ apiKey: '88284fbbacd3472ca3361d1317a48fa5' }), publicProvider()]
   );
 
   const connectors = [
     new MetaMaskConnector({
-      chains: chains,
+      chains: [celo],
     }),
     new WalletConnectConnector({
-      chains: chains,
+      chains: [celo],
       options: {
         projectId: 'f147afbc9ad50465eaedd3f56ad2ae87',
       },
@@ -53,7 +53,7 @@ function App(): JSX.Element {
     cache: new InMemoryCache(),
   });
 
-  const config = createConfig({
+  const wagmiConfig = createConfig({
     autoConnect: true,
     connectors,
     publicClient,
@@ -61,7 +61,7 @@ function App(): JSX.Element {
   });
   return (
     <NativeBaseProvider>
-      <WagmiConfig config={config}>
+      <WagmiConfig config={wagmiConfig}>
         <ApolloProvider client={apolloClient}>
           <SafeAreaView style={styles.body}>
             {Platform.OS !== 'web' && (
