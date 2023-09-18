@@ -21,31 +21,26 @@ type Donor @entity {
 type DirectPaymentPool @entity {
   "This is the address source"
   id: String!
-  ipfs: String!
-  nftType: BigInt!
-  validEvents: [Int!]!
-  rewardPerEvent: [Int!]!
-  manager: Bytes!
-  membersValidator: Bytes!
+  ipfs: String
+  nftType: BigInt
+  manager: Bytes
+  contributions: BigInt
+  membersValidator: Bytes
   uniquenessValidator: String
   collective: Donor
   steward: Steward
-  rewardToken: String!
-  projectId: String!
-  isVerified: Boolean!
-  limits: SafetyLimits!
-  nft: ProvableNFT!
-  claimedNfts: [String!]!
-  members: [String!]!
-  poolAddress: String!
-  timestamp: Int!
+  rewardToken: String
+  projectId: String
+  isVerified: Boolean
+  limits: SafetyLimits
+  nft: ProvableNFT
+  poolAddress: String
+  timestamp: Int
 }
 
 type PoolSettings @entity {
   id: String!
   nftType: BigInt!
-  validEvents: [Int!]!
-  rewardPerEvent: [Int!]!
   manager: Bytes!
   membersValidator: Bytes!
   uniquenessValidator: Bytes!
@@ -54,9 +49,9 @@ type PoolSettings @entity {
 
 type SafetyLimits @entity {
   id: String!
-  maxTotalPerMonth: BigInt!
-  maxMemberPerMonth: BigInt!
-  maxMemberPerDay: BigInt!
+  maxTotalPerMonth: BigInt
+  maxMemberPerMonth: BigInt
+  maxMemberPerDay: BigInt
 }
 
 type ProvableNFT @entity {

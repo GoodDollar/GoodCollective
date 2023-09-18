@@ -9,7 +9,7 @@ dataSources:
     source:
       address: '{{DirectPaymentsFactoryAddress}}'
       abi: DirectPaymentsFactory
-      startBlock: 19375523
+      startBlock: 20920303
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -34,7 +34,7 @@ dataSources:
     network: {{network}}
     source:
       abi: DirectPaymentsPool
-      startBlock: 19375523
+      startBlock: 20920303
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -43,6 +43,7 @@ dataSources:
         - DirectPaymentPool
         - SafetyLimits
         - PoolSettings
+        
         - Claim
       abis:
         - name: DirectPaymentsPool
@@ -65,7 +66,7 @@ dataSources:
     source:
       address: '{{ProvableNFTAddress}}'
       abi: ProvableNFT
-      startBlock: 19375523
+      startBlock: 20920303
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -80,3 +81,25 @@ dataSources:
           handler: handleNftMint
 
       file: ./src/mappings/ProvableNFT.ts
+  - kind: ethereum
+    name: SuperApp
+    # prettier-ignore
+    network: {{network}}
+    source:
+      abi: GoodCollectiveSuperApp
+      startBlock: 20920303
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Donor
+        - DirectPaymentPool
+      abis:
+        - name: GoodCollectiveSuperApp
+          file: ./abis/DirectPaymentsPool.json
+      eventHandlers:
+        - event: SupporterUpdated(indexed address,uint256,uint256,int96,int96,bool,address)
+          handler: handleSupport
+
+      file: ./src/mappings/superApp.ts

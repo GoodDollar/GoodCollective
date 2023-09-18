@@ -35,6 +35,7 @@ export function handlePoolCreated(event: PoolCreated): void {
     directPaymentPool.poolAddress = poolAddress.toHexString();
     directPaymentPool.isVerified = false;
     directPaymentPool.projectId = projectID.toHexString();
+    directPaymentPool.manager = event.address;
     directPaymentPool.timestamp = event.block.timestamp.toI32();
     directPaymentPool.save();
 
@@ -90,10 +91,6 @@ export function handlePoolSettingsChange(event: PoolSettingsChanged): void {
   }
   if (!poolSettings.nftType) {
     directPaymentPoolSettings.nftType = poolSettings.nftType;
-    directPaymentPoolSettings.save();
-  }
-  if (poolSettings.validEvents != null) {
-    directPaymentPoolSettings.validEvents = poolSettings.validEvents;
     directPaymentPoolSettings.save();
   }
   if (!poolSettings.manager) {
