@@ -4,6 +4,7 @@ import 'hardhat-abi-exporter';
 import 'hardhat-contract-sizer';
 import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-deploy';
+import 'hardhat-celo';
 import { HardhatUserConfig } from 'hardhat/config';
 
 dotenv.config();
@@ -52,7 +53,7 @@ const config: HardhatUserConfig = {
       url: `https://alfajores-forno.celo-testnet.org`,
       gasPrice: 5000000000,
       accounts: {
-        mnemonic: 'kale',
+        mnemonic,
       },
       verify: {
         etherscan: {
@@ -66,7 +67,13 @@ const config: HardhatUserConfig = {
       url: `https://forno.celo.org`,
       gasPrice: 5000000000,
       accounts: {
-        mnemonic: 'kale',
+        mnemonic,
+      },
+      verify: {
+        etherscan: {
+          apiKey: process.env.CELOSCAN_KEY,
+          apiUrl: 'https://api.celoscan.io/',
+        },
       },
     },
   },
@@ -89,7 +96,6 @@ const config: HardhatUserConfig = {
       {
         version: '0.8.19',
         settings: {
-          // viaIR: true,
           optimizer: {
             enabled: true,
             runs: 0,
