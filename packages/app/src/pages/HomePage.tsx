@@ -72,7 +72,10 @@ function HomePage() {
             ))
           )}
         </View>
-        <Link href="https://gooddollar.typeform.com/creategood" isExternal style={[styles.buttonContainer]}>
+        <Link
+          href="https://gooddollar.typeform.com/creategood"
+          isExternal
+          style={[styles.buttonContainer, isDesktopResolution && styles.buttonDesktopContainer]}>
           <TouchableOpacity style={[styles.button, isDesktopResolution ? styles.buttonDesktop : {}]}>
             <Text style={styles.buttonText}>Create a GoodCollective</Text>
             <Image source={{ uri: ForwardIconUri }} resizeMode="contain" style={styles.forwardIcon} />
@@ -88,6 +91,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 20,
     paddingBottom: 20,
+    minHeight: 'auto',
   },
   sectionContainer: {
     marginBottom: 20,
@@ -105,6 +109,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     margin: 20,
+  },
+  buttonDesktopContainer: {
+    flex: 0,
   },
   highlight: {
     fontWeight: '700',
