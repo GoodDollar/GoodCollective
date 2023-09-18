@@ -2,15 +2,9 @@
   "name": "@gooddollar/goodcollective-sdk",
   "license": "MIT",
   "version": "1.0.6",
-  "main": "./dist/sdk.umd.cjs",
-  "module": "./dist/sdk.js",
+  "main": "./dist/sdk.js",
+  "module": "./dist/sdk.mjs",
   "types": "./types/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/sdk.js",
-      "require": "./dist/sdk.umd.cjs"
-    }
-  },
   "scripts": {
     "build": "rm -fr dist types && tsc && vite build",
     "test:setup": "yarn exec ./scripts/deployContracts.sh",
