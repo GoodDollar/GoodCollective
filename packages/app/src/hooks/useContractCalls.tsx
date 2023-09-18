@@ -12,7 +12,8 @@ export const useContractCalls = () => {
   const supportFlow = async () => {};
   const supportFlowWithSwap = async () => {
     console.log('hit');
-    const sdk = new GoodCollectiveSDK('31337', publicClient, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9');
+
+    const sdk = new GoodCollectiveSDK('42220', publicClient, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9');
     if (!address) return;
     await sdk.supportFlowWithSwap(
       walletClient?.signTransaction as any,

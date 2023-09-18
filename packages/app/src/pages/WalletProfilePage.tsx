@@ -31,8 +31,6 @@ function WalletProfilePage() {
     <Layout>
       <>
         {isLoading ? (
-          <p>Loading....</p>
-        ) : (
           subData?.map((t: any, index: number) => (
             <WalletProfile
               key={index}
@@ -48,6 +46,19 @@ function WalletProfilePage() {
               type={WalletProfileTypes.both}
             />
           ))
+        ) : (
+          <WalletProfile
+            imageUrl={FruitDoveUri}
+            firstName={'John'}
+            lastName={'Doe'}
+            actionsPerformed={0}
+            amountReceived={704000}
+            collectivesTotal={2}
+            creationDate={'January 24, 2023'}
+            amountDonated={0}
+            peopleSupported={0}
+            type={WalletProfileTypes.empty}
+          />
         )}
       </>
     </Layout>
