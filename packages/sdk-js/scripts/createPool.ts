@@ -24,7 +24,7 @@ const main = async () => {
     manager: wallet.address,
     membersValidator: ethers.constants.AddressZero,
     uniquenessValidator: ethers.constants.AddressZero,
-    rewardToken: '0x03d3daB843e6c03b3d271eff9178e6A96c28D25f',
+    rewardToken: '0xFa51eFDc0910CCdA91732e6806912Fa12e2FD475', //celo dev token
   };
 
   const poolLimits = {
