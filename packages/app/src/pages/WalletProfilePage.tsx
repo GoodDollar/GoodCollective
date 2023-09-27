@@ -26,11 +26,11 @@ function WalletProfilePage() {
       setIsLoading(false);
     });
   }, [donors]);
-
+  console.log(isLoading);
   return (
     <Layout>
       <>
-        {isLoading ? (
+        {donors?.length <= 0 ? (
           subData?.map((t: any, index: number) => (
             <WalletProfile
               key={index}
