@@ -6,14 +6,14 @@ import {
   DirectPaymentsPool,
 } from '@gooddollar/goodcollective-contracts/typechain-types';
 import { Framework } from '@superfluid-finance/sdk-core';
-import { SwapLibrary } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/GoodCollective/GoodCollectiveSuperApp';
+import { HelperLibrary } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/GoodCollective/GoodCollectiveSuperApp';
 import { NFTStorage, File, CIDString } from 'nft.storage';
 
 export type NFTData = ProvableNFT.NFTDataStruct;
 export type EventData = ProvableNFT.EventDataStruct;
 export type PoolSettings = Omit<DirectPaymentsPool.PoolSettingsStruct, 'nftType'> & { nftType?: BigNumberish };
 export type PoolLimits = DirectPaymentsPool.SafetyLimitsStruct;
-export type SwapData = SwapLibrary.SwapDataStruct;
+export type SwapData = HelperLibrary.SwapDataStruct;
 export type PoolAttributes = {
   name: string;
   description: string;
