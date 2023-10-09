@@ -11,12 +11,16 @@ const wallet = new ethers.Wallet(process.env.PRIVATE_KEY || '').connect(provider
 const sdk = new GoodCollectiveSDK('42220', provider, { nftStorageKey: process.env.VITE_NFTSTORAGE_KEY });
 
 const main = async () => {
-  const projectId = 'your project id';
+  const projectId = 'silvi';
   const poolAttributes = {
-    name: 'pool name',
-    description: 'pool description',
-    email: 'contact@email.com',
-    twitter: '@handle',
+    name: 'Silvi - Kakamega Farmer Tree Nurseries',
+    description:
+      'This Collective directly supports smallholder farmers around Kenya’s Kakamega forest. These farmers are acting as nurseries, growing and nurturing native trees to maturity for subsequent reforestation. In partnership with Silvi.',
+    email: '',
+    website: 'https://www.silvi.earth',
+    twitter: 'https://twitter.com/SilviProtocol',
+    instagram: '',
+    threads: '',
   };
   const poolSettings = {
     validEvents: [1, 2],
@@ -25,6 +29,7 @@ const main = async () => {
     membersValidator: ethers.constants.AddressZero,
     uniquenessValidator: ethers.constants.AddressZero,
     rewardToken: '0xFa51eFDc0910CCdA91732e6806912Fa12e2FD475', //celo dev token
+    allowRewardOverride: false,
   };
 
   const poolLimits = {

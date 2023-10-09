@@ -53,7 +53,7 @@ const config: HardhatUserConfig = {
       url: `https://alfajores-forno.celo-testnet.org`,
       gasPrice: 5000000000,
       accounts: {
-        mnemonic: mnemonic,
+        mnemonic,
       },
       verify: {
         etherscan: {
@@ -67,7 +67,7 @@ const config: HardhatUserConfig = {
       url: `https://forno.celo.org`,
       gasPrice: 5000000000,
       accounts: {
-        mnemonic: mnemonic,
+        mnemonic,
       },
       verify: {
         etherscan: {

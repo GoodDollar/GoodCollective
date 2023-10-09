@@ -4,8 +4,14 @@ pragma solidity >=0.8.0;
 
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import { ISuperToken } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
+import { SuperTokenV1Library } from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperTokenV1Library.sol";
 
-library SwapLibrary {
+import "../GoodCollective/IGoodCollectiveSuperApp.sol";
+
+library HelperLibrary {
+    using SuperTokenV1Library for ISuperToken;
+
     /**
      * @dev A struct containing information about a token swap
      * @param swapFrom The address of the token being swapped
@@ -27,7 +33,7 @@ library SwapLibrary {
         SwapData memory _customData,
         address outTokenIfNoPath,
         address _sender
-    ) internal {
+    ) external {
         // Transfer the tokens from the sender to this contract
         TransferHelper.safeTransferFrom(_customData.swapFrom, _sender, address(this), _customData.amount);
 
@@ -60,5 +66,18 @@ library SwapLibrary {
             // Execute the swap using `exactInputSingle`
             swapRouter.exactInputSingle(params);
         }
+    }
+
+    function getRealtimeStats(
+        IGoodCollectiveSuperApp.Stats memory stats,
+        ISuperToken superToken
+    ) external view returns (uint256 netIncome, uint256 totalFees, int96 incomeFlowRate, int96 feeRate) {
+        incomeFlowRate = stats.lastIncomeRate;
+        netIncome = stats.netIncome + uint96(stats.lastIncomeRate) * (block.timestamp - stats.lastUpdate);
+        feeRate = superToken.getFlowRate(address(this), stats.lastFeeRecipient);
+        totalFees =
+            stats.totalFees +
+            uint96(superToken.getFlowRate(address(this), stats.lastFeeRecipient)) *
+            (block.timestamp - stats.lastUpdate);
     }
 }
