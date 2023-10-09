@@ -84,6 +84,7 @@ contract DirectPaymentsPool is
         IMembersValidator membersValidator;
         IIdentityV2 uniquenessValidator;
         IERC20Upgradeable rewardToken;
+        bool allowRewardOverride;
     }
 
     struct SafetyLimits {
@@ -186,13 +187,18 @@ contract DirectPaymentsPool is
         uint totalRewards;
         uint rewardsBalance = settings.rewardToken.balanceOf(address(this));
 
+        bool allowRewardOverride = settings.allowRewardOverride;
         for (uint256 i = 0; i < _data.events.length; i++) {
-            uint128 reward = _eventReward(_data.events[i].subtype);
+            uint reward = (
+                allowRewardOverride && _data.events[i].rewardOverride > 0
+                    ? _data.events[i].rewardOverride
+                    : _eventReward(_data.events[i].subtype)
+            ) * _data.events[i].quantity;
             if (reward > 0) {
-                totalRewards += reward * _data.events[i].quantity;
+                totalRewards += reward;
                 if (totalRewards > rewardsBalance) revert NO_BALANCE();
                 rewardsBalance -= totalRewards;
-                _sendReward(_data.events[i].contributers, uint128(reward * _data.events[i].quantity));
+                _sendReward(_data.events[i].contributers, uint128(reward));
                 emit EventRewardClaimed(
                     _nftId,
                     _data.events[i].subtype,

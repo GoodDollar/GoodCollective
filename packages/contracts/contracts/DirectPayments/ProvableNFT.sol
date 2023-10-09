@@ -27,6 +27,7 @@ contract ProvableNFT is ERC721Upgradeable, AccessControlUpgradeable, UUPSUpgrade
         uint256 quantity;
         string eventUri; //extra data related to event
         address[] contributers;
+        uint128 rewardOverride; //override reward defined per 1 quantity of event, pool will use this instead of its own reward if allowRewardOverride is true
     }
 
     struct NFTData {

@@ -17,8 +17,11 @@ export type SwapData = SwapLibrary.SwapDataStruct;
 export type PoolAttributes = {
   name: string;
   description: string;
-  twitter: string;
-  email: string;
+  twitter?: string;
+  email?: string;
+  instagram?: string;
+  threads?: string;
+  website?: string;
 };
 export type SDKOptions = {
   network?: string;

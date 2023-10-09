@@ -12,7 +12,7 @@ import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
 import "../DirectPayments/DirectPaymentsFactory.sol";
-import "../utils/SwapLibrary.sol";
+import "../utils/HelperLibrary.sol";
 
 // import "hardhat/console.sol";
 
@@ -59,14 +59,6 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         uint128 lastUpdated;
     }
 
-    struct Stats {
-        uint256 netIncome; //without fees
-        uint256 totalFees;
-        uint256 lastUpdate;
-        address lastFeeRecipient;
-        int96 lastIncomeRate;
-    }
-
     ISuperToken public superToken;
 
     mapping(address => SupporterData) public supporters;
@@ -74,7 +66,7 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
     //initialize cfaV1 variable
     CFAv1Library.InitData public cfaV1;
 
-    Stats public stats;
+    IGoodCollectiveSuperApp.Stats public stats;
 
     uint256[48] private _reserved;
 
@@ -126,13 +118,7 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         view
         returns (uint256 netIncome, uint256 totalFees, int96 incomeFlowRate, int96 feeRate)
     {
-        incomeFlowRate = stats.lastIncomeRate;
-        netIncome = stats.netIncome + uint96(stats.lastIncomeRate) * (block.timestamp - stats.lastUpdate);
-        feeRate = superToken.getFlowRate(address(this), stats.lastFeeRecipient);
-        totalFees =
-            stats.totalFees +
-            uint96(superToken.getFlowRate(address(this), stats.lastFeeRecipient)) *
-            (block.timestamp - stats.lastUpdate);
+        return HelperLibrary.getRealtimeStats(stats, superToken);
     }
 
     /**
@@ -182,11 +168,11 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
      * @return Returns the context of the transaction
      */
     function handleSwap(
-        SwapLibrary.SwapData memory _customData,
+        HelperLibrary.SwapData memory _customData,
         address _sender,
         bytes memory _ctx
     ) external onlyHostOrSender(_sender) returns (bytes memory) {
-        SwapLibrary.handleSwap(swapRouter, _customData, address(superToken), _sender);
+        HelperLibrary.handleSwap(swapRouter, _customData, address(superToken), _sender);
 
         // Return the context of the transaction
         return _ctx;
