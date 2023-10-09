@@ -6406,8 +6406,1842 @@
       "name": "celo",
       "chainId": "42220",
       "contracts": {
+        "DirectPaymentsFactory": {
+          "address": "0x58b5E37c5aFad520dD93E92A5D11B8721A9115F0",
+          "abi": [
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "previousAdmin",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "newAdmin",
+                  "type": "address"
+                }
+              ],
+              "name": "AdminChanged",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "beacon",
+                  "type": "address"
+                }
+              ],
+              "name": "BeaconUpgraded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "implementation",
+                  "type": "address"
+                }
+              ],
+              "name": "Upgraded",
+              "type": "event"
+            },
+            {
+              "stateMutability": "payable",
+              "type": "fallback"
+            },
+            {
+              "stateMutability": "payable",
+              "type": "receive"
+            },
+            {
+              "inputs": [],
+              "name": "NOT_PROJECT_OWNER",
+              "type": "error"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "pool",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "string",
+                  "name": "projectId",
+                  "type": "string"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "string",
+                  "name": "ipfs",
+                  "type": "string"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "uint32",
+                  "name": "nftType",
+                  "type": "uint32"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint32",
+                      "name": "nftType",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint16[]",
+                      "name": "validEvents",
+                      "type": "uint16[]"
+                    },
+                    {
+                      "internalType": "uint128[]",
+                      "name": "rewardPerEvent",
+                      "type": "uint128[]"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "manager",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IMembersValidator",
+                      "name": "membersValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IIdentityV2",
+                      "name": "uniquenessValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IERC20Upgradeable",
+                      "name": "rewardToken",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "allowRewardOverride",
+                      "type": "bool"
+                    }
+                  ],
+                  "indexed": false,
+                  "internalType": "struct DirectPaymentsPool.PoolSettings",
+                  "name": "poolSettings",
+                  "type": "tuple"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "maxTotalPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerDay",
+                      "type": "uint256"
+                    }
+                  ],
+                  "indexed": false,
+                  "internalType": "struct DirectPaymentsPool.SafetyLimits",
+                  "name": "poolLimits",
+                  "type": "tuple"
+                }
+              ],
+              "name": "PoolCreated",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "pool",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "string",
+                  "name": "ipfs",
+                  "type": "string"
+                }
+              ],
+              "name": "PoolDetailsChanged",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "pool",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "isVerified",
+                  "type": "bool"
+                }
+              ],
+              "name": "PoolVerifiedChanged",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "previousAdminRole",
+                  "type": "bytes32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "newAdminRole",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "RoleAdminChanged",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "sender",
+                  "type": "address"
+                }
+              ],
+              "name": "RoleGranted",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "sender",
+                  "type": "address"
+                }
+              ],
+              "name": "RoleRevoked",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "impl",
+                  "type": "address"
+                }
+              ],
+              "name": "UpdatedImpl",
+              "type": "event"
+            },
+            {
+              "inputs": [],
+              "name": "DEFAULT_ADMIN_ROLE",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "contract DirectPaymentsPool",
+                  "name": "_pool",
+                  "type": "address"
+                },
+                {
+                  "internalType": "string",
+                  "name": "_ipfs",
+                  "type": "string"
+                }
+              ],
+              "name": "changePoolDetails",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "string",
+                  "name": "_projectId",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "_ipfs",
+                  "type": "string"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint32",
+                      "name": "nftType",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint16[]",
+                      "name": "validEvents",
+                      "type": "uint16[]"
+                    },
+                    {
+                      "internalType": "uint128[]",
+                      "name": "rewardPerEvent",
+                      "type": "uint128[]"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "manager",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IMembersValidator",
+                      "name": "membersValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IIdentityV2",
+                      "name": "uniquenessValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IERC20Upgradeable",
+                      "name": "rewardToken",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "allowRewardOverride",
+                      "type": "bool"
+                    }
+                  ],
+                  "internalType": "struct DirectPaymentsPool.PoolSettings",
+                  "name": "_settings",
+                  "type": "tuple"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "maxTotalPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerDay",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct DirectPaymentsPool.SafetyLimits",
+                  "name": "_limits",
+                  "type": "tuple"
+                }
+              ],
+              "name": "createBeaconPool",
+              "outputs": [
+                {
+                  "internalType": "contract DirectPaymentsPool",
+                  "name": "pool",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "string",
+                  "name": "_projectId",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "_ipfs",
+                  "type": "string"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint32",
+                      "name": "nftType",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint16[]",
+                      "name": "validEvents",
+                      "type": "uint16[]"
+                    },
+                    {
+                      "internalType": "uint128[]",
+                      "name": "rewardPerEvent",
+                      "type": "uint128[]"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "manager",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IMembersValidator",
+                      "name": "membersValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IIdentityV2",
+                      "name": "uniquenessValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IERC20Upgradeable",
+                      "name": "rewardToken",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "allowRewardOverride",
+                      "type": "bool"
+                    }
+                  ],
+                  "internalType": "struct DirectPaymentsPool.PoolSettings",
+                  "name": "_settings",
+                  "type": "tuple"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "maxTotalPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerDay",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct DirectPaymentsPool.SafetyLimits",
+                  "name": "_limits",
+                  "type": "tuple"
+                }
+              ],
+              "name": "createPool",
+              "outputs": [
+                {
+                  "internalType": "contract DirectPaymentsPool",
+                  "name": "pool",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "feeBps",
+              "outputs": [
+                {
+                  "internalType": "uint32",
+                  "name": "",
+                  "type": "uint32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "feeRecipient",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "getRoleAdmin",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                }
+              ],
+              "name": "grantRole",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                }
+              ],
+              "name": "hasRole",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "impl",
+              "outputs": [
+                {
+                  "internalType": "contract UpgradeableBeacon",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_dpimpl",
+                  "type": "address"
+                },
+                {
+                  "internalType": "contract ProvableNFT",
+                  "name": "_nft",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_feeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "_feeBps",
+                  "type": "uint32"
+                }
+              ],
+              "name": "initialize",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "nextNftType",
+              "outputs": [
+                {
+                  "internalType": "uint32",
+                  "name": "",
+                  "type": "uint32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "nft",
+              "outputs": [
+                {
+                  "internalType": "contract ProvableNFT",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "projectIdToControlPool",
+              "outputs": [
+                {
+                  "internalType": "contract DirectPaymentsPool",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proxiableUUID",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "registry",
+              "outputs": [
+                {
+                  "internalType": "string",
+                  "name": "ipfs",
+                  "type": "string"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isVerified",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "string",
+                  "name": "projectId",
+                  "type": "string"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                }
+              ],
+              "name": "renounceRole",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                }
+              ],
+              "name": "revokeRole",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_feeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "_feeBps",
+                  "type": "uint32"
+                }
+              ],
+              "name": "setFeeInfo",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "contract DirectPaymentsPool",
+                  "name": "_pool",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "_isVerified",
+                  "type": "bool"
+                }
+              ],
+              "name": "setVerified",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes4",
+                  "name": "interfaceId",
+                  "type": "bytes4"
+                }
+              ],
+              "name": "supportsInterface",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_impl",
+                  "type": "address"
+                }
+              ],
+              "name": "updateImpl",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newImplementation",
+                  "type": "address"
+                }
+              ],
+              "name": "upgradeTo",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newImplementation",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ],
+              "name": "upgradeToAndCall",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_logic",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "_data",
+                  "type": "bytes"
+                }
+              ],
+              "stateMutability": "payable",
+              "type": "constructor"
+            }
+          ]
+        },
+        "DirectPaymentsFactory_Implementation": {
+          "address": "0xfF6F1C470e19FA3486f825DBFDc72af529b31A2c",
+          "abi": [
+            {
+              "inputs": [],
+              "name": "NOT_PROJECT_OWNER",
+              "type": "error"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "previousAdmin",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "newAdmin",
+                  "type": "address"
+                }
+              ],
+              "name": "AdminChanged",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "beacon",
+                  "type": "address"
+                }
+              ],
+              "name": "BeaconUpgraded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "pool",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "string",
+                  "name": "projectId",
+                  "type": "string"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "string",
+                  "name": "ipfs",
+                  "type": "string"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "uint32",
+                  "name": "nftType",
+                  "type": "uint32"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint32",
+                      "name": "nftType",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint16[]",
+                      "name": "validEvents",
+                      "type": "uint16[]"
+                    },
+                    {
+                      "internalType": "uint128[]",
+                      "name": "rewardPerEvent",
+                      "type": "uint128[]"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "manager",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IMembersValidator",
+                      "name": "membersValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IIdentityV2",
+                      "name": "uniquenessValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IERC20Upgradeable",
+                      "name": "rewardToken",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "allowRewardOverride",
+                      "type": "bool"
+                    }
+                  ],
+                  "indexed": false,
+                  "internalType": "struct DirectPaymentsPool.PoolSettings",
+                  "name": "poolSettings",
+                  "type": "tuple"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "maxTotalPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerDay",
+                      "type": "uint256"
+                    }
+                  ],
+                  "indexed": false,
+                  "internalType": "struct DirectPaymentsPool.SafetyLimits",
+                  "name": "poolLimits",
+                  "type": "tuple"
+                }
+              ],
+              "name": "PoolCreated",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "pool",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "string",
+                  "name": "ipfs",
+                  "type": "string"
+                }
+              ],
+              "name": "PoolDetailsChanged",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "pool",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "isVerified",
+                  "type": "bool"
+                }
+              ],
+              "name": "PoolVerifiedChanged",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "previousAdminRole",
+                  "type": "bytes32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "newAdminRole",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "RoleAdminChanged",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "sender",
+                  "type": "address"
+                }
+              ],
+              "name": "RoleGranted",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "sender",
+                  "type": "address"
+                }
+              ],
+              "name": "RoleRevoked",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "impl",
+                  "type": "address"
+                }
+              ],
+              "name": "UpdatedImpl",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "implementation",
+                  "type": "address"
+                }
+              ],
+              "name": "Upgraded",
+              "type": "event"
+            },
+            {
+              "inputs": [],
+              "name": "DEFAULT_ADMIN_ROLE",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "contract DirectPaymentsPool",
+                  "name": "_pool",
+                  "type": "address"
+                },
+                {
+                  "internalType": "string",
+                  "name": "_ipfs",
+                  "type": "string"
+                }
+              ],
+              "name": "changePoolDetails",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "string",
+                  "name": "_projectId",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "_ipfs",
+                  "type": "string"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint32",
+                      "name": "nftType",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint16[]",
+                      "name": "validEvents",
+                      "type": "uint16[]"
+                    },
+                    {
+                      "internalType": "uint128[]",
+                      "name": "rewardPerEvent",
+                      "type": "uint128[]"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "manager",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IMembersValidator",
+                      "name": "membersValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IIdentityV2",
+                      "name": "uniquenessValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IERC20Upgradeable",
+                      "name": "rewardToken",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "allowRewardOverride",
+                      "type": "bool"
+                    }
+                  ],
+                  "internalType": "struct DirectPaymentsPool.PoolSettings",
+                  "name": "_settings",
+                  "type": "tuple"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "maxTotalPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerDay",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct DirectPaymentsPool.SafetyLimits",
+                  "name": "_limits",
+                  "type": "tuple"
+                }
+              ],
+              "name": "createBeaconPool",
+              "outputs": [
+                {
+                  "internalType": "contract DirectPaymentsPool",
+                  "name": "pool",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "string",
+                  "name": "_projectId",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "_ipfs",
+                  "type": "string"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint32",
+                      "name": "nftType",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint16[]",
+                      "name": "validEvents",
+                      "type": "uint16[]"
+                    },
+                    {
+                      "internalType": "uint128[]",
+                      "name": "rewardPerEvent",
+                      "type": "uint128[]"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "manager",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IMembersValidator",
+                      "name": "membersValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IIdentityV2",
+                      "name": "uniquenessValidator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IERC20Upgradeable",
+                      "name": "rewardToken",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "allowRewardOverride",
+                      "type": "bool"
+                    }
+                  ],
+                  "internalType": "struct DirectPaymentsPool.PoolSettings",
+                  "name": "_settings",
+                  "type": "tuple"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "maxTotalPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerMonth",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxMemberPerDay",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct DirectPaymentsPool.SafetyLimits",
+                  "name": "_limits",
+                  "type": "tuple"
+                }
+              ],
+              "name": "createPool",
+              "outputs": [
+                {
+                  "internalType": "contract DirectPaymentsPool",
+                  "name": "pool",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "feeBps",
+              "outputs": [
+                {
+                  "internalType": "uint32",
+                  "name": "",
+                  "type": "uint32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "feeRecipient",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "getRoleAdmin",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                }
+              ],
+              "name": "grantRole",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                }
+              ],
+              "name": "hasRole",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "impl",
+              "outputs": [
+                {
+                  "internalType": "contract UpgradeableBeacon",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_dpimpl",
+                  "type": "address"
+                },
+                {
+                  "internalType": "contract ProvableNFT",
+                  "name": "_nft",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_feeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "_feeBps",
+                  "type": "uint32"
+                }
+              ],
+              "name": "initialize",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "nextNftType",
+              "outputs": [
+                {
+                  "internalType": "uint32",
+                  "name": "",
+                  "type": "uint32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "nft",
+              "outputs": [
+                {
+                  "internalType": "contract ProvableNFT",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "projectIdToControlPool",
+              "outputs": [
+                {
+                  "internalType": "contract DirectPaymentsPool",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proxiableUUID",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "registry",
+              "outputs": [
+                {
+                  "internalType": "string",
+                  "name": "ipfs",
+                  "type": "string"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isVerified",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "string",
+                  "name": "projectId",
+                  "type": "string"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                }
+              ],
+              "name": "renounceRole",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                }
+              ],
+              "name": "revokeRole",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_feeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "_feeBps",
+                  "type": "uint32"
+                }
+              ],
+              "name": "setFeeInfo",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "contract DirectPaymentsPool",
+                  "name": "_pool",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "_isVerified",
+                  "type": "bool"
+                }
+              ],
+              "name": "setVerified",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes4",
+                  "name": "interfaceId",
+                  "type": "bytes4"
+                }
+              ],
+              "name": "supportsInterface",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_impl",
+                  "type": "address"
+                }
+              ],
+              "name": "updateImpl",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newImplementation",
+                  "type": "address"
+                }
+              ],
+              "name": "upgradeTo",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newImplementation",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ],
+              "name": "upgradeToAndCall",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            }
+          ]
+        },
+        "DirectPaymentsFactory_Proxy": {
+          "address": "0x58b5E37c5aFad520dD93E92A5D11B8721A9115F0",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_logic",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "_data",
+                  "type": "bytes"
+                }
+              ],
+              "stateMutability": "payable",
+              "type": "constructor"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "previousAdmin",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "newAdmin",
+                  "type": "address"
+                }
+              ],
+              "name": "AdminChanged",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "beacon",
+                  "type": "address"
+                }
+              ],
+              "name": "BeaconUpgraded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "implementation",
+                  "type": "address"
+                }
+              ],
+              "name": "Upgraded",
+              "type": "event"
+            },
+            {
+              "stateMutability": "payable",
+              "type": "fallback"
+            },
+            {
+              "stateMutability": "payable",
+              "type": "receive"
+            }
+          ]
+        },
         "DirectPaymentsPool": {
-          "address": "0x4BEde11080fCA6CfBc28F04C7375Ca0e60a6b1d1",
+          "address": "0xc70B7dc0C960e9303E57daA9fee23727e9C0A176",
           "abi": [
             {
               "inputs": [
@@ -6745,6 +8579,11 @@
                       "internalType": "contract IERC20Upgradeable",
                       "name": "rewardToken",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "allowRewardOverride",
+                      "type": "bool"
                     }
                   ],
                   "indexed": false,
@@ -6848,6 +8687,11 @@
                       "internalType": "contract IERC20Upgradeable",
                       "name": "rewardToken",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "allowRewardOverride",
+                      "type": "bool"
                     }
                   ],
                   "indexed": false,
@@ -7398,6 +9242,11 @@
                           "internalType": "address[]",
                           "name": "contributers",
                           "type": "address[]"
+                        },
+                        {
+                          "internalType": "uint128",
+                          "name": "rewardOverride",
+                          "type": "uint128"
                         }
                       ],
                       "internalType": "struct ProvableNFT.EventData[]",
@@ -7594,7 +9443,7 @@
                       "type": "bytes"
                     }
                   ],
-                  "internalType": "struct SwapLibrary.SwapData",
+                  "internalType": "struct HelperLibrary.SwapData",
                   "name": "_customData",
                   "type": "tuple"
                 },
@@ -7700,6 +9549,11 @@
                       "internalType": "contract IERC20Upgradeable",
                       "name": "rewardToken",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "allowRewardOverride",
+                      "type": "bool"
                     }
                   ],
                   "internalType": "struct DirectPaymentsPool.PoolSettings",
@@ -7870,6 +9724,11 @@
                           "internalType": "address[]",
                           "name": "contributers",
                           "type": "address[]"
+                        },
+                        {
+                          "internalType": "uint128",
+                          "name": "rewardOverride",
+                          "type": "uint128"
                         }
                       ],
                       "internalType": "struct ProvableNFT.EventData[]",
@@ -8098,6 +9957,11 @@
                       "internalType": "contract IERC20Upgradeable",
                       "name": "rewardToken",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "allowRewardOverride",
+                      "type": "bool"
                     }
                   ],
                   "internalType": "struct DirectPaymentsPool.PoolSettings",
@@ -8138,6 +10002,11 @@
                   "internalType": "contract IERC20Upgradeable",
                   "name": "rewardToken",
                   "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "allowRewardOverride",
+                  "type": "bool"
                 }
               ],
               "stateMutability": "view",
@@ -8325,1228 +10194,74 @@
             }
           ]
         },
-        "ProvableNFT_Implementation": {
-          "address": "0xF7b9212c53B677f02c475077b48E3a6EB6dCA8D6",
+        "HelperLibrary": {
+          "address": "0x15a3a0Fb7d3C91806a5379A463AdaE0427Fce2BB",
           "abi": [
             {
               "inputs": [
                 {
-                  "internalType": "bytes32",
-                  "name": "dataHash",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "tokenId",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "BAD_DATAHASH",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "BAD_NFTTYPE",
-              "type": "error"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint32",
-                  "name": "",
-                  "type": "uint32"
-                }
-              ],
-              "name": "NOT_MANAGER",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "NOT_MINTER",
-              "type": "error"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "previousAdmin",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "newAdmin",
-                  "type": "address"
-                }
-              ],
-              "name": "AdminChanged",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "owner",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "approved",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "Approval",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "owner",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "operator",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "bool",
-                  "name": "approved",
-                  "type": "bool"
-                }
-              ],
-              "name": "ApprovalForAll",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "beacon",
-                  "type": "address"
-                }
-              ],
-              "name": "BeaconUpgraded",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint8",
-                  "name": "version",
-                  "type": "uint8"
-                }
-              ],
-              "name": "Initialized",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "bytes32",
-                  "name": "nftDataHash",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "ProvableNftMinted",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "bytes32",
-                  "name": "previousAdminRole",
-                  "type": "bytes32"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "bytes32",
-                  "name": "newAdminRole",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "RoleAdminChanged",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "sender",
-                  "type": "address"
-                }
-              ],
-              "name": "RoleGranted",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "sender",
-                  "type": "address"
-                }
-              ],
-              "name": "RoleRevoked",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "from",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "Transfer",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "implementation",
-                  "type": "address"
-                }
-              ],
-              "name": "Upgraded",
-              "type": "event"
-            },
-            {
-              "inputs": [],
-              "name": "DEFAULT_ADMIN_ROLE",
-              "outputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "",
-                  "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "MINTER_ROLE",
-              "outputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "",
-                  "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_manager",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint32",
-                  "name": "_nftType",
-                  "type": "uint32"
-                }
-              ],
-              "name": "addManager",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "approve",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "owner",
-                  "type": "address"
-                }
-              ],
-              "name": "balanceOf",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getApproved",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint32",
-                  "name": "_nftType",
-                  "type": "uint32"
-                }
-              ],
-              "name": "getManagerRole",
-              "outputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "roleHash",
-                  "type": "bytes32"
-                }
-              ],
-              "stateMutability": "pure",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "_tokenId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getNFTData",
-              "outputs": [
-                {
                   "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16",
-                      "name": "version",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "string",
-                      "name": "nftUri",
-                      "type": "string"
-                    },
-                    {
-                      "components": [
-                        {
-                          "internalType": "uint16",
-                          "name": "subtype",
-                          "type": "uint16"
-                        },
-                        {
-                          "internalType": "uint32",
-                          "name": "timestamp",
-                          "type": "uint32"
-                        },
-                        {
-                          "internalType": "uint256",
-                          "name": "quantity",
-                          "type": "uint256"
-                        },
-                        {
-                          "internalType": "string",
-                          "name": "eventUri",
-                          "type": "string"
-                        },
-                        {
-                          "internalType": "address[]",
-                          "name": "contributers",
-                          "type": "address[]"
-                        }
-                      ],
-                      "internalType": "struct ProvableNFT.EventData[]",
-                      "name": "events",
-                      "type": "tuple[]"
-                    }
-                  ],
-                  "internalType": "struct ProvableNFT.NFTData",
-                  "name": "",
-                  "type": "tuple"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "_tokenId",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "_index",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getNFTEvent",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "uint16",
-                      "name": "subtype",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "uint32",
-                      "name": "timestamp",
-                      "type": "uint32"
-                    },
                     {
                       "internalType": "uint256",
-                      "name": "quantity",
+                      "name": "netIncome",
                       "type": "uint256"
                     },
                     {
-                      "internalType": "string",
-                      "name": "eventUri",
-                      "type": "string"
-                    },
-                    {
-                      "internalType": "address[]",
-                      "name": "contributers",
-                      "type": "address[]"
-                    }
-                  ],
-                  "internalType": "struct ProvableNFT.EventData",
-                  "name": "",
-                  "type": "tuple"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "_tokenId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getNFTEvents",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "uint16",
-                      "name": "subtype",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "uint32",
-                      "name": "timestamp",
-                      "type": "uint32"
-                    },
-                    {
                       "internalType": "uint256",
-                      "name": "quantity",
+                      "name": "totalFees",
                       "type": "uint256"
                     },
                     {
-                      "internalType": "string",
-                      "name": "eventUri",
-                      "type": "string"
+                      "internalType": "uint256",
+                      "name": "lastUpdate",
+                      "type": "uint256"
                     },
                     {
-                      "internalType": "address[]",
-                      "name": "contributers",
-                      "type": "address[]"
+                      "internalType": "address",
+                      "name": "lastFeeRecipient",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "int96",
+                      "name": "lastIncomeRate",
+                      "type": "int96"
                     }
                   ],
-                  "internalType": "struct ProvableNFT.EventData[]",
-                  "name": "",
-                  "type": "tuple[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "getRoleAdmin",
-              "outputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "",
-                  "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                }
-              ],
-              "name": "grantRole",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                }
-              ],
-              "name": "hasRole",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "string",
-                  "name": "_name",
-                  "type": "string"
-                },
-                {
-                  "internalType": "string",
-                  "name": "_symbol",
-                  "type": "string"
-                }
-              ],
-              "name": "initialize",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "owner",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "operator",
-                  "type": "address"
-                }
-              ],
-              "name": "isApprovedForAll",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_to",
-                  "type": "address"
-                },
-                {
-                  "internalType": "string",
-                  "name": "_uri",
-                  "type": "string"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "_nftDataHash",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "mint",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_to",
-                  "type": "address"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16",
-                      "name": "version",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "string",
-                      "name": "nftUri",
-                      "type": "string"
-                    },
-                    {
-                      "components": [
-                        {
-                          "internalType": "uint16",
-                          "name": "subtype",
-                          "type": "uint16"
-                        },
-                        {
-                          "internalType": "uint32",
-                          "name": "timestamp",
-                          "type": "uint32"
-                        },
-                        {
-                          "internalType": "uint256",
-                          "name": "quantity",
-                          "type": "uint256"
-                        },
-                        {
-                          "internalType": "string",
-                          "name": "eventUri",
-                          "type": "string"
-                        },
-                        {
-                          "internalType": "address[]",
-                          "name": "contributers",
-                          "type": "address[]"
-                        }
-                      ],
-                      "internalType": "struct ProvableNFT.EventData[]",
-                      "name": "events",
-                      "type": "tuple[]"
-                    }
-                  ],
-                  "internalType": "struct ProvableNFT.NFTData",
-                  "name": "_nftData",
+                  "internalType": "struct IGoodCollectiveSuperApp.Stats",
+                  "name": "stats",
                   "type": "tuple"
                 },
                 {
-                  "internalType": "bool",
-                  "name": "_withStore",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "_callData",
-                  "type": "bytes"
+                  "internalType": "contract ISuperToken",
+                  "name": "superToken",
+                  "type": "ISuperToken"
                 }
               ],
-              "name": "mintPermissioned",
+              "name": "getRealtimeStats",
               "outputs": [
                 {
                   "internalType": "uint256",
-                  "name": "tokenId",
+                  "name": "netIncome",
                   "type": "uint256"
-                }
-              ],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "name",
-              "outputs": [
+                },
                 {
-                  "internalType": "string",
-                  "name": "",
-                  "type": "string"
+                  "internalType": "uint256",
+                  "name": "totalFees",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "int96",
+                  "name": "incomeFlowRate",
+                  "type": "int96"
+                },
+                {
+                  "internalType": "int96",
+                  "name": "feeRate",
+                  "type": "int96"
                 }
               ],
               "stateMutability": "view",
               "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "ownerOf",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "_tokenId",
-                  "type": "uint256"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16",
-                      "name": "version",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "string",
-                      "name": "nftUri",
-                      "type": "string"
-                    },
-                    {
-                      "components": [
-                        {
-                          "internalType": "uint16",
-                          "name": "subtype",
-                          "type": "uint16"
-                        },
-                        {
-                          "internalType": "uint32",
-                          "name": "timestamp",
-                          "type": "uint32"
-                        },
-                        {
-                          "internalType": "uint256",
-                          "name": "quantity",
-                          "type": "uint256"
-                        },
-                        {
-                          "internalType": "string",
-                          "name": "eventUri",
-                          "type": "string"
-                        },
-                        {
-                          "internalType": "address[]",
-                          "name": "contributers",
-                          "type": "address[]"
-                        }
-                      ],
-                      "internalType": "struct ProvableNFT.EventData[]",
-                      "name": "events",
-                      "type": "tuple[]"
-                    }
-                  ],
-                  "internalType": "struct ProvableNFT.NFTData",
-                  "name": "_nftData",
-                  "type": "tuple"
-                }
-              ],
-              "name": "proveNFTData",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16",
-                      "name": "version",
-                      "type": "uint16"
-                    },
-                    {
-                      "internalType": "string",
-                      "name": "nftUri",
-                      "type": "string"
-                    },
-                    {
-                      "components": [
-                        {
-                          "internalType": "uint16",
-                          "name": "subtype",
-                          "type": "uint16"
-                        },
-                        {
-                          "internalType": "uint32",
-                          "name": "timestamp",
-                          "type": "uint32"
-                        },
-                        {
-                          "internalType": "uint256",
-                          "name": "quantity",
-                          "type": "uint256"
-                        },
-                        {
-                          "internalType": "string",
-                          "name": "eventUri",
-                          "type": "string"
-                        },
-                        {
-                          "internalType": "address[]",
-                          "name": "contributers",
-                          "type": "address[]"
-                        }
-                      ],
-                      "internalType": "struct ProvableNFT.EventData[]",
-                      "name": "events",
-                      "type": "tuple[]"
-                    }
-                  ],
-                  "internalType": "struct ProvableNFT.NFTData",
-                  "name": "data",
-                  "type": "tuple"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "proxiableUUID",
-              "outputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "",
-                  "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                }
-              ],
-              "name": "renounceRole",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                }
-              ],
-              "name": "revokeRole",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "from",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "safeTransferFrom",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "from",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ],
-              "name": "safeTransferFrom",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "operator",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "approved",
-                  "type": "bool"
-                }
-              ],
-              "name": "setApprovalForAll",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes4",
-                  "name": "interfaceId",
-                  "type": "bytes4"
-                }
-              ],
-              "name": "supportsInterface",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "symbol",
-              "outputs": [
-                {
-                  "internalType": "string",
-                  "name": "",
-                  "type": "string"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "tokenURI",
-              "outputs": [
-                {
-                  "internalType": "string",
-                  "name": "",
-                  "type": "string"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "from",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "transferFrom",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "newImplementation",
-                  "type": "address"
-                }
-              ],
-              "name": "upgradeTo",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "newImplementation",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ],
-              "name": "upgradeToAndCall",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            }
-          ]
-        },
-        "ProvableNFT_Proxy": {
-          "address": "0x2AF5DB8249229ba696E0bac1a382aDb1fee040A6",
-          "abi": [
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_logic",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "_data",
-                  "type": "bytes"
-                }
-              ],
-              "stateMutability": "payable",
-              "type": "constructor"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "previousAdmin",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "newAdmin",
-                  "type": "address"
-                }
-              ],
-              "name": "AdminChanged",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "beacon",
-                  "type": "address"
-                }
-              ],
-              "name": "BeaconUpgraded",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "implementation",
-                  "type": "address"
-                }
-              ],
-              "name": "Upgraded",
-              "type": "event"
-            },
-            {
-              "stateMutability": "payable",
-              "type": "fallback"
-            },
-            {
-              "stateMutability": "payable",
-              "type": "receive"
             }
           ]
         },
@@ -10003,6 +10718,11 @@
                           "internalType": "address[]",
                           "name": "contributers",
                           "type": "address[]"
+                        },
+                        {
+                          "internalType": "uint128",
+                          "name": "rewardOverride",
+                          "type": "uint128"
                         }
                       ],
                       "internalType": "struct ProvableNFT.EventData[]",
@@ -10059,6 +10779,11 @@
                       "internalType": "address[]",
                       "name": "contributers",
                       "type": "address[]"
+                    },
+                    {
+                      "internalType": "uint128",
+                      "name": "rewardOverride",
+                      "type": "uint128"
                     }
                   ],
                   "internalType": "struct ProvableNFT.EventData",
@@ -10105,6 +10830,11 @@
                       "internalType": "address[]",
                       "name": "contributers",
                       "type": "address[]"
+                    },
+                    {
+                      "internalType": "uint128",
+                      "name": "rewardOverride",
+                      "type": "uint128"
                     }
                   ],
                   "internalType": "struct ProvableNFT.EventData[]",
@@ -10297,6 +11027,11 @@
                           "internalType": "address[]",
                           "name": "contributers",
                           "type": "address[]"
+                        },
+                        {
+                          "internalType": "uint128",
+                          "name": "rewardOverride",
+                          "type": "uint128"
                         }
                       ],
                       "internalType": "struct ProvableNFT.EventData[]",
@@ -10412,6 +11147,11 @@
                           "internalType": "address[]",
                           "name": "contributers",
                           "type": "address[]"
+                        },
+                        {
+                          "internalType": "uint128",
+                          "name": "rewardOverride",
+                          "type": "uint128"
                         }
                       ],
                       "internalType": "struct ProvableNFT.EventData[]",
@@ -10469,6 +11209,11 @@
                           "internalType": "address[]",
                           "name": "contributers",
                           "type": "address[]"
+                        },
+                        {
+                          "internalType": "uint128",
+                          "name": "rewardOverride",
+                          "type": "uint128"
                         }
                       ],
                       "internalType": "struct ProvableNFT.EventData[]",
@@ -10725,12 +11470,44 @@
             }
           ]
         },
-        "DirectPaymentsFactory_Implementation": {
-          "address": "0x4982A0A0E51c1eB25553724A149E108893bE0D4A",
+        "ProvableNFT_Implementation": {
+          "address": "0x4D76c54D6a9F381018fEA7BaC515ae590A1D476a",
           "abi": [
             {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "dataHash",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "tokenId",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "BAD_DATAHASH",
+              "type": "error"
+            },
+            {
               "inputs": [],
-              "name": "NOT_PROJECT_OWNER",
+              "name": "BAD_NFTTYPE",
+              "type": "error"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint32",
+                  "name": "",
+                  "type": "uint32"
+                }
+              ],
+              "name": "NOT_MANAGER",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "NOT_MINTER",
               "type": "error"
             },
             {
@@ -10750,6 +11527,56 @@
                 }
               ],
               "name": "AdminChanged",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "approved",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "Approval",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "operator",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "approved",
+                  "type": "bool"
+                }
+              ],
+              "name": "ApprovalForAll",
               "type": "event"
             },
             {
@@ -10782,135 +11609,25 @@
               "anonymous": false,
               "inputs": [
                 {
-                  "indexed": true,
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
                   "internalType": "address",
-                  "name": "pool",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "string",
-                  "name": "projectId",
-                  "type": "string"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "string",
-                  "name": "ipfs",
-                  "type": "string"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "uint32",
-                  "name": "nftType",
-                  "type": "uint32"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16[]",
-                      "name": "validEvents",
-                      "type": "uint16[]"
-                    },
-                    {
-                      "internalType": "uint128[]",
-                      "name": "rewardPerEvent",
-                      "type": "uint128[]"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "manager",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IMembersValidator",
-                      "name": "membersValidator",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IIdentityV2",
-                      "name": "uniquenessValidator",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IERC20Upgradeable",
-                      "name": "rewardToken",
-                      "type": "address"
-                    }
-                  ],
-                  "indexed": false,
-                  "internalType": "struct DirectPaymentsPool.PoolSettings",
-                  "name": "poolSettings",
-                  "type": "tuple"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint256",
-                      "name": "maxTotalPerMonth",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "maxMemberPerMonth",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "maxMemberPerDay",
-                      "type": "uint256"
-                    }
-                  ],
-                  "indexed": false,
-                  "internalType": "struct DirectPaymentsPool.SafetyLimits",
-                  "name": "poolLimits",
-                  "type": "tuple"
-                }
-              ],
-              "name": "PoolCreated",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "pool",
+                  "name": "to",
                   "type": "address"
                 },
                 {
                   "indexed": false,
-                  "internalType": "string",
-                  "name": "ipfs",
-                  "type": "string"
+                  "internalType": "bytes32",
+                  "name": "nftDataHash",
+                  "type": "bytes32"
                 }
               ],
-              "name": "PoolDetailsChanged",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "pool",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "bool",
-                  "name": "isVerified",
-                  "type": "bool"
-                }
-              ],
-              "name": "PoolVerifiedChanged",
+              "name": "ProvableNftMinted",
               "type": "event"
             },
             {
@@ -10994,11 +11711,23 @@
                 {
                   "indexed": true,
                   "internalType": "address",
-                  "name": "impl",
+                  "name": "from",
                   "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
                 }
               ],
-              "name": "UpdatedImpl",
+              "name": "Transfer",
               "type": "event"
             },
             {
@@ -11028,19 +11757,32 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "MINTER_ROLE",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
-                  "internalType": "contract DirectPaymentsPool",
-                  "name": "_pool",
+                  "internalType": "address",
+                  "name": "_manager",
                   "type": "address"
                 },
                 {
-                  "internalType": "string",
-                  "name": "_ipfs",
-                  "type": "string"
+                  "internalType": "uint32",
+                  "name": "_nftType",
+                  "type": "uint32"
                 }
               ],
-              "name": "changePoolDetails",
+              "name": "addManager",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -11048,103 +11790,88 @@
             {
               "inputs": [
                 {
-                  "internalType": "string",
-                  "name": "_projectId",
-                  "type": "string"
-                },
-                {
-                  "internalType": "string",
-                  "name": "_ipfs",
-                  "type": "string"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16[]",
-                      "name": "validEvents",
-                      "type": "uint16[]"
-                    },
-                    {
-                      "internalType": "uint128[]",
-                      "name": "rewardPerEvent",
-                      "type": "uint128[]"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "manager",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IMembersValidator",
-                      "name": "membersValidator",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IIdentityV2",
-                      "name": "uniquenessValidator",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IERC20Upgradeable",
-                      "name": "rewardToken",
-                      "type": "address"
-                    }
-                  ],
-                  "internalType": "struct DirectPaymentsPool.PoolSettings",
-                  "name": "_settings",
-                  "type": "tuple"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint256",
-                      "name": "maxTotalPerMonth",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "maxMemberPerMonth",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "maxMemberPerDay",
-                      "type": "uint256"
-                    }
-                  ],
-                  "internalType": "struct DirectPaymentsPool.SafetyLimits",
-                  "name": "_limits",
-                  "type": "tuple"
-                }
-              ],
-              "name": "createBeaconPool",
-              "outputs": [
-                {
-                  "internalType": "contract DirectPaymentsPool",
-                  "name": "pool",
+                  "internalType": "address",
+                  "name": "to",
                   "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
                 }
               ],
+              "name": "approve",
+              "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
             },
             {
               "inputs": [
                 {
-                  "internalType": "string",
-                  "name": "_projectId",
-                  "type": "string"
-                },
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                }
+              ],
+              "name": "balanceOf",
+              "outputs": [
                 {
-                  "internalType": "string",
-                  "name": "_ipfs",
-                  "type": "string"
-                },
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getApproved",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint32",
+                  "name": "_nftType",
+                  "type": "uint32"
+                }
+              ],
+              "name": "getManagerRole",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "roleHash",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "pure",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_tokenId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getNFTData",
+              "outputs": [
                 {
                   "components": [
                     {
@@ -11153,95 +11880,163 @@
                       "type": "uint32"
                     },
                     {
-                      "internalType": "uint16[]",
-                      "name": "validEvents",
-                      "type": "uint16[]"
+                      "internalType": "uint16",
+                      "name": "version",
+                      "type": "uint16"
                     },
                     {
-                      "internalType": "uint128[]",
-                      "name": "rewardPerEvent",
-                      "type": "uint128[]"
+                      "internalType": "string",
+                      "name": "nftUri",
+                      "type": "string"
                     },
                     {
-                      "internalType": "address",
-                      "name": "manager",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IMembersValidator",
-                      "name": "membersValidator",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IIdentityV2",
-                      "name": "uniquenessValidator",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IERC20Upgradeable",
-                      "name": "rewardToken",
-                      "type": "address"
+                      "components": [
+                        {
+                          "internalType": "uint16",
+                          "name": "subtype",
+                          "type": "uint16"
+                        },
+                        {
+                          "internalType": "uint32",
+                          "name": "timestamp",
+                          "type": "uint32"
+                        },
+                        {
+                          "internalType": "uint256",
+                          "name": "quantity",
+                          "type": "uint256"
+                        },
+                        {
+                          "internalType": "string",
+                          "name": "eventUri",
+                          "type": "string"
+                        },
+                        {
+                          "internalType": "address[]",
+                          "name": "contributers",
+                          "type": "address[]"
+                        },
+                        {
+                          "internalType": "uint128",
+                          "name": "rewardOverride",
+                          "type": "uint128"
+                        }
+                      ],
+                      "internalType": "struct ProvableNFT.EventData[]",
+                      "name": "events",
+                      "type": "tuple[]"
                     }
                   ],
-                  "internalType": "struct DirectPaymentsPool.PoolSettings",
-                  "name": "_settings",
-                  "type": "tuple"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint256",
-                      "name": "maxTotalPerMonth",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "maxMemberPerMonth",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "maxMemberPerDay",
-                      "type": "uint256"
-                    }
-                  ],
-                  "internalType": "struct DirectPaymentsPool.SafetyLimits",
-                  "name": "_limits",
-                  "type": "tuple"
-                }
-              ],
-              "name": "createPool",
-              "outputs": [
-                {
-                  "internalType": "contract DirectPaymentsPool",
-                  "name": "pool",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "feeBps",
-              "outputs": [
-                {
-                  "internalType": "uint32",
+                  "internalType": "struct ProvableNFT.NFTData",
                   "name": "",
-                  "type": "uint32"
+                  "type": "tuple"
                 }
               ],
               "stateMutability": "view",
               "type": "function"
             },
             {
-              "inputs": [],
-              "name": "feeRecipient",
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_tokenId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "_index",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getNFTEvent",
               "outputs": [
                 {
-                  "internalType": "address",
+                  "components": [
+                    {
+                      "internalType": "uint16",
+                      "name": "subtype",
+                      "type": "uint16"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "timestamp",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "quantity",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "string",
+                      "name": "eventUri",
+                      "type": "string"
+                    },
+                    {
+                      "internalType": "address[]",
+                      "name": "contributers",
+                      "type": "address[]"
+                    },
+                    {
+                      "internalType": "uint128",
+                      "name": "rewardOverride",
+                      "type": "uint128"
+                    }
+                  ],
+                  "internalType": "struct ProvableNFT.EventData",
                   "name": "",
-                  "type": "address"
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_tokenId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getNFTEvents",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "uint16",
+                      "name": "subtype",
+                      "type": "uint16"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "timestamp",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "quantity",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "string",
+                      "name": "eventUri",
+                      "type": "string"
+                    },
+                    {
+                      "internalType": "address[]",
+                      "name": "contributers",
+                      "type": "address[]"
+                    },
+                    {
+                      "internalType": "uint128",
+                      "name": "rewardOverride",
+                      "type": "uint128"
+                    }
+                  ],
+                  "internalType": "struct ProvableNFT.EventData[]",
+                  "name": "",
+                  "type": "tuple[]"
                 }
               ],
               "stateMutability": "view",
@@ -11309,44 +12104,16 @@
               "type": "function"
             },
             {
-              "inputs": [],
-              "name": "impl",
-              "outputs": [
-                {
-                  "internalType": "contract UpgradeableBeacon",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
               "inputs": [
                 {
-                  "internalType": "address",
-                  "name": "_owner",
-                  "type": "address"
+                  "internalType": "string",
+                  "name": "_name",
+                  "type": "string"
                 },
                 {
-                  "internalType": "address",
-                  "name": "_dpimpl",
-                  "type": "address"
-                },
-                {
-                  "internalType": "contract ProvableNFT",
-                  "name": "_nft",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "_feeRecipient",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint32",
-                  "name": "_feeBps",
-                  "type": "uint32"
+                  "internalType": "string",
+                  "name": "_symbol",
+                  "type": "string"
                 }
               ],
               "name": "initialize",
@@ -11355,24 +12122,171 @@
               "type": "function"
             },
             {
-              "inputs": [],
-              "name": "nextNftType",
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "operator",
+                  "type": "address"
+                }
+              ],
+              "name": "isApprovedForAll",
               "outputs": [
                 {
-                  "internalType": "uint32",
+                  "internalType": "bool",
                   "name": "",
-                  "type": "uint32"
+                  "type": "bool"
                 }
               ],
               "stateMutability": "view",
               "type": "function"
             },
             {
-              "inputs": [],
-              "name": "nft",
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "string",
+                  "name": "_uri",
+                  "type": "string"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_nftDataHash",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "mint",
               "outputs": [
                 {
-                  "internalType": "contract ProvableNFT",
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_to",
+                  "type": "address"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint32",
+                      "name": "nftType",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint16",
+                      "name": "version",
+                      "type": "uint16"
+                    },
+                    {
+                      "internalType": "string",
+                      "name": "nftUri",
+                      "type": "string"
+                    },
+                    {
+                      "components": [
+                        {
+                          "internalType": "uint16",
+                          "name": "subtype",
+                          "type": "uint16"
+                        },
+                        {
+                          "internalType": "uint32",
+                          "name": "timestamp",
+                          "type": "uint32"
+                        },
+                        {
+                          "internalType": "uint256",
+                          "name": "quantity",
+                          "type": "uint256"
+                        },
+                        {
+                          "internalType": "string",
+                          "name": "eventUri",
+                          "type": "string"
+                        },
+                        {
+                          "internalType": "address[]",
+                          "name": "contributers",
+                          "type": "address[]"
+                        },
+                        {
+                          "internalType": "uint128",
+                          "name": "rewardOverride",
+                          "type": "uint128"
+                        }
+                      ],
+                      "internalType": "struct ProvableNFT.EventData[]",
+                      "name": "events",
+                      "type": "tuple[]"
+                    }
+                  ],
+                  "internalType": "struct ProvableNFT.NFTData",
+                  "name": "_nftData",
+                  "type": "tuple"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "_withStore",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "_callData",
+                  "type": "bytes"
+                }
+              ],
+              "name": "mintPermissioned",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "name",
+              "outputs": [
+                {
+                  "internalType": "string",
+                  "name": "",
+                  "type": "string"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "ownerOf",
+              "outputs": [
+                {
+                  "internalType": "address",
                   "name": "",
                   "type": "address"
                 }
@@ -11383,17 +12297,130 @@
             {
               "inputs": [
                 {
-                  "internalType": "bytes32",
-                  "name": "",
-                  "type": "bytes32"
+                  "internalType": "uint256",
+                  "name": "_tokenId",
+                  "type": "uint256"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "uint32",
+                      "name": "nftType",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint16",
+                      "name": "version",
+                      "type": "uint16"
+                    },
+                    {
+                      "internalType": "string",
+                      "name": "nftUri",
+                      "type": "string"
+                    },
+                    {
+                      "components": [
+                        {
+                          "internalType": "uint16",
+                          "name": "subtype",
+                          "type": "uint16"
+                        },
+                        {
+                          "internalType": "uint32",
+                          "name": "timestamp",
+                          "type": "uint32"
+                        },
+                        {
+                          "internalType": "uint256",
+                          "name": "quantity",
+                          "type": "uint256"
+                        },
+                        {
+                          "internalType": "string",
+                          "name": "eventUri",
+                          "type": "string"
+                        },
+                        {
+                          "internalType": "address[]",
+                          "name": "contributers",
+                          "type": "address[]"
+                        },
+                        {
+                          "internalType": "uint128",
+                          "name": "rewardOverride",
+                          "type": "uint128"
+                        }
+                      ],
+                      "internalType": "struct ProvableNFT.EventData[]",
+                      "name": "events",
+                      "type": "tuple[]"
+                    }
+                  ],
+                  "internalType": "struct ProvableNFT.NFTData",
+                  "name": "_nftData",
+                  "type": "tuple"
                 }
               ],
-              "name": "projectIdToControlPool",
+              "name": "proveNFTData",
               "outputs": [
                 {
-                  "internalType": "contract DirectPaymentsPool",
-                  "name": "",
-                  "type": "address"
+                  "components": [
+                    {
+                      "internalType": "uint32",
+                      "name": "nftType",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint16",
+                      "name": "version",
+                      "type": "uint16"
+                    },
+                    {
+                      "internalType": "string",
+                      "name": "nftUri",
+                      "type": "string"
+                    },
+                    {
+                      "components": [
+                        {
+                          "internalType": "uint16",
+                          "name": "subtype",
+                          "type": "uint16"
+                        },
+                        {
+                          "internalType": "uint32",
+                          "name": "timestamp",
+                          "type": "uint32"
+                        },
+                        {
+                          "internalType": "uint256",
+                          "name": "quantity",
+                          "type": "uint256"
+                        },
+                        {
+                          "internalType": "string",
+                          "name": "eventUri",
+                          "type": "string"
+                        },
+                        {
+                          "internalType": "address[]",
+                          "name": "contributers",
+                          "type": "address[]"
+                        },
+                        {
+                          "internalType": "uint128",
+                          "name": "rewardOverride",
+                          "type": "uint128"
+                        }
+                      ],
+                      "internalType": "struct ProvableNFT.EventData[]",
+                      "name": "events",
+                      "type": "tuple[]"
+                    }
+                  ],
+                  "internalType": "struct ProvableNFT.NFTData",
+                  "name": "data",
+                  "type": "tuple"
                 }
               ],
               "stateMutability": "view",
@@ -11407,35 +12434,6 @@
                   "internalType": "bytes32",
                   "name": "",
                   "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "name": "registry",
-              "outputs": [
-                {
-                  "internalType": "string",
-                  "name": "ipfs",
-                  "type": "string"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "isVerified",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "string",
-                  "name": "projectId",
-                  "type": "string"
                 }
               ],
               "stateMutability": "view",
@@ -11481,16 +12479,21 @@
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "_feeRecipient",
+                  "name": "from",
                   "type": "address"
                 },
                 {
-                  "internalType": "uint32",
-                  "name": "_feeBps",
-                  "type": "uint32"
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
                 }
               ],
-              "name": "setFeeInfo",
+              "name": "safeTransferFrom",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -11498,17 +12501,45 @@
             {
               "inputs": [
                 {
-                  "internalType": "contract DirectPaymentsPool",
-                  "name": "_pool",
+                  "internalType": "address",
+                  "name": "from",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ],
+              "name": "safeTransferFrom",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "operator",
                   "type": "address"
                 },
                 {
                   "internalType": "bool",
-                  "name": "_isVerified",
+                  "name": "approved",
                   "type": "bool"
                 }
               ],
-              "name": "setVerified",
+              "name": "setApprovalForAll",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -11533,14 +12564,56 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "symbol",
+              "outputs": [
+                {
+                  "internalType": "string",
+                  "name": "",
+                  "type": "string"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "tokenURI",
+              "outputs": [
+                {
+                  "internalType": "string",
+                  "name": "",
+                  "type": "string"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "_impl",
+                  "name": "from",
                   "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
                 }
               ],
-              "name": "updateImpl",
+              "name": "transferFrom",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -11578,8 +12651,8 @@
             }
           ]
         },
-        "DirectPaymentsFactory_Proxy": {
-          "address": "0x58b5E37c5aFad520dD93E92A5D11B8721A9115F0",
+        "ProvableNFT_Proxy": {
+          "address": "0x2AF5DB8249229ba696E0bac1a382aDb1fee040A6",
           "abi": [
             {
               "inputs": [
@@ -11649,883 +12722,6 @@
             {
               "stateMutability": "payable",
               "type": "receive"
-            }
-          ]
-        },
-        "DirectPaymentsFactory": {
-          "address": "0x58b5E37c5aFad520dD93E92A5D11B8721A9115F0",
-          "abi": [
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "previousAdmin",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "newAdmin",
-                  "type": "address"
-                }
-              ],
-              "name": "AdminChanged",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "beacon",
-                  "type": "address"
-                }
-              ],
-              "name": "BeaconUpgraded",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "implementation",
-                  "type": "address"
-                }
-              ],
-              "name": "Upgraded",
-              "type": "event"
-            },
-            {
-              "stateMutability": "payable",
-              "type": "fallback"
-            },
-            {
-              "stateMutability": "payable",
-              "type": "receive"
-            },
-            {
-              "inputs": [],
-              "name": "NOT_PROJECT_OWNER",
-              "type": "error"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint8",
-                  "name": "version",
-                  "type": "uint8"
-                }
-              ],
-              "name": "Initialized",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "pool",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "string",
-                  "name": "projectId",
-                  "type": "string"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "string",
-                  "name": "ipfs",
-                  "type": "string"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "uint32",
-                  "name": "nftType",
-                  "type": "uint32"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16[]",
-                      "name": "validEvents",
-                      "type": "uint16[]"
-                    },
-                    {
-                      "internalType": "uint128[]",
-                      "name": "rewardPerEvent",
-                      "type": "uint128[]"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "manager",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IMembersValidator",
-                      "name": "membersValidator",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IIdentityV2",
-                      "name": "uniquenessValidator",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IERC20Upgradeable",
-                      "name": "rewardToken",
-                      "type": "address"
-                    }
-                  ],
-                  "indexed": false,
-                  "internalType": "struct DirectPaymentsPool.PoolSettings",
-                  "name": "poolSettings",
-                  "type": "tuple"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint256",
-                      "name": "maxTotalPerMonth",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "maxMemberPerMonth",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "maxMemberPerDay",
-                      "type": "uint256"
-                    }
-                  ],
-                  "indexed": false,
-                  "internalType": "struct DirectPaymentsPool.SafetyLimits",
-                  "name": "poolLimits",
-                  "type": "tuple"
-                }
-              ],
-              "name": "PoolCreated",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "pool",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "string",
-                  "name": "ipfs",
-                  "type": "string"
-                }
-              ],
-              "name": "PoolDetailsChanged",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "pool",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "bool",
-                  "name": "isVerified",
-                  "type": "bool"
-                }
-              ],
-              "name": "PoolVerifiedChanged",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "bytes32",
-                  "name": "previousAdminRole",
-                  "type": "bytes32"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "bytes32",
-                  "name": "newAdminRole",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "RoleAdminChanged",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "sender",
-                  "type": "address"
-                }
-              ],
-              "name": "RoleGranted",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "sender",
-                  "type": "address"
-                }
-              ],
-              "name": "RoleRevoked",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "impl",
-                  "type": "address"
-                }
-              ],
-              "name": "UpdatedImpl",
-              "type": "event"
-            },
-            {
-              "inputs": [],
-              "name": "DEFAULT_ADMIN_ROLE",
-              "outputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "",
-                  "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "contract DirectPaymentsPool",
-                  "name": "_pool",
-                  "type": "address"
-                },
-                {
-                  "internalType": "string",
-                  "name": "_ipfs",
-                  "type": "string"
-                }
-              ],
-              "name": "changePoolDetails",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "string",
-                  "name": "_projectId",
-                  "type": "string"
-                },
-                {
-                  "internalType": "string",
-                  "name": "_ipfs",
-                  "type": "string"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16[]",
-                      "name": "validEvents",
-                      "type": "uint16[]"
-                    },
-                    {
-                      "internalType": "uint128[]",
-                      "name": "rewardPerEvent",
-                      "type": "uint128[]"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "manager",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IMembersValidator",
-                      "name": "membersValidator",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IIdentityV2",
-                      "name": "uniquenessValidator",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IERC20Upgradeable",
-                      "name": "rewardToken",
-                      "type": "address"
-                    }
-                  ],
-                  "internalType": "struct DirectPaymentsPool.PoolSettings",
-                  "name": "_settings",
-                  "type": "tuple"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint256",
-                      "name": "maxTotalPerMonth",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "maxMemberPerMonth",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "maxMemberPerDay",
-                      "type": "uint256"
-                    }
-                  ],
-                  "internalType": "struct DirectPaymentsPool.SafetyLimits",
-                  "name": "_limits",
-                  "type": "tuple"
-                }
-              ],
-              "name": "createBeaconPool",
-              "outputs": [
-                {
-                  "internalType": "contract DirectPaymentsPool",
-                  "name": "pool",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "string",
-                  "name": "_projectId",
-                  "type": "string"
-                },
-                {
-                  "internalType": "string",
-                  "name": "_ipfs",
-                  "type": "string"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint32",
-                      "name": "nftType",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint16[]",
-                      "name": "validEvents",
-                      "type": "uint16[]"
-                    },
-                    {
-                      "internalType": "uint128[]",
-                      "name": "rewardPerEvent",
-                      "type": "uint128[]"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "manager",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IMembersValidator",
-                      "name": "membersValidator",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IIdentityV2",
-                      "name": "uniquenessValidator",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "contract IERC20Upgradeable",
-                      "name": "rewardToken",
-                      "type": "address"
-                    }
-                  ],
-                  "internalType": "struct DirectPaymentsPool.PoolSettings",
-                  "name": "_settings",
-                  "type": "tuple"
-                },
-                {
-                  "components": [
-                    {
-                      "internalType": "uint256",
-                      "name": "maxTotalPerMonth",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "maxMemberPerMonth",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "maxMemberPerDay",
-                      "type": "uint256"
-                    }
-                  ],
-                  "internalType": "struct DirectPaymentsPool.SafetyLimits",
-                  "name": "_limits",
-                  "type": "tuple"
-                }
-              ],
-              "name": "createPool",
-              "outputs": [
-                {
-                  "internalType": "contract DirectPaymentsPool",
-                  "name": "pool",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "feeBps",
-              "outputs": [
-                {
-                  "internalType": "uint32",
-                  "name": "",
-                  "type": "uint32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "feeRecipient",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "getRoleAdmin",
-              "outputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "",
-                  "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                }
-              ],
-              "name": "grantRole",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                }
-              ],
-              "name": "hasRole",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "impl",
-              "outputs": [
-                {
-                  "internalType": "contract UpgradeableBeacon",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_owner",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "_dpimpl",
-                  "type": "address"
-                },
-                {
-                  "internalType": "contract ProvableNFT",
-                  "name": "_nft",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "_feeRecipient",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint32",
-                  "name": "_feeBps",
-                  "type": "uint32"
-                }
-              ],
-              "name": "initialize",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "nextNftType",
-              "outputs": [
-                {
-                  "internalType": "uint32",
-                  "name": "",
-                  "type": "uint32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "nft",
-              "outputs": [
-                {
-                  "internalType": "contract ProvableNFT",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "projectIdToControlPool",
-              "outputs": [
-                {
-                  "internalType": "contract DirectPaymentsPool",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "proxiableUUID",
-              "outputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "",
-                  "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "name": "registry",
-              "outputs": [
-                {
-                  "internalType": "string",
-                  "name": "ipfs",
-                  "type": "string"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "isVerified",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "string",
-                  "name": "projectId",
-                  "type": "string"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                }
-              ],
-              "name": "renounceRole",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                }
-              ],
-              "name": "revokeRole",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_feeRecipient",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint32",
-                  "name": "_feeBps",
-                  "type": "uint32"
-                }
-              ],
-              "name": "setFeeInfo",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "contract DirectPaymentsPool",
-                  "name": "_pool",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "_isVerified",
-                  "type": "bool"
-                }
-              ],
-              "name": "setVerified",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes4",
-                  "name": "interfaceId",
-                  "type": "bytes4"
-                }
-              ],
-              "name": "supportsInterface",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_impl",
-                  "type": "address"
-                }
-              ],
-              "name": "updateImpl",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "newImplementation",
-                  "type": "address"
-                }
-              ],
-              "name": "upgradeTo",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "newImplementation",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ],
-              "name": "upgradeToAndCall",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_logic",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "_data",
-                  "type": "bytes"
-                }
-              ],
-              "stateMutability": "payable",
-              "type": "constructor"
             }
           ]
         }

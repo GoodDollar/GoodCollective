@@ -45,12 +45,21 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     });
     sfHost = sfFramework.host.contract.address;
   }
+
+  const helplib = await deploy('HelperLibrary', {
+    from: deployer,
+    log: true,
+  });
+
   console.log('deploying pool impl', [sfHost, swapMock?.address || '0x5615CDAb10dc425a742d643d949a7F474C01abc4']);
   const pool = await deploy('DirectPaymentsPool', {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
     args: [sfHost, swapMock?.address || '0x5615CDAb10dc425a742d643d949a7F474C01abc4'], //uniswap on celo
     log: true,
+    libraries: {
+      HelperLibrary: helplib.address,
+    },
   });
 
   const nft = await deploy('ProvableNFT', {
