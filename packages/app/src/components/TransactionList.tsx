@@ -30,7 +30,7 @@ function TransactionList({ username, currency, amount, transactionId, transactio
         <Text style={styles.rowText}>Recent Transactions</Text>
       </View>
       <View style={styles.list}>
-        {(showAll ? placeholderTransactions : placeholderTransactions.slice(0, 5)).map((item) => (
+        {/* {(showAll ? placeholderTransactions : placeholderTransactions.slice(0, 5)).map((item) => (
           <TransactionListItem
             username={username}
             currency={currency}
@@ -38,7 +38,7 @@ function TransactionList({ username, currency, amount, transactionId, transactio
             id={transactionId}
             receive={item}
           />
-        ))}
+        ))} */}
       </View>
       {isDesktopResolution && (
         <TouchableOpacity onPress={() => setShowAll(!showAll)} style={styles.showMoreButton}>

@@ -19,17 +19,38 @@ export const useContractCalls = () => {
   const savePoolToIPFS = async () => {};
   const createPoolWithAttributes = async () => {};
   const createPool = async () => {};
-  const supportFlow = async () => {};
-  const supportFlowWithSwap = async (pool: string, flowrate: any) => {
-    console.log('hit');
-
+  const supportFlow = async (poolAddress: string) => {
+    console.log(poolAddress);
     try {
       const sdk = new GoodCollectiveSDK('42220', provider, {
         network: 'celo',
         nftStorageKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
       });
       if (!address) return;
-      await sdk.supportFlow(walletClient?.sendTransaction as any, pool, flowrate);
+      await sdk.supportFlow(walletClient?.signTransaction as any, '0xE31eB27dC0ec9207B7F114FAFf46bbB5c962AE0b', '10');
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
+  };
+  const supportFlowWithSwap = async () => {
+    try {
+      const sdk = new GoodCollectiveSDK('42220', provider, {
+        network: 'celo',
+        nftStorageKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
+      });
+      if (!address) return;
+      await sdk.supportFlowWithSwap(
+        walletClient?.sendTransaction as any,
+        '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A',
+        '100000000000000',
+        {
+          amount: 100,
+          minReturn: 100000000000000,
+          path: '0x',
+          swapFrom: '0xCAa7349CEA390F89641fe306D93591f87595dc1F',
+          deadline: (Date.now() + 1000000 / 1000).toFixed(0),
+        }
+      );
     } catch (error) {
       console.error('An error occurred:', error);
     }

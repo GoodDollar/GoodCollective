@@ -32,16 +32,16 @@ function StewardList({ imageUrl, listType, stewardData, stewards, hideTitle }: S
     <View style={styles.stewardsHeader}>
       {!hideTitle && (
         <View style={styles.row}>
-          {listType !== 'steward' && <Image source={{ uri: StewardGreenIcon }} style={styles.firstIcon} />}
-          {listType === 'steward' && <Image source={{ uri: StewardBlueIcon }} style={styles.firstIcon} />}
-          <Text style={styles.title}>Stewards {`(25)`}</Text>
+          {/* {listType !== 'steward' && <Image source={{ uri: StewardGreenIcon }} style={styles.firstIcon} />}
+          {listType === 'steward' && <Image source={{ uri: StewardBlueIcon }} style={styles.firstIcon} />} */}
+          <Text style={styles.title}>Stewards {`(0)`}</Text>
         </View>
       )}
       <View style={styles.list}>
         {listType == 'steward' &&
           (isDesktopResolution ? placeholderUsers.slice(0, 6) : placeholderUsers.slice(0, 5)).map((item) => (
             <View style={styles.row}>
-              <Image source={{ uri: profilePictureArray[item] }} style={styles.rowImg} />
+              <Image source={null as any} style={styles.rowImg} />
               <Text style={styles.title}>
                 {stewardData.username}{' '}
                 {stewardData.isVerified && <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon} />}

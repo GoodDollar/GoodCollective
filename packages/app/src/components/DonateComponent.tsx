@@ -56,7 +56,7 @@ function DonateComponent({
   const [amount, setAmount] = useState(0);
   const [usdValue, setUsdValue] = useState<number>();
   const { getPrice } = useGetTokenPrice();
-  const { supportFlowWithSwap } = useContractCalls();
+  const { supportFlowWithSwap, supportFlow } = useContractCalls();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const tokenMapping = {
@@ -390,7 +390,13 @@ function DonateComponent({
             color={getButtonTextColor(insufficientLiquidity, priceImpace, insufficientBalance)}
             fontSize={18}
             seeType={false}
-            onPress={() => supportFlowWithSwap()}
+            onPress={() => {
+              if (currency === 'G$') {
+                supportFlow(window.location.pathname.slice('/donate/'.length));
+              } else {
+                supportFlowWithSwap();
+              }
+            }}
           />
         </TouchableOpacity>
       </View>

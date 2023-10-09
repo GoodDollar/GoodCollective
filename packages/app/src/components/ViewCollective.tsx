@@ -226,9 +226,9 @@ function ViewCollective({
             <View style={[styles.container, styles.mobileContainer]}>
               <StewardList
                 stewardData={{
-                  username: 'username123',
-                  isVerified: true,
-                  actions: 730,
+                  username: null as any,
+                  isVerified: null as any,
+                  actions: null as any,
                 }}
                 listType="steward"
               />
