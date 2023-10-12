@@ -5,9 +5,9 @@
   "license": "MIT",
   "types": "./typechain-types/index.ts",
   "files": [
-    "contracts",
-    "typechain-types",
-    "releases"
+    "contracts/",
+    "typechain-types/",
+    "releases/"
   ],
   "devDependencies": {
     "@gooddollar/goodprotocol": "^2.0.9",
