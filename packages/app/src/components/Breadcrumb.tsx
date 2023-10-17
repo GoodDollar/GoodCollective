@@ -5,7 +5,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface BreadcrumbProps {
-  currentPage: string;
+  currentPage?: string;
 }
 
 function Breadcrumb({ currentPage }: BreadcrumbProps) {

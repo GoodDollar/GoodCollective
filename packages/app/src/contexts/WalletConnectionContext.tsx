@@ -1,6 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useEthers } from '@usedapp/core';
-import { useConnectWallet, useSetChain } from '@web3-onboard/react';
+import { useConnectWallet } from '@web3-onboard/react';
 import { shortenAddress } from '../utils';
 import { useSwitchNetwork } from '@gooddollar/web3sdk-v2';
 interface IWalletConnectionContext {
@@ -18,7 +18,7 @@ const WalletConnectionProvider: React.FC<{
   const { account } = useEthers();
   const { switchNetwork } = useSwitchNetwork();
   const [{ wallet }, connect, disconnect] = useConnectWallet();
-  const [, setChain] = useSetChain();
+  // const [, setChain] = useSetChain();
 
   const [walletName, setWalletName] = useState<string>('');
   const [walletAddress, setWalletAddress] = useState<string>('');
