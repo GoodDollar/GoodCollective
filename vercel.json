@@ -1,6 +1,6 @@
 {
   "buildCommand": "yarn build:web",
   "git": {
-    "deploymentEnabled": false
+    "deploymentEnabled": true
   }
 }
