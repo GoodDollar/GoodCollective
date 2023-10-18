@@ -6,7 +6,6 @@ const pool = gql`
     directPaymentPools {
       id
       timestamp
-      manager
       contributions
       ipfs
     }
@@ -18,7 +17,6 @@ const specificPool = gql`
     directPaymentPools(where: { id: $id }) {
       id
       timestamp
-      manager
       contributions
       ipfs
     }
