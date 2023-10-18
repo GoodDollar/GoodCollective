@@ -23,6 +23,9 @@ jobs:
         with:
           node-version: 18
           cache: yarn
+
+          # Force to take sdk package from npm instead of workspace version
+      - run: yarn add @gooddollar/goodcollective-sdk@latest --cwd packages/app/
       - run: yarn install --immutable
       - run: yarn vercel pull --yes --cwd packages/app/ --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
       - run: yarn vercel build --cwd packages/app --token=${{ secrets.VERCEL_TOKEN }}
