@@ -49,6 +49,7 @@
     ]
   },
   "resolutions": {
-    "@react-native-aria/interactions": "0.2.3"
+    "@react-native-aria/interactions": "0.2.3",
+    "ethers": "5.7.2"
   }
 }

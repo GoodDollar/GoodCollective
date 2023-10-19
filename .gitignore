@@ -46,7 +46,7 @@ packages/subgraph/abis/*.json
 !.yarn/plugins
 !.yarn/releases
 !.yarn/sdks
-!.yarn/versions
+!.yarn/versions 
 .eslintcache
 
 # testing
