@@ -4199,7 +4199,7 @@ __metadata:
     "@babel/runtime": ^7.20.0
     "@celo-tools/celo-ethers-wrapper": ^0.4.0
     "@ethersproject/shims": ^5.7.0
-    "@gooddollar/goodcollective-sdk": "file:.yalc/@gooddollar/goodcollective-sdk"
+    "@gooddollar/goodcollective-sdk": 1.0.7-beta.0b8171a
     "@gooddollar/web3sdk-v2": ^0.2.1
     "@react-native-aria/interactions": 0.2.3
     "@react-native-async-storage/async-storage": ^1.18.2
@@ -4320,9 +4320,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gooddollar/goodcollective-sdk@file:.yalc/@gooddollar/goodcollective-sdk::locator=%40gooddollar%2Fgoodcollective-app%40workspace%3Apackages%2Fapp":
-  version: 1.0.6
-  resolution: "@gooddollar/goodcollective-sdk@file:.yalc/@gooddollar/goodcollective-sdk#.yalc/@gooddollar/goodcollective-sdk::hash=1b457a&locator=%40gooddollar%2Fgoodcollective-app%40workspace%3Apackages%2Fapp"
+"@gooddollar/goodcollective-sdk@npm:1.0.7-beta.0b8171a":
+  version: 1.0.7-beta.0b8171a
+  resolution: "@gooddollar/goodcollective-sdk@npm:1.0.7-beta.0b8171a"
   dependencies:
     "@gooddollar/goodcollective-contracts": 1.0.5-beta.7a2c704
     "@superfluid-finance/sdk-core": ^0.6.6
@@ -4330,7 +4330,7 @@ __metadata:
     nft.storage: ^7.1.1
   peerDependencies:
     ethers: ^5.*
-  checksum: 9c1acb66252243b8795aaba943a37077e0c7ef2750fe5d57596ffa29a511e2788231033bf563363ed40b4029dc7af5d13dea05bc9582cf54f51d4f42dee89f9b
+  checksum: 265b87f43de60bbc22e25af034573d96b94866de6553f2790990ef2e8fd7c6865cb8a234d9fd52dcca260ea042415b2403d72d5dcc9494795b91e4b19341406b
   languageName: node
   linkType: hard
 
