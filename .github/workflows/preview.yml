@@ -29,7 +29,7 @@ jobs:
           if grep -i '"@gooddollar/goodcollective-sdk": ".*beta.*"' packages/app/package.json ; then
             yarn add --cwd packages/app/ @gooddollar/goodcollective-sdk@beta
           else 
-            yarn add --cwd packages/app @gooddollar/gooddcollective-sdk@latest
+            yarn add --cwd packages/app/ @gooddollar/goodcollective-sdk@latest
           fi
       - run: yarn install --immutable
       - run: yarn vercel pull --yes --cwd packages/app/ --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
