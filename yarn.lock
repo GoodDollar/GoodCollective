@@ -4271,14 +4271,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@gooddollar/goodcollective-contracts@npm:1.0.5-beta.7a2c704":
-  version: 1.0.5-beta.7a2c704
-  resolution: "@gooddollar/goodcollective-contracts@npm:1.0.5-beta.7a2c704"
-  checksum: bf52353615a683134d64a54f5cbe749059e12422b867b3432f80e5bac7f238bbee4898b913d662ce097f6861962d59950d5285a60da210ad6807f61261ef8e08
-  languageName: node
-  linkType: hard
-
-"@gooddollar/goodcollective-contracts@workspace:packages/contracts":
+"@gooddollar/goodcollective-contracts@1.0.6-beta.0b8171a, @gooddollar/goodcollective-contracts@workspace:packages/contracts":
   version: 0.0.0-use.local
   resolution: "@gooddollar/goodcollective-contracts@workspace:packages/contracts"
   dependencies:
@@ -4320,6 +4313,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@gooddollar/goodcollective-contracts@npm:1.0.5-beta.7a2c704":
+  version: 1.0.5-beta.7a2c704
+  resolution: "@gooddollar/goodcollective-contracts@npm:1.0.5-beta.7a2c704"
+  checksum: bf52353615a683134d64a54f5cbe749059e12422b867b3432f80e5bac7f238bbee4898b913d662ce097f6861962d59950d5285a60da210ad6807f61261ef8e08
+  languageName: node
+  linkType: hard
+
 "@gooddollar/goodcollective-sdk@file:.yalc/@gooddollar/goodcollective-sdk::locator=%40gooddollar%2Fgoodcollective-app%40workspace%3Apackages%2Fapp":
   version: 1.0.6
   resolution: "@gooddollar/goodcollective-sdk@file:.yalc/@gooddollar/goodcollective-sdk#.yalc/@gooddollar/goodcollective-sdk::hash=1b457a&locator=%40gooddollar%2Fgoodcollective-app%40workspace%3Apackages%2Fapp"
@@ -4338,7 +4338,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@gooddollar/goodcollective-sdk@workspace:packages/sdk-js"
   dependencies:
-    "@gooddollar/goodcollective-contracts": 1.0.5-beta.7a2c704
+    "@gooddollar/goodcollective-contracts": 1.0.6-beta.0b8171a
     "@superfluid-finance/sdk-core": ^0.6.6
     "@types/eslint": ^8.40.2
     "@typescript-eslint/eslint-plugin": ^5.60.0

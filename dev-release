@@ -65,7 +65,7 @@ const args = process.argv.slice(2);
   await run('yarn workspace @gooddollar/goodcollective-sdk build');
 
   console.log('6. Publish sdk-js');
-  await run('npm publish --access public --tag beta', { cwd: pkgDir('sdk-js') });
+  await run('npm publish --access public --tag beta --ignore-scripts', { cwd: pkgDir('sdk-js') });
 
   console.log('7. Commit changes');
   const msg = `Dev version ${suffix.substring(1)} released`;
