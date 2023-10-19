@@ -4702,7 +4702,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@gooddollar/goodcollective-contracts@workspace:packages/contracts"
   dependencies:
-    "@gooddollar/goodprotocol": ^2.0.9
+    "@gooddollar/goodprotocol": ^2.0.15
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.0
     "@nomicfoundation/hardhat-network-helpers": ^1.0.0
     "@nomicfoundation/hardhat-toolbox": 2.*
@@ -4811,28 +4811,6 @@ __metadata:
     truffle-plugin-verify: ^0.6.1
     truffle-source-verify: ^0.0.6
   checksum: 3b1ac76cef9038f48034e9e30ecb87485fa6b534142d2c603e4639564df4f0483ab22092b05852064b646ef32e00e62345c6c1f5772fb11ed1ef854a09e929ce
-  languageName: node
-  linkType: hard
-
-"@gooddollar/goodprotocol@npm:^2.0.9":
-  version: 2.0.9
-  resolution: "@gooddollar/goodprotocol@npm:2.0.9"
-  dependencies:
-    "@gooddollar/goodcontracts": ^2.6.6
-    "@jsier/retrier": ^1.2.4
-    "@openzeppelin/contracts": ^4.8.0
-    "@openzeppelin/contracts-upgradeable": ^4.8.0
-    "@openzeppelin/upgrades-core": 1.18.0
-    "@superfluid-finance/ethereum-contracts": ^1.4.3
-    "@superfluid-finance/sdk-core": ^0.5.8
-    "@typechain/hardhat": ^6.1.5
-    async-promise-pool: ^1.0.4
-    openzeppelin-solidity: ^4.3.2
-    patch-package: latest
-    press-any-key: ^0.1.1
-    truffle-plugin-verify: ^0.6.1
-    truffle-source-verify: ^0.0.6
-  checksum: d289c02f109e6f13b0eab0217ec708cada5fd8aeb5eb060e8b2745e606ba7c76e762f264a875a020b7392dd8cb139bd0268a726b294e73da12d222d63ec92219
   languageName: node
   linkType: hard
 
@@ -6463,21 +6441,6 @@ __metadata:
     lodash: ^4.17.19
     node-fetch: ^2.6.0
   checksum: 0ce050e185a812c366ceef7dcfce526815babab9396275d9724f324a548ddfdca92ea9913ce61356dcd8c014fc495890c8e21afab4a197e0e14e761c698cce68
-  languageName: node
-  linkType: hard
-
-"@openzeppelin/upgrades-core@npm:1.18.0":
-  version: 1.18.0
-  resolution: "@openzeppelin/upgrades-core@npm:1.18.0"
-  dependencies:
-    cbor: ^8.0.0
-    chalk: ^4.1.0
-    compare-versions: ^4.0.0
-    debug: ^4.1.1
-    ethereumjs-util: ^7.0.3
-    proper-lockfile: ^4.1.1
-    solidity-ast: ^0.4.15
-  checksum: 004be35ea9ef851a6fe8347fd4338d9859e2096bb0b83620fc2b877617ef6674b7a23adda5029768e77f1c137053e49a045aa07c255e76642fe98b0ef9f1d237
   languageName: node
   linkType: hard
 
@@ -9392,7 +9355,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@superfluid-finance/ethereum-contracts@npm:^1.4.3, @superfluid-finance/ethereum-contracts@npm:^1.7.0":
+"@superfluid-finance/ethereum-contracts@npm:^1.7.0":
   version: 1.7.0
   resolution: "@superfluid-finance/ethereum-contracts@npm:1.7.0"
   dependencies:
@@ -18432,13 +18395,6 @@ __metadata:
   version: 1.0.1
   resolution: "commondir@npm:1.0.1"
   checksum: 59715f2fc456a73f68826285718503340b9f0dd89bfffc42749906c5cf3d4277ef11ef1cca0350d0e79204f00f1f6d83851ececc9095dc88512a697ac0b9bdcb
-  languageName: node
-  linkType: hard
-
-"compare-versions@npm:^4.0.0":
-  version: 4.1.4
-  resolution: "compare-versions@npm:4.1.4"
-  checksum: c1617544b79c2f36a1d543c50efd0da1a994040294c8923218080bc0df46da83ca414e3378282e93cab073744995124946417d130d8987e8efb5d1a73c0c4ba6
   languageName: node
   linkType: hard
 

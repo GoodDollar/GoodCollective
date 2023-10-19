@@ -1,0 +1,76 @@
+#!/usr/bin/env node
+
+const { exec } = require('child_process');
+const { writeFile } = require('fs');
+const { promisify } = require('util');
+
+const pkgDir = (pkg) => `./packages/${pkg}`;
+const pkgPath = (pkg) => `${pkgDir(pkg)}/package.json`;
+
+const contractspkg = require(pkgPath('contracts'));
+const sdkpkg = require(pkgPath('sdk-js'));
+
+const execAsync = promisify(exec);
+const writeFileAsync = promisify(writeFile);
+
+const run = (cmd, opts = {}) => execAsync(cmd, opts).then(({ stdout }) => stdout);
+const updateVersion = (version, suffix) => {
+  let [full, major, minor, patch, flags] = version.match(/^(\d+)\.(\d+)\.(\d+)(-beta)?.*$/);
+
+  if (!flags) {
+    patch = Number(patch) + 1;
+  }
+
+  return [major, minor, patch].join('.') + suffix;
+};
+
+const writePkg = async (pkg, json) => {
+  const contents = JSON.stringify(json, null, 2);
+  const path = pkgPath(pkg);
+
+  await writeFileAsync(path, contents);
+};
+
+const args = process.argv.slice(2);
+
+(async () => {
+  const commit = await run('git rev-parse --short HEAD');
+  const suffix = `-beta.${commit.trimEnd()}`;
+
+  console.log('1. Update gc-contracts version');
+  contractspkg.version = updateVersion(contractspkg.version, suffix);
+  await writePkg('contracts', contractspkg);
+
+  console.log('2. Build gc-contracts');
+  await run('yarn workspace @gooddollar/goodcollective-contracts install');
+  await run('yarn workspace @gooddollar/goodcollective-contracts build');
+
+  console.log('3. Publish gc-contracts');
+  await run('npm publish --access public --tag beta', { cwd: pkgDir('contracts') });
+
+  console.log('4. Update sdk-js versions & deps');
+  const pkgToUpdate = [sdkpkg];
+
+  pkgToUpdate.forEach((pkg) => {
+    pkg.version = updateVersion(pkg.version, suffix);
+    pkg.devDependencies['@gooddollar/goodcollective-contracts'] = contractspkg.version;
+  });
+
+  console.log('4.1. Write updated package.json');
+
+  await writePkg('sdk-js', sdkpkg);
+
+  console.log('5. Build sdk-js');
+  await run('yarn workspace @gooddollar/goodcollective-sdk install');
+  await run('yarn workspace @gooddollar/goodcollective-sdk build');
+
+  console.log('6. Publish sdk-js');
+  await run('npm publish --access public --tag beta', { cwd: pkgDir('sdk-js') });
+
+  console.log('7. Commit changes');
+  const msg = `Dev version ${suffix.substring(1)} released`;
+  await run('git add .');
+  await run(`git commit -m '${msg}' -n`);
+  await run('git push');
+  console.log(msg);
+})();
