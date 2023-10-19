@@ -1,7 +1,7 @@
 {
   "name": "@gooddollar/goodcollective-sdk",
   "license": "MIT",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "main": "./dist/sdk.js",
   "module": "./dist/sdk.mjs",
   "types": "./types/index.d.ts",
@@ -23,6 +23,7 @@
     "package.json"
   ],
   "devDependencies": {
+    "@gooddollar/goodcollective-contracts": "1.0.6-beta.0b8171a",
     "@types/eslint": "^8.40.2",
     "@typescript-eslint/eslint-plugin": "^5.60.0",
     "@typescript-eslint/parser": "^5.60.0",
