@@ -24,6 +24,9 @@ jobs:
           node-version: 18
           cache: yarn
       - run: yarn install --immutable
+      # build the local mono-repo dependencies
+      - run: yarn build:contracts
+      - run: yarn build:sdk
       - run: yarn vercel pull --yes --cwd packages/app/ --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
       - run: yarn vercel build --cwd packages/app --token=${{ secrets.VERCEL_TOKEN }}
       - id: deploy
