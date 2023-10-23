@@ -11,6 +11,7 @@
     "start": "react-native start",
     "test": "jest",
     "web": "vite -c web/vite.config.ts",
+    "build": "yarn build:web",
     "build:web": "tsc && vite build -c web/vite.config.ts",
     "preview:web": "vite preview -c web/vite.config.ts"
   },
@@ -19,7 +20,7 @@
     "@celo-tools/celo-ethers-wrapper": "^0.4.0",
     "@ethersproject/shims": "^5.7.0",
     "@gooddollar/goodcollective-sdk": "^1.*",
-    "@gooddollar/web3sdk-v2": "^0.1.108",
+    "@gooddollar/web3sdk-v2": "^0.2.2",
     "@react-native-aria/interactions": "0.2.3",
     "@react-native-async-storage/async-storage": "^1.18.2",
     "@react-native-firebase/analytics": "16.7.0",
