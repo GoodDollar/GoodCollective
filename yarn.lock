@@ -4518,6 +4518,7 @@ __metadata:
     "@vitejs/plugin-react": ^4.0.0
     "@wagmi/core": ^1.2.0
     "@walletconnect/modal-react-native": ^1.0.0-rc.9
+    "@web3-onboard/react": ^2.8.10
     "@web3modal/ethereum": ^2.7.1
     "@web3modal/react": ^2.7.1
     apollo-link: ^1.2.14
@@ -4534,6 +4535,7 @@ __metadata:
     lodash: ^4.17.21
     metro-react-native-babel-preset: 0.73.9
     mixpanel-react-native: ^2.3.1
+    mobile-device-detect: ^0.4.3
     moment: ^2.29.4
     moment-duration-format: ^2.3.2
     native-base: ^3.4.28
@@ -30501,6 +30503,13 @@ __metadata:
   dependencies:
     obliterator: ^2.0.0
   checksum: 66080afc1616866beb164e230c432964d6eed467cf37ad00e9c10161b8267928124ca8f1d0ecfea86c85568acfa62d54faaf646a86968d1135189a0fdfdd6b78
+  languageName: node
+  linkType: hard
+
+"mobile-device-detect@npm:^0.4.3":
+  version: 0.4.3
+  resolution: "mobile-device-detect@npm:0.4.3"
+  checksum: 2da4a9fce70d22555f419c13844275c5bb64896378163672d35878347825392426da256043f47e9e3395fa9fc9a07e7e5149ef17c18b1e43ad746a5bef42829f
   languageName: node
   linkType: hard
 

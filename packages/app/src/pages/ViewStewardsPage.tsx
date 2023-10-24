@@ -1,12 +1,14 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import { isMobile as isMobileWeb } from 'mobile-device-detect';
+import { useMediaQuery } from 'native-base';
+
 import oceanUri from '../@constants/SafariImagePlaceholder';
 import Layout from '../components/Layout';
 import StewardList from '../components/StewardsList';
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
-import { useMediaQuery } from 'native-base';
 import { StewardBlueIcon } from '../@constants/ColorTypeIcons';
-import React from 'react';
 import Breadcrumb from '../components/Breadcrumb';
 
 function ViewStewardsPage() {
@@ -46,7 +48,7 @@ function ViewStewardsPage() {
 
   return (
     <Layout>
-      <View style={styles.stewardsContainer}>
+      <View style={isMobileWeb ? styles.mobileStewardsContainer : styles.desktopStewardsContainer}>
         <View>
           <Image source={{ uri: oceanUri }} style={styles.image} />
           <View style={[styles.container]}>
