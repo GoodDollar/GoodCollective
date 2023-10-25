@@ -42,6 +42,7 @@ function Header(): JSX.Element {
       token: '0x471EcE3750Da237f93B8E339c536989b8978a438',
     }).then((res) => {
       setTokenBalance(res.formatted);
+      console.log(res.formatted, 'line 45');
     });
   }, [address, chain?.id]);
 
