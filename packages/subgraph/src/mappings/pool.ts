@@ -11,7 +11,7 @@ import {
   PoolSettingsChanged,
 } from '../../generated/DirectPaymentsPool/DirectPaymentsPool';
 
-import { Claim, DirectPaymentPool, PoolSettings, SafetyLimits, EventData, Steward } from '../../generated/schema';
+import { Claim, Collective, PoolSettings, SafetyLimits, EventData, Steward } from '../../generated/schema';
 
 export function handlePoolCreated(event: PoolCreated): void {
   const poolAddress = event.params.pool;
@@ -21,11 +21,11 @@ export function handlePoolCreated(event: PoolCreated): void {
   const poolSettings = event.params.poolSettings;
   const poolLimits = event.params.poolLimits;
 
-  let directPaymentPool = DirectPaymentPool.load(poolAddress.toHexString());
+  let directPaymentPool = Collective.load(poolAddress.toHexString());
   let directPaymentPoolSettings = PoolSettings.load(poolAddress.toHexString());
   let directPaymentPoolLimits = SafetyLimits.load(poolAddress.toHexString());
   if (directPaymentPool === null) {
-    directPaymentPool = new DirectPaymentPool(poolAddress.toHexString());
+    directPaymentPool = new Collective(poolAddress.toHexString());
     directPaymentPoolSettings = new PoolSettings(poolAddress.toHexString());
     directPaymentPoolLimits = new SafetyLimits(poolAddress.toHexString());
 
@@ -60,7 +60,7 @@ export function handlePoolDetailsChanged(event: PoolDetailsChanged): void {
   const poolAddress = event.params.pool;
   const ipfsHash = event.params.ipfs;
 
-  let directPaymentPool = DirectPaymentPool.load(poolAddress.toHexString());
+  let directPaymentPool = Collective.load(poolAddress.toHexString());
   if (directPaymentPool === null) {
     log.error('Missing Payment Pool {}', [event.address.toHex()]);
     return;
@@ -73,7 +73,7 @@ export function handlePoolVerifiedChange(event: PoolVerifiedChanged): void {
   const poolAddress = event.params.pool;
   const verified = event.params.isVerified;
 
-  let directPaymentPool = DirectPaymentPool.load(poolAddress.toHexString());
+  let directPaymentPool = Collective.load(poolAddress.toHexString());
   if (directPaymentPool === null) {
     log.error('Missing Payment Pool {}', [event.address.toHex()]);
     return;
@@ -155,7 +155,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
       eventData.save();
     }
 
-    eventData.rewardPerContributer = rewardPerContributer;
+    eventData.rewardPerContributor = rewardPerContributer;
     eventData.save();
   }
 }

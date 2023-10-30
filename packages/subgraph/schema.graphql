@@ -6,19 +6,22 @@ type Steward @entity {
   " NFT's minted to steward"
   nft: [ProvableNFT!]! @derivedFrom(field: "steward")
   " Collectives the steward is apart of "
-  collective: [DirectPaymentPool!]! @derivedFrom(field: "steward")
+  collective: [Collective!]! @derivedFrom(field: "steward")
 }
 
 type Donor @entity {
-  "{ user address} "
-  id: String!
-  " Date the user became a donor "
+  id: String! # This will be the contract address from which the transaction originated
+  supporter: Bytes! # Address of the supporter
   joined: Int!
-  " Total amount donated "
   totalDonated: BigInt
+  previousContribution: BigInt
+  contribution: BigInt
+  previousFlowRate: BigInt
+  flowRate: BigInt
+  isFlowUpdate: Boolean
 }
 
-type DirectPaymentPool @entity {
+type Collective @entity {
   "This is the address source"
   id: String!
   ipfs: String
@@ -68,7 +71,7 @@ type EventData @entity {
   quantity: BigInt!
   eventUri: String!
   eventQuantity: BigInt!
-  rewardPerContributer: BigInt!
+  rewardPerContributor: BigInt!
   contributors: [Bytes!]!
   claim: Claim
 }
