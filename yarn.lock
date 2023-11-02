@@ -4562,7 +4562,7 @@ __metadata:
     viem: ^1.10.8
     vite: ^4.3.9
     vite-plugin-node-polyfills: ^0.9.0
-    wagmi: ^1.0.2
+    wagmi: ^1.0.0
   languageName: unknown
   linkType: soft
 
@@ -4613,7 +4613,7 @@ __metadata:
   resolution: "@gooddollar/goodcollective-sdk@workspace:packages/sdk-js"
   dependencies:
     "@gooddollar/goodcollective-contracts": ^1.0.4
-    "@superfluid-finance/sdk-core": ^0.6.6
+    "@superfluid-finance/sdk-core": ^0.6.12
     "@types/eslint": ^8.40.2
     "@typescript-eslint/eslint-plugin": ^5.60.0
     "@typescript-eslint/parser": ^5.60.0
@@ -4780,7 +4780,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-typed-document-node/core@npm:^3.1.1":
+"@graphql-typed-document-node/core@npm:^3.1.1, @graphql-typed-document-node/core@npm:^3.2.0":
   version: 3.2.0
   resolution: "@graphql-typed-document-node/core@npm:3.2.0"
   peerDependencies:
@@ -9215,6 +9215,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@superfluid-finance/ethereum-contracts@npm:1.8.1, @superfluid-finance/ethereum-contracts@npm:^1.8.1":
+  version: 1.8.1
+  resolution: "@superfluid-finance/ethereum-contracts@npm:1.8.1"
+  dependencies:
+    "@decentral.ee/web3-helpers": 0.5.3
+    "@openzeppelin/contracts": 4.9.3
+    "@truffle/contract": 4.6.28
+    ethereumjs-tx: 2.1.2
+    ethereumjs-util: 7.1.5
+  peerDependencies:
+    ethers: ^5.7.2
+  checksum: b1cced6363f0bec050bb84b0293ed45ba607cdf7ca3a602cd82133bf9a02d9b495fd7df868b013cf1d3c6315117773f7557ea002547999c20cde00ee304051e2
+  languageName: node
+  linkType: hard
+
 "@superfluid-finance/ethereum-contracts@npm:^1.7.0":
   version: 1.7.0
   resolution: "@superfluid-finance/ethereum-contracts@npm:1.7.0"
@@ -9227,21 +9242,6 @@ __metadata:
     ethereumjs-util: 7.1.5
     stack-trace: 0.0.10
   checksum: dca88551e6b61292ea21d0b82e570c0a5222f8eb9ad98361b0215ab97343d3e68b1493312de83d98bab0a2a22b5d01f93f0a24d88b039383d9927789e4c1e761
-  languageName: node
-  linkType: hard
-
-"@superfluid-finance/ethereum-contracts@npm:^1.8.1":
-  version: 1.8.1
-  resolution: "@superfluid-finance/ethereum-contracts@npm:1.8.1"
-  dependencies:
-    "@decentral.ee/web3-helpers": 0.5.3
-    "@openzeppelin/contracts": 4.9.3
-    "@truffle/contract": 4.6.28
-    ethereumjs-tx: 2.1.2
-    ethereumjs-util: 7.1.5
-  peerDependencies:
-    ethers: ^5.7.2
-  checksum: b1cced6363f0bec050bb84b0293ed45ba607cdf7ca3a602cd82133bf9a02d9b495fd7df868b013cf1d3c6315117773f7557ea002547999c20cde00ee304051e2
   languageName: node
   linkType: hard
 
@@ -9263,6 +9263,13 @@ __metadata:
   version: 1.1.6
   resolution: "@superfluid-finance/metadata@https://github.com/superfluid-finance/metadata.git#commit=c09548c2642b256af6b35dc84d3e566c672fd2dc"
   checksum: 8f9388e603eb23f6be25ad6cc8ad76ae7dab45737b7027825572271fdd317228ddc2b797642496a64e8237a5486a5ec9bd978f27c7fb91d8da035d54ba9607cc
+  languageName: node
+  linkType: hard
+
+"@superfluid-finance/metadata@npm:1.1.18":
+  version: 1.1.18
+  resolution: "@superfluid-finance/metadata@npm:1.1.18"
+  checksum: e411c64637883c385d853d60825cad21de8ea15bb0250e48d6e79b2d169e6be89a5c1f5ad85691db41a6ea1d0ee4ebd34721af8b57aff4a65c65b4a42d42bd00
   languageName: node
   linkType: hard
 
@@ -9295,6 +9302,23 @@ __metadata:
     ethers: ^5.6.9
     graphql: ^16.0.0
   checksum: fc7fab91a95fdb109390dcf221a37f5eab12a8abfa0dd31a82bae4b72ca9aa6237b9f9ab3d27eea0589dc5ff8595ae4af15a2020f0d4b7adf00f7fed525a4e98
+  languageName: node
+  linkType: hard
+
+"@superfluid-finance/sdk-core@npm:^0.6.12":
+  version: 0.6.12
+  resolution: "@superfluid-finance/sdk-core@npm:0.6.12"
+  dependencies:
+    "@superfluid-finance/ethereum-contracts": 1.8.1
+    "@superfluid-finance/metadata": 1.1.18
+    browserify: ^17.0.0
+    graphql-request: ^6.1.0
+    lodash: ^4.17.21
+    tsify: ^5.0.4
+  peerDependencies:
+    ethers: ^5.7.2
+    graphql: ^16.0.0
+  checksum: c35397a6a8ed18dfb197bcee501a74616e20ec7dae4ce303602ca602c2d7379f9464a4f7e61f94d52a3d0048b86fd961cecdd9432ed69c4ddb359e4509a4c9f6
   languageName: node
   linkType: hard
 
@@ -12209,24 +12233,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wagmi/core@npm:1.4.2, @wagmi/core@npm:^1.2.0":
-  version: 1.4.2
-  resolution: "@wagmi/core@npm:1.4.2"
-  dependencies:
-    "@wagmi/connectors": 3.1.2
-    abitype: 0.8.7
-    eventemitter3: ^4.0.7
-    zustand: ^4.3.1
-  peerDependencies:
-    typescript: ">=5.0.4"
-    viem: ">=0.3.35"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 0a349d643153a1b966bf0a4198c1b5a06defdfff9b0686c3ffcd3e514f0301b03a58ee9de09e8e7323a70c5550691170bc296a3023046f8caeaacd2213c9ffe8
-  languageName: node
-  linkType: hard
-
 "@wagmi/core@npm:1.4.5":
   version: 1.4.5
   resolution: "@wagmi/core@npm:1.4.5"
@@ -12242,6 +12248,24 @@ __metadata:
     typescript:
       optional: true
   checksum: d70460ee9e25a68d5bd10d8e4e0412f089dd48c5b6073afef400d56c36fdfc39338e7c56231d5f4798b9c292c5bb4abf5a4d392710cb54dfe579e3c5ca5e4e10
+  languageName: node
+  linkType: hard
+
+"@wagmi/core@npm:^1.2.0":
+  version: 1.4.2
+  resolution: "@wagmi/core@npm:1.4.2"
+  dependencies:
+    "@wagmi/connectors": 3.1.2
+    abitype: 0.8.7
+    eventemitter3: ^4.0.7
+    zustand: ^4.3.1
+  peerDependencies:
+    typescript: ">=5.0.4"
+    viem: ">=0.3.35"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 0a349d643153a1b966bf0a4198c1b5a06defdfff9b0686c3ffcd3e514f0301b03a58ee9de09e8e7323a70c5550691170bc296a3023046f8caeaacd2213c9ffe8
   languageName: node
   linkType: hard
 
@@ -24634,6 +24658,18 @@ __metadata:
   peerDependencies:
     graphql: 14 - 16
   checksum: 3124afd01aee781cd5a2e9ac30063526b677a6754032566104fc36270b5f9be03f17a32e49f34c71ca968d533151550c37f7a0194d11c36ff59977bd73e2abc3
+  languageName: node
+  linkType: hard
+
+"graphql-request@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "graphql-request@npm:6.1.0"
+  dependencies:
+    "@graphql-typed-document-node/core": ^3.2.0
+    cross-fetch: ^3.1.5
+  peerDependencies:
+    graphql: 14 - 16
+  checksum: 6d62630a0169574442320651c1f7626c0c602025c3c46b19e09417c9579bb209306ee63de9793a03be2e1701bb7f13971f8545d99bc6573e340f823af0ad35b2
   languageName: node
   linkType: hard
 
@@ -40351,28 +40387,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wagmi@npm:^1.0.2":
-  version: 1.4.2
-  resolution: "wagmi@npm:1.4.2"
-  dependencies:
-    "@tanstack/query-sync-storage-persister": ^4.27.1
-    "@tanstack/react-query": ^4.28.0
-    "@tanstack/react-query-persist-client": ^4.28.0
-    "@wagmi/core": 1.4.2
-    abitype: 0.8.7
-    use-sync-external-store: ^1.2.0
-  peerDependencies:
-    react: ">=17.0.0"
-    typescript: ">=5.0.4"
-    viem: ">=0.3.35"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: c663eb342d2dac5117bdac0cd7c9d93cb4f95254997348ac17cfc39424faffb71a8dfeae8900e1e9ab1a0b7b4c843d85288f9b2c0880131bb5d7e52d78de635d
-  languageName: node
-  linkType: hard
-
-"wagmi@npm:^1.3.8":
+"wagmi@npm:^1.0.0, wagmi@npm:^1.3.8":
   version: 1.4.5
   resolution: "wagmi@npm:1.4.5"
   dependencies:
