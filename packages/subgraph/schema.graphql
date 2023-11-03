@@ -13,12 +13,14 @@ type Donor @entity {
   id: String! # This will be the contract address from which the transaction originated
   supporter: Bytes! # Address of the supporter
   joined: Int!
-  totalDonated: BigInt
+  totalDonated: BigInt!
   previousContribution: BigInt
   contribution: BigInt
   previousFlowRate: BigInt
   flowRate: BigInt
   isFlowUpdate: Boolean
+  collective: Bytes!
+  pool: [Collective!]
 }
 
 type Collective @entity {
@@ -27,7 +29,7 @@ type Collective @entity {
   ipfs: String
   nftType: BigInt
   manager: Bytes
-  contributions: BigInt
+  contributions: BigInt!
   membersValidator: Bytes
   uniquenessValidator: String
   collective: Donor

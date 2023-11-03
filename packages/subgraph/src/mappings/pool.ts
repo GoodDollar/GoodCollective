@@ -1,4 +1,4 @@
-import { Address, log } from '@graphprotocol/graph-ts';
+import { Address, BigInt, log } from '@graphprotocol/graph-ts';
 import {
   PoolCreated,
   PoolDetailsChanged,
@@ -37,6 +37,7 @@ export function handlePoolCreated(event: PoolCreated): void {
     directPaymentPool.projectId = projectID.toHexString();
     directPaymentPool.manager = event.address;
     directPaymentPool.timestamp = event.block.timestamp.toI32();
+    directPaymentPool.contributions = BigInt.fromI32(0);
     directPaymentPool.save();
 
     // Pool Settings
