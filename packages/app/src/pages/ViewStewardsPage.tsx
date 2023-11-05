@@ -1,4 +1,3 @@
-import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { isMobile as isMobileWeb } from 'mobile-device-detect';
 import { useMediaQuery } from 'native-base';

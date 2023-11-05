@@ -1,4 +1,3 @@
-import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import RoundedButton from './RoundedButton';
 import { InterRegular, InterSemiBold, InterSmall } from '../utils/webFonts';

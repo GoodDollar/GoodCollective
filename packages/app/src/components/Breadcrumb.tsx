@@ -1,7 +1,6 @@
 import { Image, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { ChevronLeftIcon } from '../@constants/ChevronIcons';
 import { Colors } from '../utils/colors';
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface BreadcrumbProps {

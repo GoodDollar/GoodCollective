@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import Header from './Header';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import ImpactButton from './ImpactButton';
