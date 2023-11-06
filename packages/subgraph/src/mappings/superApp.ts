@@ -9,12 +9,10 @@ export function handleSupport(event: SupporterUpdated): void {
 
   if (donor == null) {
     donor = new Donor(donorId);
-    directPaymentPool = new Collective(event.address.toHexString());
     donor.supporter = event.params.supporter;
     donor.joined = event.block.timestamp.toI32();
-    donor.totalDonated = BigInt.fromI32(0);
+    donor.totalDonated = event.params.contribution;
     donor.collective = event.address;
-    donor.pool = directPaymentPool;
   }
 
   if (directPaymentPool === null) {
@@ -23,6 +21,7 @@ export function handleSupport(event: SupporterUpdated): void {
   }
 
   directPaymentPool.contributions = directPaymentPool.contributions.plus(event.params.contribution);
+  directPaymentPool.donor = event.params.supporter.toHexString();
   directPaymentPool.save(); // Save the updated directPaymentPool entity
 
   donor.previousContribution = event.params.previousContribution;

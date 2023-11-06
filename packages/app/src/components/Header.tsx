@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StyleSheet, View, Image, TouchableOpacity, Text, TextStyle } from 'react-native';
 import useCrossNavigate from '../routes/useCrossNavigate';
 // import { useEthers } from '@usedapp/core';
@@ -34,7 +34,7 @@ function Header(): JSX.Element {
   const [tokenBalance, setTokenBalance] = useState<string>('0');
   const [ensName, setEnsName] = useState<any>('');
 
-  React.useMemo(() => {
+  useMemo(() => {
     if (!address) return;
     fetchBalance({
       address: address,
@@ -46,7 +46,7 @@ function Header(): JSX.Element {
     });
   }, [address, chain?.id]);
 
-  React.useMemo(() => {
+  useMemo(() => {
     if (!address) return;
     fetchEnsName({
       address: address,

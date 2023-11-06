@@ -36,8 +36,8 @@ const SF_RESOLVERS: { [key: string]: string } = {
   31337: '0x41549B6C39A529EA574f35b745b00f716869D2a0',
 };
 const CHAIN_OVERRIDES: { [key: string]: object } = {
-  44787: { gasPrice: 5e9 },
-  42220: { gasPrice: 5e9 },
+  44787: { gasPrice: 10e9, gasLimit: 1200000 },
+  42220: { gasPrice: 10e9, gasLimit: 1200000 },
 };
 
 export class GoodCollectiveSDK {

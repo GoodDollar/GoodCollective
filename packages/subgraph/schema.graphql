@@ -20,7 +20,7 @@ type Donor @entity {
   flowRate: BigInt
   isFlowUpdate: Boolean
   collective: Bytes!
-  pool: [Collective!]
+  pool: [Collective!]! @derivedFrom(field: "donor")
 }
 
 type Collective @entity {
@@ -32,7 +32,7 @@ type Collective @entity {
   contributions: BigInt!
   membersValidator: Bytes
   uniquenessValidator: String
-  collective: Donor
+  donor: Donor
   steward: Steward
   rewardToken: String
   projectId: String

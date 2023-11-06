@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { useState } from 'react';
 // import oceanUri from '../@constants/SafariImagePlaceholder';

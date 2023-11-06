@@ -1,7 +1,7 @@
 import { Image, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import CollectiveHomeCard from '../components/CollectiveHomeCard';
 import oceanUri from '../@constants/SafariImagePlaceholder';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import { Colors } from '../utils/colors';
 import { InterSemiBold } from '../utils/webFonts';

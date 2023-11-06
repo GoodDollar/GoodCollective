@@ -1,4 +1,3 @@
-import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import { Colors } from '../utils/colors';

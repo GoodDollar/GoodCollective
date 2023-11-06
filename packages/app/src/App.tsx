@@ -1,4 +1,3 @@
-import React from 'react';
 import { Platform, SafeAreaView, StyleSheet } from 'react-native';
 
 import AboutPage from './pages/AboutPage';

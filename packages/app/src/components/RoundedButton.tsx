@@ -1,4 +1,3 @@
-import React from 'react';
 import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 // import useCrossNavigate from '../routes/useCrossNavigate';
 import { InterSemiBold } from '../utils/webFonts';

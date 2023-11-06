@@ -12,13 +12,13 @@ const sdk = new GoodCollectiveSDK('42220', provider, { nftStorageKey: process.en
 const main = async () => {
   const projectId = 'silvi';
   const poolAttributes = {
-    name: 'Silvi - Kakamega Farmer Tree Nurseries (Real G$)',
+    name: 'Silvi Test With Max (Real G$)',
     description:
       'This Collective directly supports smallholder farmers around Kenya’s Kakamega forest. These farmers are acting as nurseries, growing and nurturing native trees to maturity for subsequent reforestation. In partnership with Silvi.',
-    email: '',
+    email: 'myemail@gmail.com',
     website: 'https://www.silvi.earth',
     twitter: 'https://twitter.com/SilviProtocol',
-    instagram: '',
+    instagram: 'https://instagram.com/x',
     threads: '',
     headerImage:
       'https://uploads-ssl.webflow.com/639e611ba0716a170111fe96/65032c75ac7830faf70f9469_FooterBackground.jpg',
@@ -31,11 +31,11 @@ const main = async () => {
 
   const poolSettings = {
     validEvents: [1, 2],
-    rewardPerEvent: [ethers.constants.WeiPerEther, ethers.constants.WeiPerEther.mul(2)],
-    manager: wallet.address,
+    rewardPerEvent: [ethers.constants.WeiPerEther.mul(1), ethers.constants.WeiPerEther.mul(2)],
+    manager: '0xEbB3341cD1511035845f1b37e6A2BFCDcf433Ad7',
     membersValidator: ethers.constants.AddressZero,
     uniquenessValidator: ethers.constants.AddressZero,
-    rewardToken: '0xFa51eFDc0910CCdA91732e6806912Fa12e2FD475', //celo dev token
+    rewardToken: '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A', //celo dev token
     allowRewardOverride: false,
   };
 

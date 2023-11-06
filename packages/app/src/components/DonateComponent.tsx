@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 // import Header from './Header';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 // import ImpactButton from './ImpactButton';
