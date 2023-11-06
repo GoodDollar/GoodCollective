@@ -1,66 +1,64 @@
-import WalletProfile from '../components/WalletProfile';
+import React, { useMemo, Suspense } from 'react';
 import Layout from '../components/Layout';
 import { WalletProfileTypes } from '../@constants/WalletProfileTypes';
 import { FruitDoveUri } from '../@constants/ProfilePictures';
 import { useDonorData } from '../hooks/useSubgraphData';
-import { useEffect, useState } from 'react';
-function WalletProfilePage() {
-  const { donors } = useDonorData(window.location.pathname.slice('/profile/'.length));
-  const [isLoading, setIsLoading] = useState(true);
-  const [subData, setSubData] = useState<any[]>();
+import { useAccount } from 'wagmi';
+import { formatTime } from '../hooks/functions/formatTime';
 
-  useEffect(() => {
-    if (!donors || donors.length === 0) {
-      setIsLoading(false); // No requests, no loading
-      return;
-    }
-    const t: any = [];
-    Promise.all(
-      donors.map((e: any) => {
-        return t.push({
-          amountD: e.totalDonated,
-        });
-      })
-    ).then(() => {
-      setSubData(t);
-      setIsLoading(false);
-    });
+// Lazy load the WalletProfile component
+const WalletProfileLazy = React.lazy(() => import('../components/WalletProfile'));
+
+function WalletProfilePage() {
+  const { donors } = useDonorData(window.location.pathname.slice('/profile/'.length).toLocaleLowerCase());
+  const { address } = useAccount();
+  // This avoids unnecessary transformations on each render.
+  const subData = useMemo(() => {
+    return donors?.map((donor: any) => ({
+      amountDonated: donor.totalDonated,
+      join: donor.joined,
+      pool: donor.collective,
+    }));
   }, [donors]);
-  console.log(isLoading);
+  console.log(donors);
   return (
     <Layout>
-      <>
-        {donors?.length <= 0 ? (
-          subData?.map((t: any, index: number) => (
-            <WalletProfile
-              key={index}
+      {/* Suspense will display the fallback while WalletProfileLazy is being loaded */}
+      <Suspense fallback={<div>Loading profiles...</div>}>
+        {subData?.length > 0 ? (
+          subData.map((data: any, index: number) => (
+            <WalletProfileLazy
+              index={index}
               imageUrl={FruitDoveUri}
-              firstName={'John'}
-              lastName={'Doe'}
+              firstName={''}
+              lastName={''}
               actionsPerformed={0}
-              amountReceived={704000}
+              amountReceived={0}
               collectivesTotal={2}
-              creationDate={'January 24, 2023'}
-              amountDonated={t.amountD}
-              peopleSupported={276}
-              type={WalletProfileTypes.both}
+              creationDate={formatTime(data.join)}
+              amountDonated={data.amountDonated}
+              peopleSupported={0}
+              domain={address}
+              collectives={data.pool}
+              type={WalletProfileTypes.donor}
             />
           ))
         ) : (
-          <WalletProfile
+          <WalletProfileLazy
             imageUrl={FruitDoveUri}
-            firstName={'John'}
-            lastName={'Doe'}
+            firstName={''}
+            lastName={''}
             actionsPerformed={0}
             amountReceived={704000}
             collectivesTotal={2}
             creationDate={'January 24, 2023'}
             amountDonated={0}
-            peopleSupported={0}
+            peopleSupported={276}
+            domain={address}
             type={WalletProfileTypes.empty}
           />
         )}
-      </>
+      </Suspense>
     </Layout>
   );
 }

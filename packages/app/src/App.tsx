@@ -12,8 +12,8 @@ import * as MobileRoute from './routes/routing.native';
 import * as WebRoute from './routes/routing.web';
 
 import ActivityLogPage from './pages/ActivityLogPage';
-import WalletProfilePageDonor from './pages/WalletProfilePageDonor';
-import WalletProfilePageSteward from './pages/WalletProfilePageSteward';
+// import WalletProfilePageDonor from './pages/WalletProfilePageDonor';
+// import WalletProfilePageSteward from './pages/WalletProfilePageSteward';
 // import EmptyProfile from './components/EmptyProfile';
 import { NativeBaseProvider } from 'native-base';
 import CollectiveCardPage from './pages/CollectiveCardPage';
@@ -49,7 +49,7 @@ function App(): JSX.Element {
   ];
 
   const apolloClient = new ApolloClient({
-    uri: 'https://api.studio.thegraph.com/query/50925/goodcollective/version/latest',
+    uri: 'https://api.studio.thegraph.com/query/50925/goodcollective/v27',
     cache: new InMemoryCache(),
   });
 
@@ -74,10 +74,7 @@ function App(): JSX.Element {
                   <MobileRoute.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
                   <MobileRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
                   <MobileRoute.Route path="/profile/:id" element={<WalletProfilePage />} />
-                  <MobileRoute.Route path="/profile/:id/stewards" element={<WalletProfilePageSteward />} />
-                  <MobileRoute.Route path="/profile/:id/donors" element={<WalletProfilePageDonor />} />
                   <MobileRoute.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
-                  <MobileRoute.Route path="/walletEmpty" element={<WalletProfilePageEmpty />} />
                   <MobileRoute.Route path="/modalTest" element={<ModalTestPage />} />
                   <MobileRoute.Route path="/donate" element={<DonatePage />} />
                 </MobileRoute.Routes>
@@ -94,8 +91,6 @@ function App(): JSX.Element {
                   <WebRoute.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
                   <WebRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
                   <WebRoute.Route path="/profile/:id" element={<WalletProfilePage />} />
-                  <WebRoute.Route path="/profile/:id/stewards" element={<WalletProfilePageSteward />} />
-                  <WebRoute.Route path="/profile/:id/donors" element={<WalletProfilePageDonor />} />
                   <WebRoute.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
                   <WebRoute.Route path="/walletEmpty" element={<WalletProfilePageEmpty />} />
                   <WebRoute.Route path="/donate/:id" element={<DonatePage />} />

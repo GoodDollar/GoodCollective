@@ -3,10 +3,9 @@ import { useEffect, useMemo } from 'react';
 
 const pool = gql`
   query POOL {
-    directPaymentPools {
+    collectives {
       id
       timestamp
-      manager
       contributions
       ipfs
     }
@@ -15,10 +14,9 @@ const pool = gql`
 
 const specificPool = gql`
   query SPECIFIC_POOL($id: String) {
-    directPaymentPools(where: { id: $id }) {
+    collectives(where: { id: $id }) {
       id
       timestamp
-      manager
       contributions
       ipfs
     }
@@ -51,6 +49,7 @@ const donor = gql`
       id
       joined
       totalDonated
+      collective
     }
   }
 `;
@@ -82,7 +81,7 @@ export function useCollectiveData() {
     }
 
     if (data) {
-      return data.directPaymentPools;
+      return data.collectives;
     }
   }, [error, data]);
 
@@ -112,7 +111,7 @@ export function useDonorData(id: string) {
     }
 
     if (data) {
-      return data.donor;
+      return data.donors;
     }
   }, [error, data]);
 
@@ -142,7 +141,7 @@ export function useCollectiveSpecificData(id: string) {
     }
 
     if (data) {
-      return data.directPaymentPools;
+      return data.collectives;
     }
   }, [error, data]);
 

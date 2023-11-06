@@ -4,6 +4,7 @@ import oceanUri from '../@constants/SafariImagePlaceholder';
 import { useCollectiveSpecificData } from '../hooks/useSubgraphData';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import React from 'react';
 
 function ViewCollectivePage() {
   const { request } = useCollectiveSpecificData(window.location.pathname.slice('/collective/'.length));
@@ -25,6 +26,7 @@ function ViewCollectivePage() {
             twitter: res.data?.twitter,
             id: e.id,
             time: e.timestamp,
+            contributions: e.contributions,
           });
         });
       })

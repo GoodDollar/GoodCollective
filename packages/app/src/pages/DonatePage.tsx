@@ -1,5 +1,6 @@
 import Layout from '../components/Layout';
 import DonateComponent from '../components/DonateComponent';
+import React from 'react';
 
 function DonatePage() {
   return (

@@ -6,7 +6,7 @@ import { Colors } from '../utils/colors';
 interface RowItemProps {
   rowInfo: string;
   rowData: any;
-  balance?: number;
+  balance?: number | any;
   currency?: string;
   imageUrl: string;
 }

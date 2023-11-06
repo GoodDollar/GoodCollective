@@ -17,6 +17,7 @@ interface WalletProfileProps {
   peopleSupported?: number;
   walletConnected: boolean;
   type: string;
+  usd?: any;
 }
 
 function WalletDetails({
@@ -28,6 +29,7 @@ function WalletDetails({
   amountDonated,
   peopleSupported,
   type,
+  usd,
 }: WalletProfileProps) {
   return (
     <View>
@@ -53,7 +55,7 @@ function WalletDetails({
                 <Text style={styles.rowBoldText}>G$</Text>
                 <Text style={styles.rowText}> {amountReceived}</Text>
               </View>
-              <Text>= 113.84 USD</Text>
+              <Text>= {usd} USD</Text>
             </View>
           </View>
 
@@ -75,12 +77,12 @@ function WalletDetails({
           <View style={styles.row}>
             <View style={[styles.impactBar, styles.greenBar]} />
             <View style={styles.rowContent}>
-              <Text style={styles.rowTitle}>Laboso has donated a total of</Text>
+              <Text style={styles.rowTitle}>User</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
                 <Text style={styles.rowBoldText}>G$</Text>
                 <Text style={styles.rowText}>{amountDonated}</Text>
               </View>
-              <Text>= 2,425,52 USD</Text>
+              <Text style={styles.formattedUsd}>= {usd}</Text>
             </View>
           </View>
 
@@ -95,7 +97,7 @@ function WalletDetails({
           <View style={styles.row}>
             <View style={[styles.impactBar, styles.greenBar]} />
             <View style={styles.rowContent}>
-              <Text style={styles.rowTitle}>Laboso's funding supported</Text>
+              <Text style={styles.rowTitle}>user</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
                 <Text style={styles.rowBoldText}>{peopleSupported}</Text>
                 <Text style={styles.rowText}> people</Text>
@@ -108,7 +110,7 @@ function WalletDetails({
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>in the following</Text>
               <View style={[styles.row, { marginVertical: 4 }]}>
-                <Text style={styles.rowBoldText}>780</Text>
+                <Text style={styles.rowBoldText}>0</Text>
                 <Text style={styles.rowText}> actions</Text>
               </View>
             </View>
@@ -126,7 +128,7 @@ function WalletDetails({
                 <Text style={styles.rowBoldText}>G$</Text>
                 <Text style={styles.rowText}>{amountDonated}</Text>
               </View>
-              <Text style={styles.formattedUsd}>= 15,000,000 USD</Text>
+              <Text style={styles.formattedUsd}>= {usd}</Text>
             </View>
           </View>
 

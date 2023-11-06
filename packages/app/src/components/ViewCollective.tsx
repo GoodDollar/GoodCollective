@@ -18,6 +18,8 @@ import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import Breadcrumb from './Breadcrumb';
 import { formatTime } from '../hooks/functions/formatTime';
+import { formatDonations } from '../hooks/functions/formatGdollar';
+import { formatAmount } from '../hooks/functions/formatUsdAmount';
 
 interface ViewCollectiveProps {
   imageUrl?: any;
@@ -59,7 +61,9 @@ function ViewCollective({
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
-
+  const tokenPrice = 0.00018672442844237;
+  const formattedDonations = (donationsReceived / 10 ** 18).toFixed(3);
+  const usdValue = tokenPrice * formattedDonations;
   const renderDonorsButton = useCallback(
     () =>
       isDesktopResolution ? (
@@ -182,15 +186,15 @@ function ViewCollective({
                   <RowItem
                     imageUrl={ReceiveLightIcon}
                     rowInfo="Total Donations Received"
-                    rowData={donationsReceived}
+                    rowData={formattedDonations}
                     currency="G$"
-                    balance={0.00018672442844237 * donationsReceived}
+                    balance={usdValue.toFixed(5)}
                   />
                 ) : (
                   <RowItem
                     imageUrl={ReceiveLightIcon}
                     rowInfo="Total Donations Received"
-                    rowData={0}
+                    rowData={formattedDonations}
                     currency="G$"
                     balance={0}
                   />

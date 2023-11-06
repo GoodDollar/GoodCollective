@@ -13,6 +13,7 @@ import Dropdown from './Dropdown';
 import { getButtonBGC, getButtonText, getButtonTextColor, getFrequencyTime, getTotalAmount } from '../utils';
 import { useGetTokenPrice } from '../hooks/useGetTokenPrice';
 import { useContractCalls } from '../hooks/useContractCalls';
+import { useAccount } from 'wagmi';
 interface DonateComponentProps {
   walletConected: boolean;
   insufficientLiquidity: boolean;
@@ -57,6 +58,7 @@ function DonateComponent({
   const [usdValue, setUsdValue] = useState<number>();
   const { getPrice } = useGetTokenPrice();
   const { supportFlowWithSwap, supportFlow } = useContractCalls();
+  const { address } = useAccount();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const tokenMapping = {
@@ -392,7 +394,7 @@ function DonateComponent({
             seeType={false}
             onPress={() => {
               if (currency === 'G$') {
-                supportFlow(window.location.pathname.slice('/donate/'.length));
+                supportFlow(window.location.pathname.slice('/donate/'.length), amount, address);
               } else {
                 supportFlowWithSwap();
               }

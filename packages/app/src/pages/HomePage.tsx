@@ -41,6 +41,7 @@ function HomePage() {
             time: e.timestamp,
           });
         }
+        console.log(t);
         setSubData(t);
         setIsLoading(false);
       } catch (error) {
