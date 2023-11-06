@@ -4316,7 +4316,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@gooddollar/goodcollective-contracts@workspace:packages/contracts"
   dependencies:
-    "@gooddollar/goodprotocol": ^2.0.15
+    "@gooddollar/goodprotocol": ^2.0.17
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.0
     "@nomicfoundation/hardhat-network-helpers": ^1.0.0
     "@nomicfoundation/hardhat-toolbox": 2.*
@@ -4407,6 +4407,28 @@ __metadata:
   linkType: hard
 
 "@gooddollar/goodprotocol@npm:^2.0.15":
+  version: 2.0.17
+  resolution: "@gooddollar/goodprotocol@npm:2.0.17"
+  dependencies:
+    "@gooddollar/goodcontracts": ^2.6.6
+    "@jsier/retrier": ^1.2.4
+    "@openzeppelin/contracts": ^4.8.0
+    "@openzeppelin/contracts-upgradeable": ^4.8.0
+    "@openzeppelin/hardhat-upgrades": ^1.22.1
+    "@superfluid-finance/ethereum-contracts": ^1.8.1
+    "@superfluid-finance/sdk-core": ^0.5.8
+    "@typechain/hardhat": ^6.1.5
+    async-promise-pool: ^1.0.4
+    openzeppelin-solidity: ^4.3.2
+    patch-package: latest
+    press-any-key: ^0.1.1
+    truffle-plugin-verify: ^0.6.1
+    truffle-source-verify: ^0.0.6
+  checksum: 025d1e6af0e094e0cf03ef327f46b035b6be42122f26aae255fa2a98029c053f3c4bcea8588b4b9f4dd72e9b53de630b277aa0eb944a8c8a140265d311852211
+  languageName: node
+  linkType: hard
+
+"@gooddollar/goodprotocol@npm:^2.0.17":
   version: 2.0.17
   resolution: "@gooddollar/goodprotocol@npm:2.0.17"
   dependencies:
@@ -8858,7 +8880,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@superfluid-finance/ethereum-contracts@npm:1.8.1, @superfluid-finance/ethereum-contracts@npm:^1.7.0, @superfluid-finance/ethereum-contracts@npm:^1.8.1":
+"@superfluid-finance/ethereum-contracts@npm:1.8.1, @superfluid-finance/ethereum-contracts@npm:^1.8.1":
   version: 1.8.1
   resolution: "@superfluid-finance/ethereum-contracts@npm:1.8.1"
   dependencies:
@@ -8950,9 +8972,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-arm64@npm:1.3.96":
-  version: 1.3.96
-  resolution: "@swc/core-darwin-arm64@npm:1.3.96"
+"@swc/core-android-arm-eabi@npm:1.3.1":
+  version: 1.3.1
+  resolution: "@swc/core-android-arm-eabi@npm:1.3.1"
+  dependencies:
+    "@swc/wasm": 1.2.122
+  conditions: os=android & cpu=arm
+  languageName: node
+  linkType: hard
+
+"@swc/core-android-arm64@npm:1.3.1":
+  version: 1.3.1
+  resolution: "@swc/core-android-arm64@npm:1.3.1"
+  dependencies:
+    "@swc/wasm": 1.2.130
+  conditions: os=android & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@swc/core-darwin-arm64@npm:1.3.1":
+  version: 1.3.1
+  resolution: "@swc/core-darwin-arm64@npm:1.3.1"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard

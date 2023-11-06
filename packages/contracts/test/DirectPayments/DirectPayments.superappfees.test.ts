@@ -50,8 +50,10 @@ describe('DirectPaymentsPool Superapp with Fees', () => {
     sf = await Framework.create(opts);
 
     signers = await ethers.getSigners();
-    gdframework = await deploySuperGoodDollar(signers[0], sfFramework);
-
+    gdframework = await deploySuperGoodDollar(signers[0], sfFramework, [
+      ethers.constants.AddressZero,
+      ethers.constants.AddressZero,
+    ]);
     signer = signers[0];
     poolSettings = {
       nftType: 1,
@@ -61,6 +63,7 @@ describe('DirectPaymentsPool Superapp with Fees', () => {
       manager: signer.address,
       membersValidator: ethers.constants.AddressZero,
       rewardToken: gdframework.GoodDollar.address,
+      allowRewardOverride: false,
     };
 
     poolLimits = {
@@ -71,13 +74,19 @@ describe('DirectPaymentsPool Superapp with Fees', () => {
 
     const f = await ethers.getContractFactory('DirectPaymentsFactory');
     const swapMock = await ethers.deployContract('SwapRouterMock', [gdframework.GoodDollar.address]);
-    const dpimpl = await ethers.deployContract('DirectPaymentsPool', [sfFramework['host'], swapMock.address]);
+
+    const helper = await ethers.deployContract('HelperLibrary');
+
+    const dpimpl = await ethers.deployContract('DirectPaymentsPool', [sfFramework['host'], swapMock.address], {
+      libraries: { HelperLibrary: helper.address },
+    });
 
     nft = (await upgrades.deployProxy(await ethers.getContractFactory('ProvableNFT'), ['nft', 'cc'], {
       kind: 'uups',
     })) as ProvableNFT;
 
     factory = (await upgrades.deployProxy(f, [signer.address, dpimpl.address, nft.address, signers[1].address, 1000], {
+      unsafeAllowLinkedLibraries: true,
       kind: 'uups',
     })) as DirectPaymentsFactory;
 
