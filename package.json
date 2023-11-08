@@ -12,6 +12,7 @@
   ],
   "private": true,
   "scripts": {
+    "postinstall": "husky install",
     "publish": "yarn workspaces foreach -t --include '{@gooddollar/goodcollective-contracts,@gooddollar/goodcollective-sdk}' run publish",
     "build": "yarn workspaces foreach -tp --include '{@gooddollar/goodcollective-contracts,@gooddollar/goodcollective-sdk,@gooddollar/goodcollective-app}' run build",
     "build:contracts": "yarn workspace @gooddollar/goodcollective-contracts compile",

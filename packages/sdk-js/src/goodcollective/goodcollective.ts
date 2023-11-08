@@ -33,7 +33,7 @@ type Contracts = (typeof GoodCollectiveContracts)[keyof typeof GoodCollectiveCon
 
 const SF_RESOLVERS: { [key: string]: string } = {
   44787: '0x6e9CaBE4172344Db81a1E1D735a6AD763700064A',
-  31337: '0x41549B6C39A529EA574f35b745b00f716869D2a0',
+  31337: '0x02330b5Be8EBD0D4d354813a7BB535140A77C881',
 };
 const CHAIN_OVERRIDES: { [key: string]: object } = {
   44787: { gasPrice: 10e9, gasLimit: 1200000 },
