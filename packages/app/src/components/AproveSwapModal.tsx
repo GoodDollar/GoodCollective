@@ -1,9 +1,7 @@
 import { Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
 import { CloseIcon } from '../@constants/ChevronIcons';
-// import { PhoneImg } from '../@constants/PhoneImg';
 import { AproveTokenImg } from '../@constants/AproveToken';
-// import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
 import { modalStyles } from './shared';
 
@@ -13,7 +11,6 @@ interface AproveSwapModalProps {
 }
 
 const AproveSwapModal = ({ openModal, setOpenModal }: AproveSwapModalProps) => {
-  // const { navigate } = useCrossNavigate();
   return (
     <View style={styles.centeredView}>
       <Modal animationType="slide" transparent={true} visible={openModal}>
