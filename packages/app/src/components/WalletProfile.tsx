@@ -55,7 +55,7 @@ function WalletProfile({
     minWidth: 612,
   });
   const tokenPrice = 0.00018672442844237;
-  const formattedDonations = (amountDonated / 10 ** 18).toFixed(3);
+  const formattedDonations: any = (amountDonated / 10 ** 18).toFixed(3);
   const usdValue = formattedDonations * tokenPrice;
 
   useEffect(() => {

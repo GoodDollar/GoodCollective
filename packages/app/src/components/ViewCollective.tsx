@@ -18,7 +18,6 @@ import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import Breadcrumb from './Breadcrumb';
 import { formatTime } from '../hooks/functions/formatTime';
-import { formatDonations } from '../hooks/functions/formatGdollar';
 import { formatAmount } from '../hooks/functions/formatUsdAmount';
 
 interface ViewCollectiveProps {
@@ -62,7 +61,7 @@ function ViewCollective({
     minWidth: 612,
   });
   const tokenPrice = 0.00018672442844237;
-  const formattedDonations = (donationsReceived / 10 ** 18).toFixed(3);
+  const formattedDonations: any = (donationsReceived / 10 ** 18).toFixed(3);
   const usdValue = tokenPrice * formattedDonations;
   const renderDonorsButton = useCallback(
     () =>
