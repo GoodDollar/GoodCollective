@@ -76,4 +76,4 @@ jobs:
       - name: 'Build app production'
         if: steps.changed-app.outputs.changed == 'true'
         run: |
-          yarn build:app
+          yarn build
