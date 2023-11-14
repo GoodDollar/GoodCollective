@@ -6,7 +6,7 @@ name: Pull Request CI - NextJS & Hardhat
 on:
   workflow_dispatch:
   push:
-    branches: [produciton, release, next]
+    branches: [production, release, next]
   pull_request:
     types: [opened, reopened, ready_for_review, synchronize]
 
@@ -55,12 +55,12 @@ jobs:
         run: |
           echo "$CHANGED_APP $CHANGED_CONTRACTS $CHANGED_SDK"
 
-      - name: 'Build contracts'
-        if: steps.changed-contracts.outputs.changed == 'true'
+      - name: 'Test Build'
         run: |
-          yarn build:contracts
+          yarn build
 
       - name: 'setup test contracts for sdk'
+        if: ${{ steps.changed-contracts.outputs.changed == 'true' || steps.changed-sdk.outputs.changed == 'true' }}
         run: |
           yarn test:setup
 
@@ -68,12 +68,3 @@ jobs:
         if: ${{ steps.changed-contracts.outputs.changed == 'true' || steps.changed-sdk.outputs.changed == 'true' }}
         run: |
           yarn test
-
-      # - name: 'stop node'
-      #   run: |
-      #     pkill -f "hardhat node"
-
-      - name: 'Build app production'
-        if: steps.changed-app.outputs.changed == 'true'
-        run: |
-          yarn build
