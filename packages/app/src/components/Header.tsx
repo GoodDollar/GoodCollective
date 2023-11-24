@@ -167,9 +167,22 @@ function Header(): JSX.Element {
         )}
         {!address && !isDesktopResolution && (
           <View style={styles.walletConnectContainer}>
-            <TouchableOpacity style={styles.walletConnectButton}>
-              <Text style={styles.walletConnectButtonText}>Connect Wallet</Text>
-            </TouchableOpacity>
+            <View>
+              <>
+                {connectors.map((connector) => (
+                  <TouchableOpacity
+                    style={styles.walletConnectButton}
+                    disabled={!connector.ready}
+                    onPress={() => connect({ connector })}>
+                    <Text key={connector.id} style={styles.walletConnectButtonText}>
+                      {connector.name}
+                      {!connector.ready && ' (unsupported)'}
+                      {isLoading && connector.id === pendingConnector?.id && ' (connecting)'}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </>
+            </View>
             <View style={styles.menuContainerFlex}>
               <TouchableOpacity style={styles.menuIconContainer} onPress={() => setOpenDropdown(!openDropdown)}>
                 <Image source={{ uri: menuIconUri }} resizeMode="contain" style={styles.menuIcon} />
