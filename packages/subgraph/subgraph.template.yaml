@@ -26,8 +26,8 @@ dataSources:
           handler: handlePoolDetailsChanged
         - event: PoolVerifiedChanged(indexed address,bool)
           handler: handlePoolVerifiedChange
-
       file: ./src/mappings/pool.ts
+
   - kind: ethereum/contract
     name: DirectPaymentsPool
     # prettier-ignore
@@ -43,7 +43,6 @@ dataSources:
         - DirectPaymentPool
         - SafetyLimits
         - PoolSettings
-
         - Claim
       abis:
         - name: DirectPaymentsPool
@@ -57,8 +56,8 @@ dataSources:
           handler: handleRewardClaim
         - event: NFTClaimed(indexed uint256,uint256)
           handler: handleClaim
-
       file: ./src/mappings/pool.ts
+
   - kind: ethereum
     name: ProvableNFT
     # prettier-ignore
@@ -79,8 +78,8 @@ dataSources:
       eventHandlers:
         - event: ProvableNftMinted(uint256,address,bytes32)
           handler: handleNftMint
-
       file: ./src/mappings/ProvableNFT.ts
+
   - kind: ethereum
     name: SuperApp
     # prettier-ignore
@@ -101,5 +100,4 @@ dataSources:
       eventHandlers:
         - event: SupporterUpdated(indexed address,uint256,uint256,int96,int96,bool)
           handler: handleSupport
-
       file: ./src/mappings/superApp.ts
