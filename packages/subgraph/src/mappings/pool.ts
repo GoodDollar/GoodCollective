@@ -147,13 +147,12 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   if (eventData === null) {
     eventData = new EventData(claimId.toHexString());
     eventData.eventType = eventType;
-    eventData.eventTimestamp = eventTimestamp;
-    eventData.eventQuantity = eventQuantity;
-    eventData.eventUri = eventUri;
+    eventData.timestamp = eventTimestamp;
+    eventData.quantity = eventQuantity;
+    eventData.uri = eventUri;
 
     for (let i = 0; i < contributers.length; i++) {
       eventData.contributors.push(contributers[i]);
-      eventData.save();
     }
 
     eventData.rewardPerContributor = rewardPerContributer;

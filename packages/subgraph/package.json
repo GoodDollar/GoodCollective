@@ -8,7 +8,7 @@
     "prepare:celo": "mustache config/celo.json subgraph.template.yaml > subgraph.yaml && graph auth --studio c23dfcb6fc1408d5aaedf491ea626aee && graph deploy --studio goodcollective",
     "codegen": "yarn build:copyabi && graph codegen",
     "build": "yarn build:copyabi && graph build",
-    "build:copyabi": "cd .. && cd contracts && npx hardhat compile && cd .. && cd subgraph && rm -f ./abis/abis.json && sh -c 'find ../contracts/artifacts/contracts/ -type f -iname \"*.json\" -exec cp {} ./abis/ \\;' && cat ./abis/*.json > ./abis/abis.json && find ./abis/ -type f -iname \"*.dbg.json\" -delete",
+    "build:copyabi": "find ../contracts/artifacts/contracts/ -type f -not -name '*.dbg.json' -exec cp '{}' ./abis/ \\;",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ GITHUB_USERNAME/your-contract",
     "create-local": "graph create --node http://localhost:8020/ scaffold-eth/your-contract",
     "remove-local": "graph remove --node http://localhost:8020/ scaffold-eth/your-contract",
@@ -16,7 +16,7 @@
     "ship-local": "yarn codegen && yarn build && yarn deploy-local"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "^0.55.0",
+    "@graphprotocol/graph-cli": "^0.62.0",
     "@graphprotocol/graph-ts": "^0.31.0"
   },
   "devDependencies": {

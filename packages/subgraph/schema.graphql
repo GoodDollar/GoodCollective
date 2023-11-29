@@ -69,10 +69,9 @@ type ProvableNFT @entity {
 type EventData @entity {
   id: String!
   eventType: Int!
-  eventTimestamp: BigInt!
+  timestamp: BigInt!
   quantity: BigInt!
-  eventUri: String!
-  eventQuantity: BigInt!
+  uri: String!
   rewardPerContributor: BigInt!
   contributors: [Bytes!]!
   claim: Claim
