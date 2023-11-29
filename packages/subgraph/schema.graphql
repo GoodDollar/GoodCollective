@@ -6,7 +6,7 @@ type Steward @entity {
   " NFT's minted to steward"
   nft: [ProvableNFT!]! @derivedFrom(field: "steward")
   " Collectives the steward is apart of "
-  collective: [Collective!]! @derivedFrom(field: "steward")
+  collectives: [Collective!]! @derivedFrom(field: "stewards")
 }
 
 type Donor @entity {
@@ -19,8 +19,7 @@ type Donor @entity {
   previousFlowRate: BigInt
   flowRate: BigInt
   isFlowUpdate: Boolean
-  collective: Bytes!
-  pool: [Collective!]! @derivedFrom(field: "donor")
+  collectives: [Collective!]!
 }
 
 type Collective @entity {
@@ -32,8 +31,8 @@ type Collective @entity {
   contributions: BigInt!
   membersValidator: Bytes
   uniquenessValidator: String
-  donor: Donor
-  steward: Steward
+  donors: [Donor!] @derivedFrom(field: "collectives")
+  stewards: [Steward!]!
   rewardToken: String
   projectId: String
   isVerified: Boolean
@@ -73,7 +72,7 @@ type EventData @entity {
   quantity: BigInt!
   uri: String!
   rewardPerContributor: BigInt!
-  contributors: [Bytes!]!
+  contributors: [Steward!]!
   claim: Claim
 }
 

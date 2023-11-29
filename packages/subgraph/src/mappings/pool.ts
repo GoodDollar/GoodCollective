@@ -1,4 +1,4 @@
-import { Address, BigInt, log } from '@graphprotocol/graph-ts';
+import { BigInt, Bytes, log } from '@graphprotocol/graph-ts';
 import {
   PoolCreated,
   PoolDetailsChanged,
@@ -38,6 +38,7 @@ export function handlePoolCreated(event: PoolCreated): void {
     directPaymentPool.manager = event.address;
     directPaymentPool.timestamp = event.block.timestamp.toI32();
     directPaymentPool.contributions = BigInt.fromI32(0);
+    directPaymentPool.stewards = new Array<string>();
     directPaymentPool.save();
 
     // Pool Settings
@@ -143,6 +144,12 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   const contributers = event.params.contributers;
   const rewardPerContributer = event.params.rewardPerContributer;
 
+  let pool = Collective.load(event.address.toHexString());
+  if (pool === null) {
+    log.error('Missing Payment Pool {}', [event.address.toHex()]);
+    return;
+  }
+
   let eventData = EventData.load(claimId.toHexString());
   if (eventData === null) {
     eventData = new EventData(claimId.toHexString());
@@ -150,12 +157,17 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     eventData.timestamp = eventTimestamp;
     eventData.quantity = eventQuantity;
     eventData.uri = eventUri;
-
+    eventData.claim = event.params.tokenId.toHexString();
+    eventData.contributors = new Array<string>();
     for (let i = 0; i < contributers.length; i++) {
-      eventData.contributors.push(contributers[i]);
+      eventData.contributors.push(contributers[i].toHexString());
+      if (pool.stewards.includes(contributers[i].toHexString())) {
+        pool.stewards.push(contributers[i].toHexString());
+      }
     }
 
     eventData.rewardPerContributor = rewardPerContributer;
+    pool.save();
     eventData.save();
   }
 }
