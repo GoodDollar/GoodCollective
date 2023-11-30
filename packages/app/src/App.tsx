@@ -48,7 +48,7 @@ function App(): JSX.Element {
   ];
 
   const apolloClient = new ApolloClient({
-    uri: 'https://api.studio.thegraph.com/query/50925/goodcollective/v27',
+    uri: 'https://api.thegraph.com/subgraphs/name/gooddollar/goodcollective',
     cache: new InMemoryCache(),
   });
 
