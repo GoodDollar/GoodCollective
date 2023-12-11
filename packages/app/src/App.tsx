@@ -106,8 +106,8 @@ function App(): JSX.Element {
 
 const styles = StyleSheet.create({
   body: {
-    flex: 1,
     backgroundColor: Colors.gray[400],
+    minHeight: '100vh',
   },
 });
 
