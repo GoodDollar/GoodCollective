@@ -22,6 +22,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
   const [tokenBalance, setTokenBalance] = useState<string>('0');
   const [ensName, setEnsName] = useState<any>('');
 
+  // TODO: what token is this? Will the token always be the same?
   useEffect(() => {
     if (!address) return;
     fetchBalance({
@@ -30,7 +31,6 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
       token: '0x471EcE3750Da237f93B8E339c536989b8978a438',
     }).then((res) => {
       setTokenBalance(res.formatted);
-      console.log(res.formatted, 'line 45');
     });
   }, [address, chain?.id]);
 
