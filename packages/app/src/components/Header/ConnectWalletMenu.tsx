@@ -6,7 +6,7 @@ import { backIconUri, metamaskLogoUri, walletConnectLogoUri } from './assets';
 import { WebIconUri } from '../../@constants/ConnectIcons';
 
 interface ConnectWalletMenuProps {
-  dropdownOffset: { top: number; right: number };
+  dropdownOffset: { top: number; right?: number; left?: number };
 }
 
 export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
@@ -69,6 +69,7 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
 const styles = StyleSheet.create({
   walletConnectButton: {
     width: 240,
+    maxWidth: '80%',
     height: 40,
     backgroundColor: Colors.purple[200],
     borderRadius: 12,

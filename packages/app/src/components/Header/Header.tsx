@@ -41,25 +41,23 @@ function Header(): JSX.Element {
       )}
       {!isDesktopResolution && (
         <View style={styles.headerMobileContainer}>
-          <View style={[styles.walletInfoContainer]}>
+          <View style={[styles.walletInfoContainer, styles.desktopWrapper]}>
             {address && <ConnectedAccountDisplay isDesktopResolution={isDesktopResolution} address={address} />}
-            {!address && <ConnectWalletMenu dropdownOffset={{ top: 63, right: 135 }} />}
+            {!address && <ConnectWalletMenu dropdownOffset={{ top: 37, left: 0 }} />}
             <DropdownMenu
               isDesktopResolution={isDesktopResolution}
               address={address}
               dropdownOffset={{ top: 40, right: -15 }}
             />
           </View>
-          {address && (
-            <View style={styles.logoContainer}>
-              <TouchableOpacity onPress={() => navigate(-1)}>
-                <Image source={{ uri: backIconUri }} resizeMode="contain" style={styles.backIcon} />
-              </TouchableOpacity>
-              <View style={styles.logoContainerImage}>
-                <Image source={{ uri: logoUri }} resizeMode="contain" style={styles.logoImage} />
-              </View>
+          <View style={styles.logoContainer}>
+            <TouchableOpacity onPress={() => navigate(-1)}>
+              <Image source={{ uri: backIconUri }} resizeMode="contain" style={styles.backIcon} />
+            </TouchableOpacity>
+            <View style={styles.logoContainerImage}>
+              <Image source={{ uri: logoUri }} resizeMode="contain" style={styles.logoImage} />
             </View>
-          )}
+          </View>
         </View>
       )}
     </View>
