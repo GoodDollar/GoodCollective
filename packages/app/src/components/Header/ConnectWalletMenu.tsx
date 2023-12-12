@@ -2,8 +2,9 @@ import { Image, StyleSheet, Text, TextStyle, TouchableOpacity, View } from 'reac
 import { useConnect } from 'wagmi';
 import { Colors } from '../../utils/colors';
 import { useState } from 'react';
-import { backIconUri, metamaskLogoUri, walletConnectLogoUri } from './assets';
+import { metamaskLogoUri, walletConnectLogoUri } from './assets';
 import { WebIconUri } from '../../@constants/ConnectIcons';
+import { RotatingArrowIcon } from './RotatingArrowIcon';
 
 interface ConnectWalletMenuProps {
   dropdownOffset: { top: number; right?: number; left?: number };
@@ -30,11 +31,7 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
     <>
       <TouchableOpacity style={styles.walletConnectButton} onPress={() => setOpenDropdown(!openDropdown)}>
         <Text style={styles.walletConnectButtonText}>Connect Wallet</Text>
-        <Image
-          source={{ uri: backIconUri }}
-          resizeMode="contain"
-          style={[styles.arrowIcon, { transform: [{ rotate: openDropdown ? '270deg' : '0deg' }] }]}
-        />
+        <RotatingArrowIcon openDropdown={openDropdown} />
       </TouchableOpacity>
       {openDropdown && (
         <View style={[styles.dropdownContainer, dropdownOffset]}>
@@ -93,11 +90,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     position: 'absolute',
     backgroundColor: Colors.white,
-  },
-  arrowIcon: {
-    width: 15,
-    height: 15,
-    tintColor: Colors.white,
   },
   walletConnector: {
     width: '100%',
