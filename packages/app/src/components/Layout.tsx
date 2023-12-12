@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import Header from './Header';
+import Header from './Header/Header';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import ImpactButton from './ImpactButton';
 import { useLocation } from 'react-router-native';
