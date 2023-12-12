@@ -38,29 +38,27 @@ function ViewCollectivePage() {
 
   return (
     <Layout>
-      <>
-        {isLoading ? (
-          <p>Loading...</p>
-        ) : (
-          subData?.map((t: any, index: number) => (
-            <ViewCollective
-              key={index}
-              imageUrl={oceanUri}
-              title={t.name}
-              description={t.description}
-              stewardsDesc={t.description}
-              creationDate={t.time}
-              stewardsPaid={28}
-              paymentsMade={374900}
-              donationsReceived={t.contributions}
-              totalPaidOut={299920000}
-              currentPool={381000}
-              isDonating={false}
-              route={t.id}
-            />
-          ))
-        )}
-      </>
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        subData?.map((t: any) => (
+          <ViewCollective
+            key={t.id}
+            imageUrl={oceanUri}
+            title={t.name}
+            description={t.description}
+            stewardsDesc={t.description}
+            creationDate={t.time}
+            stewardsPaid={28}
+            paymentsMade={374900}
+            donationsReceived={t.contributions}
+            totalPaidOut={299920000}
+            currentPool={381000}
+            isDonating={false}
+            route={t.id}
+          />
+        ))
+      )}
     </Layout>
   );
 }

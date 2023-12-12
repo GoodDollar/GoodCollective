@@ -1,10 +1,8 @@
 import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
 import { StewardBlueIcon, StewardGreenIcon, VerifiedIconUri } from '../@constants/ColorTypeIcons';
-// import { NoAvatarIcon } from '../@constants/EmptyPicture';
 import { useLocation } from 'react-router-native';
 import { Colors } from '../utils/colors';
-import profilePictureArray from '../@constants/pfps';
 import { useMediaQuery } from 'native-base';
 
 const placeholderUsers = [0, 1, 2, 3, 4, 5, 6];
@@ -12,7 +10,7 @@ const placeholderUsers = [0, 1, 2, 3, 4, 5, 6];
 interface StewardListProps {
   hideTitle?: boolean;
   imageUrl?: string;
-  listType: string;
+  listType: 'viewCollective' | 'viewStewards';
   stewardData: {
     username: string;
     actions?: number;
@@ -30,24 +28,25 @@ function StewardList({ imageUrl, listType, stewardData, stewards, hideTitle }: S
   return (
     <View style={styles.stewardsHeader}>
       {!hideTitle && (
-        <View style={styles.row}>
-          {/* {listType !== 'steward' && <Image source={{ uri: StewardGreenIcon }} style={styles.firstIcon} />}
-          {listType === 'steward' && <Image source={{ uri: StewardBlueIcon }} style={styles.firstIcon} />} */}
-          <Text style={styles.title}>Stewards {`(0)`}</Text>
+        <View style={[styles.row, { marginBottom: 24 }]}>
+          {listType === 'viewCollective' && <Image source={{ uri: StewardGreenIcon }} style={styles.titleIcon} />}
+          <Text style={styles.title}>Stewards{listType === 'viewCollective' ? ` (0)` : ''}</Text>
+          {listType === 'viewStewards' && <Image source={{ uri: StewardBlueIcon }} style={styles.titleIcon} />}
         </View>
       )}
       <View style={styles.list}>
-        {listType == 'steward' &&
-          (isDesktopResolution ? placeholderUsers.slice(0, 6) : placeholderUsers.slice(0, 5)).map((item) => (
-            <View style={styles.row}>
-              <Image source={null as any} style={styles.rowImg} />
-              <Text style={styles.title}>
-                {stewardData.username}{' '}
-                {stewardData.isVerified && <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon} />}
-              </Text>
-              {stewardData.actions && <Text style={styles.totalActions}>{stewardData.actions} actions</Text>}
-            </View>
-          ))}
+        {(isDesktopResolution ? placeholderUsers.slice(0, 6) : placeholderUsers.slice(0, 5)).map((item) => (
+          <View style={styles.row} key={item.toString()}>
+            <Image source={{ uri: StewardBlueIcon }} style={styles.rowImg} />
+            <Text style={styles.title}>
+              {stewardData.username}{' '}
+              {stewardData.isVerified && <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon} />}
+            </Text>
+            {listType === 'viewStewards' && stewardData.actions && (
+              <Text style={styles.totalActions}>{stewardData.actions} actions</Text>
+            )}
+          </View>
+        ))}
       </View>
     </View>
   );
@@ -55,14 +54,16 @@ function StewardList({ imageUrl, listType, stewardData, stewards, hideTitle }: S
 
 const styles = StyleSheet.create({
   stewardsHeader: { flex: 1 },
-  firstIcon: {
+  titleIcon: {
     height: 32,
     width: 32,
+    marginRight: 8,
   },
   rowImg: {
     height: 48,
     width: 48,
-    borderRadius: 26,
+    borderRadius: 24,
+    marginRight: 16,
   },
   verifiedIcon: {
     height: 16,
@@ -87,7 +88,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     ...InterSemiBold,
-    marginLeft: 16,
     width: '100%',
     color: Colors.black,
   },

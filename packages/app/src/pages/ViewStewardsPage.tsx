@@ -36,7 +36,7 @@ function ViewStewardsPage() {
                 isVerified: true,
                 actions: 730,
               }}
-              listType="steward"
+              listType="viewStewards"
             />
             {/* Repeat StewardList component for other items */}
           </View>
@@ -60,7 +60,7 @@ function ViewStewardsPage() {
                 isVerified: true,
                 actions: 730,
               }}
-              listType="steward"
+              listType="viewStewards"
             />
           </View>
         </View>

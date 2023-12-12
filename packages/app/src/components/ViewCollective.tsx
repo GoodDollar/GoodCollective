@@ -1,7 +1,5 @@
-import { useCallback } from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { useState } from 'react';
-// import oceanUri from '../@constants/SafariImagePlaceholder';
 import RowItem from './RowItem';
 import RoundedButton from './RoundedButton';
 import StewardList from './StewardsList';
@@ -18,21 +16,19 @@ import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import Breadcrumb from './Breadcrumb';
 import { formatTime } from '../hooks/functions/formatTime';
-import { formatAmount } from '../hooks/functions/formatUsdAmount';
 
 interface ViewCollectiveProps {
-  imageUrl?: any;
-  title?: any;
+  imageUrl?: string;
+  title?: string;
   description?: string;
-  stewardsDesc?: any;
-  creationDate?: any;
-  stewardsPaid?: any;
-  paymentsMade?: any;
-  donationsReceived?: any;
-  totalPaidOut?: any;
-  currentPool?: any;
-  route?: any;
-
+  stewardsDesc?: string;
+  creationDate?: number;
+  stewardsPaid?: number;
+  paymentsMade?: number;
+  donationsReceived?: number;
+  totalPaidOut?: number;
+  currentPool?: number;
+  route?: string;
   stewards?: {};
   recentTransactions?: {};
   isDonating: boolean;
@@ -60,27 +56,27 @@ function ViewCollective({
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
+  // TODO: need actual token price
   const tokenPrice = 0.00018672442844237;
-  const formattedDonations: any = (donationsReceived / 10 ** 18).toFixed(3);
-  const usdValue = tokenPrice * formattedDonations;
-  const renderDonorsButton = useCallback(
-    () =>
-      isDesktopResolution ? (
-        <></>
-      ) : (
-        <RoundedButton
-          title="See all donors"
-          backgroundColor={Colors.purple[100]}
-          color={Colors.purple[200]}
-          fontSize={18}
-          seeType={true}
-          onPress={() => {
-            navigate(`/collective/${route}/donors`);
-          }}
-        />
-      ),
-    [navigate, isDesktopResolution, route]
-  )();
+  const decimalDonations = (donationsReceived ?? 0) / 10 ** 18;
+  const formattedDonations: string = decimalDonations.toFixed(3);
+  const usdValue = tokenPrice * decimalDonations;
+
+  const renderDonorsButton = () =>
+    isDesktopResolution ? (
+      <></>
+    ) : (
+      <RoundedButton
+        title="See all donors"
+        backgroundColor={Colors.purple[100]}
+        color={Colors.purple[200]}
+        fontSize={18}
+        seeType={true}
+        onPress={() => {
+          navigate(`/collective/${route}/donors`);
+        }}
+      />
+    );
 
   if (isDesktopResolution) {
     return (
@@ -143,7 +139,7 @@ function ViewCollective({
                           console.log(stopDonationModal);
                         }}
                       />
-                      {renderDonorsButton}
+                      {renderDonorsButton()}
                     </View>
                   </View>
                 ) : (
@@ -158,7 +154,7 @@ function ViewCollective({
                         navigate(`/donate/${route}`);
                       }}
                     />
-                    {renderDonorsButton}
+                    {renderDonorsButton()}
                   </View>
                 )}
               </View>
@@ -167,16 +163,12 @@ function ViewCollective({
             <View style={styles.collectiveDesktopTimeline}>
               <View style={{ flex: 1 }}>
                 <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(creationDate as any)} />
-                <RowItem
-                  imageUrl={StewardGreenIcon}
-                  rowInfo="Stewards Paid"
-                  rowData={stewardsPaid?.length ? stewardsPaid : 0}
-                />
+                <RowItem imageUrl={StewardGreenIcon} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
 
                 <RowItem
                   imageUrl={GreenListIcon}
                   rowInfo="# of Payments Made"
-                  rowData={paymentsMade?.length ? paymentsMade : 0}
+                  rowData={paymentsMade ?? 0}
                   currency=""
                 />
               </View>
@@ -199,28 +191,20 @@ function ViewCollective({
                   />
                 )}
 
-                {totalPaidOut.length ? (
-                  <RowItem
-                    imageUrl={SendIcon}
-                    rowInfo="Total Paid Out"
-                    rowData={totalPaidOut}
-                    currency="G$"
-                    balance={0.00018672442844237 * totalPaidOut}
-                  />
-                ) : (
-                  <RowItem imageUrl={SendIcon} rowInfo="Total Paid Out" rowData={0} currency="G$" balance={0} />
-                )}
-                {currentPool.length ? (
-                  <RowItem
-                    imageUrl={SquaresIcon}
-                    rowInfo="Current Pool"
-                    rowData={currentPool}
-                    currency="G$"
-                    balance={0.00018672442844237 * currentPool}
-                  />
-                ) : (
-                  <RowItem imageUrl={SquaresIcon} rowInfo="Current Pool" rowData={0} currency="G$" balance={0} />
-                )}
+                <RowItem
+                  imageUrl={SendIcon}
+                  rowInfo="Total Paid Out"
+                  rowData={totalPaidOut ?? 0}
+                  currency="G$"
+                  balance={tokenPrice * (totalPaidOut ?? 0)}
+                />
+                <RowItem
+                  imageUrl={SquaresIcon}
+                  rowInfo="Current Pool"
+                  rowData={currentPool ?? 0}
+                  currency="G$"
+                  balance={tokenPrice * (currentPool ?? 0)}
+                />
               </View>
             </View>
           </View>
@@ -233,7 +217,7 @@ function ViewCollective({
                   isVerified: null as any,
                   actions: null as any,
                 }}
-                listType="steward"
+                listType="viewCollective"
               />
               <RoundedButton
                 title="See all stewards"
@@ -297,40 +281,32 @@ function ViewCollective({
           <RowItem
             imageUrl={StewardGreenIcon}
             rowInfo="Stewards Paid"
-            rowData={stewardsPaid?.length ? stewardsPaid : 0}
+            rowData={stewardsPaid ?? 0}
             currency="G$"
-            balance={stewardsPaid?.length ? 0.00018672442844237 * stewardsPaid : 0}
+            balance={tokenPrice * (stewardsPaid ?? 0)}
           />
-          <RowItem
-            imageUrl={GreenListIcon}
-            rowInfo="# of Payments Made"
-            rowData={paymentsMade?.length ? paymentsMade : 0}
-            currency=""
-          />
+          <RowItem imageUrl={GreenListIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
           <RowItem
             imageUrl={ReceiveLightIcon}
             rowInfo="Total Donations Received"
-            rowData={donationsReceived?.length ? donationsReceived : 0}
+            rowData={donationsReceived ?? 0}
             currency="G$"
-            balance={donationsReceived?.length ? 0.00018672442844237 * donationsReceived : 0}
+            balance={tokenPrice * (donationsReceived ?? 0)}
           />
           <RowItem
             imageUrl={SendIcon}
             rowInfo="Total Paid Out"
-            rowData={totalPaidOut?.length ? totalPaidOut : 0}
+            rowData={totalPaidOut ?? 0}
             currency="G$"
-            balance={totalPaidOut?.length ? 0.00018672442844237 * totalPaidOut : 0}
+            balance={tokenPrice * (totalPaidOut ?? 0)}
           />
           <RowItem
             imageUrl={SquaresIcon}
             rowInfo="Current Pool"
-            rowData={currentPool?.length ? currentPool : 0}
+            rowData={currentPool ?? 0}
             currency="G$"
-            balance={currentPool?.length ? 0.00018672442844237 * currentPool : 0}
+            balance={tokenPrice * (currentPool ?? 0)}
           />
-          In this code, we're checking if each of the values (donationsReceived, totalPaidOut, and currentPool) is
-          truthy (not null or undefined) before rendering the corresponding section. If the value is truthy, it will use
-          the actual value; otherwise, it will use 0 as the default value.
         </View>
 
         {isDonating ? (
@@ -350,7 +326,7 @@ function ViewCollective({
                   console.log(stopDonationModal);
                 }}
               />
-              {renderDonorsButton}
+              {renderDonorsButton()}
             </View>
           </View>
         ) : (
@@ -365,7 +341,7 @@ function ViewCollective({
                 navigate(`/donate/${route}`);
               }}
             />
-            {renderDonorsButton}
+            {renderDonorsButton()}
           </View>
         )}
       </View>
@@ -377,7 +353,7 @@ function ViewCollective({
             isVerified: true,
             actions: 730,
           }}
-          listType="steward"
+          listType="viewCollective"
         />
         <RoundedButton
           title="See all stewards"
@@ -413,7 +389,7 @@ function ViewCollective({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    padding: 24,
+    padding: 16,
     backgroundColor: Colors.white,
     gap: 24,
     shadowColor: Colors.black,
