@@ -34,7 +34,7 @@ function CollectiveHomeCard({ title, description, imageUrl, route }: CollectiveH
       style={[
         styles.cardContainer,
         styles.elevation,
-        isDesktopResolution ? styles.cardContainerMobile : {},
+        isDesktopResolution ? styles.cardContainerDesktop : {},
         // eslint-disable-next-line react-native/no-inline-styles
         isParagraphExpanded ? { height: 'auto' } : {},
       ]}
@@ -60,8 +60,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginBottom: 20,
   },
-  cardContainerMobile: {
-    width: 418,
+  cardContainerDesktop: {
+    width: 360,
     height: 330,
     margin: 32,
   },
