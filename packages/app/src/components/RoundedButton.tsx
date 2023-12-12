@@ -10,18 +10,22 @@ interface RoundedButtonProps {
   color: string;
   fontSize: number;
   seeType: boolean;
-  buttonLink?: string;
   onPress?: any;
+  isDesktop: boolean;
 }
 
-// const [seeType, setSeeType] = useState<boolean>(false)
-// const ButtonStyles = {};
-
-function RoundedButton({ title, backgroundColor, color, fontSize, seeType, buttonLink, onPress }: RoundedButtonProps) {
-  // const { navigate } = useCrossNavigate();
+function RoundedButton({ title, backgroundColor, color, fontSize, seeType, onPress, isDesktop }: RoundedButtonProps) {
   if (!seeType) {
     return (
-      <TouchableOpacity style={[styles.button, { backgroundColor: backgroundColor }]} onPress={onPress}>
+      <TouchableOpacity
+        style={[
+          styles.button,
+          {
+            backgroundColor: backgroundColor,
+            maxWidth: isDesktop ? 343 : 'auto',
+          },
+        ]}
+        onPress={onPress}>
         <Text
           style={{
             color: color,

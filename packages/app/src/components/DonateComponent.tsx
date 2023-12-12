@@ -387,6 +387,7 @@ function DonateComponent({
 
         <TouchableOpacity>
           <RoundedButton
+            isDesktop={isDesktopResolution}
             title={getButtonText(insufficientLiquidity, priceImpace, insufficientBalance)}
             backgroundColor={getButtonBGC(insufficientLiquidity, priceImpace, insufficientBalance)}
             color={getButtonTextColor(insufficientLiquidity, priceImpace, insufficientBalance)}
