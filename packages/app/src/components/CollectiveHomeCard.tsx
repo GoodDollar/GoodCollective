@@ -3,6 +3,16 @@ import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
 import { useMediaQuery } from 'native-base';
+import { useState } from 'react';
+
+export interface CollectiveHomeCardData {
+  name?: string;
+  description?: string;
+  email?: string;
+  twitter?: string;
+  id: string;
+  timestamp: number;
+}
 
 interface CollectiveHomeCardProps {
   imageUrl?: string;
@@ -17,14 +27,25 @@ function CollectiveHomeCard({ title, description, imageUrl, route }: CollectiveH
     minWidth: 612,
   });
 
+  const [isParagraphExpanded, setIsParagraphExpanded] = useState(false);
+
   return (
     <TouchableOpacity
-      style={[styles.cardContainer, styles.elevation, isDesktopResolution ? styles.cardContainerMobile : {}]}
+      style={[
+        styles.cardContainer,
+        styles.elevation,
+        isDesktopResolution ? styles.cardContainerMobile : {},
+        // eslint-disable-next-line react-native/no-inline-styles
+        isParagraphExpanded ? { height: 'auto' } : {},
+      ]}
       onPress={() => navigate(`/collective/${route}`)}>
       <Image source={{ uri: imageUrl }} style={styles.sectionImage} />
       <View style={styles.cardDescriptionContainer}>
         <Text style={styles.cardTitle}>{title}</Text>
-        <Text style={styles.cardDescription}>{description}</Text>
+        <TouchableOpacity onPress={() => setIsParagraphExpanded(!isParagraphExpanded)}>
+          {/* eslint-disable-next-line react-native/no-inline-styles */}
+          <Text style={[styles.cardDescription, isParagraphExpanded ? { maxHeight: 'auto' } : {}]}>{description}</Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -41,21 +62,26 @@ const styles = StyleSheet.create({
   },
   cardContainerMobile: {
     width: 418,
-    height: 372,
+    height: 330,
     margin: 32,
   },
   cardTitle: {
     fontSize: 20,
     marginTop: 0,
     ...InterSemiBold,
+    lineHeight: 25,
+    maxHeight: 25,
+    overflow: 'hidden',
   },
   cardDescription: {
     marginTop: 8,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '400',
     color: Colors.gray[100],
     ...InterSmall,
     lineHeight: 24,
+    maxHeight: 72,
+    overflow: 'hidden',
   },
   sectionImage: {
     resizeMode: 'cover',
@@ -65,7 +91,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
   },
   cardDescriptionContainer: {
-    height: 137,
+    height: 'auto',
     paddingVertical: 16,
     paddingHorizontal: 12,
   },
