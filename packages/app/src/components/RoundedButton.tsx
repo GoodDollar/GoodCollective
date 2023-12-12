@@ -11,10 +11,10 @@ interface RoundedButtonProps {
   fontSize: number;
   seeType: boolean;
   onPress?: any;
-  isDesktop: boolean;
+  maxWidth?: number | string;
 }
 
-function RoundedButton({ title, backgroundColor, color, fontSize, seeType, onPress, isDesktop }: RoundedButtonProps) {
+function RoundedButton({ title, backgroundColor, color, fontSize, seeType, onPress, maxWidth }: RoundedButtonProps) {
   if (!seeType) {
     return (
       <TouchableOpacity
@@ -22,7 +22,7 @@ function RoundedButton({ title, backgroundColor, color, fontSize, seeType, onPre
           styles.button,
           {
             backgroundColor: backgroundColor,
-            maxWidth: isDesktop ? 343 : 'auto',
+            maxWidth: maxWidth ?? 'auto',
           },
         ]}
         onPress={onPress}>
