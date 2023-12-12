@@ -33,8 +33,7 @@
     "@wagmi/core": "^1.4.5",
     "@walletconnect/modal-react-native": "^1.0.0-rc.9",
     "@web3-onboard/react": "^2.8.10",
-    "@web3modal/ethereum": "^2.7.1",
-    "@web3modal/react": "^2.7.1",
+    "@web3modal/wagmi": "^3.4.0",
     "apollo-link": "^1.2.14",
     "apollo-link-rest": "^0.9.0",
     "axios": "^1.5.0",
@@ -63,8 +62,8 @@
     "react-native-web": "0.18.*",
     "react-router-dom": "^6.14.1",
     "react-router-native": "^6.14.1",
-    "viem": "^1.10.8",
-    "wagmi": "^1.4.5"
+    "viem": "^1.19.13",
+    "wagmi": "^1.4.10"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

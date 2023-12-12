@@ -11,53 +11,45 @@ import * as MobileRoute from './routes/routing.native';
 import * as WebRoute from './routes/routing.web';
 
 import ActivityLogPage from './pages/ActivityLogPage';
-// import WalletProfilePageDonor from './pages/WalletProfilePageDonor';
-// import WalletProfilePageSteward from './pages/WalletProfilePageSteward';
-// import EmptyProfile from './components/EmptyProfile';
 import { NativeBaseProvider } from 'native-base';
 import CollectiveCardPage from './pages/CollectiveCardPage';
 import DonatePage from './pages/DonatePage';
 import ModalTestPage from './pages/ModalTestPage';
 import WalletProfilePageEmpty from './pages/WalletProfilePageEmpty';
-import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import { celo } from 'wagmi/chains';
-import { publicProvider } from 'wagmi/providers/public';
-import { infuraProvider } from 'wagmi/providers/infura';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
+import { WagmiConfig } from 'wagmi';
+import { celo } from 'viem/chains';
+import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react';
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 
 import { Colors } from './utils/colors';
 
+const projectId = 'f147afbc9ad50465eaedd3f56ad2ae87';
+const chains = [celo];
+const metadata = {
+  name: 'GoodCollective',
+  description: 'Connect to GoodCollective',
+  url: 'https://goodcollective.com',
+  icons: ['https://avatars.githubusercontent.com/u/37784886'],
+};
+
+const wagmiConfig = defaultWagmiConfig({
+  projectId,
+  chains,
+  metadata,
+});
+
+createWeb3Modal({
+  projectId,
+  chains,
+  wagmiConfig,
+});
+
 function App(): JSX.Element {
-  const { publicClient, webSocketPublicClient } = configureChains(
-    [celo],
-    [infuraProvider({ apiKey: '88284fbbacd3472ca3361d1317a48fa5' }), publicProvider()]
-  );
-
-  const connectors = [
-    new MetaMaskConnector({
-      chains: [celo],
-    }),
-    new WalletConnectConnector({
-      chains: [celo],
-      options: {
-        projectId: 'f147afbc9ad50465eaedd3f56ad2ae87',
-      },
-    }),
-  ];
-
   const apolloClient = new ApolloClient({
     uri: 'https://api.thegraph.com/subgraphs/name/gooddollar/goodcollective',
     cache: new InMemoryCache(),
   });
 
-  const wagmiConfig = createConfig({
-    autoConnect: true,
-    connectors,
-    publicClient,
-    webSocketPublicClient,
-  });
   return (
     <NativeBaseProvider>
       <WagmiConfig config={wagmiConfig}>
