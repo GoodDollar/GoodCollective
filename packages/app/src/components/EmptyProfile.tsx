@@ -1,13 +1,13 @@
 import { StyleSheet, Text, View, Image } from 'react-native';
-// import oceanUri from '../@constants/SafariImagePlaceholder';
-// import DonateCard from './CollectiveCard';
-// import WalletDetails from './WalletDetails';
 import { EmptyUri } from '../@constants/EmptyProfileImg';
 import { InterSmall } from '../utils/webFonts';
 import RoundedButton from './RoundedButton';
 import { Colors } from '../utils/colors';
+import useCrossNavigate from '../routes/useCrossNavigate';
 
 function EmptyProfile() {
+  const { navigate } = useCrossNavigate();
+
   return (
     <View style={styles.component}>
       <Text style={styles.text}>It looks empty here. {'\n'} Donate to build your impact profile!</Text>
@@ -18,7 +18,7 @@ function EmptyProfile() {
         color={Colors.green[200]}
         fontSize={16}
         seeType={false}
-        buttonLink="/"
+        onPress={() => navigate('/')}
       />
     </View>
   );

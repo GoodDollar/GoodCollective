@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   },
   desktopScrollView: {
     paddingHorizontal: 64,
-    paddingTop: 40,
+    paddingTop: 12,
     paddingBottom: 90,
     height: '100vh',
     overflowY: 'scroll',

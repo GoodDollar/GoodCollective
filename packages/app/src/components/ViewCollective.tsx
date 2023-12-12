@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { useState } from 'react';
-// import oceanUri from '../@constants/SafariImagePlaceholder';
 import RowItem from './RowItem';
 import RoundedButton from './RoundedButton';
 import StewardList from './StewardsList';
@@ -16,9 +15,7 @@ import StopDonationModal from './StopDonationModal';
 import ThankYouModal from './ThankYouModal';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
-import Breadcrumb from './Breadcrumb';
 import { formatTime } from '../hooks/functions/formatTime';
-import { formatAmount } from '../hooks/functions/formatUsdAmount';
 
 interface ViewCollectiveProps {
   imageUrl?: any;
@@ -86,7 +83,6 @@ function ViewCollective({
     return (
       <>
         <View style={{ gap: 24 }}>
-          <Breadcrumb currentPage={''} />
           <View style={styles.collectiveDesktopBox}>
             <View style={styles.collectiveDetails}>
               <Image source={{ uri: imageUrl }} style={styles.imageMobile} />

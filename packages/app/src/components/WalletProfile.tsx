@@ -94,7 +94,7 @@ function WalletProfile({
   if (isDesktopResolution) {
     return (
       <>
-        <Breadcrumb currentPage={'profile' + address} />
+        <Breadcrumb currentPage={`profile / ${address}`} />
         <View style={styles.profileContentBox}>
           <View style={[styles.container, styles.desktopContainer]}>
             <View style={{ gap: 24 }}>
