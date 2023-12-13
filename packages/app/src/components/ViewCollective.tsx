@@ -6,16 +6,29 @@ import StewardList from './StewardsList';
 import TransactionList from './TransactionList';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
-import { AtIconUri, InstragramIconUri, LastRowIconUri, TwitterIconUri, WebIconUri } from '../@constants/ConnectIcons';
-import { CalendarIcon, GreenListIcon, SquaresIcon } from '../@constants/DetailIcons';
-import { InfoIcon, ReceiveLightIcon, SendIcon, StewardGreenIcon } from '../@constants/ColorTypeIcons';
-import { SupportImage } from '../@constants/SupportImg';
 import StopDonationModal from './StopDonationModal';
 import ThankYouModal from './ThankYouModal';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import Breadcrumb from './Breadcrumb';
 import { formatTime } from '../hooks/functions/formatTime';
+
+//assets
+import {
+  AtIcon,
+  CalendarIcon,
+  InfoIcon,
+  InstagramIcon,
+  LastRowIcon,
+  ListGreenIcon,
+  ReceiveLightIcon,
+  SendIcon,
+  SquaresIcon,
+  StewardGreen,
+  SupportImage,
+  TwitterIcon,
+  WebIcon,
+} from '../assets/';
 
 interface ViewCollectiveProps {
   imageUrl?: string;
@@ -92,23 +105,23 @@ function ViewCollective({
                 <Text style={styles.description}>{description}</Text>
                 <View style={[styles.icons, { position: 'absolute', bottom: 0, left: 25 }]}>
                   <Link href={'/'}>
-                    <Image source={{ uri: WebIconUri }} style={styles.rowIcon} />
+                    <Image source={WebIcon} style={styles.rowIcon} />
                   </Link>
 
                   <Link href={'#'}>
-                    <Image source={{ uri: TwitterIconUri }} style={styles.rowIcon} />
+                    <Image source={TwitterIcon} style={styles.rowIcon} />
                   </Link>
 
                   <Link href={'#'}>
-                    <Image source={{ uri: InstragramIconUri }} style={styles.rowIcon} />
+                    <Image source={InstagramIcon} style={styles.rowIcon} />
                   </Link>
 
                   <Link href={'#'}>
-                    <Image source={{ uri: AtIconUri }} style={styles.rowIcon} />
+                    <Image source={AtIcon} style={styles.rowIcon} />
                   </Link>
 
                   <Link href={'#'}>
-                    <Image source={{ uri: LastRowIconUri }} style={styles.rowIcon} />
+                    <Image source={LastRowIcon} style={styles.rowIcon} />
                   </Link>
                 </View>
               </View>
@@ -163,10 +176,10 @@ function ViewCollective({
             <View style={styles.collectiveDesktopTimeline}>
               <View style={{ flex: 1 }}>
                 <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(creationDate as any)} />
-                <RowItem imageUrl={StewardGreenIcon} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
+                <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
 
                 <RowItem
-                  imageUrl={GreenListIcon}
+                  imageUrl={ListGreenIcon}
                   rowInfo="# of Payments Made"
                   rowData={paymentsMade ?? 0}
                   currency=""
@@ -252,23 +265,23 @@ function ViewCollective({
         <Text style={styles.description}>{description}</Text>
         <View style={styles.icons}>
           <Link href={'/'}>
-            <Image source={{ uri: WebIconUri }} style={styles.rowIcon} />
+            <Image source={WebIcon} style={styles.rowIcon} />
           </Link>
 
           <Link href={'#'}>
-            <Image source={{ uri: TwitterIconUri }} style={styles.rowIcon} />
+            <Image source={TwitterIcon} style={styles.rowIcon} />
           </Link>
 
           <Link href={'#'}>
-            <Image source={{ uri: InstragramIconUri }} style={styles.rowIcon} />
+            <Image source={InstagramIcon} style={styles.rowIcon} />
           </Link>
 
           <Link href={'#'}>
-            <Image source={{ uri: AtIconUri }} style={styles.rowIcon} />
+            <Image source={AtIcon} style={styles.rowIcon} />
           </Link>
 
           <Link href={'#'}>
-            <Image source={{ uri: LastRowIconUri }} style={styles.rowIcon} />
+            <Image source={LastRowIcon} style={styles.rowIcon} />
           </Link>
         </View>
         <View style={styles.collectiveInformation}>
@@ -279,13 +292,13 @@ function ViewCollective({
         <View style={styles.rowContainer}>
           <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(creationDate as any)} />
           <RowItem
-            imageUrl={StewardGreenIcon}
+            imageUrl={StewardGreen}
             rowInfo="Stewards Paid"
             rowData={stewardsPaid ?? 0}
             currency="G$"
             balance={tokenPrice * (stewardsPaid ?? 0)}
           />
-          <RowItem imageUrl={GreenListIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
+          <RowItem imageUrl={ListGreenIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
           <RowItem
             imageUrl={ReceiveLightIcon}
             rowInfo="Total Donations Received"
