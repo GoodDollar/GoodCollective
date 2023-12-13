@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
   },
   collectiveDonateBox: { gap: 24, height: 230 },
   collectiveInformation: { flex: 1, flexDirection: 'row', gap: 8 },
-  collectiveDesktopActions: { flex: 1, flexDirection: 'row', justifyContent: 'space-between' },
+  collectiveDesktopActions: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', gap: 32 },
 });
 
 export default ViewCollective;
