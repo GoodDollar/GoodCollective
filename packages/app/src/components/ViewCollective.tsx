@@ -257,152 +257,147 @@ function ViewCollective({
   }
 
   return (
-    <View style={{ gap: 24 }}>
+    <>
       <Image source={{ uri: imageUrl }} style={styles.image} />
-      <View style={[styles.container]}>
-        <Text style={styles.title}> {title}</Text>
-        <Text style={styles.description}>{description}</Text>
-        <View style={styles.icons}>
-          <Link href={'/'}>
-            <Image source={{ uri: WebIconUri }} style={styles.rowIcon} />
-          </Link>
+      <View style={{ gap: 24 }}>
+        <View style={[styles.container]}>
+          <Text style={styles.title}> {title}</Text>
+          <Text style={styles.description}>{description}</Text>
+          <View style={styles.icons}>
+            <Link href={'/'}>
+              <Image source={{ uri: WebIconUri }} style={styles.rowIcon} />
+            </Link>
+            <Link href={'#'}>
+              <Image source={{ uri: TwitterIconUri }} style={styles.rowIcon} />
+            </Link>
+            <Link href={'#'}>
+              <Image source={{ uri: InstragramIconUri }} style={styles.rowIcon} />
+            </Link>
+            <Link href={'#'}>
+              <Image source={{ uri: AtIconUri }} style={styles.rowIcon} />
+            </Link>
+            <Link href={'#'}>
+              <Image source={{ uri: LastRowIconUri }} style={styles.rowIcon} />
+            </Link>
+          </View>
+          <View style={styles.collectiveInformation}>
+            <Image source={{ uri: InfoIcon }} style={styles.infoIcon} />
+            <Text style={styles.informationLabel}>Stewards get G$ 800 each time they log a tree's status.</Text>
+          </View>
 
-          <Link href={'#'}>
-            <Image source={{ uri: TwitterIconUri }} style={styles.rowIcon} />
-          </Link>
+          <View style={styles.rowContainer}>
+            <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(creationDate as any)} />
+            <RowItem
+              imageUrl={StewardGreenIcon}
+              rowInfo="Stewards Paid"
+              rowData={stewardsPaid?.length ? stewardsPaid : 0}
+              currency="G$"
+              balance={stewardsPaid?.length ? 0.00018672442844237 * stewardsPaid : 0}
+            />
+            <RowItem
+              imageUrl={GreenListIcon}
+              rowInfo="# of Payments Made"
+              rowData={paymentsMade?.length ? paymentsMade : 0}
+              currency=""
+            />
+            <RowItem
+              imageUrl={ReceiveLightIcon}
+              rowInfo="Total Donations Received"
+              rowData={donationsReceived?.length ? donationsReceived : 0}
+              currency="G$"
+              balance={donationsReceived?.length ? 0.00018672442844237 * donationsReceived : 0}
+            />
+            <RowItem
+              imageUrl={SendIcon}
+              rowInfo="Total Paid Out"
+              rowData={totalPaidOut?.length ? totalPaidOut : 0}
+              currency="G$"
+              balance={totalPaidOut?.length ? 0.00018672442844237 * totalPaidOut : 0}
+            />
+            <RowItem
+              imageUrl={SquaresIcon}
+              rowInfo="Current Pool"
+              rowData={currentPool?.length ? currentPool : 0}
+              currency="G$"
+              balance={currentPool?.length ? 0.00018672442844237 * currentPool : 0}
+            />
+          </View>
 
-          <Link href={'#'}>
-            <Image source={{ uri: InstragramIconUri }} style={styles.rowIcon} />
-          </Link>
+          {isDonating ? (
+            <View style={{ gap: 24 }}>
+              <Image source={{ uri: SupportImage }} style={styles.supportImg} />
+              <Text style={styles.supportText}>You Support this GoodCollective!!</Text>
 
-          <Link href={'#'}>
-            <Image source={{ uri: AtIconUri }} style={styles.rowIcon} />
-          </Link>
-
-          <Link href={'#'}>
-            <Image source={{ uri: LastRowIconUri }} style={styles.rowIcon} />
-          </Link>
-        </View>
-        <View style={styles.collectiveInformation}>
-          <Image source={{ uri: InfoIcon }} style={styles.infoIcon} />
-          <Text style={styles.informationLabel}>Stewards get G$ 800 each time they log a tree's status.</Text>
-        </View>
-
-        <View style={styles.rowContainer}>
-          <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(creationDate as any)} />
-          <RowItem
-            imageUrl={StewardGreenIcon}
-            rowInfo="Stewards Paid"
-            rowData={stewardsPaid?.length ? stewardsPaid : 0}
-            currency="G$"
-            balance={stewardsPaid?.length ? 0.00018672442844237 * stewardsPaid : 0}
-          />
-          <RowItem
-            imageUrl={GreenListIcon}
-            rowInfo="# of Payments Made"
-            rowData={paymentsMade?.length ? paymentsMade : 0}
-            currency=""
-          />
-          <RowItem
-            imageUrl={ReceiveLightIcon}
-            rowInfo="Total Donations Received"
-            rowData={donationsReceived?.length ? donationsReceived : 0}
-            currency="G$"
-            balance={donationsReceived?.length ? 0.00018672442844237 * donationsReceived : 0}
-          />
-          <RowItem
-            imageUrl={SendIcon}
-            rowInfo="Total Paid Out"
-            rowData={totalPaidOut?.length ? totalPaidOut : 0}
-            currency="G$"
-            balance={totalPaidOut?.length ? 0.00018672442844237 * totalPaidOut : 0}
-          />
-          <RowItem
-            imageUrl={SquaresIcon}
-            rowInfo="Current Pool"
-            rowData={currentPool?.length ? currentPool : 0}
-            currency="G$"
-            balance={currentPool?.length ? 0.00018672442844237 * currentPool : 0}
-          />
-          In this code, we're checking if each of the values (donationsReceived, totalPaidOut, and currentPool) is
-          truthy (not null or undefined) before rendering the corresponding section. If the value is truthy, it will use
-          the actual value; otherwise, it will use 0 as the default value.
-        </View>
-
-        {isDonating ? (
-          <View style={{ gap: 24 }}>
-            <Image source={{ uri: SupportImage }} style={styles.supportImg} />
-            <Text style={styles.supportText}>You Support this GoodCollective!!</Text>
-
+              <View style={{ gap: 16 }}>
+                <RoundedButton
+                  title="Stop your donation"
+                  backgroundColor={Colors.orange[100]}
+                  color={Colors.orange[200]}
+                  fontSize={18}
+                  seeType={false}
+                  onPress={() => {
+                    setStopDonationModal(true);
+                    console.log(stopDonationModal);
+                  }}
+                />
+                {renderDonorsButton}
+              </View>
+            </View>
+          ) : (
             <View style={{ gap: 16 }}>
               <RoundedButton
-                title="Stop your donation"
-                backgroundColor={Colors.orange[100]}
-                color={Colors.orange[200]}
+                title="Donate"
+                backgroundColor={Colors.green[100]}
+                color={Colors.green[200]}
                 fontSize={18}
                 seeType={false}
                 onPress={() => {
-                  setStopDonationModal(true);
-                  console.log(stopDonationModal);
+                  navigate(`/donate/${route}`);
                 }}
               />
               {renderDonorsButton}
             </View>
-          </View>
-        ) : (
-          <View style={{ gap: 16 }}>
-            <RoundedButton
-              title="Donate"
-              backgroundColor={Colors.green[100]}
-              color={Colors.green[200]}
-              fontSize={18}
-              seeType={false}
-              onPress={() => {
-                navigate(`/donate/${route}`);
-              }}
-            />
-            {renderDonorsButton}
-          </View>
-        )}
-      </View>
+          )}
+        </View>
 
-      <View style={[styles.container]}>
-        <StewardList
-          stewardData={{
-            username: 'username123',
-            isVerified: true,
-            actions: 730,
-          }}
-          listType="steward"
-        />
-        <RoundedButton
-          title="See all stewards"
-          backgroundColor={Colors.purple[100]}
-          color={Colors.purple[200]}
-          fontSize={18}
-          seeType={true}
-          onPress={() => navigate('/collective/123/stewards')}
-        />
+        <View style={[styles.container]}>
+          <StewardList
+            stewardData={{
+              username: 'username123',
+              isVerified: true,
+              actions: 730,
+            }}
+            listType="steward"
+          />
+          <RoundedButton
+            title="See all stewards"
+            backgroundColor={Colors.purple[100]}
+            color={Colors.purple[200]}
+            fontSize={18}
+            seeType={true}
+            onPress={() => navigate('/collective/123/stewards')}
+          />
+        </View>
+        <View style={styles.container}>
+          <TransactionList
+            username="username123"
+            currency="G$"
+            amount={2400}
+            transactionId="18347cg786hfc6f29837r6hd23"
+          />
+          <RoundedButton
+            title="See all Transactions"
+            backgroundColor={Colors.purple[100]}
+            color={Colors.purple[200]}
+            fontSize={18}
+            seeType={true}
+            onPress={() => navigate('/profile/abc123/activity')}
+          />
+        </View>
+        <StopDonationModal openModal={stopDonationModal} setOpenModal={setStopDonationModal} />
+        <ThankYouModal openModal={donateModal} setOpenModal={setDonateModal} />
       </View>
-      <View style={styles.container}>
-        <TransactionList
-          username="username123"
-          currency="G$"
-          amount={2400}
-          transactionId="18347cg786hfc6f29837r6hd23"
-        />
-        <RoundedButton
-          title="See all Transactions"
-          backgroundColor={Colors.purple[100]}
-          color={Colors.purple[200]}
-          fontSize={18}
-          seeType={true}
-          onPress={() => navigate('/profile/abc123/activity')}
-        />
-      </View>
-      <StopDonationModal openModal={stopDonationModal} setOpenModal={setStopDonationModal} />
-      <ThankYouModal openModal={donateModal} setOpenModal={setDonateModal} />
-    </View>
+    </>
   );
 }
 

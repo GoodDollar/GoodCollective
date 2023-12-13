@@ -6,29 +6,35 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import React from 'react';
 import Breadcrumb from '../components/Breadcrumb';
+import { useMediaQuery } from 'native-base';
 
 function ViewCollectivePage() {
   const { request } = useCollectiveSpecificData(window.location.pathname.slice('/collective/'.length));
   const [collectiveData, setCollectiveData] = useState<any>(undefined);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDesktopResolution] = useMediaQuery({
+    minWidth: 612,
+  });
 
   useEffect(() => {
-    console.log('Request: ' + JSON.stringify(request, null, 2));
     if (!request || request.length === 0) {
       setIsLoading(false); // No requests, no loading
       return;
     }
     axios
       .get(`https://gateway.pinata.cloud/ipfs/${request[0].ipfs}`)
-      .then((response) => ({
-        name: response.data?.name,
-        description: response.data?.description,
-        email: response.data?.email,
-        twitter: response.data?.twitter,
-        id: request[0].id,
-        time: request[0].timestamp,
-        contributions: request[0]?.contributions,
-      }))
+      .then((response) => {
+        console.log(JSON.stringify(response.data, null, 2));
+        return {
+          name: response.data?.name,
+          description: response.data?.description,
+          email: response.data?.email,
+          twitter: response.data?.twitter,
+          id: request[0].id,
+          time: request[0].timestamp,
+          contributions: request[0]?.contributions,
+        };
+      })
       .then((data) => {
         console.log(JSON.stringify(data, null, 2));
         setCollectiveData(data);
@@ -43,7 +49,7 @@ function ViewCollectivePage() {
 
   return (
     <Layout>
-      <Breadcrumb currentPage={`collective / ${collectiveData?.id ?? ''}`} />
+      {isDesktopResolution && <Breadcrumb currentPage={`collective / ${collectiveData?.id ?? ''}`} />}
       <>
         {isLoading ? (
           <p>Loading...</p>
