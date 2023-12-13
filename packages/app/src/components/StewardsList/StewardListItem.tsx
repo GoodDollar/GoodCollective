@@ -2,7 +2,7 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import { VerifiedIconUri } from '../../@constants/ColorTypeIcons';
 import { Colors } from '../../utils/colors';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
-import { Steward } from '../../models/Steward';
+import { Steward } from '../../models/models';
 import { profilePictureArray } from '../../@constants/pfps';
 
 interface StewardListItemProps {

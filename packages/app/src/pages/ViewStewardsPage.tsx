@@ -1,5 +1,4 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { isMobile as isMobileWeb } from 'mobile-device-detect';
 import { useMediaQuery } from 'native-base';
 
 import oceanUri from '../@constants/SafariImagePlaceholder';
@@ -9,13 +8,51 @@ import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
 import { StewardBlueIcon } from '../@constants/ColorTypeIcons';
 import Breadcrumb from '../components/Breadcrumb';
+import { useLocation } from 'react-router-native';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useCollectiveSpecificData } from '../hooks/useSubgraphData';
+import { Collective } from '../models/models';
 
 function ViewStewardsPage() {
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
 
-  const collectiveId = '123';
+  const location = useLocation();
+  const collectiveId = location.pathname.slice('/collective/'.length);
+
+  const { request } = useCollectiveSpecificData(collectiveId);
+  const [collective, setCollective] = useState<Collective | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!request || request.length === 0) {
+      setIsLoading(false);
+      return;
+    }
+    axios
+      .get(`https://gateway.pinata.cloud/ipfs/${request[0].ipfs}`)
+      .then((response) => ({
+        name: response.data?.name,
+        description: response.data?.description,
+        email: response.data?.email,
+        twitter: response.data?.twitter,
+        id: request[0].id,
+        timestamp: request[0].timestamp,
+        contributions: request[0]?.contributions,
+      }))
+      .then((data) => {
+        console.log(JSON.stringify(data, null, 2));
+        setCollective(data);
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [request]);
 
   if (isDesktopResolution) {
     return (
@@ -32,7 +69,6 @@ function ViewStewardsPage() {
           </View>
           <View style={styles.desktopStewardsContainer}>
             <StewardList hideTitle stewards={[]} listType="viewStewards" />
-            {/* Repeat StewardList component for other items */}
           </View>
         </View>
       </Layout>
@@ -41,16 +77,12 @@ function ViewStewardsPage() {
 
   return (
     <Layout>
-      <View style={isMobileWeb ? styles.mobileStewardsContainer : styles.desktopStewardsContainer}>
-        <View>
-          <Image source={{ uri: oceanUri }} style={styles.image} />
-          <View style={[styles.container]}>
-            <Text style={styles.title}>Restoring the Kakamega Forest</Text>
-          </View>
-          <View style={styles.listContainer}>
-            <StewardList stewards={[]} listType="viewStewards" />
-          </View>
-        </View>
+      <Image source={{ uri: oceanUri }} style={styles.image} />
+      <View style={[styles.titleContainer]}>
+        <Text style={styles.title}>Restoring the Forest</Text>
+      </View>
+      <View style={[styles.stewardsContainer]}>
+        <StewardList stewards={[]} listType="viewStewards" />
       </View>
     </Layout>
   );
@@ -130,13 +162,21 @@ const styles = StyleSheet.create({
   mobileStewardsContainer: {
     backgroundColor: Colors.gray[800],
   },
-  container: {
+  stewardsContainer: {
     width: '100%',
     padding: 16,
     shadowColor: Colors.black,
-    marginBottom: 16,
     backgroundColor: Colors.white,
     borderRadius: 16,
+  },
+  titleContainer: {
+    width: '100%',
+    padding: 16,
+    shadowColor: Colors.black,
+    backgroundColor: Colors.white,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    marginBottom: 16,
   },
   listContainer: {
     width: '100%',
@@ -155,7 +195,7 @@ const styles = StyleSheet.create({
     ...InterSemiBold,
     fontSize: 20,
     color: Colors.black,
-    marginBottom: 8,
+    lineHeight: 25,
   },
 });
 

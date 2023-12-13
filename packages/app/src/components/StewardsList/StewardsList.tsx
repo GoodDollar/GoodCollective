@@ -4,7 +4,7 @@ import { StewardBlueIcon, StewardGreenIcon } from '../../@constants/ColorTypeIco
 import { Colors } from '../../utils/colors';
 import { useMediaQuery } from 'native-base';
 import { StewardListItem } from './StewardListItem';
-import { Steward } from '../../models/Steward';
+import { Steward } from '../../models/models';
 
 const placeholderUsers = [0, 1, 2, 3, 4, 5, 6];
 

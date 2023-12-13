@@ -6,10 +6,11 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import React from 'react';
 import Breadcrumb from '../components/Breadcrumb';
+import { Collective } from '../models/models';
 
 function ViewCollectivePage() {
   const { request } = useCollectiveSpecificData(window.location.pathname.slice('/collective/'.length));
-  const [collectiveData, setCollectiveData] = useState<any>(undefined);
+  const [collective, setCollective] = useState<Collective | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -26,12 +27,11 @@ function ViewCollectivePage() {
         email: response.data?.email,
         twitter: response.data?.twitter,
         id: request[0].id,
-        time: request[0].timestamp,
+        timestamp: request[0].timestamp,
         contributions: request[0]?.contributions,
       }))
       .then((data) => {
-        console.log(JSON.stringify(data, null, 2));
-        setCollectiveData(data);
+        setCollective(data);
       })
       .catch((error) => {
         console.error(error);
@@ -43,26 +43,26 @@ function ViewCollectivePage() {
 
   return (
     <Layout>
-      <Breadcrumb currentPage={`collective / ${collectiveData?.id ?? ''}`} />
+      <Breadcrumb currentPage={`collective / ${collective?.id ?? ''}`} />
       <>
         {isLoading ? (
           <p>Loading...</p>
-        ) : !collectiveData ? (
+        ) : !collective ? (
           <></>
         ) : (
           <ViewCollective
             imageUrl={oceanUri}
-            title={collectiveData.name}
-            description={collectiveData.description}
-            stewardsDesc={collectiveData.description}
-            creationDate={collectiveData.time}
+            title={collective.name}
+            description={collective.description}
+            stewardsDesc={collective.description}
+            creationDate={collective.timestamp}
             stewardsPaid={28}
             paymentsMade={374900}
-            donationsReceived={collectiveData.contributions}
+            donationsReceived={collective.contributions}
             totalPaidOut={299920000}
             currentPool={381000}
             isDonating={false}
-            route={collectiveData.id}
+            route={collective.id}
           />
         )}
       </>

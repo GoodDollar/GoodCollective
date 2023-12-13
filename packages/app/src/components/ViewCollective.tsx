@@ -216,7 +216,7 @@ function ViewCollective({
                 color={Colors.purple[200]}
                 fontSize={18}
                 seeType={true}
-                onPress={() => navigate('/collective/123/stewards')}
+                onPress={() => navigate(`/collective/${route}/stewards`)}
               />
             </View>
             <View style={[styles.container, styles.mobileContainer]}>
@@ -239,7 +239,7 @@ function ViewCollective({
     <View style={{ gap: 24 }}>
       <Image source={{ uri: imageUrl }} style={styles.image} />
       <View style={[styles.container]}>
-        <Text style={styles.title}> {title}</Text>
+        <Text style={styles.title}>{title}</Text>
         <Text style={styles.description}>{description}</Text>
         <View style={styles.icons}>
           <Link href={'/'}>
@@ -345,7 +345,7 @@ function ViewCollective({
           color={Colors.purple[200]}
           fontSize={18}
           seeType={true}
-          onPress={() => navigate('/collective/123/stewards')}
+          onPress={() => navigate(`/collective/${route}/stewards`)}
         />
       </View>
       <View style={styles.container}>
