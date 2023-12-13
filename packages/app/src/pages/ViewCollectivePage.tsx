@@ -14,7 +14,6 @@ function ViewCollectivePage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log('Request: ' + JSON.stringify(request, null, 2));
     if (!request || request.length === 0) {
       setIsLoading(false); // No requests, no loading
       return;
@@ -52,17 +51,12 @@ function ViewCollectivePage() {
         ) : (
           <ViewCollective
             imageUrl={oceanUri}
-            title={collective.name}
-            description={collective.description}
-            stewardsDesc={collective.description}
-            creationDate={collective.timestamp}
+            collective={collective}
             stewardsPaid={28}
             paymentsMade={374900}
-            donationsReceived={collective.contributions}
             totalPaidOut={299920000}
             currentPool={381000}
             isDonating={false}
-            route={collective.id}
           />
         )}
       </>

@@ -17,7 +17,7 @@ export const StewardListItem = (props: StewardListItemProps) => {
   const profileImage = profilePictureArray[randomIndex];
 
   return (
-    <View style={styles.row} key={steward.username}>
+    <View style={styles.row}>
       <Image source={{ uri: profileImage }} style={styles.rowImg} />
       <Text style={styles.title}>
         {steward.username}{' '}

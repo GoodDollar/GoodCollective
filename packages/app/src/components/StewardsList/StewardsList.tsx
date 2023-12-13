@@ -6,7 +6,11 @@ import { useMediaQuery } from 'native-base';
 import { StewardListItem } from './StewardListItem';
 import { Steward } from '../../models/models';
 
-const placeholderUsers = [0, 1, 2, 3, 4, 5, 6];
+const mockStewardData: Steward[] = [0, 1, 2, 3, 4, 5, 6].map(() => ({
+  username: 'username' + Math.floor(Math.random() * 10000),
+  isVerified: true,
+  actions: 730,
+}));
 
 interface StewardListProps {
   listType: 'viewCollective' | 'viewStewards';
@@ -19,11 +23,7 @@ function StewardList({ listType, stewards, hideTitle }: StewardListProps) {
     minWidth: 612,
   });
 
-  const mockStewardData: Steward = {
-    username: 'username123',
-    isVerified: true,
-    actions: 730,
-  };
+  const toShow = listType === 'viewStewards' ? mockStewardData : mockStewardData.slice(0, isDesktopResolution ? 6 : 5);
 
   return (
     <View style={styles.stewardsHeader}>
@@ -35,8 +35,8 @@ function StewardList({ listType, stewards, hideTitle }: StewardListProps) {
         </View>
       )}
       <View style={styles.list}>
-        {(isDesktopResolution ? placeholderUsers.slice(0, 6) : placeholderUsers.slice(0, 5)).map((item) => (
-          <StewardListItem steward={mockStewardData} showActions={listType === 'viewStewards'} />
+        {toShow.map((steward) => (
+          <StewardListItem steward={steward} showActions={listType === 'viewStewards'} key={steward.username} />
         ))}
       </View>
     </View>
