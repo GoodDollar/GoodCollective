@@ -5,60 +5,67 @@ import { useCollectiveSpecificData } from '../hooks/useSubgraphData';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import React from 'react';
+import Breadcrumb from '../components/Breadcrumb';
 
 function ViewCollectivePage() {
   const { request } = useCollectiveSpecificData(window.location.pathname.slice('/collective/'.length));
-  const [subData, setSubData] = useState<any[]>();
+  const [collectiveData, setCollectiveData] = useState<any>(undefined);
   const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
+    console.log('Request: ' + JSON.stringify(request, null, 2));
     if (!request || request.length === 0) {
       setIsLoading(false); // No requests, no loading
       return;
     }
-    const t: any = [];
-    Promise.all(
-      request.map((e: any) => {
-        return axios.get(`https://gateway.pinata.cloud/ipfs/${e.ipfs}`).then(async (res) => {
-          t.push({
-            name: res.data?.name,
-            description: res.data?.description,
-            email: res.data?.email,
-            twitter: res.data?.twitter,
-            id: e.id,
-            time: e.timestamp,
-            contributions: e.contributions,
-          });
-        });
+    axios
+      .get(`https://gateway.pinata.cloud/ipfs/${request[0].ipfs}`)
+      .then((response) => ({
+        name: response.data?.name,
+        description: response.data?.description,
+        email: response.data?.email,
+        twitter: response.data?.twitter,
+        id: request[0].id,
+        time: request[0].timestamp,
+        contributions: request[0]?.contributions,
+      }))
+      .then((data) => {
+        console.log(JSON.stringify(data, null, 2));
+        setCollectiveData(data);
       })
-    ).then(() => {
-      setSubData(t);
-      setIsLoading(false);
-    });
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [request]);
 
   return (
     <Layout>
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : (
-        subData?.map((t: any) => (
+      <Breadcrumb currentPage={`collective / ${collectiveData?.id ?? ''}`} />
+      <>
+        {isLoading ? (
+          <p>Loading...</p>
+        ) : !collectiveData ? (
+          <></>
+        ) : (
           <ViewCollective
-            key={t.id}
             imageUrl={oceanUri}
-            title={t.name}
-            description={t.description}
-            stewardsDesc={t.description}
-            creationDate={t.time}
+            title={collectiveData.name}
+            description={collectiveData.description}
+            stewardsDesc={collectiveData.description}
+            creationDate={collectiveData.time}
             stewardsPaid={28}
             paymentsMade={374900}
-            donationsReceived={t.contributions}
+            donationsReceived={collectiveData.contributions}
             totalPaidOut={299920000}
             currentPool={381000}
             isDonating={false}
-            route={t.id}
+            route={collectiveData.id}
           />
-        ))
-      )}
+        )}
+      </>
     </Layout>
   );
 }

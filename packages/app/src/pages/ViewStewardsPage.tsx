@@ -15,10 +15,12 @@ function ViewStewardsPage() {
     minWidth: 612,
   });
 
+  const collectiveId = '123';
+
   if (isDesktopResolution) {
     return (
       <Layout>
-        <Breadcrumb />
+        <Breadcrumb currentPage={`collective / ${collectiveId} / stewards`} />
         <View style={styles.desktopContainer}>
           <View style={styles.desktopTopRow}>
             <Image source={{ uri: oceanUri }} style={styles.desktopImage} />

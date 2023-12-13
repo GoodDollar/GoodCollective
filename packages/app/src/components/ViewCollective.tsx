@@ -10,7 +10,6 @@ import StopDonationModal from './StopDonationModal';
 import ThankYouModal from './ThankYouModal';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
-import Breadcrumb from './Breadcrumb';
 import { formatTime } from '../hooks/functions/formatTime';
 
 //assets
@@ -95,7 +94,6 @@ function ViewCollective({
     return (
       <>
         <View style={{ gap: 24 }}>
-          <Breadcrumb currentPage={''} />
           <View style={styles.collectiveDesktopBox}>
             <View style={styles.collectiveDetails}>
               <Image source={{ uri: imageUrl }} style={styles.imageMobile} />

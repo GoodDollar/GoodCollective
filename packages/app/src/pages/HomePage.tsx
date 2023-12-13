@@ -1,5 +1,5 @@
 import { Image, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
-import CollectiveHomeCard from '../components/CollectiveHomeCard';
+import CollectiveHomeCard, { CollectiveHomeCardData } from '../components/CollectiveHomeCard';
 import oceanUri from '../@constants/SafariImagePlaceholder';
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
@@ -13,12 +13,11 @@ const ForwardIconUri = `data:image/svg+xml;utf8,<svg width="8" height="15" viewB
 
 function HomePage() {
   const { requests } = useCollectiveData();
-  const [subData, setSubData] = useState<any[]>();
+  const [subData, setSubData] = useState<CollectiveHomeCardData[]>();
   const [isLoading, setIsLoading] = useState(true);
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
-  console.log(requests);
 
   useEffect(() => {
     if (!requests || requests.length === 0) {
@@ -27,27 +26,31 @@ function HomePage() {
     }
 
     const fetchData = async () => {
-      try {
-        const t: any = [];
-        for (const e of requests) {
-          console.log(e.ipfs);
-          const res = await axios.get(`https://gateway.pinata.cloud/ipfs/${e.ipfs}`);
-          t.push({
+      const t: Promise<CollectiveHomeCardData>[] = [];
+      for (const e of requests) {
+        const promise: Promise<CollectiveHomeCardData> = axios
+          .get(`https://gateway.pinata.cloud/ipfs/${e.ipfs}`)
+          .then((res) => ({
             name: res.data?.name,
             description: res.data?.description,
             email: res.data?.email,
             twitter: res.data?.twitter,
             id: e.id,
-            time: e.timestamp,
+            timestamp: e.timestamp,
+          }))
+          .catch((err) => {
+            console.error(`Error in CollectiveHomeCardData request ${JSON.stringify(e)}: ${err})`);
+            return {
+              id: '-1',
+              timestamp: e.timestamp,
+            };
           });
-        }
-        console.log(t);
-        setSubData(t);
-        setIsLoading(false);
-      } catch (error) {
-        console.error(error);
-        setIsLoading(false); // Handle errors and set isLoading to false
+        t.push(promise);
       }
+      const data = await Promise.all(t);
+      const filtered = data.filter((e) => e.id !== '-1');
+      setSubData(filtered);
+      setIsLoading(false);
     };
 
     fetchData();
@@ -62,12 +65,12 @@ function HomePage() {
             <p>Loading...</p>
           ) : (
             // Render the data when it's available
-            subData?.map((t: any, index: number) => (
+            subData?.map((t: CollectiveHomeCardData, index: number) => (
               <CollectiveHomeCard
                 key={index}
                 route={t.id}
-                title={t.name}
-                description={t.description}
+                title={t.name ?? 'Untitled'}
+                description={t.description ?? 'No description'}
                 imageUrl={oceanUri}
               />
             ))
