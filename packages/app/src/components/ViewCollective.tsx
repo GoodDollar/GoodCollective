@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, Image } from 'react-native';
 import { useState } from 'react';
 import RowItem from './RowItem';
 import RoundedButton from './RoundedButton';
-import StewardList from './StewardsList';
+import StewardList from './StewardsList/StewardsList';
 import TransactionList from './TransactionList';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
@@ -209,14 +209,7 @@ function ViewCollective({
 
           <View style={styles.collectiveDesktopActions}>
             <View style={[styles.container, styles.mobileContainer]}>
-              <StewardList
-                stewardData={{
-                  username: null as any,
-                  isVerified: null as any,
-                  actions: null as any,
-                }}
-                listType="viewCollective"
-              />
+              <StewardList stewards={[]} listType="viewCollective" />
               <RoundedButton
                 title="See all stewards"
                 backgroundColor={Colors.purple[100]}
@@ -345,14 +338,7 @@ function ViewCollective({
       </View>
 
       <View style={[styles.container]}>
-        <StewardList
-          stewardData={{
-            username: 'username123',
-            isVerified: true,
-            actions: 730,
-          }}
-          listType="viewCollective"
-        />
+        <StewardList stewards={[]} listType="viewCollective" />
         <RoundedButton
           title="See all stewards"
           backgroundColor={Colors.purple[100]}

@@ -4,7 +4,7 @@ import { useMediaQuery } from 'native-base';
 
 import oceanUri from '../@constants/SafariImagePlaceholder';
 import Layout from '../components/Layout';
-import StewardList from '../components/StewardsList';
+import StewardList from '../components/StewardsList/StewardsList';
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
 import { StewardBlueIcon } from '../@constants/ColorTypeIcons';
@@ -31,15 +31,7 @@ function ViewStewardsPage() {
             <Text style={styles.listTitle}>Stewards</Text>
           </View>
           <View style={styles.desktopStewardsContainer}>
-            <StewardList
-              hideTitle
-              stewardData={{
-                username: 'username123',
-                isVerified: true,
-                actions: 730,
-              }}
-              listType="viewStewards"
-            />
+            <StewardList hideTitle stewards={[]} listType="viewStewards" />
             {/* Repeat StewardList component for other items */}
           </View>
         </View>
@@ -56,14 +48,7 @@ function ViewStewardsPage() {
             <Text style={styles.title}>Restoring the Kakamega Forest</Text>
           </View>
           <View style={styles.listContainer}>
-            <StewardList
-              stewardData={{
-                username: 'username123',
-                isVerified: true,
-                actions: 730,
-              }}
-              listType="viewStewards"
-            />
+            <StewardList stewards={[]} listType="viewStewards" />
           </View>
         </View>
       </View>
