@@ -42,6 +42,12 @@ const frequencyOptions = [
   { value: 'Yearly', label: 'Yearly' },
 ];
 
+const tokenMapping = {
+  CELO: '0x471EcE3750Da237f93B8E339c536989b8978a438',
+  cUSD: '0x765de816845861e75a25fca122bb6898b8b1282a',
+  WBTC: '0xD629eb00dEced2a080B7EC630eF6aC117e614f1b',
+};
+
 function DonateComponent({
   walletConected,
   insufficientLiquidity,
@@ -60,32 +66,19 @@ function DonateComponent({
   const { supportFlowWithSwap, supportFlow } = useContractCalls();
   const { address } = useAccount();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const tokenMapping = {
-    CELO: '0x471EcE3750Da237f93B8E339c536989b8978a438',
-    cUSD: '0x765de816845861e75a25fca122bb6898b8b1282a',
-    WBTC: '0xD629eb00dEced2a080B7EC630eF6aC117e614f1b',
-    // Add other tokens here if needed
-  };
-
   useEffect(() => {
-    if (currency === 'WBTC') {
-      getPrice('0xD629eb00dEced2a080B7EC630eF6aC117e614f1b').then((res: any) => {
-        setUsdValue(res * amount);
-      });
-    }
-    if (currency === 'cUSD') {
-      getPrice('0x765de816845861e75a25fca122bb6898b8b1282a').then((res: any) => {
-        setUsdValue(res * amount);
-      });
-    }
-    if (currency === 'CELO') {
-      getPrice('0x471EcE3750Da237f93B8E339c536989b8978a438').then((res: any) => {
-        setUsdValue(res * amount);
-      });
-    }
     if (currency === 'G$') {
+      // TODO: is the price of G$ fixed?
       setUsdValue(0.00018672442844237 * amount);
+      return;
+    }
+    for (const [token, tokenAddress] of Object.entries(tokenMapping)) {
+      if (currency === token) {
+        getPrice(tokenAddress).then((res: any) => {
+          setUsdValue(res * amount);
+        });
+        break;
+      }
     }
   }, [amount, currency, getPrice, usdValue, setUsdValue]);
 
@@ -387,6 +380,7 @@ function DonateComponent({
 
         <TouchableOpacity>
           <RoundedButton
+            maxWidth={isDesktopResolution ? 343 : undefined}
             title={getButtonText(insufficientLiquidity, priceImpace, insufficientBalance)}
             backgroundColor={getButtonBGC(insufficientLiquidity, priceImpace, insufficientBalance)}
             color={getButtonTextColor(insufficientLiquidity, priceImpace, insufficientBalance)}
@@ -417,6 +411,7 @@ const styles = StyleSheet.create({
   },
   bodyDesktop: {
     borderRadius: 30,
+    marginTop: 12,
   },
   title: {
     lineHeight: 25,

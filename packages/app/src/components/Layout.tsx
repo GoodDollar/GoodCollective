@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import Header from './Header';
+import Header from './Header/Header';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import ImpactButton from './ImpactButton';
 import { useLocation } from 'react-router-native';
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   },
   desktopScrollView: {
     paddingHorizontal: 64,
-    paddingTop: 40,
+    paddingTop: 12,
     paddingBottom: 90,
     height: '100vh',
     overflowY: 'scroll',

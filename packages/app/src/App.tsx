@@ -11,9 +11,6 @@ import * as MobileRoute from './routes/routing.native';
 import * as WebRoute from './routes/routing.web';
 
 import ActivityLogPage from './pages/ActivityLogPage';
-// import WalletProfilePageDonor from './pages/WalletProfilePageDonor';
-// import WalletProfilePageSteward from './pages/WalletProfilePageSteward';
-// import EmptyProfile from './components/EmptyProfile';
 import { NativeBaseProvider } from 'native-base';
 import CollectiveCardPage from './pages/CollectiveCardPage';
 import DonatePage from './pages/DonatePage';
@@ -106,8 +103,8 @@ function App(): JSX.Element {
 
 const styles = StyleSheet.create({
   body: {
-    flex: 1,
     backgroundColor: Colors.gray[400],
+    minHeight: '100vh',
   },
 });
 
