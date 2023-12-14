@@ -2,9 +2,9 @@ import React, { Suspense } from 'react';
 import Layout from '../components/Layout';
 import { WalletProfileTypes } from '../@constants/WalletProfileTypes';
 import { FruitDoveUri } from '../@constants/ProfilePictures';
-import { useSubgraphDonor } from '../network';
+import { useSubgraphDonor } from '../subgraph';
 import { useAccount } from 'wagmi';
-import { formatTime } from '../hooks/functions/formatTime';
+import { formatTime } from '../lib/formatTime';
 
 // Lazy load the WalletProfile component
 const WalletProfileLazy = React.lazy(() => import('../components/WalletProfile'));

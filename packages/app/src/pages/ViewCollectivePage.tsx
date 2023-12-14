@@ -4,7 +4,7 @@ import oceanUri from '../@constants/SafariImagePlaceholder';
 import React from 'react';
 import Breadcrumb from '../components/Breadcrumb';
 import { useMediaQuery } from 'native-base';
-import { useFetchCollective } from '../network';
+import { useFetchCollective } from '../hooks';
 
 function ViewCollectivePage() {
   const { collective, isLoading } = useFetchCollective(window.location.pathname.slice('/collective/'.length));

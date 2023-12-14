@@ -1,7 +1,7 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { InterRegular } from '../../utils/webFonts';
-import { formatAmount } from '../../hooks/functions/formatAmount';
-import displayAddress from '../../hooks/functions/displayAddress';
+import { formatAmount } from '../../lib/formatAmount';
+import displayAddress from '../../lib/displayAddress';
 import { useEffect, useState } from 'react';
 import { placeholderAvatarUri } from './assets';
 import { useNetwork } from 'wagmi';

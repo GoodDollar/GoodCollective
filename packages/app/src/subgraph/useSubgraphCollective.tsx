@@ -20,6 +20,8 @@ export const collective = gql`
       timestamp
       contributions
       ipfs
+      donors
+      stewards
     }
   }
 `;

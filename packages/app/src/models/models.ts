@@ -1,3 +1,5 @@
+import { SubgraphDonor, SubgraphSteward } from '../subgraph';
+
 export interface Steward {
   username: string;
   actions?: number;
@@ -11,5 +13,7 @@ export interface Collective {
   twitter?: string;
   id: string;
   timestamp: number;
-  contributions: string;
+  contributions: number;
+  donors?: SubgraphDonor[];
+  stewards?: SubgraphSteward[];
 }

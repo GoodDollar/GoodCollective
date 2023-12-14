@@ -1,8 +1,14 @@
 import { Collective } from '../models/models';
 import axios from 'axios';
-import { useSubgraphCollective, useSubgraphCollectives } from './useSubgraphCollective';
+import {
+  useSubgraphCollective,
+  useSubgraphCollectives,
+  SubgraphCollective,
+  SubgraphDonor,
+  SubgraphSteward,
+} from '../subgraph';
 import { useEffect, useState } from 'react';
-import { SubgraphCollective } from './subgraphModels';
+import { subgraphCollectiveToModel } from '../models/transforms';
 
 export function useFetchCollective(id: string): { collective?: Collective; isLoading: boolean } {
   const subgraphCollective = useSubgraphCollective(id);
@@ -16,15 +22,9 @@ export function useFetchCollective(id: string): { collective?: Collective; isLoa
     }
     axios
       .get(`https://gateway.pinata.cloud/ipfs/${subgraphCollective.ipfs}`)
-      .then((response) => ({
-        name: response.data?.name,
-        description: response.data?.description,
-        email: response.data?.email,
-        twitter: response.data?.twitter,
-        id: subgraphCollective.id,
-        timestamp: subgraphCollective.timestamp,
-        contributions: subgraphCollective.contributions,
-      }))
+      .then((response) => {
+        return subgraphCollectiveToModel(subgraphCollective, response.data);
+      })
       .then((data) => {
         setCollective(data);
       })
@@ -54,15 +54,9 @@ export function useFetchCollectives(): { collectives?: Collective[]; isLoading: 
       for (const subgraphCollective of subgraphCollectives) {
         const promise: Promise<Collective | undefined> = axios
           .get(`https://gateway.pinata.cloud/ipfs/${subgraphCollective.ipfs}`)
-          .then((response) => ({
-            name: response.data?.name,
-            description: response.data?.description,
-            email: response.data?.email,
-            twitter: response.data?.twitter,
-            id: subgraphCollective.id,
-            timestamp: subgraphCollective.timestamp,
-            contributions: subgraphCollective.contributions,
-          }))
+          .then((response) => {
+            return subgraphCollectiveToModel(subgraphCollective, response.data);
+          })
           .catch((err) => {
             console.error(`[useFetchCollectives] error in request: ${JSON.stringify(subgraphCollective)}\n${err})`);
             return undefined;

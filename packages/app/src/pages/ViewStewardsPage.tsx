@@ -9,7 +9,7 @@ import { Colors } from '../utils/colors';
 import { StewardBlueIcon } from '../@constants/ColorTypeIcons';
 import Breadcrumb from '../components/Breadcrumb';
 import { useLocation } from 'react-router-native';
-import { useFetchCollective } from '../network';
+import { useFetchCollective } from '../hooks';
 
 function ViewStewardsPage() {
   const [isDesktopResolution] = useMediaQuery({

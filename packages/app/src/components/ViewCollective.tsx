@@ -14,7 +14,7 @@ import StopDonationModal from './StopDonationModal';
 import ThankYouModal from './ThankYouModal';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
-import { formatTime } from '../hooks/functions/formatTime';
+import { formatTime } from '../lib/formatTime';
 import { Collective } from '../models/models';
 
 interface ViewCollectiveProps {

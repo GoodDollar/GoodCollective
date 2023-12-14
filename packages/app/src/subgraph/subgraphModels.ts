@@ -27,8 +27,8 @@ export type SubgraphCollective = {
   contributions: string;
   membersValidator: string;
   uniquenessValidator?: string | null;
-  donor?: SubgraphDonor | null;
-  steward?: SubgraphSteward | null;
+  donors?: SubgraphDonor | null;
+  stewards?: SubgraphSteward | null;
   rewardToken?: string | null;
   projectId?: string | null;
   isVerified?: boolean | null;
