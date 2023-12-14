@@ -1,4 +1,4 @@
-import { BigInt, Bytes, log } from '@graphprotocol/graph-ts';
+import { log } from '@graphprotocol/graph-ts';
 import { SupporterUpdated } from '../../generated/DirectPaymentsPool/DirectPaymentsPool';
 import { Collective, Donor } from '../../generated/schema';
 
@@ -30,7 +30,7 @@ export function handleSupport(event: SupporterUpdated): void {
   donor.previousFlowRate = event.params.previousFlowRate;
   donor.flowRate = event.params.flowRate;
   donor.isFlowUpdate = event.params.isFlowUpdate;
-  if (donor.collectives.includes(event.address.toHexString()) == false) {
+  if (!donor.collectives.includes(event.address.toHexString())) {
     donor.collectives.push(event.address.toHexString());
   }
 

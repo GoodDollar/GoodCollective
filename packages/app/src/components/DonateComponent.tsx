@@ -1,19 +1,16 @@
-import { useEffect, useState } from 'react';
-// import Header from './Header';
+import { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-// import ImpactButton from './ImpactButton';
 import { InterRegular, InterSemiBold, InterSmall } from '../utils/webFonts';
 import RoundedButton from './RoundedButton';
 import { InfoIconOrange } from '../@constants/ColorTypeIcons';
-// import useCrossNavigate from '../routes/useCrossNavigate';
 import CompleteDonationModal from './CompleteDonationModal';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import Dropdown from './Dropdown';
 import { getButtonBGC, getButtonText, getButtonTextColor, getFrequencyTime, getTotalAmount } from '../utils';
-import { useGetTokenPrice } from '../hooks/useGetTokenPrice';
-import { useContractCalls } from '../hooks/useContractCalls';
+import { useGetTokenPrice, useContractCalls } from '../hooks';
 import { useAccount } from 'wagmi';
+
 interface DonateComponentProps {
   walletConected: boolean;
   insufficientLiquidity: boolean;
@@ -42,12 +39,6 @@ const frequencyOptions = [
   { value: 'Yearly', label: 'Yearly' },
 ];
 
-const tokenMapping = {
-  CELO: '0x471EcE3750Da237f93B8E339c536989b8978a438',
-  cUSD: '0x765de816845861e75a25fca122bb6898b8b1282a',
-  WBTC: '0xD629eb00dEced2a080B7EC630eF6aC117e614f1b',
-};
-
 function DonateComponent({
   walletConected,
   insufficientLiquidity,
@@ -55,32 +46,16 @@ function DonateComponent({
   insufficientBalance,
   currentCollective,
 }: DonateComponentProps) {
-  // const { navigate } = useCrossNavigate();
   const [modalVisible, setModalVisible] = useState(false);
   const [currency, setCurrency] = useState('G$');
   const [frequency, setFrequency] = useState('One-Time');
   const [duration, setDuration] = useState(1);
   const [amount, setAmount] = useState(0);
-  const [usdValue, setUsdValue] = useState<number>();
-  const { getPrice } = useGetTokenPrice();
+  const { price, isLoading } = useGetTokenPrice(currency);
   const { supportFlowWithSwap, supportFlow } = useContractCalls();
   const { address } = useAccount();
 
-  useEffect(() => {
-    if (currency === 'G$') {
-      // TODO: is the price of G$ fixed?
-      setUsdValue(0.00018672442844237 * amount);
-      return;
-    }
-    for (const [token, tokenAddress] of Object.entries(tokenMapping)) {
-      if (currency === token) {
-        getPrice(tokenAddress).then((res: any) => {
-          setUsdValue(res * amount);
-        });
-        break;
-      }
-    }
-  }, [amount, currency, getPrice, usdValue, setUsdValue]);
+  const usdValue = price ? amount * price : undefined;
 
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,

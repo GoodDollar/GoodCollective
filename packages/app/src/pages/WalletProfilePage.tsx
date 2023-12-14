@@ -5,46 +5,49 @@ import { FruitDoveUri } from '../@constants/ProfilePictures';
 import { useSubgraphDonor } from '../subgraph';
 import { useAccount } from 'wagmi';
 import { formatTime } from '../lib/formatTime';
+import { subgraphDonorToModel } from '../models/transforms';
+import { useFetchCollectivesFromSubgraphCollectives } from '../hooks';
 
 // Lazy load the WalletProfile component
 const WalletProfileLazy = React.lazy(() => import('../components/WalletProfile'));
 
 function WalletProfilePage() {
-  const donors = useSubgraphDonor(window.location.pathname.slice('/profile/'.length).toLocaleLowerCase());
+  const donorAddress = window.location.pathname.slice('/profile/'.length).toLocaleLowerCase();
+  const subgraphDonor = useSubgraphDonor(donorAddress);
+  const donor = subgraphDonor ? subgraphDonorToModel(subgraphDonor) : undefined;
+  const { collectives, isLoading } = useFetchCollectivesFromSubgraphCollectives(donor?.collectives ?? []);
   const { address } = useAccount();
 
   return (
     <Layout>
       {/* Suspense will display the fallback while WalletProfileLazy is being loaded */}
       <Suspense fallback={<div>Loading profiles...</div>}>
-        {donors.length > 0 ? (
-          donors.map((data: any) => (
-            <WalletProfileLazy
-              imageUrl={FruitDoveUri}
-              firstName={''}
-              lastName={''}
-              actionsPerformed={0}
-              amountReceived={0}
-              collectivesTotal={2}
-              creationDate={formatTime(data.join)}
-              amountDonated={data.amountDonated}
-              peopleSupported={0}
-              domain={address}
-              collectives={data.pool}
-              type={WalletProfileTypes.donor}
-            />
-          ))
+        {donor ? (
+          <WalletProfileLazy
+            imageUrl={FruitDoveUri}
+            firstName={''}
+            lastName={''}
+            actionsPerformed={0}
+            amountReceived={'0'}
+            collectivesTotal={2}
+            creationDate={formatTime(donor.joined)}
+            amountDonated={donor.totalDonated}
+            peopleSupported={0}
+            domain={address}
+            collectives={collectives}
+            type={WalletProfileTypes.donor}
+          />
         ) : (
           <WalletProfileLazy
             imageUrl={FruitDoveUri}
             firstName={''}
             lastName={''}
             actionsPerformed={0}
-            amountReceived={704000}
-            collectivesTotal={2}
-            creationDate={'January 24, 2023'}
-            amountDonated={0}
-            peopleSupported={276}
+            amountReceived={'0'}
+            collectivesTotal={0}
+            creationDate={'January 1, 2023'}
+            amountDonated={'0'}
+            peopleSupported={0}
             domain={address}
             type={WalletProfileTypes.empty}
           />

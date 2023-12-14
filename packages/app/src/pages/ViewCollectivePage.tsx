@@ -1,14 +1,12 @@
 import ViewCollective from '../components/ViewCollective';
 import Layout from '../components/Layout';
-import oceanUri from '../@constants/SafariImagePlaceholder';
 import React from 'react';
 import Breadcrumb from '../components/Breadcrumb';
 import { useMediaQuery } from 'native-base';
-import { useFetchCollective } from '../hooks';
+import { useFetchCollectiveById } from '../hooks';
 
 function ViewCollectivePage() {
-  const { collective, isLoading } = useFetchCollective(window.location.pathname.slice('/collective/'.length));
-
+  const { collective, isLoading } = useFetchCollectiveById(window.location.pathname.slice('/collective/'.length));
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
@@ -20,17 +18,9 @@ function ViewCollectivePage() {
         {isLoading ? (
           <p>Loading...</p>
         ) : !collective ? (
-          <></>
+          <p>Not found</p>
         ) : (
-          <ViewCollective
-            imageUrl={oceanUri}
-            collective={collective}
-            stewardsPaid={28}
-            paymentsMade={374900}
-            totalPaidOut={299920000}
-            currentPool={381000}
-            isDonating={false}
-          />
+          <ViewCollective collective={collective} paymentsMade={374900} totalPaidOut={299920000} currentPool={381000} />
         )}
       </>
     </Layout>

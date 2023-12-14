@@ -5,8 +5,11 @@ import { Colors } from '../../utils/colors';
 import { useMediaQuery } from 'native-base';
 import { StewardListItem } from './StewardListItem';
 import { Steward } from '../../models/models';
+import { useMemo } from 'react';
+import { profilePictureArray } from '../../@constants/pfps';
 
 const mockStewardData: Steward[] = [0, 1, 2, 3, 4, 5, 6].map(() => ({
+  id: '',
   username: 'username' + Math.floor(Math.random() * 10000),
   isVerified: true,
   actions: 730,
@@ -23,6 +26,10 @@ function StewardList({ listType, stewards, hideTitle }: StewardListProps) {
     minWidth: 612,
   });
 
+  const profileImages: string[] = useMemo(() => {
+    return profilePictureArray.sort(() => Math.random());
+  }, []);
+
   const toShow = listType === 'viewStewards' ? mockStewardData : mockStewardData.slice(0, isDesktopResolution ? 6 : 5);
 
   return (
@@ -30,13 +37,18 @@ function StewardList({ listType, stewards, hideTitle }: StewardListProps) {
       {!hideTitle && (
         <View style={[styles.row, { marginBottom: 24 }]}>
           {listType === 'viewCollective' && <Image source={{ uri: StewardGreenIcon }} style={styles.titleIcon} />}
-          <Text style={styles.title}>Stewards{listType === 'viewCollective' ? ` (0)` : ''}</Text>
+          <Text style={styles.title}>Stewards{listType === 'viewCollective' ? ` (${stewards.length})` : ''}</Text>
           {listType === 'viewStewards' && <Image source={{ uri: StewardBlueIcon }} style={styles.titleIcon} />}
         </View>
       )}
       <View style={styles.list}>
-        {toShow.map((steward) => (
-          <StewardListItem steward={steward} showActions={listType === 'viewStewards'} key={steward.username} />
+        {toShow.map((steward, index) => (
+          <StewardListItem
+            steward={steward}
+            showActions={listType === 'viewStewards'}
+            key={steward.username}
+            profileImage={profileImages[index % profileImages.length]}
+          />
         ))}
       </View>
     </View>

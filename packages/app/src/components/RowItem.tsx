@@ -1,16 +1,19 @@
 import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
+import { formatFiatCurrency } from '../lib/formatFiatCurrency';
 
 interface RowItemProps {
   rowInfo: string;
-  rowData: any;
-  balance?: number | any;
+  rowData: string | number;
+  balance?: number;
   currency?: string;
   imageUrl: string;
 }
 
 function RowItem({ rowInfo, rowData, balance, currency, imageUrl }: RowItemProps) {
+  const usdBalance = balance ? formatFiatCurrency(balance) : '0.00';
+
   return (
     <View style={styles.row}>
       <Image source={{ uri: imageUrl }} style={styles.rowIcon} />
@@ -21,7 +24,7 @@ function RowItem({ rowInfo, rowData, balance, currency, imageUrl }: RowItemProps
             <Text>{currency}</Text> <Text style={{ ...InterRegular }}>{rowData}</Text>
           </Text>
 
-          {currency && <Text style={styles.rowBalance}>= {balance} USD</Text>}
+          {currency && <Text style={styles.rowBalance}>= {usdBalance} USD</Text>}
         </View>
       </Text>
     </View>

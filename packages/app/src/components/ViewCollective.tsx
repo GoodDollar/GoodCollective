@@ -16,43 +16,46 @@ import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import { formatTime } from '../lib/formatTime';
 import { Collective } from '../models/models';
+import { useGetTokenPrice } from '../hooks';
+import { ethers } from 'ethers';
+import oceanUri from '../@constants/SafariImagePlaceholder';
+import { useAccount } from 'wagmi';
 
 interface ViewCollectiveProps {
-  imageUrl?: string;
   collective: Collective;
-  stewardsPaid?: number;
   paymentsMade?: number;
   totalPaidOut?: number;
   currentPool?: number;
-  stewards?: {};
   recentTransactions?: {};
-  isDonating: boolean;
 }
 
 function ViewCollective({
   collective,
-  imageUrl,
-  stewardsPaid,
   paymentsMade,
   totalPaidOut,
   currentPool,
-  stewards,
   recentTransactions,
-  isDonating,
 }: ViewCollectiveProps) {
-  const { name, description, timestamp, id, contributions } = collective;
+  const { name, description, timestamp, id, contributions, headerImage } = collective;
+  const imageUrl = headerImage ?? oceanUri;
+  const stewardsPaid = collective.stewards?.length ?? 0;
+
+  const { address } = useAccount();
+  const isDonating = collective.donors?.some((donor) => donor.supporter === address) ?? false;
 
   const [stopDonationModal, setStopDonationModal] = useState(false);
   const [donateModal, setDonateModal] = useState(false);
+
   const { navigate } = useCrossNavigate();
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
-  // TODO: need actual token price
-  const tokenPrice = 0.00018672442844237;
-  const decimalDonations = (contributions ?? 0) / 10 ** 18;
-  const formattedDonations: string = decimalDonations.toFixed(3);
-  const usdValue = tokenPrice * decimalDonations;
+
+  const { price: tokenPrice, isLoading } = useGetTokenPrice('G$');
+  const decimalDonations = ethers.utils.formatEther(contributions ?? 0);
+  const formattedDonations: string = parseFloat(decimalDonations).toFixed(3);
+  const usdValue = tokenPrice ? tokenPrice * parseFloat(decimalDonations) : undefined;
+  const decimalContributions = parseFloat(ethers.utils.formatEther(contributions ?? 0));
 
   const renderDonorsButton = () =>
     isDesktopResolution ? (
@@ -168,7 +171,7 @@ function ViewCollective({
                     rowInfo="Total Donations Received"
                     rowData={formattedDonations}
                     currency="G$"
-                    balance={usdValue.toFixed(5)}
+                    balance={usdValue ?? 0}
                   />
                 ) : (
                   <RowItem
@@ -184,14 +187,14 @@ function ViewCollective({
                   rowInfo="Total Paid Out"
                   rowData={totalPaidOut ?? 0}
                   currency="G$"
-                  balance={tokenPrice * (totalPaidOut ?? 0)}
+                  balance={tokenPrice ? tokenPrice * (totalPaidOut ?? 0) : undefined}
                 />
                 <RowItem
                   imageUrl={SquaresIcon}
                   rowInfo="Current Pool"
                   rowData={currentPool ?? 0}
                   currency="G$"
-                  balance={tokenPrice * (currentPool ?? 0)}
+                  balance={tokenPrice ? tokenPrice * (currentPool ?? 0) : undefined}
                 />
               </View>
             </View>
@@ -265,29 +268,29 @@ function ViewCollective({
               rowInfo="Stewards Paid"
               rowData={stewardsPaid ?? 0}
               currency="G$"
-              balance={tokenPrice * (stewardsPaid ?? 0)}
+              balance={tokenPrice ? tokenPrice * (stewardsPaid ?? 0) : undefined}
             />
             <RowItem imageUrl={GreenListIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
             <RowItem
               imageUrl={ReceiveLightIcon}
               rowInfo="Total Donations Received"
-              rowData={contributions ?? 0}
+              rowData={decimalContributions ?? 0}
               currency="G$"
-              balance={tokenPrice * (contributions ?? 0)}
+              balance={tokenPrice ? tokenPrice * (decimalContributions ?? 0) : undefined}
             />
             <RowItem
               imageUrl={SendIcon}
               rowInfo="Total Paid Out"
               rowData={totalPaidOut ?? 0}
               currency="G$"
-              balance={tokenPrice * (totalPaidOut ?? 0)}
+              balance={tokenPrice ? tokenPrice * (totalPaidOut ?? 0) : undefined}
             />
             <RowItem
               imageUrl={SquaresIcon}
               rowInfo="Current Pool"
               rowData={currentPool ?? 0}
               currency="G$"
-              balance={tokenPrice * (currentPool ?? 0)}
+              balance={tokenPrice ? tokenPrice * (currentPool ?? 0) : undefined}
             />
           </View>
 

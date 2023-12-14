@@ -13,13 +13,22 @@ interface DonateCardProps {
   description: string;
   name: string;
   actions: number;
-  total: number;
-  usd: number;
+  formattedTotal: string;
+  formattedUsd: string;
   donor?: boolean;
   donateSubPath?: string;
 }
 
-function CollectiveCard({ title, description, name, actions, total, usd, donor, donateSubPath }: DonateCardProps) {
+function CollectiveCard({
+  title,
+  description,
+  name,
+  actions,
+  formattedTotal,
+  formattedUsd,
+  donor,
+  donateSubPath,
+}: DonateCardProps) {
   const { navigate } = useCrossNavigate();
 
   return (
@@ -49,10 +58,10 @@ function CollectiveCard({ title, description, name, actions, total, usd, donor, 
           <Text style={styles.info}>Towards this collective, and received</Text>
           <View style={styles.row}>
             <Text style={styles.bold}>G$ </Text>
-            <Text style={styles.totalReceived}>{total}</Text>
+            <Text style={styles.totalReceived}>{formattedTotal}</Text>
           </View>
 
-          <Text style={styles.formattedUsd}>= {usd} USD</Text>
+          <Text style={styles.formattedUsd}>= {formattedUsd} USD</Text>
         </View>
       </View>
 

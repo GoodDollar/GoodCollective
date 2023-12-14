@@ -13,10 +13,10 @@ function ProfilePage() {
             firstName={'John'}
             lastName={'Doe'}
             actionsPerformed={780}
-            amountReceived={704000}
+            amountReceived={'704000'}
             collectivesTotal={2}
             creationDate={'January 24, 2023'}
-            amountDonated={15000000}
+            amountDonated={'15000000'}
             peopleSupported={276}
             type={WalletProfileTypes.empty}
           />
@@ -27,10 +27,10 @@ function ProfilePage() {
             firstName={'John'}
             lastName={'Doe'}
             actionsPerformed={780}
-            amountReceived={704000}
+            amountReceived={'704000'}
             collectivesTotal={2}
             creationDate={'January 24, 2023'}
-            amountDonated={15000000}
+            amountDonated={'15000000'}
             peopleSupported={276}
             type={WalletProfileTypes.donor}
           />
@@ -41,10 +41,10 @@ function ProfilePage() {
             firstName={'John'}
             lastName={'Doe'}
             actionsPerformed={780}
-            amountReceived={704000}
+            amountReceived={'704000'}
             collectivesTotal={2}
             creationDate={'January 24, 2023'}
-            amountDonated={15000000}
+            amountDonated={'15000000'}
             peopleSupported={276}
             type={WalletProfileTypes.steward}
           />
@@ -55,10 +55,10 @@ function ProfilePage() {
             firstName={'John'}
             lastName={'Doe'}
             actionsPerformed={780}
-            amountReceived={704000}
+            amountReceived={'704000'}
             collectivesTotal={2}
             creationDate={'January 24, 2023'}
-            amountDonated={15000000}
+            amountDonated={'15000000'}
             peopleSupported={276}
             type={WalletProfileTypes.both}
           />

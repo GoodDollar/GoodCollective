@@ -1,8 +1,13 @@
 # TODO
 # get total donated from correct field
 # handling of generated pools from factory contract
-# per collective donor/steward record
 # update nft with stewards on claim
+# per collective donor/steward record
+    # each collective needs to know donors and stewards
+    # each donor and steward needs top know per-collective data (e.g. how much did I donate to this collective)
+# How to know if steward is verified?
+# Is Donor unique by "supporter" or by "id"? If by id, do we need timestamps to know the current donation status?
+# Need recent collective transactions and list of all transactions
 
 type Steward @entity {
   "{ user address} "
@@ -36,7 +41,7 @@ type CollectiveDonor @entity {
 }
 
 type CollectiveSteward @entity {
-  id: String! #collective_donor
+  id: String! #collective_steward
   actions: Int!
   totalEarned: BigInt!
   nft: [ProvableNFT!]!

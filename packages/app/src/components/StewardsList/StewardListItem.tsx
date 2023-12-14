@@ -4,17 +4,16 @@ import { Colors } from '../../utils/colors';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { Steward } from '../../models/models';
 import { profilePictureArray } from '../../@constants/pfps';
+import { useMemo } from 'react';
 
 interface StewardListItemProps {
   steward: Steward;
   showActions: boolean;
+  profileImage: string;
 }
 
 export const StewardListItem = (props: StewardListItemProps) => {
-  const { showActions, steward } = props;
-
-  const randomIndex = Math.floor(Math.random() * profilePictureArray.length);
-  const profileImage = profilePictureArray[randomIndex];
+  const { showActions, steward, profileImage } = props;
 
   return (
     <View style={styles.row}>

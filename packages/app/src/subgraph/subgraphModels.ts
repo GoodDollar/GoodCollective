@@ -1,8 +1,11 @@
+// TODO: auto-generate this file from the subgraph schema
+
 export type SubgraphSteward = {
   id: string;
-  actions?: number | null;
-  nft: ProvableNFT[];
-  collective: SubgraphCollective[];
+  actions: number;
+  totalEarned: string;
+  nfts: ProvableNFT[];
+  collectives: SubgraphCollective[];
 };
 
 export type SubgraphDonor = {
@@ -10,32 +13,44 @@ export type SubgraphDonor = {
   supporter: string;
   joined: number;
   totalDonated: string;
-  previousContribution?: string | null;
-  contribution: string;
-  previousFlowRate: string;
-  flowRate: string;
-  isFlowUpdate: boolean;
-  collective: string;
-  pool: SubgraphCollective[];
+  previousContribution?: string;
+  contribution?: string;
+  previousFlowRate?: string;
+  flowRate?: string;
+  isFlowUpdate?: boolean;
+  collectives: SubgraphCollective[];
+};
+
+export type CollectiveDonor = {
+  id: string;
+  totalDonated: string;
+  flowRate?: string;
+};
+
+export type CollectiveSteward = {
+  id: string;
+  actions: number;
+  totalEarned: string;
+  nft: ProvableNFT[];
 };
 
 export type SubgraphCollective = {
   id: string;
-  ipfs?: string | null;
-  nftType: string;
-  manager: string;
+  ipfs?: string;
+  nftType?: string;
+  manager?: string;
   contributions: string;
-  membersValidator: string;
-  uniquenessValidator?: string | null;
-  donors?: SubgraphDonor | null;
-  stewards?: SubgraphSteward | null;
-  rewardToken?: string | null;
-  projectId?: string | null;
-  isVerified?: boolean | null;
-  limits?: SafetyLimits | null;
-  nft?: ProvableNFT | null;
-  poolAddress?: string | null;
-  timestamp: number;
+  membersValidator?: string;
+  uniquenessValidator?: string;
+  donors?: SubgraphDonor[];
+  stewards: SubgraphSteward[];
+  rewardToken?: string;
+  projectId?: string;
+  isVerified?: boolean;
+  limits?: SafetyLimits;
+  nft?: ProvableNFT;
+  poolAddress?: string;
+  timestamp?: number;
 };
 
 export type PoolSettings = {
@@ -49,16 +64,17 @@ export type PoolSettings = {
 
 export type SafetyLimits = {
   id: string;
-  maxTotalPerMonth?: string | null;
-  maxMemberPerMonth?: string | null;
-  maxMemberPerDay?: string | null;
+  maxTotalPerMonth?: string;
+  maxMemberPerMonth?: string;
+  maxMemberPerDay?: string;
 };
 
 export type ProvableNFT = {
   id: string;
   owner: string;
   hash: string;
-  steward?: SubgraphSteward | null;
+  steward: SubgraphSteward[];
+  collective: SubgraphCollective;
 };
 
 export type EventData = {
@@ -68,8 +84,9 @@ export type EventData = {
   quantity: string;
   uri: string;
   rewardPerContributor: string;
-  contributors: string[];
-  claim?: Claim | null;
+  contributors: SubgraphSteward[];
+  nft: ProvableNFT;
+  claim?: Claim;
 };
 
 export type Claim = {

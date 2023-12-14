@@ -9,10 +9,10 @@ interface WalletProfileProps {
   firstName: string;
   lastName: string;
   actionsPerformed: number;
-  amountReceived?: number;
+  amountReceived?: string;
   collectivesTotal?: number;
   creationDate?: string;
-  amountDonated?: number;
+  amountDonated?: string;
   peopleSupported?: number;
   walletConnected: boolean;
   type: string;
