@@ -1,18 +1,9 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
 import { useMediaQuery } from 'native-base';
 import { useState } from 'react';
-
-export interface CollectiveHomeCardData {
-  name?: string;
-  description?: string;
-  email?: string;
-  twitter?: string;
-  id: string;
-  timestamp: number;
-}
 
 interface CollectiveHomeCardProps {
   imageUrl?: string;

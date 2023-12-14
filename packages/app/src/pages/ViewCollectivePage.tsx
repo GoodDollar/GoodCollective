@@ -6,11 +6,12 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import React from 'react';
 import Breadcrumb from '../components/Breadcrumb';
+import { Collective } from '../models/models';
 import { useMediaQuery } from 'native-base';
 
 function ViewCollectivePage() {
   const { request } = useCollectiveSpecificData(window.location.pathname.slice('/collective/'.length));
-  const [collectiveData, setCollectiveData] = useState<any>(undefined);
+  const [collective, setCollective] = useState<Collective | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
@@ -23,21 +24,17 @@ function ViewCollectivePage() {
     }
     axios
       .get(`https://gateway.pinata.cloud/ipfs/${request[0].ipfs}`)
-      .then((response) => {
-        console.log(JSON.stringify(response.data, null, 2));
-        return {
-          name: response.data?.name,
-          description: response.data?.description,
-          email: response.data?.email,
-          twitter: response.data?.twitter,
-          id: request[0].id,
-          time: request[0].timestamp,
-          contributions: request[0]?.contributions,
-        };
-      })
+      .then((response) => ({
+        name: response.data?.name,
+        description: response.data?.description,
+        email: response.data?.email,
+        twitter: response.data?.twitter,
+        id: request[0].id,
+        timestamp: request[0].timestamp,
+        contributions: request[0]?.contributions,
+      }))
       .then((data) => {
-        console.log(JSON.stringify(data, null, 2));
-        setCollectiveData(data);
+        setCollective(data);
       })
       .catch((error) => {
         console.error(error);
@@ -49,26 +46,21 @@ function ViewCollectivePage() {
 
   return (
     <Layout>
-      {isDesktopResolution && <Breadcrumb currentPage={`collective / ${collectiveData?.id ?? ''}`} />}
+      {isDesktopResolution && <Breadcrumb currentPage={`collective / ${collective?.id ?? ''}`} />}
       <>
         {isLoading ? (
           <p>Loading...</p>
-        ) : !collectiveData ? (
+        ) : !collective ? (
           <></>
         ) : (
           <ViewCollective
             imageUrl={oceanUri}
-            title={collectiveData.name}
-            description={collectiveData.description}
-            stewardsDesc={collectiveData.description}
-            creationDate={collectiveData.time}
+            collective={collective}
             stewardsPaid={28}
             paymentsMade={374900}
-            donationsReceived={collectiveData.contributions}
             totalPaidOut={299920000}
             currentPool={381000}
             isDonating={false}
-            route={collectiveData.id}
           />
         )}
       </>

@@ -48,7 +48,6 @@ function Layout({ children }: LayoutProps) {
 const styles = StyleSheet.create({
   body: {
     flex: 1,
-    paddingBottom: 24,
   },
   scrollView: {
     flex: 1,
