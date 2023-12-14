@@ -117,7 +117,7 @@ function WalletDetails({
         </View>
       )}
       {/**Donor and Steward's wallet details */}
-      {type == WalletProfileTypes.both && (
+      {type === WalletProfileTypes.both && (
         <View>
           <View style={styles.row}>
             <View style={[styles.impactBar, styles.greenBar]} />
@@ -173,7 +173,7 @@ function WalletDetails({
           </View>
         </View>
       )}
-      {type == WalletProfileTypes.empty && <EmptyProfile />}
+      {type === WalletProfileTypes.empty && <EmptyProfile />}
     </View>
   );
 }

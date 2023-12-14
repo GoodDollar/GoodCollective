@@ -1,9 +1,8 @@
-import { useCallback } from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { useState } from 'react';
 import RowItem from './RowItem';
 import RoundedButton from './RoundedButton';
-import StewardList from './StewardsList';
+import StewardList from './StewardsList/StewardsList';
 import TransactionList from './TransactionList';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
@@ -16,68 +15,60 @@ import ThankYouModal from './ThankYouModal';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import { formatTime } from '../hooks/functions/formatTime';
+import { Collective } from '../models/models';
 
 interface ViewCollectiveProps {
-  imageUrl?: any;
-  title?: any;
-  description?: string;
-  stewardsDesc?: any;
-  creationDate?: any;
-  stewardsPaid?: any;
-  paymentsMade?: any;
-  donationsReceived?: any;
-  totalPaidOut?: any;
-  currentPool?: any;
-  route?: any;
-
+  imageUrl?: string;
+  collective: Collective;
+  stewardsPaid?: number;
+  paymentsMade?: number;
+  totalPaidOut?: number;
+  currentPool?: number;
   stewards?: {};
   recentTransactions?: {};
   isDonating: boolean;
 }
 
 function ViewCollective({
+  collective,
   imageUrl,
-  title,
-  description,
-  stewardsDesc,
-  creationDate,
   stewardsPaid,
   paymentsMade,
-  donationsReceived,
   totalPaidOut,
   currentPool,
   stewards,
   recentTransactions,
   isDonating,
-  route,
 }: ViewCollectiveProps) {
+  const { name, description, timestamp, id, contributions } = collective;
+
   const [stopDonationModal, setStopDonationModal] = useState(false);
   const [donateModal, setDonateModal] = useState(false);
   const { navigate } = useCrossNavigate();
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
+  // TODO: need actual token price
   const tokenPrice = 0.00018672442844237;
-  const formattedDonations: any = (donationsReceived / 10 ** 18).toFixed(3);
-  const usdValue = tokenPrice * formattedDonations;
-  const renderDonorsButton = useCallback(
-    () =>
-      isDesktopResolution ? (
-        <></>
-      ) : (
-        <RoundedButton
-          title="See all donors"
-          backgroundColor={Colors.purple[100]}
-          color={Colors.purple[200]}
-          fontSize={18}
-          seeType={true}
-          onPress={() => {
-            navigate(`/collective/${route}/donors`);
-          }}
-        />
-      ),
-    [navigate, isDesktopResolution, route]
-  )();
+  const decimalDonations = (contributions ?? 0) / 10 ** 18;
+  const formattedDonations: string = decimalDonations.toFixed(3);
+  const usdValue = tokenPrice * decimalDonations;
+
+  const renderDonorsButton = () =>
+    isDesktopResolution ? (
+      <></>
+    ) : (
+      <RoundedButton
+        title="See all donors"
+        backgroundColor={Colors.purple[100]}
+        color={Colors.purple[200]}
+        fontSize={18}
+        seeType={true}
+        onPress={() => {
+          navigate(`/collective/${id}/donors`);
+        }}
+      />
+    );
 
   if (isDesktopResolution) {
     return (
@@ -88,7 +79,7 @@ function ViewCollective({
               <Image source={{ uri: imageUrl }} style={styles.imageMobile} />
 
               <View style={styles.collectiveDesktopData}>
-                <Text style={[styles.title, styles.titleMobile]}>{title}</Text>
+                <Text style={[styles.title, styles.titleMobile]}>{name}</Text>
                 <Text style={styles.description}>{description}</Text>
                 <View style={[styles.icons, { position: 'absolute', bottom: 0, left: 25 }]}>
                   <Link href={'/'}>
@@ -136,10 +127,9 @@ function ViewCollective({
                         seeType={false}
                         onPress={() => {
                           setStopDonationModal(true);
-                          console.log(stopDonationModal);
                         }}
                       />
-                      {renderDonorsButton}
+                      {renderDonorsButton()}
                     </View>
                   </View>
                 ) : (
@@ -151,10 +141,10 @@ function ViewCollective({
                       fontSize={18}
                       seeType={false}
                       onPress={() => {
-                        navigate(`/donate/${route}`);
+                        navigate(`/donate/${id}`);
                       }}
                     />
-                    {renderDonorsButton}
+                    {renderDonorsButton()}
                   </View>
                 )}
               </View>
@@ -162,22 +152,17 @@ function ViewCollective({
 
             <View style={styles.collectiveDesktopTimeline}>
               <View style={{ flex: 1 }}>
-                <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(creationDate as any)} />
-                <RowItem
-                  imageUrl={StewardGreenIcon}
-                  rowInfo="Stewards Paid"
-                  rowData={stewardsPaid?.length ? stewardsPaid : 0}
-                />
-
+                <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
+                <RowItem imageUrl={StewardGreenIcon} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
                 <RowItem
                   imageUrl={GreenListIcon}
                   rowInfo="# of Payments Made"
-                  rowData={paymentsMade?.length ? paymentsMade : 0}
+                  rowData={paymentsMade ?? 0}
                   currency=""
                 />
               </View>
               <View style={{ flex: 1 }}>
-                {donationsReceived ? (
+                {contributions ? (
                   <RowItem
                     imageUrl={ReceiveLightIcon}
                     rowInfo="Total Donations Received"
@@ -194,50 +179,34 @@ function ViewCollective({
                     balance={0}
                   />
                 )}
-
-                {totalPaidOut.length ? (
-                  <RowItem
-                    imageUrl={SendIcon}
-                    rowInfo="Total Paid Out"
-                    rowData={totalPaidOut}
-                    currency="G$"
-                    balance={0.00018672442844237 * totalPaidOut}
-                  />
-                ) : (
-                  <RowItem imageUrl={SendIcon} rowInfo="Total Paid Out" rowData={0} currency="G$" balance={0} />
-                )}
-                {currentPool.length ? (
-                  <RowItem
-                    imageUrl={SquaresIcon}
-                    rowInfo="Current Pool"
-                    rowData={currentPool}
-                    currency="G$"
-                    balance={0.00018672442844237 * currentPool}
-                  />
-                ) : (
-                  <RowItem imageUrl={SquaresIcon} rowInfo="Current Pool" rowData={0} currency="G$" balance={0} />
-                )}
+                <RowItem
+                  imageUrl={SendIcon}
+                  rowInfo="Total Paid Out"
+                  rowData={totalPaidOut ?? 0}
+                  currency="G$"
+                  balance={tokenPrice * (totalPaidOut ?? 0)}
+                />
+                <RowItem
+                  imageUrl={SquaresIcon}
+                  rowInfo="Current Pool"
+                  rowData={currentPool ?? 0}
+                  currency="G$"
+                  balance={tokenPrice * (currentPool ?? 0)}
+                />
               </View>
             </View>
           </View>
 
           <View style={styles.collectiveDesktopActions}>
             <View style={[styles.container, styles.mobileContainer]}>
-              <StewardList
-                stewardData={{
-                  username: null as any,
-                  isVerified: null as any,
-                  actions: null as any,
-                }}
-                listType="steward"
-              />
+              <StewardList stewards={[]} listType="viewCollective" />
               <RoundedButton
                 title="See all stewards"
                 backgroundColor={Colors.purple[100]}
                 color={Colors.purple[200]}
                 fontSize={18}
                 seeType={true}
-                onPress={() => navigate('/collective/123/stewards')}
+                onPress={() => navigate(`/collective/${id}/stewards`)}
               />
             </View>
             <View style={[styles.container, styles.mobileContainer]}>
@@ -260,7 +229,7 @@ function ViewCollective({
     <View style={{ gap: 24 }}>
       <Image source={{ uri: imageUrl }} style={styles.image} />
       <View style={[styles.container]}>
-        <Text style={styles.title}> {title}</Text>
+        <Text style={styles.title}>{name}</Text>
         <Text style={styles.description}>{description}</Text>
         <View style={styles.icons}>
           <Link href={'/'}>
@@ -289,44 +258,36 @@ function ViewCollective({
         </View>
 
         <View style={styles.rowContainer}>
-          <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(creationDate as any)} />
+          <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
           <RowItem
             imageUrl={StewardGreenIcon}
             rowInfo="Stewards Paid"
-            rowData={stewardsPaid?.length ? stewardsPaid : 0}
+            rowData={stewardsPaid ?? 0}
             currency="G$"
-            balance={stewardsPaid?.length ? 0.00018672442844237 * stewardsPaid : 0}
+            balance={tokenPrice * (stewardsPaid ?? 0)}
           />
-          <RowItem
-            imageUrl={GreenListIcon}
-            rowInfo="# of Payments Made"
-            rowData={paymentsMade?.length ? paymentsMade : 0}
-            currency=""
-          />
+          <RowItem imageUrl={GreenListIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
           <RowItem
             imageUrl={ReceiveLightIcon}
             rowInfo="Total Donations Received"
-            rowData={donationsReceived?.length ? donationsReceived : 0}
+            rowData={contributions ?? 0}
             currency="G$"
-            balance={donationsReceived?.length ? 0.00018672442844237 * donationsReceived : 0}
+            balance={tokenPrice * (contributions ?? 0)}
           />
           <RowItem
             imageUrl={SendIcon}
             rowInfo="Total Paid Out"
-            rowData={totalPaidOut?.length ? totalPaidOut : 0}
+            rowData={totalPaidOut ?? 0}
             currency="G$"
-            balance={totalPaidOut?.length ? 0.00018672442844237 * totalPaidOut : 0}
+            balance={tokenPrice * (totalPaidOut ?? 0)}
           />
           <RowItem
             imageUrl={SquaresIcon}
             rowInfo="Current Pool"
-            rowData={currentPool?.length ? currentPool : 0}
+            rowData={currentPool ?? 0}
             currency="G$"
-            balance={currentPool?.length ? 0.00018672442844237 * currentPool : 0}
+            balance={tokenPrice * (currentPool ?? 0)}
           />
-          In this code, we're checking if each of the values (donationsReceived, totalPaidOut, and currentPool) is
-          truthy (not null or undefined) before rendering the corresponding section. If the value is truthy, it will use
-          the actual value; otherwise, it will use 0 as the default value.
         </View>
 
         {isDonating ? (
@@ -346,7 +307,7 @@ function ViewCollective({
                   console.log(stopDonationModal);
                 }}
               />
-              {renderDonorsButton}
+              {renderDonorsButton()}
             </View>
           </View>
         ) : (
@@ -358,30 +319,23 @@ function ViewCollective({
               fontSize={18}
               seeType={false}
               onPress={() => {
-                navigate(`/donate/${route}`);
+                navigate(`/donate/${id}`);
               }}
             />
-            {renderDonorsButton}
+            {renderDonorsButton()}
           </View>
         )}
       </View>
 
       <View style={[styles.container]}>
-        <StewardList
-          stewardData={{
-            username: 'username123',
-            isVerified: true,
-            actions: 730,
-          }}
-          listType="steward"
-        />
+        <StewardList stewards={[]} listType="viewCollective" />
         <RoundedButton
           title="See all stewards"
           backgroundColor={Colors.purple[100]}
           color={Colors.purple[200]}
           fontSize={18}
           seeType={true}
-          onPress={() => navigate('/collective/123/stewards')}
+          onPress={() => navigate(`/collective/${id}/stewards`)}
         />
       </View>
       <View style={styles.container}>
@@ -409,7 +363,7 @@ function ViewCollective({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    padding: 24,
+    padding: 16,
     backgroundColor: Colors.white,
     gap: 24,
     shadowColor: Colors.black,
@@ -527,7 +481,7 @@ const styles = StyleSheet.create({
   },
   collectiveDonateBox: { gap: 24, height: 230 },
   collectiveInformation: { flex: 1, flexDirection: 'row', gap: 8 },
-  collectiveDesktopActions: { flex: 1, flexDirection: 'row', justifyContent: 'space-between' },
+  collectiveDesktopActions: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', gap: 32 },
 });
 
 export default ViewCollective;

@@ -31,9 +31,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.purple[200],
     color: Colors.purple[100],
     position: 'absolute',
-    bottom: 35,
+    bottom: 5,
     paddingVertical: 8,
-    gap: 8,
   },
   desktopButton: {
     position: 'relative',
