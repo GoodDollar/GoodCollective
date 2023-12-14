@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, Image } from 'react-native';
 import { useState } from 'react';
 import RowItem from './RowItem';
 import RoundedButton from './RoundedButton';
-import StewardList from './StewardsList';
+import StewardList from './StewardsList/StewardsList';
 import TransactionList from './TransactionList';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
@@ -11,6 +11,7 @@ import ThankYouModal from './ThankYouModal';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import { formatTime } from '../hooks/functions/formatTime';
+import { Collective } from '../models/models';
 
 //assets
 import {
@@ -31,37 +32,29 @@ import {
 
 interface ViewCollectiveProps {
   imageUrl?: string;
-  title?: string;
-  description?: string;
-  stewardsDesc?: string;
-  creationDate?: number;
+  collective: Collective;
   stewardsPaid?: number;
   paymentsMade?: number;
-  donationsReceived?: number;
   totalPaidOut?: number;
   currentPool?: number;
-  route?: string;
   stewards?: {};
   recentTransactions?: {};
   isDonating: boolean;
 }
 
 function ViewCollective({
+  collective,
   imageUrl,
-  title,
-  description,
-  stewardsDesc,
-  creationDate,
   stewardsPaid,
   paymentsMade,
-  donationsReceived,
   totalPaidOut,
   currentPool,
   stewards,
   recentTransactions,
   isDonating,
-  route,
 }: ViewCollectiveProps) {
+  const { name, description, timestamp, id, contributions } = collective;
+
   const [stopDonationModal, setStopDonationModal] = useState(false);
   const [donateModal, setDonateModal] = useState(false);
   const { navigate } = useCrossNavigate();
@@ -70,7 +63,7 @@ function ViewCollective({
   });
   // TODO: need actual token price
   const tokenPrice = 0.00018672442844237;
-  const decimalDonations = (donationsReceived ?? 0) / 10 ** 18;
+  const decimalDonations = (contributions ?? 0) / 10 ** 18;
   const formattedDonations: string = decimalDonations.toFixed(3);
   const usdValue = tokenPrice * decimalDonations;
 
@@ -85,7 +78,7 @@ function ViewCollective({
         fontSize={18}
         seeType={true}
         onPress={() => {
-          navigate(`/collective/${route}/donors`);
+          navigate(`/collective/${id}/donors`);
         }}
       />
     );
@@ -99,7 +92,7 @@ function ViewCollective({
               <Image source={{ uri: imageUrl }} style={styles.imageMobile} />
 
               <View style={styles.collectiveDesktopData}>
-                <Text style={[styles.title, styles.titleMobile]}>{title}</Text>
+                <Text style={[styles.title, styles.titleMobile]}>{name}</Text>
                 <Text style={styles.description}>{description}</Text>
                 <View style={[styles.icons, { position: 'absolute', bottom: 0, left: 25 }]}>
                   <Link href={'/'}>
@@ -147,7 +140,6 @@ function ViewCollective({
                         seeType={false}
                         onPress={() => {
                           setStopDonationModal(true);
-                          console.log(stopDonationModal);
                         }}
                       />
                       {renderDonorsButton()}
@@ -162,7 +154,7 @@ function ViewCollective({
                       fontSize={18}
                       seeType={false}
                       onPress={() => {
-                        navigate(`/donate/${route}`);
+                        navigate(`/donate/${id}`);
                       }}
                     />
                     {renderDonorsButton()}
@@ -173,9 +165,8 @@ function ViewCollective({
 
             <View style={styles.collectiveDesktopTimeline}>
               <View style={{ flex: 1 }}>
-                <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(creationDate as any)} />
+                <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
                 <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
-
                 <RowItem
                   imageUrl={ListGreenIcon}
                   rowInfo="# of Payments Made"
@@ -184,7 +175,7 @@ function ViewCollective({
                 />
               </View>
               <View style={{ flex: 1 }}>
-                {donationsReceived ? (
+                {contributions ? (
                   <RowItem
                     imageUrl={ReceiveLightIcon}
                     rowInfo="Total Donations Received"
@@ -201,7 +192,6 @@ function ViewCollective({
                     balance={0}
                   />
                 )}
-
                 <RowItem
                   imageUrl={SendIcon}
                   rowInfo="Total Paid Out"
@@ -222,21 +212,14 @@ function ViewCollective({
 
           <View style={styles.collectiveDesktopActions}>
             <View style={[styles.container, styles.mobileContainer]}>
-              <StewardList
-                stewardData={{
-                  username: null as any,
-                  isVerified: null as any,
-                  actions: null as any,
-                }}
-                listType="viewCollective"
-              />
+              <StewardList stewards={[]} listType="viewCollective" />
               <RoundedButton
                 title="See all stewards"
                 backgroundColor={Colors.purple[100]}
                 color={Colors.purple[200]}
                 fontSize={18}
                 seeType={true}
-                onPress={() => navigate('/collective/123/stewards')}
+                onPress={() => navigate(`/collective/${id}/stewards`)}
               />
             </View>
             <View style={[styles.container, styles.mobileContainer]}>
@@ -259,7 +242,7 @@ function ViewCollective({
     <View style={{ gap: 24 }}>
       <Image source={{ uri: imageUrl }} style={styles.image} />
       <View style={[styles.container]}>
-        <Text style={styles.title}> {title}</Text>
+        <Text style={styles.title}>{name}</Text>
         <Text style={styles.description}>{description}</Text>
         <View style={styles.icons}>
           <Link href={'/'}>
@@ -288,7 +271,7 @@ function ViewCollective({
         </View>
 
         <View style={styles.rowContainer}>
-          <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(creationDate as any)} />
+          <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
           <RowItem
             imageUrl={StewardGreen}
             rowInfo="Stewards Paid"
@@ -300,9 +283,9 @@ function ViewCollective({
           <RowItem
             imageUrl={ReceiveLightIcon}
             rowInfo="Total Donations Received"
-            rowData={donationsReceived ?? 0}
+            rowData={contributions ?? 0}
             currency="G$"
-            balance={tokenPrice * (donationsReceived ?? 0)}
+            balance={tokenPrice * (contributions ?? 0)}
           />
           <RowItem
             imageUrl={SendIcon}
@@ -349,7 +332,7 @@ function ViewCollective({
               fontSize={18}
               seeType={false}
               onPress={() => {
-                navigate(`/donate/${route}`);
+                navigate(`/donate/${id}`);
               }}
             />
             {renderDonorsButton()}
@@ -358,21 +341,14 @@ function ViewCollective({
       </View>
 
       <View style={[styles.container]}>
-        <StewardList
-          stewardData={{
-            username: 'username123',
-            isVerified: true,
-            actions: 730,
-          }}
-          listType="viewCollective"
-        />
+        <StewardList stewards={[]} listType="viewCollective" />
         <RoundedButton
           title="See all stewards"
           backgroundColor={Colors.purple[100]}
           color={Colors.purple[200]}
           fontSize={18}
           seeType={true}
-          onPress={() => navigate('/collective/123/stewards')}
+          onPress={() => navigate(`/collective/${id}/stewards`)}
         />
       </View>
       <View style={styles.container}>
@@ -518,7 +494,7 @@ const styles = StyleSheet.create({
   },
   collectiveDonateBox: { gap: 24, height: 230 },
   collectiveInformation: { flex: 1, flexDirection: 'row', gap: 8 },
-  collectiveDesktopActions: { flex: 1, flexDirection: 'row', justifyContent: 'space-between' },
+  collectiveDesktopActions: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', gap: 32 },
 });
 
 export default ViewCollective;

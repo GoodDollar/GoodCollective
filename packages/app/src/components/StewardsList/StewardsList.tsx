@@ -1,29 +1,29 @@
 import { Image, Text, View, StyleSheet } from 'react-native';
-import { InterRegular, InterSemiBold } from '../utils/webFonts';
-import { StewardBlueIcon, StewardGreenIcon, VerifiedIconUri } from '../@constants/ColorTypeIcons';
-import { useLocation } from 'react-router-native';
-import { Colors } from '../utils/colors';
+import { InterRegular, InterSemiBold } from '../../utils/webFonts';
+import { StewardBlueIcon, StewardGreenIcon } from '../../@constants/ColorTypeIcons';
+import { Colors } from '../../utils/colors';
 import { useMediaQuery } from 'native-base';
+import { StewardListItem } from './StewardListItem';
+import { Steward } from '../../models/models';
 
-const placeholderUsers = [0, 1, 2, 3, 4, 5, 6];
+const mockStewardData: Steward[] = [0, 1, 2, 3, 4, 5, 6].map(() => ({
+  username: 'username' + Math.floor(Math.random() * 10000),
+  isVerified: true,
+  actions: 730,
+}));
 
 interface StewardListProps {
-  hideTitle?: boolean;
-  imageUrl?: string;
   listType: 'viewCollective' | 'viewStewards';
-  stewardData: {
-    username: string;
-    actions?: number;
-    isVerified: boolean;
-  };
-  stewards?: any[];
+  stewards: Steward[];
+  hideTitle?: boolean;
 }
 
-function StewardList({ imageUrl, listType, stewardData, stewards, hideTitle }: StewardListProps) {
-  const location = useLocation();
+function StewardList({ listType, stewards, hideTitle }: StewardListProps) {
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
+
+  const toShow = listType === 'viewStewards' ? mockStewardData : mockStewardData.slice(0, isDesktopResolution ? 6 : 5);
 
   return (
     <View style={styles.stewardsHeader}>
@@ -35,17 +35,8 @@ function StewardList({ imageUrl, listType, stewardData, stewards, hideTitle }: S
         </View>
       )}
       <View style={styles.list}>
-        {(isDesktopResolution ? placeholderUsers.slice(0, 6) : placeholderUsers.slice(0, 5)).map((item) => (
-          <View style={styles.row} key={item.toString()}>
-            <Image source={{ uri: StewardBlueIcon }} style={styles.rowImg} />
-            <Text style={styles.title}>
-              {stewardData.username}{' '}
-              {stewardData.isVerified && <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon} />}
-            </Text>
-            {listType === 'viewStewards' && stewardData.actions && (
-              <Text style={styles.totalActions}>{stewardData.actions} actions</Text>
-            )}
-          </View>
+        {toShow.map((steward) => (
+          <StewardListItem steward={steward} showActions={listType === 'viewStewards'} key={steward.username} />
         ))}
       </View>
     </View>

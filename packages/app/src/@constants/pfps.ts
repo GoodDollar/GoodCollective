@@ -9,8 +9,7 @@ import {
   IvoryBilledWoodpeckerUri,
 } from './ProfilePictures';
 
-let profilePictureArray: Array<string>;
-profilePictureArray = [
+export const profilePictureArray = [
   AfricanGreyParrotUri,
   BlackBrowedAlbatrossUri,
   CaliforniaCondorUri,
@@ -19,6 +18,9 @@ profilePictureArray = [
   GreatCurassowUri,
   HawaiianCrowUri,
   IvoryBilledWoodpeckerUri,
+  // TODO: Add the following pictures when SVG loading PR is merged
+  // Kakapo
+  // NorthernBaldIbis
+  // UltramarineLorikeet
+  // WhiteRumpedVulture
 ];
-
-export default profilePictureArray;
