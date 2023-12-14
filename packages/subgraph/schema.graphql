@@ -1,12 +1,19 @@
+# TODO
+# get total donated from correct field
+# handling of generated pools from factory contract
+# per collective donor/steward record
+# update nft with stewards on claim
+
 type Steward @entity {
   "{ user address} "
   id: String!
   " Number of actions performed "
-  actions: Int
+  actions: Int!
+  totalEarned: BigInt!
   " NFT's minted to steward"
-  nft: [ProvableNFT!]! @derivedFrom(field: "steward")
+  nfts: [ProvableNFT!]! @derivedFrom(field: "steward")
   " Collectives the steward is apart of "
-  collective: [Collective!]! @derivedFrom(field: "steward")
+  collectives: [Collective!]! @derivedFrom(field: "stewards")
 }
 
 type Donor @entity {
@@ -19,8 +26,20 @@ type Donor @entity {
   previousFlowRate: BigInt
   flowRate: BigInt
   isFlowUpdate: Boolean
-  collective: Bytes!
-  pool: [Collective!]! @derivedFrom(field: "donor")
+  collectives: [Collective!]!
+}
+
+type CollectiveDonor @entity {
+  id: String! #collective_donor
+  totalDonated: BigInt!
+  flowRate: BigInt
+}
+
+type CollectiveSteward @entity {
+  id: String! #collective_donor
+  actions: Int!
+  totalEarned: BigInt!
+  nft: [ProvableNFT!]!
 }
 
 type Collective @entity {
@@ -32,8 +51,8 @@ type Collective @entity {
   contributions: BigInt!
   membersValidator: Bytes
   uniquenessValidator: String
-  donor: Donor
-  steward: Steward
+  donors: [Donor!] @derivedFrom(field: "collectives")
+  stewards: [Steward!]!
   rewardToken: String
   projectId: String
   isVerified: Boolean
@@ -63,7 +82,8 @@ type ProvableNFT @entity {
   id: ID!
   owner: String!
   hash: String!
-  steward: Steward
+  steward: [Steward!]!
+  collective: Collective!
 }
 
 type EventData @entity {
@@ -73,7 +93,8 @@ type EventData @entity {
   quantity: BigInt!
   uri: String!
   rewardPerContributor: BigInt!
-  contributors: [Bytes!]!
+  contributors: [Steward!]!
+  nft: ProvableNFT!
   claim: Claim
 }
 

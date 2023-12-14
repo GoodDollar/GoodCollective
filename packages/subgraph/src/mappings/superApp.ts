@@ -1,8 +1,10 @@
-import { BigInt, log } from '@graphprotocol/graph-ts';
+import { BigInt, Bytes, log } from '@graphprotocol/graph-ts';
 import { SupporterUpdated } from '../../generated/DirectPaymentsPool/DirectPaymentsPool';
 import { Collective, Donor } from '../../generated/schema';
 
 export function handleSupport(event: SupporterUpdated): void {
+  // TODO: need to call contract functions to get donor/pool total donated including streams, the current method done is incorrect
+
   let donorId = event.params.supporter.toHexString();
   let donor = Donor.load(donorId);
   let directPaymentPool = Collective.load(event.address.toHexString());
@@ -12,7 +14,7 @@ export function handleSupport(event: SupporterUpdated): void {
     donor.supporter = event.params.supporter;
     donor.joined = event.block.timestamp.toI32();
     donor.totalDonated = event.params.contribution;
-    donor.collective = event.address;
+    donor.collectives = new Array<string>();
   }
 
   if (directPaymentPool === null) {
@@ -21,8 +23,6 @@ export function handleSupport(event: SupporterUpdated): void {
   }
 
   directPaymentPool.contributions = directPaymentPool.contributions.plus(event.params.contribution);
-  directPaymentPool.donor = event.params.supporter.toHexString();
-  directPaymentPool.save(); // Save the updated directPaymentPool entity
 
   donor.previousContribution = event.params.previousContribution;
   donor.totalDonated = donor.totalDonated.plus(event.params.contribution); // Update totalDonated based on the current total
@@ -30,7 +30,10 @@ export function handleSupport(event: SupporterUpdated): void {
   donor.previousFlowRate = event.params.previousFlowRate;
   donor.flowRate = event.params.flowRate;
   donor.isFlowUpdate = event.params.isFlowUpdate;
-  donor.collective = event.address;
+  if (donor.collectives.includes(event.address.toHexString()) == false) {
+    donor.collectives.push(event.address.toHexString());
+  }
 
+  directPaymentPool.save(); // Save the updated directPaymentPool entity
   donor.save();
 }
