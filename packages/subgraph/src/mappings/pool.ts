@@ -157,11 +157,12 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     eventData.timestamp = eventTimestamp;
     eventData.quantity = eventQuantity;
     eventData.uri = eventUri;
+    eventData.nft = event.params.tokenId.toHexString();
     eventData.claim = event.params.tokenId.toHexString();
     eventData.contributors = new Array<string>();
     for (let i = 0; i < contributers.length; i++) {
       eventData.contributors.push(contributers[i].toHexString());
-      if (pool.stewards.includes(contributers[i].toHexString())) {
+      if (pool.stewards.includes(contributers[i].toHexString()) === false) {
         pool.stewards.push(contributers[i].toHexString());
       }
     }
