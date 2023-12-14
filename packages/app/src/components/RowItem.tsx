@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     flex: 1,
     flexDirection: 'row',
+    alignItems: 'center',
   },
   rowIcon: {
     height: 28,

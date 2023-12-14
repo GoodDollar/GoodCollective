@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import App from '../src/App';
 // import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 // import { celo } from 'wagmi/chains';
@@ -43,9 +43,10 @@ import App from '../src/App';
 //   webSocketPublicClient,
 // });
 
-ReactDOM.render(
+const container = document.getElementById('root');
+const root = createRoot(container!);
+root.render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+  </React.StrictMode>
 );

@@ -74,6 +74,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginVertical: 8,
     backgroundColor: Colors.white,
+    alignItems: 'center',
   },
   bar: {
     width: 6,

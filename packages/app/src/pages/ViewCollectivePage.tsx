@@ -7,11 +7,15 @@ import axios from 'axios';
 import React from 'react';
 import Breadcrumb from '../components/Breadcrumb';
 import { Collective } from '../models/models';
+import { useMediaQuery } from 'native-base';
 
 function ViewCollectivePage() {
   const { request } = useCollectiveSpecificData(window.location.pathname.slice('/collective/'.length));
   const [collective, setCollective] = useState<Collective | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDesktopResolution] = useMediaQuery({
+    minWidth: 612,
+  });
 
   useEffect(() => {
     if (!request || request.length === 0) {
@@ -42,7 +46,7 @@ function ViewCollectivePage() {
 
   return (
     <Layout>
-      <Breadcrumb currentPage={`collective / ${collective?.id ?? ''}`} />
+      {isDesktopResolution && <Breadcrumb currentPage={`collective / ${collective?.id ?? ''}`} />}
       <>
         {isLoading ? (
           <p>Loading...</p>
