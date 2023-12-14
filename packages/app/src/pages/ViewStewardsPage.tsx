@@ -9,10 +9,7 @@ import { Colors } from '../utils/colors';
 import { StewardBlueIcon } from '../@constants/ColorTypeIcons';
 import Breadcrumb from '../components/Breadcrumb';
 import { useLocation } from 'react-router-native';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useCollectiveSpecificData } from '../hooks/useSubgraphData';
-import { Collective } from '../models/models';
+import { useFetchCollective } from '../network';
 
 function ViewStewardsPage() {
   const [isDesktopResolution] = useMediaQuery({
@@ -21,38 +18,7 @@ function ViewStewardsPage() {
 
   const location = useLocation();
   const collectiveId = location.pathname.slice('/collective/'.length);
-
-  const { request } = useCollectiveSpecificData(collectiveId);
-  const [collective, setCollective] = useState<Collective | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (!request || request.length === 0) {
-      setIsLoading(false);
-      return;
-    }
-    axios
-      .get(`https://gateway.pinata.cloud/ipfs/${request[0].ipfs}`)
-      .then((response) => ({
-        name: response.data?.name,
-        description: response.data?.description,
-        email: response.data?.email,
-        twitter: response.data?.twitter,
-        id: request[0].id,
-        timestamp: request[0].timestamp,
-        contributions: request[0]?.contributions,
-      }))
-      .then((data) => {
-        console.log(JSON.stringify(data, null, 2));
-        setCollective(data);
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [request]);
+  const { collective, isLoading } = useFetchCollective(collectiveId);
 
   if (isDesktopResolution) {
     return (

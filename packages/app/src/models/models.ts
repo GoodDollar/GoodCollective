@@ -11,5 +11,5 @@ export interface Collective {
   twitter?: string;
   id: string;
   timestamp: number;
-  contributions?: number;
+  contributions: string;
 }

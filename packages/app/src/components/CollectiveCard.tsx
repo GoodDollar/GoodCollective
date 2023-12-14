@@ -16,10 +16,10 @@ interface DonateCardProps {
   total: number;
   usd: number;
   donor?: boolean;
-  link?: any;
+  donateSubPath?: string;
 }
 
-function CollectiveCard({ title, description, name, actions, total, usd, donor, link }: DonateCardProps) {
+function CollectiveCard({ title, description, name, actions, total, usd, donor, donateSubPath }: DonateCardProps) {
   const { navigate } = useCrossNavigate();
 
   return (
@@ -63,7 +63,7 @@ function CollectiveCard({ title, description, name, actions, total, usd, donor, 
         fontSize={16}
         seeType={false}
         onPress={() => {
-          navigate(`/collective/${link}`);
+          navigate(`/collective/${donateSubPath}`);
         }}
       />
     </View>
