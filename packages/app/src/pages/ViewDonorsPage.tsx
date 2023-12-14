@@ -1,8 +1,6 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image } from 'react-native';
 import oceanUri from '../@constants/SafariImagePlaceholder';
 import Layout from '../components/Layout';
-import StewardList from '../components/StewardsList/StewardsList';
-import ImpactButton from '../components/ImpactButton';
 import DonorsList from '../components/DonorsList';
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
