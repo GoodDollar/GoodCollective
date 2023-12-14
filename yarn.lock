@@ -4481,13 +4481,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gooddollar/good-design@npm:0.1.29-beta.ed2172c":
-  version: 0.1.29-beta.ed2172c
-  resolution: "@gooddollar/good-design@npm:0.1.29-beta.ed2172c"
+"@gooddollar/good-design@npm:^0.1.31":
+  version: 0.1.31
+  resolution: "@gooddollar/good-design@npm:0.1.31"
   dependencies:
     "@babel/core": ^7.18.10
     "@babel/runtime": ^7.18.9
-    "@gooddollar/goodprotocol": ^2.0.22
+    "@gooddollar/goodprotocol": ^2.0.24
     "@lingui/macro": ^3.14.0
     "@lingui/react": ^3.14.0
     "@magiklabs/react-sdk": ^1.0.8
@@ -4515,7 +4515,7 @@ __metadata:
     react-number-format: ^5.1.1
     react-use-promise: ^0.5.0
     require-from-string: ^2.0.2
-  checksum: c694b94a9f94f7776a3cf2507b0ec43ebcad282340a03f1a52194e446c094307dd1ef9787363f55ca09b3f804f46df12b14b7b3007894fd4b45bdbbad13d1261
+  checksum: 43ddd320ba5178232c098f8d9933abfa6c935da0622c7f9ccf7aa6cf5d1abc5b314aa6e53483049a0edcee4695cd06542bf9426ebc4ecefc0cf5f408e63faf3e
   languageName: node
   linkType: hard
 
@@ -4529,7 +4529,7 @@ __metadata:
     "@babel/runtime": ^7.20.0
     "@celo-tools/celo-ethers-wrapper": ^0.4.0
     "@ethersproject/shims": ^5.7.0
-    "@gooddollar/good-design": 0.1.29-beta.ed2172c
+    "@gooddollar/good-design": ^0.1.31
     "@gooddollar/goodcollective-sdk": ^1.*
     "@gooddollar/web3sdk-v2": ^0.2.2
     "@react-native-aria/interactions": 0.2.3
@@ -4722,7 +4722,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gooddollar/goodprotocol@npm:^2.0.22":
+"@gooddollar/goodprotocol@npm:^2.0.24":
   version: 2.0.24
   resolution: "@gooddollar/goodprotocol@npm:2.0.24"
   dependencies:
