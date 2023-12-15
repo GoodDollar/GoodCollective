@@ -63,26 +63,21 @@ type Collective @entity {
   "This is the address source"
   id: String!
   ipfs: String
-  nftType: BigInt
-  manager: Bytes
+  settings: PoolSettings!
+  limits: SafetyLimits!
   contributions: BigInt!
-  membersValidator: Bytes
-  uniquenessValidator: String
   donors: [DonorCollective!]!
   stewards: [StewardCollective!]!
   donations: [Donation!]! @derivedFrom(field: "collective")
   rewards: [Reward!]! @derivedFrom(field: "collective")
-  rewardToken: String
   projectId: String
   isVerified: Boolean
-  limits: SafetyLimits
-  nft: ProvableNFT
   poolAddress: String
   timestamp: Int
 }
 
 type PoolSettings @entity {
-  id: String!
+  id: String! # collective address
   nftType: BigInt!
   manager: Bytes!
   membersValidator: Bytes!
@@ -91,10 +86,10 @@ type PoolSettings @entity {
 }
 
 type SafetyLimits @entity {
-  id: String!
-  maxTotalPerMonth: BigInt
-  maxMemberPerMonth: BigInt
-  maxMemberPerDay: BigInt
+  id: String! # collective address
+  maxTotalPerMonth: BigInt!
+  maxMemberPerMonth: BigInt!
+  maxMemberPerDay: BigInt!
 }
 
 type ProvableNFT @entity {

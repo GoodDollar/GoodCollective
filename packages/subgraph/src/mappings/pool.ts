@@ -31,28 +31,22 @@ export function handlePoolCreated(event: PoolCreated): void {
   const poolLimits = event.params.poolLimits;
 
   let directPaymentPool = Collective.load(poolAddress.toHexString());
-  let directPaymentPoolSettings = PoolSettings.load(poolAddress.toHexString());
-  let directPaymentPoolLimits = SafetyLimits.load(poolAddress.toHexString());
   if (directPaymentPool === null) {
-    directPaymentPool = new Collective(poolAddress.toHexString());
-    directPaymentPoolSettings = new PoolSettings(poolAddress.toHexString());
-    directPaymentPoolLimits = new SafetyLimits(poolAddress.toHexString());
+    directPaymentPool = new Collective(event.address.toHexString());
+    const directPaymentPoolSettings = new PoolSettings(poolAddress.toHexString());
+    const directPaymentPoolLimits = new SafetyLimits(poolAddress.toHexString());
 
     // Pool
-    directPaymentPool.id = poolAddress.toHexString();
     directPaymentPool.ipfs = ipfsHash;
-    directPaymentPool.poolAddress = poolAddress.toHexString();
-    directPaymentPool.isVerified = false;
-    directPaymentPool.projectId = projectID.toHexString();
-    directPaymentPool.manager = event.address;
-    directPaymentPool.timestamp = event.block.timestamp.toI32();
     directPaymentPool.contributions = BigInt.fromI32(0);
-    directPaymentPool.stewards = new Array<string>();
     directPaymentPool.donors = new Array<string>();
-    directPaymentPool.save();
+    directPaymentPool.stewards = new Array<string>();
+    directPaymentPool.projectId = projectID.toHexString();
+    directPaymentPool.isVerified = false;
+    directPaymentPool.poolAddress = poolAddress.toHexString();
+    directPaymentPool.timestamp = event.block.timestamp.toI32();
 
     // Pool Settings
-    directPaymentPoolSettings.id = poolAddress.toHexString();
     directPaymentPoolSettings.nftType = nftType;
     directPaymentPoolSettings.manager = poolSettings.manager;
     directPaymentPoolSettings.membersValidator = poolSettings.membersValidator;
@@ -61,10 +55,14 @@ export function handlePoolCreated(event: PoolCreated): void {
     directPaymentPoolSettings.save();
 
     //  Pool Limits
-    directPaymentPoolLimits.id = poolAddress.toHexString();
     directPaymentPoolLimits.maxTotalPerMonth = poolLimits.maxTotalPerMonth;
+    directPaymentPoolLimits.maxMemberPerMonth = poolLimits.maxMemberPerMonth;
     directPaymentPoolLimits.maxMemberPerDay = poolLimits.maxMemberPerDay;
     directPaymentPoolLimits.save();
+
+    directPaymentPool.limits = directPaymentPoolLimits.id;
+    directPaymentPool.settings = directPaymentPoolSettings.id;
+    directPaymentPool.save();
   }
 }
 
