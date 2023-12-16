@@ -68,11 +68,9 @@ type Collective @entity {
   contributions: BigInt!
   donors: [DonorCollective!]!
   stewards: [StewardCollective!]!
-  donations: [Donation!]! @derivedFrom(field: "collective")
-  rewards: [Reward!]! @derivedFrom(field: "collective")
   projectId: String
   isVerified: Boolean
-  poolAddress: String
+  poolFactory: String
   timestamp: Int
 }
 

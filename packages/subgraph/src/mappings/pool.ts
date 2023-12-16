@@ -43,7 +43,7 @@ export function handlePoolCreated(event: PoolCreated): void {
     directPaymentPool.stewards = new Array<string>();
     directPaymentPool.projectId = projectID.toHexString();
     directPaymentPool.isVerified = false;
-    directPaymentPool.poolAddress = poolAddress.toHexString();
+    directPaymentPool.poolFactory = event.address.toHexString()
     directPaymentPool.timestamp = event.block.timestamp.toI32();
 
     // Pool Settings
