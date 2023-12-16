@@ -235,6 +235,11 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
       stewardCollective.save();
     }
 
+    // update pool
+    const totalRewards = rewardPerContributor.times(eventQuantity).times(BigInt.fromI32(contributors.length));
+    pool.totalRewards = pool.totalRewards.plus(totalRewards);
+    pool.paymentsMade = pool.paymentsMade + contributors.length * eventQuantity.toI32();
+
     claim.save();
     nft.save();
     pool.save();

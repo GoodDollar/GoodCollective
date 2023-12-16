@@ -60,8 +60,7 @@ type Reward @entity {
 }
 
 type Collective @entity {
-  "This is the address source"
-  id: String!
+  id: String! # pool address
   ipfs: String!
   settings: PoolSettings!
   limits: SafetyLimits!
@@ -69,8 +68,11 @@ type Collective @entity {
   stewards: [StewardCollective!]!
   projectId: String!
   isVerified: Boolean!
-  poolFactory: String!
+  poolFactory: String! # pool factory (event source)
   timestamp: BigInt!
+  paymentsMade: Int!
+  totalDonations: BigInt!
+  totalRewards: BigInt!
 }
 
 type PoolSettings @entity {

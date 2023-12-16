@@ -1,6 +1,6 @@
-import { BigInt } from '@graphprotocol/graph-ts';
+import { BigInt, log } from '@graphprotocol/graph-ts';
 import { SupporterUpdated } from '../../generated/DirectPaymentsPool/DirectPaymentsPool';
-import { Donation, Donor, DonorCollective } from '../../generated/schema';
+import { Collective, Donation, Donor, DonorCollective } from '../../generated/schema';
 
 export function handleSupport(event: SupporterUpdated): void {
   const donorAddress = event.params.supporter.toHexString();
@@ -8,6 +8,16 @@ export function handleSupport(event: SupporterUpdated): void {
   const donorCollectiveId = donorAddress + " " + poolAddress;
   const timestamp = event.block.timestamp;
   const donationId = donorAddress + " " + poolAddress + " " + timestamp.toString()
+
+  // update pool
+  const pool = Collective.load(poolAddress);
+  // This should never happen
+  if (pool === null) {
+    log.error('Missing Payment Pool {}', [event.address.toHex()]);
+    return;
+  }
+  // TODO: need to call contract functions to get donor/pool total donated including streams, the current method done is incorrect
+  pool.totalDonations = pool.totalDonations.plus(event.params.contribution);
 
   // update Donor
   let donor = Donor.load(donorAddress);
@@ -48,4 +58,5 @@ export function handleSupport(event: SupporterUpdated): void {
   donor.save();
   donorCollective.save();
   donation.save();
+  pool.save();
 }
