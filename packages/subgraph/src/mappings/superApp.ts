@@ -1,6 +1,6 @@
-import { BigInt, log } from '@graphprotocol/graph-ts';
+import { BigInt } from '@graphprotocol/graph-ts';
 import { SupporterUpdated } from '../../generated/DirectPaymentsPool/DirectPaymentsPool';
-import { Collective, Donation, Donor, DonorCollective } from '../../generated/schema';
+import { Donation, Donor, DonorCollective } from '../../generated/schema';
 
 export function handleSupport(event: SupporterUpdated): void {
   const donorAddress = event.params.supporter.toHexString();
@@ -8,15 +8,6 @@ export function handleSupport(event: SupporterUpdated): void {
   const donorCollectiveId = donorAddress + " " + poolAddress;
   const timestamp = event.block.timestamp;
   const donationId = donorAddress + " " + poolAddress + " " + timestamp.toString()
-
-  // update pool
-  const pool = Collective.load(poolAddress);
-  // This should never happen
-  if (pool === null) {
-    log.error('Missing Payment Pool {}', [event.address.toHex()]);
-    return;
-  }
-  pool.contributions = pool.contributions.plus(event.params.contribution);
 
   // update Donor
   let donor = Donor.load(donorAddress);
@@ -57,5 +48,4 @@ export function handleSupport(event: SupporterUpdated): void {
   donor.save();
   donorCollective.save();
   donation.save();
-  pool.save();
 }

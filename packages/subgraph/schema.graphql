@@ -65,7 +65,6 @@ type Collective @entity {
   ipfs: String!
   settings: PoolSettings!
   limits: SafetyLimits!
-  contributions: BigInt!
   donors: [DonorCollective!]!
   stewards: [StewardCollective!]!
   projectId: String!

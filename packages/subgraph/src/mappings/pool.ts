@@ -38,7 +38,6 @@ export function handlePoolCreated(event: PoolCreated): void {
 
     // Pool
     directPaymentPool.ipfs = ipfsHash;
-    directPaymentPool.contributions = BigInt.fromI32(0);
     directPaymentPool.donors = new Array<string>();
     directPaymentPool.stewards = new Array<string>();
     directPaymentPool.projectId = projectID.toHexString();
