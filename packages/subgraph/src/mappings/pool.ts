@@ -44,7 +44,7 @@ export function handlePoolCreated(event: PoolCreated): void {
     directPaymentPool.projectId = projectID.toHexString();
     directPaymentPool.isVerified = false;
     directPaymentPool.poolFactory = event.address.toHexString()
-    directPaymentPool.timestamp = event.block.timestamp.toI32();
+    directPaymentPool.timestamp = event.block.timestamp;
 
     // Pool Settings
     directPaymentPoolSettings.nftType = nftType;

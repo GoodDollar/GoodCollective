@@ -18,13 +18,13 @@ type Donation @entity {
   id: String! # donorAddress + " " + collectiveAddress + " " + timestamp
   donor: Donor!
   collective: Collective!
-  timestamp: BigInt
+  timestamp: BigInt!
   originationContract: Bytes! # The contract address from which the transaction originated
-  previousContribution: BigInt
-  contribution: BigInt
-  previousFlowRate: BigInt
-  flowRate: BigInt
-  isFlowUpdate: Boolean
+  previousContribution: BigInt!
+  contribution: BigInt!
+  previousFlowRate: BigInt!
+  flowRate: BigInt!
+  isFlowUpdate: Boolean!
 }
 
 type Steward @entity {
@@ -53,25 +53,25 @@ type Reward @entity {
     id: String! # stewardAddress + " " + collectiveAddress + " " + timestamp
     steward: Steward!
     collective: Collective!
-    timestamp: BigInt
-    quantity: BigInt
-    rewardPerContributor: BigInt
+    timestamp: BigInt!
+    quantity: BigInt!
+    rewardPerContributor: BigInt!
     nft: ProvableNFT!
 }
 
 type Collective @entity {
   "This is the address source"
   id: String!
-  ipfs: String
+  ipfs: String!
   settings: PoolSettings!
   limits: SafetyLimits!
   contributions: BigInt!
   donors: [DonorCollective!]!
   stewards: [StewardCollective!]!
-  projectId: String
-  isVerified: Boolean
-  poolFactory: String
-  timestamp: Int
+  projectId: String!
+  isVerified: Boolean!
+  poolFactory: String!
+  timestamp: BigInt!
 }
 
 type PoolSettings @entity {
@@ -107,7 +107,7 @@ type EventData @entity {
   rewardPerContributor: BigInt!
   contributors: [Steward!]!
   nft: ProvableNFT!
-  claim: Claim @derivedFrom(field: "event")
+  claim: Claim! @derivedFrom(field: "event")
 }
 
 type Claim @entity {
