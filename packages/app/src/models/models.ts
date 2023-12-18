@@ -10,8 +10,7 @@ export interface Steward {
   actions: number;
   totalEarned: string;
   // nfts: ProvableNFT[] | string[]; --> This can be fetched, but we are not using it in the MVP
-  collectives: StewardCollective[] | string[];
-  isVerified?: boolean;
+  collectives: StewardCollective[];
 }
 
 export type DonorCollective = {
@@ -24,7 +23,7 @@ export type Donor = {
   address: string;
   joined: number;
   totalDonated: string;
-  collectives: DonorCollective[] | string[];
+  collectives: DonorCollective[];
 };
 
 export interface Collective {
@@ -36,8 +35,8 @@ export interface Collective {
   instagram?: string;
   website?: string;
   headerImage?: string;
-  donorCollectives: DonorCollective[] | string[];
-  stewardCollectives: StewardCollective[] | string[];
+  donorCollectives: DonorCollective[];
+  stewardCollectives: StewardCollective[];
   timestamp: number;
   paymentsMade: number;
   totalDonations: string;

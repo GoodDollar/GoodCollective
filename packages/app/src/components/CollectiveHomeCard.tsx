@@ -4,19 +4,22 @@ import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
 import { useMediaQuery } from 'native-base';
 import { useState } from 'react';
+import oceanUri from '../@constants/SafariImagePlaceholder';
 
 interface CollectiveHomeCardProps {
-  imageUrl?: string;
-  title: string;
+  name: string;
   description: string;
-  route: any;
+  headerImage?: string;
+  route: string;
 }
 
-function CollectiveHomeCard({ title, description, imageUrl, route }: CollectiveHomeCardProps) {
+function CollectiveHomeCard({ name, description, headerImage, route }: CollectiveHomeCardProps) {
   const { navigate } = useCrossNavigate();
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
+
+  const imageUrl = headerImage ?? oceanUri;
 
   const [isParagraphExpanded, setIsParagraphExpanded] = useState(false);
 
@@ -26,15 +29,13 @@ function CollectiveHomeCard({ title, description, imageUrl, route }: CollectiveH
         styles.cardContainer,
         styles.elevation,
         isDesktopResolution ? styles.cardContainerDesktop : {},
-        // eslint-disable-next-line react-native/no-inline-styles
         isParagraphExpanded ? { height: 'auto' } : {},
       ]}
       onPress={() => navigate(`/collective/${route}`)}>
       <Image source={{ uri: imageUrl }} style={styles.sectionImage} />
       <View style={styles.cardDescriptionContainer}>
-        <Text style={styles.cardTitle}>{title}</Text>
+        <Text style={styles.cardTitle}>{name}</Text>
         <TouchableOpacity onPress={() => setIsParagraphExpanded(!isParagraphExpanded)}>
-          {/* eslint-disable-next-line react-native/no-inline-styles */}
           <Text style={[styles.cardDescription, isParagraphExpanded ? { maxHeight: 'auto' } : {}]}>{description}</Text>
         </TouchableOpacity>
       </View>

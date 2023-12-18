@@ -25,8 +25,19 @@ export const collective = gql`
     collectives(where: { id: $id }) {
       id
       ipfs
-      stewards
-      donors
+      stewards {
+        id
+        steward
+        collective
+        actions
+        totalEarned
+      }
+      donors {
+        id
+        donor
+        collective
+        contribution
+      }
       timestamp
       paymentsMade
       totalDonations

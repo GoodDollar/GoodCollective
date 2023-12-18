@@ -6,23 +6,16 @@ import { useMediaQuery } from 'native-base';
 import { useCollectiveById } from '../hooks';
 
 function ViewCollectivePage() {
-  const { collective, isLoading } = useCollectiveById(window.location.pathname.slice('/collective/'.length));
+  const collectiveId = window.location.pathname.slice('/collective/'.length);
+  const { collective, isLoading } = useCollectiveById(collectiveId);
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
 
   return (
     <Layout>
-      {isDesktopResolution && <Breadcrumb currentPage={`collective / ${collective?.id ?? ''}`} />}
-      <>
-        {isLoading ? (
-          <p>Loading...</p>
-        ) : !collective ? (
-          <p>Not found</p>
-        ) : (
-          <ViewCollective collective={collective} paymentsMade={374900} totalPaidOut={299920000} currentPool={381000} />
-        )}
-      </>
+      {isDesktopResolution && <Breadcrumb currentPage={`collective / ${collective?.address ?? ''}`} />}
+      {isLoading || !collective ? <p>Loading...</p> : <ViewCollective collective={collective} />}
     </Layout>
   );
 }

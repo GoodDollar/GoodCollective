@@ -3,6 +3,7 @@ import { InterSemiBold } from '../utils/webFonts';
 import EmptyProfile from './EmptyProfile';
 import { WalletProfileTypes } from '../@constants/WalletProfileTypes';
 import { Colors } from '../utils/colors';
+import { Donor, Steward } from '../models/models';
 
 interface WalletProfileProps {
   imageUrl: string;
@@ -15,8 +16,10 @@ interface WalletProfileProps {
   amountDonated?: string;
   peopleSupported?: number;
   walletConnected: boolean;
-  type: string;
   usd?: any;
+  donor?: Donor;
+  steward?: Steward;
+  type: WalletProfileTypes;
 }
 
 function WalletDetails({

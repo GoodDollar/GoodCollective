@@ -10,6 +10,7 @@ import { StewardBlueIcon } from '../@constants/ColorTypeIcons';
 import Breadcrumb from '../components/Breadcrumb';
 import { useLocation } from 'react-router-native';
 import { useCollectiveById } from '../hooks';
+import React from 'react';
 
 function ViewStewardsPage() {
   const [isDesktopResolution] = useMediaQuery({
@@ -19,37 +20,50 @@ function ViewStewardsPage() {
   const location = useLocation();
   const collectiveId = location.pathname.slice('/collective/'.length);
   const { collective, isLoading } = useCollectiveById(collectiveId);
+  const imageUrl = collective?.headerImage ?? oceanUri;
 
   if (isDesktopResolution) {
     return (
       <Layout>
         <Breadcrumb currentPage={`collective / ${collectiveId} / stewards`} />
-        <View style={styles.desktopContainer}>
-          <View style={styles.desktopTopRow}>
-            <Image source={{ uri: oceanUri }} style={styles.desktopImage} />
-            <Text style={styles.desktopTitle}>Restoring the Kakamega Forest</Text>
-          </View>
-          <View style={styles.desktopStewardsTitle}>
-            <Image source={{ uri: StewardBlueIcon }} style={styles.stewardIcon} />
-            <Text style={styles.listTitle}>Stewards</Text>
-          </View>
-          <View style={styles.desktopStewardsContainer}>
-            <StewardList hideTitle stewards={[]} listType="viewStewards" />
-          </View>
-        </View>
+        {isLoading || !collective ? (
+          <p>Loading...</p>
+        ) : (
+          <>
+            <View style={styles.desktopContainer}>
+              <View style={styles.desktopTopRow}>
+                <Image source={{ uri: imageUrl }} style={styles.desktopImage} />
+                <Text style={styles.desktopTitle}>{collective.name}</Text>
+              </View>
+              <View style={styles.desktopStewardsTitle}>
+                <Image source={{ uri: StewardBlueIcon }} style={styles.stewardIcon} />
+                <Text style={styles.listTitle}>Stewards</Text>
+              </View>
+              <View style={styles.desktopStewardsContainer}>
+                <StewardList hideTitle stewards={collective.stewardCollectives} listType="viewStewards" />
+              </View>
+            </View>
+          </>
+        )}
       </Layout>
     );
   }
 
   return (
     <Layout>
-      <Image source={{ uri: oceanUri }} style={styles.image} />
-      <View style={[styles.titleContainer]}>
-        <Text style={styles.title}>Restoring the Forest</Text>
-      </View>
-      <View style={[styles.stewardsContainer]}>
-        <StewardList stewards={[]} listType="viewStewards" />
-      </View>
+      {isLoading || !collective ? (
+        <p>Loading...</p>
+      ) : (
+        <>
+          <Image source={{ uri: imageUrl }} style={styles.image} />
+          <View style={[styles.titleContainer]}>
+            <Text style={styles.title}>{collective.name}</Text>
+          </View>
+          <View style={[styles.stewardsContainer]}>
+            <StewardList stewards={collective.stewardCollectives} listType="viewStewards" />
+          </View>
+        </>
+      )}
     </Layout>
   );
 }

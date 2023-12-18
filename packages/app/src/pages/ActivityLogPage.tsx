@@ -8,7 +8,7 @@ import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import ActivityLog from '../components/ActivityLog';
 import { Colors } from '../utils/colors';
 import { FruitDoveUri } from '../@constants/ProfilePictures';
-import ProfileView from '../components/ProfileComponent';
+import ProfileView from '../components/ProfileView';
 import { ProfileTypes } from '../@constants/ProfileTypes';
 
 function ActivityLogPage() {

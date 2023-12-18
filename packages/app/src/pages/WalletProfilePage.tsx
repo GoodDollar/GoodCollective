@@ -2,56 +2,40 @@ import React, { Suspense } from 'react';
 import Layout from '../components/Layout';
 import { WalletProfileTypes } from '../@constants/WalletProfileTypes';
 import { FruitDoveUri } from '../@constants/ProfilePictures';
-import { useSubgraphDonor } from '../subgraph';
-import { useAccount } from 'wagmi';
-import { formatTime } from '../lib/formatTime';
-import { subgraphDonorToModel } from '../models/transforms';
-import { useFetchCollectiveMetadataFromIpfs } from '../hooks';
+import { useDonorById } from '../hooks/useDonorById';
+import { useStewardById } from '../hooks/useStewardById';
 
 // Lazy load the WalletProfile component
 const WalletProfileLazy = React.lazy(() => import('../components/WalletProfile'));
 
 function WalletProfilePage() {
-  const donorAddress = window.location.pathname.slice('/profile/'.length).toLocaleLowerCase();
-  const subgraphDonor = useSubgraphDonor(donorAddress);
-  const donor = subgraphDonor ? subgraphDonorToModel(subgraphDonor) : undefined;
-  const { collectives, isLoading } = useFetchCollectiveMetadataFromIpfs(donor?.collectives ?? []);
-  const { address } = useAccount();
+  const profileAddress = window.location.pathname.slice('/profile/'.length).toLocaleLowerCase();
+  const donor = useDonorById(profileAddress);
+  const steward = useStewardById(profileAddress);
+
+  const walletProfileType = (isDonor: boolean, isSteward: boolean) => {
+    if (isDonor && isSteward) {
+      return WalletProfileTypes.both;
+    } else if (isDonor) {
+      return WalletProfileTypes.donor;
+    } else if (isSteward) {
+      return WalletProfileTypes.steward;
+    } else {
+      return WalletProfileTypes.empty;
+    }
+  };
 
   return (
     <Layout>
-      {/* Suspense will display the fallback while WalletProfileLazy is being loaded */}
-      <Suspense fallback={<div>Loading profiles...</div>}>
-        {donor ? (
-          <WalletProfileLazy
-            imageUrl={FruitDoveUri}
-            firstName={''}
-            lastName={''}
-            actionsPerformed={0}
-            amountReceived={'0'}
-            collectivesTotal={2}
-            creationDate={formatTime(donor.joined)}
-            amountDonated={donor.totalDonated}
-            peopleSupported={0}
-            domain={address}
-            collectives={collectives}
-            type={WalletProfileTypes.donor}
-          />
-        ) : (
-          <WalletProfileLazy
-            imageUrl={FruitDoveUri}
-            firstName={''}
-            lastName={''}
-            actionsPerformed={0}
-            amountReceived={'0'}
-            collectivesTotal={0}
-            creationDate={'January 1, 2023'}
-            amountDonated={'0'}
-            peopleSupported={0}
-            domain={address}
-            type={WalletProfileTypes.empty}
-          />
-        )}
+      <Suspense fallback={<div>Loading...</div>}>
+        <WalletProfileLazy
+          imageUrl={FruitDoveUri}
+          firstName={''}
+          lastName={''}
+          donor={donor}
+          steward={steward}
+          type={walletProfileType(!!donor, !!steward)}
+        />
       </Suspense>
     </Layout>
   );

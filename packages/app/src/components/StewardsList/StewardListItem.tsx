@@ -2,25 +2,22 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import { VerifiedIconUri } from '../../@constants/ColorTypeIcons';
 import { Colors } from '../../utils/colors';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
-import { Steward } from '../../models/models';
-import { profilePictureArray } from '../../@constants/pfps';
-import { useMemo } from 'react';
-
+import { StewardCollective } from '../../models/models';
 interface StewardListItemProps {
-  steward: Steward;
+  steward: StewardCollective;
   showActions: boolean;
   profileImage: string;
+  isVerified?: boolean;
 }
 
 export const StewardListItem = (props: StewardListItemProps) => {
-  const { showActions, steward, profileImage } = props;
+  const { showActions, steward, profileImage, isVerified } = props;
 
   return (
     <View style={styles.row}>
       <Image source={{ uri: profileImage }} style={styles.rowImg} />
       <Text style={styles.title}>
-        {steward.username}{' '}
-        {steward.isVerified && <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon} />}
+        {steward.steward} {isVerified && <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon} />}
       </Text>
       {showActions && <Text style={styles.totalActions}>{steward.actions ?? 0} actions</Text>}
     </View>

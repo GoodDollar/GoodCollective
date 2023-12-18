@@ -19,15 +19,11 @@ export function subgraphStewardCollectiveToModel(
 }
 
 export function subgraphStewardToModel(subgraphSteward: SubgraphSteward): Steward {
-  const subgraphStewardCollectives = isNonEmptyStringArray(subgraphSteward.collectives)
-    ? subgraphSteward.collectives
-    : subgraphSteward.collectives.map(subgraphStewardCollectiveToModel);
   return {
     address: subgraphSteward.id,
     actions: subgraphSteward.actions,
     totalEarned: subgraphSteward.totalEarned,
-    collectives: subgraphStewardCollectives,
-    isVerified: false, // TODO: need to fetch from a contract?
+    collectives: subgraphSteward.collectives.map(subgraphStewardCollectiveToModel),
   };
 }
 
@@ -40,14 +36,11 @@ export function subgraphDonorCollectiveToModel(subgraphDonorCollective: Subgraph
 }
 
 export function subgraphDonorToModel(subgraphDonor: SubgraphDonor): Donor {
-  const subgraphDonorCollectives = isNonEmptyStringArray(subgraphDonor.collectives)
-    ? subgraphDonor.collectives
-    : subgraphDonor.collectives.map(subgraphDonorCollectiveToModel);
   return {
     address: subgraphDonor.id,
     joined: parseInt(subgraphDonor.joined, 10),
     totalDonated: subgraphDonor.totalDonated,
-    collectives: subgraphDonorCollectives,
+    collectives: subgraphDonor.collectives.map(subgraphDonorCollectiveToModel),
   };
 }
 
@@ -55,12 +48,6 @@ export function subgraphCollectiveToModel(
   subgraphCollective: SubgraphCollective,
   ipfsCollective: IpfsCollective
 ): Collective {
-  const subgraphDonorCollectives = isNonEmptyStringArray(subgraphCollective.donors)
-    ? subgraphCollective.donors
-    : subgraphCollective.donors.map(subgraphDonorCollectiveToModel);
-  const subgraphStewardCollectives = isNonEmptyStringArray(subgraphCollective.stewards)
-    ? subgraphCollective.stewards
-    : subgraphCollective.stewards.map(subgraphStewardCollectiveToModel);
   return {
     address: subgraphCollective.id,
     name: ipfsCollective?.name,
@@ -70,15 +57,11 @@ export function subgraphCollectiveToModel(
     instagram: ipfsCollective?.instagram,
     website: ipfsCollective?.website,
     headerImage: ipfsCollective?.headerImage,
-    donorCollectives: subgraphDonorCollectives,
-    stewardCollectives: subgraphStewardCollectives,
+    donorCollectives: subgraphCollective.donors.map(subgraphDonorCollectiveToModel),
+    stewardCollectives: subgraphCollective.stewards.map(subgraphStewardCollectiveToModel),
     timestamp: subgraphCollective.timestamp,
     paymentsMade: subgraphCollective.paymentsMade,
     totalDonations: subgraphCollective.totalDonations,
     totalRewards: subgraphCollective.totalRewards,
   };
-}
-
-function isNonEmptyStringArray(array: any[]): array is string[] {
-  return array.length > 0 && typeof array[0] === 'string';
 }

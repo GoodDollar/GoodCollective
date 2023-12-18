@@ -2,35 +2,24 @@ import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { StewardBlueIcon, StewardGreenIcon } from '../../@constants/ColorTypeIcons';
 import { Colors } from '../../utils/colors';
-import { useMediaQuery } from 'native-base';
 import { StewardListItem } from './StewardListItem';
-import { Steward } from '../../models/models';
+import { StewardCollective } from '../../models/models';
 import { useMemo } from 'react';
 import { profilePictureArray } from '../../@constants/pfps';
 
-const mockStewardData: Steward[] = [0, 1, 2, 3, 4, 5, 6].map(() => ({
-  id: '',
-  username: 'username' + Math.floor(Math.random() * 10000),
-  isVerified: true,
-  actions: 730,
-}));
-
 interface StewardListProps {
   listType: 'viewCollective' | 'viewStewards';
-  stewards: Steward[];
+  stewards: StewardCollective[];
   hideTitle?: boolean;
 }
 
 function StewardList({ listType, stewards, hideTitle }: StewardListProps) {
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
-  });
-
   const profileImages: string[] = useMemo(() => {
     return profilePictureArray.sort(() => Math.random());
   }, []);
 
-  const toShow = listType === 'viewStewards' ? mockStewardData : mockStewardData.slice(0, isDesktopResolution ? 6 : 5);
+  // TODO: determine if stewards are verified
+  const isVerified: boolean[] = [true, false, true, false, true, false];
 
   return (
     <View style={styles.stewardsHeader}>
@@ -42,12 +31,13 @@ function StewardList({ listType, stewards, hideTitle }: StewardListProps) {
         </View>
       )}
       <View style={styles.list}>
-        {toShow.map((steward, index) => (
+        {stewards.map((steward, index) => (
           <StewardListItem
             steward={steward}
             showActions={listType === 'viewStewards'}
-            key={steward.username}
+            key={steward.steward}
             profileImage={profileImages[index % profileImages.length]}
+            isVerified={isVerified[index]}
           />
         ))}
       </View>

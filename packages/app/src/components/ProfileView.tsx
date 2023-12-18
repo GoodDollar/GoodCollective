@@ -1,79 +1,76 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
-// import { AfricanGreyParrotUri } from '../@constants/ProfilePictures';
 import { Link, useMediaQuery } from 'native-base';
 import { VerifiedIconUri } from '../@constants/ColorTypeIcons';
 import { ProfileTypes } from '../@constants/ProfileTypes';
 
 interface ProfileViewProps {
-  profileData: {
-    imageUrl: string;
-    firstName: string;
-    lastName: string;
-    profileLink: string;
-    domain: string;
-    userId: string;
-    profileType?: number;
-  };
+  imageUrl: string;
+  firstName: string;
+  lastName: string;
+  ensDomain?: string;
+  userId: string;
+  profileType: ProfileTypes;
 }
 
-function ProfileView({ profileData }: ProfileViewProps) {
+function ProfileView({ imageUrl, firstName, lastName, ensDomain, userId, profileType }: ProfileViewProps) {
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
+
+  const profileLink = 'https://app.prosperity.global';
 
   const resizableProfileView = {
     ...styles.profileView,
     ...(isDesktopResolution ? styles.profileDesktopView : {}),
   };
 
-  if (profileData.profileType === ProfileTypes.nameAndDomain) {
+  if (profileType === ProfileTypes.nameAndDomain) {
     return (
       <TouchableOpacity style={resizableProfileView}>
-        <Image source={{ uri: profileData.imageUrl }} style={styles.pfp} />
+        <Image source={{ uri: imageUrl }} style={styles.pfp} />
         <View style={styles.profileText}>
           <Text style={styles.title}>
-            {profileData.firstName} {profileData.lastName}{' '}
-            <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon} />
+            {firstName} {lastName} <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon} />
           </Text>
-          <Text style={styles.line}>{profileData.domain}</Text>
+          <Text style={styles.line}>{ensDomain}</Text>
         </View>
       </TouchableOpacity>
     );
   }
-  if (profileData.profileType === ProfileTypes.domain) {
+  if (profileType === ProfileTypes.domain) {
     return (
       <TouchableOpacity style={resizableProfileView}>
-        <Image source={{ uri: profileData.imageUrl }} style={styles.pfp} />
+        <Image source={{ uri: imageUrl }} style={styles.pfp} />
         <View style={[styles.profileText, { justifyContent: 'center' }]}>
-          <Text style={styles.title}>{profileData.domain}</Text>
+          <Text style={styles.title}>{ensDomain}</Text>
         </View>
       </TouchableOpacity>
     );
   }
-  if (profileData.profileType === ProfileTypes.claimDomain) {
+  if (profileType === ProfileTypes.claimDomain) {
     return (
       <TouchableOpacity style={resizableProfileView}>
-        <Image source={{ uri: profileData.imageUrl }} style={styles.pfp} />
+        <Image source={{ uri: imageUrl }} style={styles.pfp} />
         <View style={styles.profileText}>
-          <Text style={styles.title}>{profileData.userId}</Text>
-          <Link style={styles.line} href={'https://app.prosperity.global'} isExternal>
+          <Text style={styles.title}>{userId}</Text>
+          <Link style={styles.line} href={profileLink} isExternal>
             Claim your .Celo domain.
           </Link>
         </View>
       </TouchableOpacity>
     );
   }
-  if (profileData.profileType === ProfileTypes.justId) {
+  if (profileType === ProfileTypes.justId) {
     return (
       <TouchableOpacity style={resizableProfileView}>
-        <Image source={{ uri: profileData.imageUrl }} style={styles.pfp} />
+        <Image source={{ uri: imageUrl }} style={styles.pfp} />
         <View style={styles.profileText}>
           <Link href="" style={styles.title}>
-            {profileData.domain}
+            {ensDomain}
           </Link>
-          <Text style={styles.line}>{profileData.userId}</Text>
+          <Text style={styles.line}>{userId}</Text>
         </View>
       </TouchableOpacity>
     );

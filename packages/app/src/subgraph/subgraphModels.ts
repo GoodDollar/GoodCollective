@@ -2,7 +2,7 @@ export type SubgraphDonor = {
   id: string;
   joined: string;
   totalDonated: string;
-  collectives: SubgraphDonorCollective[] | string[];
+  collectives: SubgraphDonorCollective[];
 };
 
 export type SubgraphDonorCollective = {
@@ -31,7 +31,7 @@ export type SubgraphSteward = {
   actions: number;
   totalEarned: string;
   nfts?: SubgraphProvableNFT[] | string[];
-  collectives: SubgraphStewardCollective[] | string[];
+  collectives: SubgraphStewardCollective[];
 };
 
 export type SubgraphStewardCollective = {
@@ -58,8 +58,8 @@ export type SubgraphCollective = {
   ipfs: string;
   settings?: PoolSettings | string;
   limits?: SafetyLimits | string;
-  donors: SubgraphDonorCollective[] | string[];
-  stewards: SubgraphStewardCollective[] | string[];
+  donors: SubgraphDonorCollective[];
+  stewards: SubgraphStewardCollective[];
   projectId?: string;
   isVerified?: boolean;
   poolFactory?: string;
