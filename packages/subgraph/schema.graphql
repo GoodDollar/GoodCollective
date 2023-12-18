@@ -20,8 +20,8 @@ type Donation @entity {
   collective: Collective!
   timestamp: BigInt!
   originationContract: Bytes! # The contract address from which the transaction originated
-  previousContribution: BigInt!
-  contribution: BigInt!
+  previousContribution: BigInt! # This is the contribution of the donor to the collective before the supporter update event
+  contribution: BigInt! # This is the total contribution of the donor to the collective
   previousFlowRate: BigInt!
   flowRate: BigInt!
   isFlowUpdate: Boolean!
