@@ -10,7 +10,7 @@ type DonorCollective @entity {
   id: String! # donorAddress + " " + collectiveAddress
   donor: Donor! @derivedFrom(field: "collectives")
   collective: Collective! @derivedFrom(field: "donors")
-  totalDonated: BigInt!
+  contribution: BigInt!
   donations: [Donation!]!
 }
 

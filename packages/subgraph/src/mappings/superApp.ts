@@ -9,6 +9,8 @@ export function handleSupport(event: SupporterUpdated): void {
   const timestamp = event.block.timestamp;
   const donationId = donorAddress + " " + poolAddress + " " + timestamp.toString()
 
+  const contributionDelta = event.params.contribution.minus(event.params.previousContribution);
+
   // update pool
   const pool = Collective.load(poolAddress);
   // This should never happen
@@ -16,26 +18,24 @@ export function handleSupport(event: SupporterUpdated): void {
     log.error('Missing Payment Pool {}', [event.address.toHex()]);
     return;
   }
-  // TODO: need to call contract functions to get donor/pool total donated including streams, the current method done is incorrect
-  pool.totalDonations = pool.totalDonations.plus(event.params.contribution);
+  pool.totalDonations = pool.totalDonations.plus(contributionDelta);
 
   // update Donor
   let donor = Donor.load(donorAddress);
   if (donor == null) {
     donor = new Donor(donorAddress);
     donor.joined = timestamp;
-    donor.totalDonated = BigInt.fromI32(0);
   }
-  // TODO: need to call contract functions to get donor/pool total donated including streams, the current method done is incorrect
-  donor.totalDonated = donor.totalDonated.plus(event.params.contribution);
+  donor.totalDonated = donor.totalDonated.plus(contributionDelta);
 
   // update DonorCollective
   let donorCollective = DonorCollective.load(donorCollectiveId);
   if (donorCollective == null) {
     donorCollective = new DonorCollective(donorCollectiveId);
-    donorCollective.totalDonated = BigInt.fromI32(0);
+    donorCollective.contribution = BigInt.fromI32(0);
   }
-  donorCollective.totalDonated = donorCollective.totalDonated.plus(event.params.contribution);
+  // This value is updated in _updateSupporter at line 260 of GoodCollectiveSuperApp.sol before the event is emitted
+  donorCollective.contribution = event.params.contribution;
 
   // create Donation
   const donation = new Donation(donationId);
