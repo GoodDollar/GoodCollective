@@ -9,7 +9,7 @@ import { Colors } from '../utils/colors';
 import { StewardBlueIcon } from '../@constants/ColorTypeIcons';
 import Breadcrumb from '../components/Breadcrumb';
 import { useLocation } from 'react-router-native';
-import { useFetchCollectiveById } from '../hooks';
+import { useCollectiveById } from '../hooks';
 
 function ViewStewardsPage() {
   const [isDesktopResolution] = useMediaQuery({
@@ -18,7 +18,7 @@ function ViewStewardsPage() {
 
   const location = useLocation();
   const collectiveId = location.pathname.slice('/collective/'.length);
-  const { collective, isLoading } = useFetchCollectiveById(collectiveId);
+  const { collective, isLoading } = useCollectiveById(collectiveId);
 
   if (isDesktopResolution) {
     return (

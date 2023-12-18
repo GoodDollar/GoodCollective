@@ -3,6 +3,7 @@ import { useEffect, useMemo } from 'react';
 import { DocumentNode } from 'graphql/language';
 import { SubgraphCollective, SubgraphDonor, SubgraphSteward } from './subgraphModels';
 
+export type IpfsCollectivesSubgraphResponse = { collectives?: { id: string; ipfs: string }[] };
 export type CollectivesSubgraphResponse = { collectives?: SubgraphCollective[] };
 export type DonorsSubgraphResponse = { donors?: SubgraphDonor[] };
 export type StewardsSubgraphResponse = { stewards?: SubgraphSteward[] };

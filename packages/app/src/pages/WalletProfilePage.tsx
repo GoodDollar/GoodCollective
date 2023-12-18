@@ -6,7 +6,7 @@ import { useSubgraphDonor } from '../subgraph';
 import { useAccount } from 'wagmi';
 import { formatTime } from '../lib/formatTime';
 import { subgraphDonorToModel } from '../models/transforms';
-import { useFetchCollectivesFromSubgraphCollectives } from '../hooks';
+import { useFetchCollectiveMetadataFromIpfs } from '../hooks';
 
 // Lazy load the WalletProfile component
 const WalletProfileLazy = React.lazy(() => import('../components/WalletProfile'));
@@ -15,7 +15,7 @@ function WalletProfilePage() {
   const donorAddress = window.location.pathname.slice('/profile/'.length).toLocaleLowerCase();
   const subgraphDonor = useSubgraphDonor(donorAddress);
   const donor = subgraphDonor ? subgraphDonorToModel(subgraphDonor) : undefined;
-  const { collectives, isLoading } = useFetchCollectivesFromSubgraphCollectives(donor?.collectives ?? []);
+  const { collectives, isLoading } = useFetchCollectiveMetadataFromIpfs(donor?.collectives ?? []);
   const { address } = useAccount();
 
   return (

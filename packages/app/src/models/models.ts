@@ -1,23 +1,34 @@
-import { SubgraphCollective, SubgraphDonor, SubgraphSteward } from '../subgraph';
+export type StewardCollective = {
+  steward: string;
+  collective: string;
+  actions: number;
+  totalEarned: string;
+};
 
 export interface Steward {
-  id: string;
-  username: string;
+  address: string;
   actions: number;
-  isVerified: boolean;
+  totalEarned: string;
+  // nfts: ProvableNFT[] | string[]; --> This can be fetched, but we are not using it in the MVP
+  collectives: StewardCollective[] | string[];
+  isVerified?: boolean;
 }
 
+export type DonorCollective = {
+  donor: string;
+  collective: string;
+  contribution: string;
+};
+
 export type Donor = {
-  id: string;
+  address: string;
   joined: number;
   totalDonated: string;
-  contribution?: string;
-  flowRate?: string;
-  collectives: SubgraphCollective[];
+  collectives: DonorCollective[] | string[];
 };
 
 export interface Collective {
-  id: string;
+  address: string;
   name?: string;
   description?: string;
   email?: string;
@@ -25,21 +36,30 @@ export interface Collective {
   instagram?: string;
   website?: string;
   headerImage?: string;
+  donorCollectives: DonorCollective[] | string[];
+  stewardCollectives: StewardCollective[] | string[];
   timestamp: number;
-  contributions: string;
-  donors?: SubgraphDonor[];
-  stewards: SubgraphSteward[];
+  paymentsMade: number;
+  totalDonations: string;
+  totalRewards: string;
 }
 
 export type IpfsCollective = {
+  id: string; // collective address
   name: string;
   description: string;
-  email: string;
-  website: string;
-  twitter: string;
-  instagram: string;
-  threads: string;
-  headerImage: string;
-  logo: string;
-  images: string[];
+  email?: string;
+  website?: string;
+  twitter?: string;
+  instagram?: string;
+  threads?: string;
+  headerImage?: string;
+  logo?: string;
+  images?: string[];
 };
+
+// export type ProvableNFT = {
+//   owner: string;
+//   hash: string;
+//   collective: Collective | string;
+// };

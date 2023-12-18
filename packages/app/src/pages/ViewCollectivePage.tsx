@@ -3,10 +3,10 @@ import Layout from '../components/Layout';
 import React from 'react';
 import Breadcrumb from '../components/Breadcrumb';
 import { useMediaQuery } from 'native-base';
-import { useFetchCollectiveById } from '../hooks';
+import { useCollectiveById } from '../hooks';
 
 function ViewCollectivePage() {
-  const { collective, isLoading } = useFetchCollectiveById(window.location.pathname.slice('/collective/'.length));
+  const { collective, isLoading } = useCollectiveById(window.location.pathname.slice('/collective/'.length));
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });

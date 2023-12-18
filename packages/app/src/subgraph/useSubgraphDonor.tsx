@@ -3,12 +3,17 @@ import { DonorsSubgraphResponse, useSubgraphData } from './useSubgraphData';
 import { SubgraphDonor } from './subgraphModels';
 
 const donor = gql`
-  query DONOR($supporter: String) {
-    donors(where: { supporter: $supporter }) {
-      supporter
+  query DONOR($id: String) {
+    donors(where: { id: $id }) {
+      id
       joined
       totalDonated
-      collectives
+      collectives {
+        id
+        donor
+        collective
+        contribution
+      }
     }
   }
 `;

@@ -38,10 +38,10 @@ function ViewCollective({
 }: ViewCollectiveProps) {
   const { name, description, timestamp, id, contributions, headerImage } = collective;
   const imageUrl = headerImage ?? oceanUri;
-  const stewardsPaid = collective.stewards?.length ?? 0;
+  const stewardsPaid = collective.stewardCollectives?.length ?? 0;
 
   const { address } = useAccount();
-  const isDonating = collective.donors?.some((donor) => donor.supporter === address) ?? false;
+  const isDonating = collective.donorCollectives?.some((donor) => donor.supporter === address) ?? false;
 
   const [stopDonationModal, setStopDonationModal] = useState(false);
   const [donateModal, setDonateModal] = useState(false);
