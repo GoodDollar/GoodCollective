@@ -1,4 +1,4 @@
-import DonateCard from '../components/CollectiveCard';
+import DonateCard from '../components/CollectiveCard/DonorCollectiveCard';
 import Layout from '../components/Layout';
 import { formatFiatCurrency } from '../lib/formatFiatCurrency';
 

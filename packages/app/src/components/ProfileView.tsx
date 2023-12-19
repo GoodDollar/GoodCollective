@@ -10,11 +10,11 @@ interface ProfileViewProps {
   firstName: string;
   lastName: string;
   ensDomain?: string;
-  userId: string;
+  userAddress: string;
   profileType: ProfileTypes;
 }
 
-function ProfileView({ imageUrl, firstName, lastName, ensDomain, userId, profileType }: ProfileViewProps) {
+function ProfileView({ imageUrl, firstName, lastName, ensDomain, userAddress, profileType }: ProfileViewProps) {
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
@@ -54,7 +54,7 @@ function ProfileView({ imageUrl, firstName, lastName, ensDomain, userId, profile
       <TouchableOpacity style={resizableProfileView}>
         <Image source={{ uri: imageUrl }} style={styles.pfp} />
         <View style={styles.profileText}>
-          <Text style={styles.title}>{userId}</Text>
+          <Text style={styles.title}>{userAddress}</Text>
           <Link style={styles.line} href={profileLink} isExternal>
             Claim your .Celo domain.
           </Link>
@@ -70,7 +70,7 @@ function ProfileView({ imageUrl, firstName, lastName, ensDomain, userId, profile
           <Link href="" style={styles.title}>
             {ensDomain}
           </Link>
-          <Text style={styles.line}>{userId}</Text>
+          <Text style={styles.line}>{userAddress}</Text>
         </View>
       </TouchableOpacity>
     );

@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View, Image } from 'react-native';
-import { EmptyUri } from '../@constants/EmptyProfileImg';
-import { InterSmall } from '../utils/webFonts';
-import RoundedButton from './RoundedButton';
-import { Colors } from '../utils/colors';
-import useCrossNavigate from '../routes/useCrossNavigate';
+import { EmptyUri } from '../../@constants/EmptyProfileImg';
+import { InterSmall } from '../../utils/webFonts';
+import RoundedButton from '../RoundedButton';
+import { Colors } from '../../utils/colors';
+import useCrossNavigate from '../../routes/useCrossNavigate';
 
 function EmptyProfile() {
   const { navigate } = useCrossNavigate();

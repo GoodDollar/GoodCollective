@@ -1,7 +1,5 @@
 import React, { Suspense } from 'react';
 import Layout from '../components/Layout';
-import { WalletProfileTypes } from '../@constants/WalletProfileTypes';
-import { FruitDoveUri } from '../@constants/ProfilePictures';
 import { useDonorById } from '../hooks/useDonorById';
 import { useStewardById } from '../hooks/useStewardById';
 
@@ -13,29 +11,14 @@ function WalletProfilePage() {
   const donor = useDonorById(profileAddress);
   const steward = useStewardById(profileAddress);
 
-  const walletProfileType = (isDonor: boolean, isSteward: boolean) => {
-    if (isDonor && isSteward) {
-      return WalletProfileTypes.both;
-    } else if (isDonor) {
-      return WalletProfileTypes.donor;
-    } else if (isSteward) {
-      return WalletProfileTypes.steward;
-    } else {
-      return WalletProfileTypes.empty;
-    }
-  };
+  // TODO: how to get first name and last name of users?
+  const firstName = 'Wonderful';
+  const lastName = 'Person';
 
   return (
     <Layout>
       <Suspense fallback={<div>Loading...</div>}>
-        <WalletProfileLazy
-          imageUrl={FruitDoveUri}
-          firstName={''}
-          lastName={''}
-          donor={donor}
-          steward={steward}
-          type={walletProfileType(!!donor, !!steward)}
-        />
+        <WalletProfileLazy firstName={firstName} lastName={lastName} donor={donor} steward={steward} />
       </Suspense>
     </Layout>
   );

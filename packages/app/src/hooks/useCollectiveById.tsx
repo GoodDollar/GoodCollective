@@ -37,7 +37,7 @@ function useFetchCollectiveMetadataFromIpfs(subgraphCollectives: { id: string; i
   collectives?: IpfsCollective[];
   isLoading: boolean;
 } {
-  const [collectives, setCollectives] = useState<IpfsCollective[]>();
+  const [collectives, setCollectives] = useState<IpfsCollective[] | undefined>();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
