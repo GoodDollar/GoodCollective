@@ -66,14 +66,14 @@ export function handlePoolCreated(event: PoolCreated): void {
     directPaymentPool.save();
 
     // IpfsCollective
-    let ipfsCollective = IpfsCollective.load(ipfsHash);
+    let ipfsCollective = IpfsCollective.load(poolAddress.toHexString());
     if (ipfsCollective === null) {
       const data = fetchFromIpfsWithRetries(ipfsHash, 3);
       if (data === null) {
         log.error('Failed to fetch IPFS data using hash {} for collective {}', [ipfsHash, poolAddress.toHexString()]);
         return;
       }
-      ipfsCollective = new IpfsCollective(ipfsHash);
+      ipfsCollective = new IpfsCollective(poolAddress.toHexString());
       // mutates ipfsCollective
       parseIpfsData(data, ipfsCollective, ipfsHash, poolAddress.toHexString());
       ipfsCollective.save();
