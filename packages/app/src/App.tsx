@@ -12,7 +12,6 @@ import * as WebRoute from './routes/routing.web';
 
 import ActivityLogPage from './pages/ActivityLogPage';
 import { NativeBaseProvider } from 'native-base';
-import CollectiveCardPage from './pages/CollectiveCardPage';
 import DonatePage from './pages/DonatePage';
 import ModalTestPage from './pages/ModalTestPage';
 import WalletProfilePageEmpty from './pages/WalletProfilePageEmpty';
@@ -65,7 +64,6 @@ function App(): JSX.Element {
                 <MobileRoute.Routes>
                   <MobileRoute.Route path="/" element={<HomePage />} />
                   <MobileRoute.Route path="/about" element={<AboutPage />} />
-                  <MobileRoute.Route path="/cards" element={<CollectiveCardPage />} />
                   <MobileRoute.Route path="/collective/:id" element={<ViewCollectivePage />} />
                   <MobileRoute.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
                   <MobileRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
@@ -82,7 +80,6 @@ function App(): JSX.Element {
                 <WebRoute.Routes>
                   <WebRoute.Route path="/" element={<HomePage />} />
                   <WebRoute.Route path="/about" element={<AboutPage />} />
-                  <WebRoute.Route path="/cards" element={<CollectiveCardPage />} />
                   <WebRoute.Route path="/collective/:id" element={<ViewCollectivePage />} />
                   <WebRoute.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
                   <WebRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
