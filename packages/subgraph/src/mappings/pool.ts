@@ -1,4 +1,4 @@
-import { BigInt, log } from '@graphprotocol/graph-ts';
+import { BigInt, Bytes, ipfs, json, JSONValueKind, log } from '@graphprotocol/graph-ts';
 import {
   PoolCreated,
   PoolDetailsChanged,
@@ -13,13 +13,13 @@ import {
 import {
   Claim,
   Collective,
-  PoolSettings,
-  SafetyLimits,
   EventData,
+  IpfsCollective,
+  PoolSettings,
+  ProvableNFT,
+  SafetyLimits,
   Steward,
   StewardCollective,
-  ProvableNFT,
-  Reward,
 } from '../../generated/schema';
 
 export function handlePoolCreated(event: PoolCreated): void {
@@ -32,7 +32,7 @@ export function handlePoolCreated(event: PoolCreated): void {
 
   let directPaymentPool = Collective.load(poolAddress.toHexString());
   if (directPaymentPool === null) {
-    directPaymentPool = new Collective(event.address.toHexString());
+    directPaymentPool = new Collective(poolAddress.toHexString());
     const directPaymentPoolSettings = new PoolSettings(poolAddress.toHexString());
     const directPaymentPoolLimits = new SafetyLimits(poolAddress.toHexString());
 
@@ -51,19 +51,77 @@ export function handlePoolCreated(event: PoolCreated): void {
     directPaymentPoolSettings.membersValidator = poolSettings.membersValidator;
     directPaymentPoolSettings.uniquenessValidator = poolSettings.uniquenessValidator;
     directPaymentPoolSettings.rewardToken = poolSettings.rewardToken;
-    directPaymentPoolSettings.save();
 
     //  Pool Limits
     directPaymentPoolLimits.maxTotalPerMonth = poolLimits.maxTotalPerMonth;
     directPaymentPoolLimits.maxMemberPerMonth = poolLimits.maxMemberPerMonth;
     directPaymentPoolLimits.maxMemberPerDay = poolLimits.maxMemberPerDay;
-    directPaymentPoolLimits.save();
 
-    directPaymentPool.limits = directPaymentPoolLimits.id;
+    // update and save pool
     directPaymentPool.settings = directPaymentPoolSettings.id;
+    directPaymentPool.limits = directPaymentPoolLimits.id;
+
+    directPaymentPoolSettings.save();
+    directPaymentPoolLimits.save();
     directPaymentPool.save();
+
+    // IpfsCollective
+    let ipfsCollective = IpfsCollective.load(ipfsHash);
+    if (ipfsCollective === null) {
+      const data = fetchFromIpfsWithRetries(ipfsHash, 3);
+      if (data === null) {
+        log.error('Failed to fetch IPFS data using hash {} for collective {}', [ipfsHash, poolAddress.toHexString()]);
+        return;
+      }
+      ipfsCollective = new IpfsCollective(ipfsHash);
+      // mutates ipfsCollective
+      parseIpfsData(data, ipfsCollective, ipfsHash, poolAddress.toHexString());
+      ipfsCollective.save();
+    }
   }
 }
+
+// mutates ipfsCollective
+function parseIpfsData(data: Bytes, ipfsCollective: IpfsCollective, ipfsHash: string, poolAddress: string): void {
+  // parse bytes to json
+  const jsonParseResult = json.try_fromBytes(data);
+  if (jsonParseResult.isError) {
+    log.error('Invalid JSON data found at IPFS hash {} for collective {}', [ipfsHash, poolAddress]);
+    return;
+  }
+  const jsonValue = jsonParseResult.value;
+
+  // make sure json is object
+  if (jsonValue.kind != JSONValueKind.OBJECT) {
+    log.error('Invalid JSON data found at IPFS hash {} for collective {}', [ipfsHash, poolAddress]);
+    return;
+  }
+  const jsonObject = jsonValue.toObject();
+
+  ipfsCollective.name = jsonObject.isSet("name") ? jsonObject.get('name')!!.toString() : "";
+  ipfsCollective.description = jsonObject.isSet("description") ? jsonObject.get('description')!!.toString() : "";
+  ipfsCollective.email = jsonObject.isSet("email") ? jsonObject.get('email')!!.toString() : null;
+  ipfsCollective.website = jsonObject.isSet("website") ? jsonObject.get('website')!!.toString() : null;
+  ipfsCollective.twitter = jsonObject.isSet("twitter") ? jsonObject.get('twitter')!!.toString() : null;
+  ipfsCollective.instagram = jsonObject.isSet("instagram") ? jsonObject.get('instagram')!!.toString() : null;
+  ipfsCollective.threads = jsonObject.isSet("threads") ? jsonObject.get('threads')!!.toString() : null;
+  ipfsCollective.headerImage = jsonObject.isSet("headerImage") ? jsonObject.get('headerImage')!!.toString() : null;
+  ipfsCollective.logo = jsonObject.isSet("logo") ? jsonObject.get('logo')!!.toString() : null;
+  ipfsCollective.images = jsonObject.isSet("images")
+    ? jsonObject.get('images')!!.toArray().map<string>((value) => value.toString())
+    : null;
+}
+
+function fetchFromIpfsWithRetries(ipfsHash: string, retries: i32): Bytes | null {
+  let data = ipfs.cat(ipfsHash);
+  let i = retries;
+  while (i > 0 && data === null) {
+    data = ipfs.cat(ipfsHash);
+    i--;
+  }
+  return data;
+}
+
 
 export function handlePoolDetailsChanged(event: PoolDetailsChanged): void {
   const poolAddress = event.params.pool;
@@ -189,8 +247,6 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     for (let i = 0; i < contributors.length; i++) {
       const stewardAddress = contributors[i].toHexString();
       const stewardCollectiveId = `${stewardAddress} ${poolAddress}`;
-      const timestamp = event.block.timestamp;
-      const rewardId = stewardAddress + " " + poolAddress + " " + timestamp.toString();
 
       // adds steward to event data
       eventData.contributors.push(stewardAddress);
@@ -219,17 +275,6 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
       if (!pool.stewards.includes(stewardCollectiveId)) {
         pool.stewards.push(stewardCollectiveId);
       }
-
-      // create steward reward
-      let reward = new Reward(rewardId);
-      reward.steward = stewardAddress;
-      reward.collective = poolAddress;
-      reward.timestamp = timestamp;
-      reward.quantity = eventQuantity;
-      reward.rewardPerContributor = rewardPerContributor;
-      reward.nft = nftAddress;
-      // add Reward to StewardCollective
-      stewardCollective.rewards.push(rewardId);
 
       steward.save();
       stewardCollective.save();

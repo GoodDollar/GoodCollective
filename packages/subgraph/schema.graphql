@@ -10,21 +10,8 @@ type DonorCollective @entity {
   id: String! # donorAddress + " " + collectiveAddress
   donor: Donor! @derivedFrom(field: "collectives")
   collective: Collective! @derivedFrom(field: "donors")
-  contribution: BigInt!
-  donations: [Donation!]!
-}
-
-type Donation @entity {
-  id: String! # donorAddress + " " + collectiveAddress + " " + timestamp
-  donor: Donor!
-  collective: Collective!
-  timestamp: BigInt!
-  originationContract: Bytes! # The contract address from which the transaction originated
-  previousContribution: BigInt! # This is the contribution of the donor to the collective before the supporter update event
   contribution: BigInt! # This is the total contribution of the donor to the collective
-  previousFlowRate: BigInt!
   flowRate: BigInt!
-  isFlowUpdate: Boolean!
 }
 
 type Steward @entity {
@@ -46,17 +33,6 @@ type StewardCollective @entity {
   collective: Collective! @derivedFrom(field: "stewards")
   actions: Int!
   totalEarned: BigInt!
-  rewards: [Reward!]!
-}
-
-type Reward @entity {
-    id: String! # stewardAddress + " " + collectiveAddress + " " + timestamp
-    steward: Steward!
-    collective: Collective!
-    timestamp: BigInt!
-    quantity: BigInt!
-    rewardPerContributor: BigInt!
-    nft: ProvableNFT!
 }
 
 type Collective @entity {
@@ -73,6 +49,20 @@ type Collective @entity {
   paymentsMade: Int!
   totalDonations: BigInt!
   totalRewards: BigInt!
+}
+
+type IpfsCollective @entity {
+  id: String! # collective address
+  name: String!
+  description: String!
+  email: String
+  website: String
+  twitter: String
+  instagram: String
+  threads: String
+  headerImage: String
+  logo: String
+  images: [String!]
 }
 
 type PoolSettings @entity {

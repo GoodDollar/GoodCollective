@@ -1,13 +1,12 @@
 import { BigInt, log } from '@graphprotocol/graph-ts';
 import { SupporterUpdated } from '../../generated/DirectPaymentsPool/DirectPaymentsPool';
-import { Collective, Donation, Donor, DonorCollective } from '../../generated/schema';
+import { Collective, Donor, DonorCollective } from '../../generated/schema';
 
 export function handleSupport(event: SupporterUpdated): void {
   const donorAddress = event.params.supporter.toHexString();
   const poolAddress = event.address.toHexString();
   const donorCollectiveId = donorAddress + " " + poolAddress;
   const timestamp = event.block.timestamp;
-  const donationId = donorAddress + " " + poolAddress + " " + timestamp.toString()
 
   const contributionDelta = event.params.contribution.minus(event.params.previousContribution);
 
@@ -33,30 +32,16 @@ export function handleSupport(event: SupporterUpdated): void {
   if (donorCollective == null) {
     donorCollective = new DonorCollective(donorCollectiveId);
     donorCollective.contribution = BigInt.fromI32(0);
+    donorCollective.flowRate = BigInt.fromI32(0);
   }
   // This value is updated in _updateSupporter at line 260 of GoodCollectiveSuperApp.sol before the event is emitted
   donorCollective.contribution = event.params.contribution;
-
-  // create Donation
-  const donation = new Donation(donationId);
-  donation.donor = donorAddress;
-  donation.collective = poolAddress;
-  donation.timestamp = timestamp;
-  donation.originationContract = event.address;
-  donation.previousContribution = event.params.previousContribution;
-  donation.contribution = event.params.contribution;
-  donation.previousFlowRate = event.params.previousFlowRate;
-  donation.flowRate = event.params.flowRate;
-  donation.isFlowUpdate = event.params.isFlowUpdate;
-
-  // add Donation to DonorCollective
-  donorCollective.donations.push(donationId);
+  donorCollective.flowRate = event.params.flowRate;
 
   // add DonorCollective to Donor
   donor.collectives.push(donorCollectiveId);
 
   donor.save();
   donorCollective.save();
-  donation.save();
   pool.save();
 }
