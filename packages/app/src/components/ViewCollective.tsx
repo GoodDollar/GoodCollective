@@ -6,10 +6,6 @@ import StewardList from './StewardsList/StewardsList';
 import TransactionList from './TransactionList';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
-import { AtIconUri, InstragramIconUri, LastRowIconUri, TwitterIconUri, WebIconUri } from '../@constants/ConnectIcons';
-import { CalendarIcon, GreenListIcon, SquaresIcon } from '../@constants/DetailIcons';
-import { InfoIcon, ReceiveLightIcon, SendIcon, StewardGreenIcon } from '../@constants/ColorTypeIcons';
-import { SupportImage } from '../@constants/SupportImg';
 import StopDonationModal from './StopDonationModal';
 import ThankYouModal from './ThankYouModal';
 import { Colors } from '../utils/colors';
@@ -21,6 +17,23 @@ import { ethers } from 'ethers';
 import oceanUri from '../@constants/SafariImagePlaceholder';
 import { useAccount } from 'wagmi';
 import { useIsDonorOfCollective } from '../hooks/useIsDonorOfCollective';
+
+//assets
+import {
+  AtIcon,
+  CalendarIcon,
+  InfoIcon,
+  InstagramIcon,
+  LastRowIcon,
+  ListGreenIcon,
+  ReceiveLightIcon,
+  SendIcon,
+  SquaresIcon,
+  StewardGreen,
+  SupportImage,
+  TwitterIcon,
+  WebIcon,
+} from '../assets/';
 
 interface ViewCollectiveProps {
   collective: Collective;
@@ -103,30 +116,30 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 <Text style={styles.description}>{description}</Text>
                 <View style={[styles.icons, { position: 'absolute', bottom: 0, left: 25 }]}>
                   <Link href={'/'}>
-                    <Image source={{ uri: WebIconUri }} style={styles.rowIcon} />
+                    <Image source={WebIcon} style={styles.rowIcon} />
                   </Link>
 
                   <Link href={'#'}>
-                    <Image source={{ uri: TwitterIconUri }} style={styles.rowIcon} />
+                    <Image source={TwitterIcon} style={styles.rowIcon} />
                   </Link>
 
                   <Link href={'#'}>
-                    <Image source={{ uri: InstragramIconUri }} style={styles.rowIcon} />
+                    <Image source={InstagramIcon} style={styles.rowIcon} />
                   </Link>
 
                   <Link href={'#'}>
-                    <Image source={{ uri: AtIconUri }} style={styles.rowIcon} />
+                    <Image source={AtIcon} style={styles.rowIcon} />
                   </Link>
 
                   <Link href={'#'}>
-                    <Image source={{ uri: LastRowIconUri }} style={styles.rowIcon} />
+                    <Image source={LastRowIcon} style={styles.rowIcon} />
                   </Link>
                 </View>
               </View>
 
               <View style={styles.collectiveDescription}>
                 <View style={styles.collectiveDetailsMobile}>
-                  <Image source={{ uri: InfoIcon }} style={styles.infoIcon} />
+                  <Image source={InfoIcon} style={styles.infoIcon} />
                   <Text style={styles.informationLabel}>Stewards get G$ 800 each time they log a tree's status.</Text>
                 </View>
 
@@ -134,7 +147,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                   <View style={styles.collectiveDonateBox}>
                     {!isDesktopResolution && (
                       <>
-                        <Image source={{ uri: SupportImage }} style={styles.supportImg} />
+                        <Image source={SupportImage} style={styles.supportImg} />
                         <Text style={styles.supportText}>You Support this GoodCollective!!</Text>
                       </>
                     )}
@@ -173,9 +186,9 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             <View style={styles.collectiveDesktopTimeline}>
               <View style={{ flex: 1 }}>
                 <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
-                <RowItem imageUrl={StewardGreenIcon} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
+                <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
                 <RowItem
-                  imageUrl={GreenListIcon}
+                  imageUrl={ListGreenIcon}
                   rowInfo="# of Payments Made"
                   rowData={paymentsMade ?? 0}
                   currency=""
@@ -243,34 +256,34 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
           <Text style={styles.description}>{description}</Text>
           <View style={styles.icons}>
             <Link href={'/'}>
-              <Image source={{ uri: WebIconUri }} style={styles.rowIcon} />
+              <Image source={WebIcon} style={styles.rowIcon} />
             </Link>
 
             <Link href={'#'}>
-              <Image source={{ uri: TwitterIconUri }} style={styles.rowIcon} />
+              <Image source={TwitterIcon} style={styles.rowIcon} />
             </Link>
 
             <Link href={'#'}>
-              <Image source={{ uri: InstragramIconUri }} style={styles.rowIcon} />
+              <Image source={InstagramIcon} style={styles.rowIcon} />
             </Link>
 
             <Link href={'#'}>
-              <Image source={{ uri: AtIconUri }} style={styles.rowIcon} />
+              <Image source={AtIcon} style={styles.rowIcon} />
             </Link>
 
             <Link href={'#'}>
-              <Image source={{ uri: LastRowIconUri }} style={styles.rowIcon} />
+              <Image source={LastRowIcon} style={styles.rowIcon} />
             </Link>
           </View>
           <View style={styles.collectiveInformation}>
-            <Image source={{ uri: InfoIcon }} style={styles.infoIcon} />
+            <Image source={InfoIcon} style={styles.infoIcon} />
             <Text style={styles.informationLabel}>Stewards get G$ 800 each time they log a tree's status.</Text>
           </View>
 
           <View style={styles.rowContainer}>
             <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
-            <RowItem imageUrl={StewardGreenIcon} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
-            <RowItem imageUrl={GreenListIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
+            <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
+            <RowItem imageUrl={ListGreenIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
             <RowItem
               imageUrl={ReceiveLightIcon}
               rowInfo="Total Donations Received"
@@ -296,7 +309,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
           {isDonating ? (
             <View style={{ gap: 24 }}>
-              <Image source={{ uri: SupportImage }} style={styles.supportImg} />
+              <Image source={SupportImage} style={styles.supportImg} />
               <Text style={styles.supportText}>You Support this GoodCollective!!</Text>
 
               <View style={{ gap: 16 }}>
