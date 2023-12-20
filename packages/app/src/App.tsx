@@ -11,7 +11,10 @@ import * as MobileRoute from './routes/routing.native';
 import * as WebRoute from './routes/routing.web';
 
 import ActivityLogPage from './pages/ActivityLogPage';
-import { NativeBaseProvider } from 'native-base';
+// import WalletProfilePageDonor from './pages/WalletProfilePageDonor';
+// import WalletProfilePageSteward from './pages/WalletProfilePageSteward';
+// import EmptyProfile from './components/EmptyProfile';
+import { Providers } from './Providers';
 import CollectiveCardPage from './pages/CollectiveCardPage';
 import DonatePage from './pages/DonatePage';
 import ModalTestPage from './pages/ModalTestPage';
@@ -56,7 +59,7 @@ function App(): JSX.Element {
     webSocketPublicClient,
   });
   return (
-    <NativeBaseProvider>
+    <Providers>
       <WagmiConfig config={wagmiConfig}>
         <ApolloProvider client={apolloClient}>
           <SafeAreaView style={styles.body}>
@@ -97,7 +100,7 @@ function App(): JSX.Element {
           </SafeAreaView>
         </ApolloProvider>
       </WagmiConfig>
-    </NativeBaseProvider>
+    </Providers>
   );
 }
 
