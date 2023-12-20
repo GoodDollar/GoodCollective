@@ -69,6 +69,20 @@ export type SubgraphCollective = {
   totalRewards: string;
 };
 
+export type SubgraphIpfsCollective = {
+  id: string; // collective address
+  name: string;
+  description: string;
+  email?: string;
+  website?: string;
+  twitter?: string;
+  instagram?: string;
+  threads?: string;
+  headerImage?: string;
+  logo?: string;
+  images?: string[];
+};
+
 export type PoolSettings = {
   id: string;
   nftType: string;

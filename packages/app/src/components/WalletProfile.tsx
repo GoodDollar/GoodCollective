@@ -37,11 +37,11 @@ function WalletProfile({ firstName, lastName, donor, steward }: WalletProfilePro
     return profilePictureArray.sort(() => Math.random())[0];
   }, []);
 
-  const { collectives: stewardIpfsCollectives } = useCollectivesMetadataById(
+  const stewardIpfsCollectives = useCollectivesMetadataById(
     steward?.collectives.map((collective) => collective.collective) ?? []
   );
 
-  const { collectives: donorIpfsCollectives } = useCollectivesMetadataById(
+  const donorIpfsCollectives = useCollectivesMetadataById(
     donor?.collectives.map((collective) => collective.collective) ?? []
   );
 

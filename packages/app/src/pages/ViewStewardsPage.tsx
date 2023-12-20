@@ -13,20 +13,18 @@ import { useCollectiveById } from '../hooks';
 import React from 'react';
 
 function ViewStewardsPage() {
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
-  });
+  const [isDesktopResolution] = useMediaQuery({ minWidth: 612 });
 
   const location = useLocation();
   const collectiveId = location.pathname.slice('/collective/'.length);
-  const { collective, isLoading } = useCollectiveById(collectiveId);
+  const collective = useCollectiveById(collectiveId);
   const imageUrl = collective?.headerImage ?? oceanUri;
 
   if (isDesktopResolution) {
     return (
       <Layout>
         <Breadcrumb currentPage={`collective / ${collectiveId} / stewards`} />
-        {isLoading || !collective ? (
+        {!collective ? (
           <p>Loading...</p>
         ) : (
           <>
@@ -51,7 +49,7 @@ function ViewStewardsPage() {
 
   return (
     <Layout>
-      {isLoading || !collective ? (
+      {!collective ? (
         <p>Loading...</p>
       ) : (
         <>

@@ -7,7 +7,7 @@ import { useCollectiveById } from '../hooks';
 
 function ViewCollectivePage() {
   const collectiveId = window.location.pathname.slice('/collective/'.length);
-  const { collective, isLoading } = useCollectiveById(collectiveId);
+  const collective = useCollectiveById(collectiveId);
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
@@ -15,7 +15,7 @@ function ViewCollectivePage() {
   return (
     <Layout>
       {isDesktopResolution && <Breadcrumb currentPage={`collective / ${collective?.address ?? ''}`} />}
-      {isLoading || !collective ? <p>Loading...</p> : <ViewCollective collective={collective} />}
+      {!collective ? <p>Loading...</p> : <ViewCollective collective={collective} />}
     </Layout>
   );
 }
