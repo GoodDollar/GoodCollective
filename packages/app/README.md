@@ -31,5 +31,5 @@ const TestComponent = withTheme({ name: <Name of component, should match exporte
 ))
 ```
 
-3. todo: add explanation for breakpoint values
-4. todo: add explanation for variants
+3. todo: add example for breakpoint values
+4. todo: add example for variants
