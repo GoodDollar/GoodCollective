@@ -20,7 +20,7 @@ export default defineConfig({
       transformMixedEsModules: true, //handle deps that use "require" and "module.exports"
     },
     rollupOptions: {
-      external: ['@react-stately/combobox', '@react-stately/checkbox'], // exclude these deps from the bundle
+      // external: ['@react-stately/combobox', '@react-stately/checkbox'], // exclude these deps from the bundle
     },
   },
   optimizeDeps: {
