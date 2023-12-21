@@ -90,19 +90,18 @@ type ProvableNFT @entity {
 }
 
 type EventData @entity {
-  id: String!
+  id: String! # event uri
   eventType: Int!
   timestamp: BigInt!
   quantity: BigInt!
-  uri: String!
   rewardPerContributor: BigInt!
   contributors: [Steward!]!
   nft: ProvableNFT!
-  claim: Claim! @derivedFrom(field: "event")
+  claim: Claim! @derivedFrom(field: "events")
 }
 
 type Claim @entity {
   id: String!
   totalRewards: BigInt!
-  event: EventData!
+  events: [EventData!]!
 }

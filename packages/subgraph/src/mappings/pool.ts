@@ -218,12 +218,11 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     return;
   }
 
-  let eventData = EventData.load(nftAddress);
+  let eventData = EventData.load(eventUri);
   if (eventData === null) {
-    eventData = new EventData(nftAddress);
+    eventData = new EventData(eventUri);
     eventData.eventType = eventType;
     eventData.timestamp = eventTimestamp;
-    eventData.uri = eventUri;
     eventData.quantity = eventQuantity;
     eventData.rewardPerContributor = rewardPerContributor;
 
@@ -232,8 +231,9 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     if (claim === null) {
       claim = new Claim(claimId.toHexString());
     }
-    claim.event = nftAddress;
-    claim.totalRewards = rewardPerContributor.times(eventQuantity).times(BigInt.fromI32(contributors.length));
+    claim.events.push(eventUri);
+    const eventReward = rewardPerContributor.times(eventQuantity).times(BigInt.fromI32(contributors.length));
+    claim.totalRewards = claim.totalRewards.plus(eventReward);
 
     // handle nft -> note that ProvableNFT.hash and ProvableNFT.owner are set by NFT mint event
     eventData.nft = nftAddress;
