@@ -3,10 +3,11 @@ import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import { VerifiedIconUri } from '../@constants/ColorTypeIcons';
-import { ProfileTypes } from '../@constants/ProfileTypes';
+import { ProfileTypes } from '../models/ProfileTypes';
+import { useMemo } from 'react';
+import { profilePictures } from '../utils/profilePictures';
 
 interface ProfileViewProps {
-  imageUrl: string;
   firstName: string;
   lastName: string;
   ensDomain?: string;
@@ -14,10 +15,14 @@ interface ProfileViewProps {
   profileType: ProfileTypes;
 }
 
-function ProfileView({ imageUrl, firstName, lastName, ensDomain, userAddress, profileType }: ProfileViewProps) {
+function ProfileView({ firstName, lastName, ensDomain, userAddress, profileType }: ProfileViewProps) {
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
+
+  const profileImage = useMemo(() => {
+    return profilePictures.sort(() => Math.random())[0];
+  }, []);
 
   const profileLink = 'https://app.prosperity.global';
 
@@ -29,7 +34,7 @@ function ProfileView({ imageUrl, firstName, lastName, ensDomain, userAddress, pr
   if (profileType === ProfileTypes.nameAndDomain) {
     return (
       <TouchableOpacity style={resizableProfileView}>
-        <Image source={{ uri: imageUrl }} style={styles.pfp} />
+        <Image source={profileImage} style={styles.pfp} />
         <View style={styles.profileText}>
           <Text style={styles.title}>
             {firstName} {lastName} <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon} />
@@ -42,7 +47,7 @@ function ProfileView({ imageUrl, firstName, lastName, ensDomain, userAddress, pr
   if (profileType === ProfileTypes.domain) {
     return (
       <TouchableOpacity style={resizableProfileView}>
-        <Image source={{ uri: imageUrl }} style={styles.pfp} />
+        <Image source={profileImage} style={styles.pfp} />
         <View style={[styles.profileText, { justifyContent: 'center' }]}>
           <Text style={styles.title}>{ensDomain}</Text>
         </View>
@@ -52,7 +57,7 @@ function ProfileView({ imageUrl, firstName, lastName, ensDomain, userAddress, pr
   if (profileType === ProfileTypes.claimDomain) {
     return (
       <TouchableOpacity style={resizableProfileView}>
-        <Image source={{ uri: imageUrl }} style={styles.pfp} />
+        <Image source={profileImage} style={styles.pfp} />
         <View style={styles.profileText}>
           <Text style={styles.title}>{userAddress}</Text>
           <Link style={styles.line} href={profileLink} isExternal>
@@ -65,7 +70,7 @@ function ProfileView({ imageUrl, firstName, lastName, ensDomain, userAddress, pr
   if (profileType === ProfileTypes.justId) {
     return (
       <TouchableOpacity style={resizableProfileView}>
-        <Image source={{ uri: imageUrl }} style={styles.pfp} />
+        <Image source={profileImage} style={styles.pfp} />
         <View style={styles.profileText}>
           <Link href="" style={styles.title}>
             {ensDomain}

@@ -1,7 +1,6 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { useMediaQuery } from 'native-base';
 
-import oceanUri from '../@constants/SafariImagePlaceholder';
 import Layout from '../components/Layout';
 import StewardList from '../components/StewardsList/StewardsList';
 import { InterSemiBold } from '../utils/webFonts';
@@ -11,6 +10,7 @@ import Breadcrumb from '../components/Breadcrumb';
 import { useLocation } from 'react-router-native';
 import { useCollectiveById } from '../hooks';
 import React from 'react';
+import { Ocean } from '../assets';
 
 function ViewStewardsPage() {
   const [isDesktopResolution] = useMediaQuery({ minWidth: 612 });
@@ -18,7 +18,7 @@ function ViewStewardsPage() {
   const location = useLocation();
   const collectiveId = location.pathname.slice('/collective/'.length);
   const collective = useCollectiveById(collectiveId);
-  const imageUrl = collective?.headerImage ?? oceanUri;
+  const headerImage = collective?.headerImage ? { uri: collective.headerImage } : Ocean;
 
   if (isDesktopResolution) {
     return (
@@ -30,7 +30,7 @@ function ViewStewardsPage() {
           <>
             <View style={styles.desktopContainer}>
               <View style={styles.desktopTopRow}>
-                <Image source={{ uri: imageUrl }} style={styles.desktopImage} />
+                <Image source={headerImage} style={styles.desktopImage} />
                 <Text style={styles.desktopTitle}>{collective.name}</Text>
               </View>
               <View style={styles.desktopStewardsTitle}>
@@ -53,7 +53,7 @@ function ViewStewardsPage() {
         <p>Loading...</p>
       ) : (
         <>
-          <Image source={{ uri: imageUrl }} style={styles.image} />
+          <Image source={headerImage} style={styles.image} />
           <View style={[styles.titleContainer]}>
             <Text style={styles.title}>{collective.name}</Text>
           </View>

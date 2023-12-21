@@ -1,11 +1,11 @@
 import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
-import { StewardBlueIcon, StewardGreenIcon } from '../../@constants/ColorTypeIcons';
 import { Colors } from '../../utils/colors';
 import { StewardListItem } from './StewardListItem';
 import { StewardCollective } from '../../models/models';
 import { useMemo } from 'react';
-import { profilePictureArray } from '../../@constants/pfps';
+import { profilePictures } from '../../utils/profilePictures';
+import { StewardBlue, StewardGreen } from '../../assets';
 
 interface StewardListProps {
   listType: 'viewCollective' | 'viewStewards';
@@ -14,8 +14,11 @@ interface StewardListProps {
 }
 
 function StewardList({ listType, stewards, hideTitle }: StewardListProps) {
+  const titleIcon = listType === 'viewCollective' ? StewardGreen : StewardBlue;
+  const stewardsCountText = listType === 'viewCollective' ? ` (${stewards.length})` : '';
+
   const profileImages: string[] = useMemo(() => {
-    return profilePictureArray.sort(() => Math.random());
+    return profilePictures.sort(() => Math.random());
   }, []);
 
   // TODO: determine if stewards are verified
@@ -25,9 +28,8 @@ function StewardList({ listType, stewards, hideTitle }: StewardListProps) {
     <View style={styles.stewardsHeader}>
       {!hideTitle && (
         <View style={[styles.row, { marginBottom: 24 }]}>
-          {listType === 'viewCollective' && <Image source={{ uri: StewardGreenIcon }} style={styles.titleIcon} />}
-          <Text style={styles.title}>Stewards{listType === 'viewCollective' ? ` (${stewards.length})` : ''}</Text>
-          {listType === 'viewStewards' && <Image source={{ uri: StewardBlueIcon }} style={styles.titleIcon} />}
+          <Image source={titleIcon} style={styles.titleIcon} />
+          <Text style={styles.title}>Stewards{stewardsCountText}</Text>
         </View>
       )}
       <View style={styles.list}>

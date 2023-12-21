@@ -4,9 +4,8 @@ import { LightningIconUri } from '../@constants/LightningIcon';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import ActivityLog from '../components/ActivityLog';
 import { Colors } from '../utils/colors';
-import { FruitDoveUri } from '../@constants/ProfilePictures';
 import ProfileView from '../components/ProfileView';
-import { ProfileTypes } from '../@constants/ProfileTypes';
+import { ProfileTypes } from '../models/ProfileTypes';
 
 function ActivityLogPage() {
   return (
@@ -15,7 +14,6 @@ function ActivityLogPage() {
         <View style={[styles.container, styles.elevation]}>
           <View>
             <ProfileView
-              imageUrl={FruitDoveUri}
               firstName={'John'}
               lastName={'Doe'}
               ensDomain={'John.CELO'}

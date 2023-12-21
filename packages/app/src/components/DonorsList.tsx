@@ -4,7 +4,6 @@ import { DonorBlueIcon } from '../@constants/ColorTypeIcons';
 import { Colors } from '../utils/colors';
 
 interface DonorsListProps {
-  imageUrl?: string;
   username: string;
   donated: number;
 }

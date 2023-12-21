@@ -1,22 +1,37 @@
 import { StyleSheet, Text, View, Image } from 'react-native';
-import oceanUri from '../@constants/SafariImagePlaceholder';
 import Layout from '../components/Layout';
 import DonorsList from '../components/DonorsList';
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
+import { Ocean } from '../assets';
+import { useLocation } from 'react-router-native';
+import { useCollectiveById } from '../hooks';
+import React from 'react';
+import { useMediaQuery } from 'native-base';
 
 function ViewDonorsPage() {
+  const [isDesktopResolution] = useMediaQuery({ minWidth: 612 });
+
+  const location = useLocation();
+  const collectiveId = location.pathname.slice('/collective/'.length);
+  const collective = useCollectiveById(collectiveId);
+  const headerImage = collective?.headerImage ? { uri: collective.headerImage } : Ocean;
+
   return (
     <Layout>
-      <View style={styles.donorsContainer}>
-        <Image source={{ uri: oceanUri }} style={styles.image} />
-        <View style={[styles.container]}>
-          <Text style={styles.title}>Restoring the Kakamega Forest</Text>
+      {!collective ? (
+        <p>Loading...</p>
+      ) : (
+        <View style={styles.donorsContainer}>
+          <Image source={headerImage} style={styles.image} />
+          <View style={[styles.container]}>
+            <Text style={styles.title}>collective.name</Text>
+          </View>
+          <View style={styles.donorsList}>
+            <DonorsList username="username123" donated={10.27} />
+          </View>
         </View>
-        <View style={styles.donorsList}>
-          <DonorsList username="username123" donated={10.27} />
-        </View>
-      </View>
+      )}
     </Layout>
   );
 }
