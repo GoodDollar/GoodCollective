@@ -1,74 +1,72 @@
-# TODO
-# get total donated from correct field
-# handling of generated pools from factory contract
-# update nft with stewards on claim
-# per collective donor/steward record
-    # each collective needs to know donors and stewards
-    # each donor and steward needs top know per-collective data (e.g. how much did I donate to this collective)
-# How to know if steward is verified?
-# Is Donor unique by "supporter" or by "id"? If by id, do we need timestamps to know the current donation status?
-# Need recent collective transactions and list of all transactions
+type Donor @entity {
+  id: String! # The address of the donor
+  joined: BigInt!
+  totalDonated: BigInt!
+  collectives: [DonorCollective!]!
+}
+
+"""Represents the relationship between a Donor and a Collective"""
+type DonorCollective @entity {
+  id: String! # donorAddress + " " + collectiveAddress
+  donor: Donor! @derivedFrom(field: "collectives")
+  collective: Collective! @derivedFrom(field: "donors")
+  contribution: BigInt! # This is the total contribution of the donor to the collective
+  flowRate: BigInt!
+}
 
 type Steward @entity {
-  "{ user address} "
+  """{ user address}"""
   id: String!
-  " Number of actions performed "
+  """Number of actions performed"""
   actions: Int!
   totalEarned: BigInt!
-  " NFT's minted to steward"
-  nfts: [ProvableNFT!]! @derivedFrom(field: "steward")
-  " Collectives the steward is apart of "
-  collectives: [Collective!]! @derivedFrom(field: "stewards")
+  """NFT's minted to steward"""
+  nfts: [ProvableNFT!]!
+  """Collectives the steward is apart of"""
+  collectives: [StewardCollective!]!
 }
 
-type Donor @entity {
-  id: String! # This will be the contract address from which the transaction originated
-  supporter: Bytes! # Address of the supporter
-  joined: Int!
-  totalDonated: BigInt!
-  previousContribution: BigInt
-  contribution: BigInt
-  previousFlowRate: BigInt
-  flowRate: BigInt
-  isFlowUpdate: Boolean
-  collectives: [Collective!]!
-}
-
-type CollectiveDonor @entity {
-  id: String! #collective_donor
-  totalDonated: BigInt!
-  flowRate: BigInt
-}
-
-type CollectiveSteward @entity {
-  id: String! #collective_steward
+"""Represents the relationship between a Steward and a Collective"""
+type StewardCollective @entity {
+  id: String! # stewardAddress + " " + collectiveAddress
+  steward: Steward! @derivedFrom(field: "collectives")
+  collective: Collective! @derivedFrom(field: "stewards")
   actions: Int!
   totalEarned: BigInt!
-  nft: [ProvableNFT!]!
 }
 
 type Collective @entity {
-  "This is the address source"
-  id: String!
-  ipfs: String
-  nftType: BigInt
-  manager: Bytes
-  contributions: BigInt!
-  membersValidator: Bytes
-  uniquenessValidator: String
-  donors: [Donor!] @derivedFrom(field: "collectives")
-  stewards: [Steward!]!
-  rewardToken: String
-  projectId: String
-  isVerified: Boolean
-  limits: SafetyLimits
-  nft: ProvableNFT
-  poolAddress: String
-  timestamp: Int
+  id: String! # pool address
+  ipfs: String!
+  settings: PoolSettings!
+  limits: SafetyLimits!
+  donors: [DonorCollective!]!
+  stewards: [StewardCollective!]!
+  projectId: String!
+  isVerified: Boolean!
+  poolFactory: String! # pool factory (event source)
+  timestamp: BigInt!
+  paymentsMade: Int!
+  totalDonations: BigInt!
+  totalRewards: BigInt!
+}
+
+type IpfsCollective @entity {
+  id: String! # collective address
+  name: String!
+  description: String!
+  email: String
+  website: String
+  twitter: String
+  instagram: String
+  threads: String
+  headerImage: String
+  logo: String
+  images: [String!]
 }
 
 type PoolSettings @entity {
-  id: String!
+  id: String! # collective address
   nftType: BigInt!
   manager: Bytes!
   membersValidator: Bytes!
@@ -77,34 +75,33 @@ type PoolSettings @entity {
 }
 
 type SafetyLimits @entity {
-  id: String!
-  maxTotalPerMonth: BigInt
-  maxMemberPerMonth: BigInt
-  maxMemberPerDay: BigInt
+  id: String! # collective address
+  maxTotalPerMonth: BigInt!
+  maxMemberPerMonth: BigInt!
+  maxMemberPerDay: BigInt!
 }
 
 type ProvableNFT @entity {
   id: ID!
   owner: String!
   hash: String!
-  steward: [Steward!]!
+  steward: [Steward!]! @derivedFrom(field: "nfts")
   collective: Collective!
 }
 
 type EventData @entity {
-  id: String!
+  id: String! # event uri
   eventType: Int!
   timestamp: BigInt!
   quantity: BigInt!
-  uri: String!
   rewardPerContributor: BigInt!
   contributors: [Steward!]!
   nft: ProvableNFT!
-  claim: Claim
+  claim: Claim! @derivedFrom(field: "events")
 }
 
 type Claim @entity {
   id: String!
   totalRewards: BigInt!
-  events: [EventData!] @derivedFrom(field: "claim")
+  events: [EventData!]!
 }
