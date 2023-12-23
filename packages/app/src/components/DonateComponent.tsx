@@ -12,9 +12,9 @@ import { useGetTokenPrice, useContractCalls } from '../hooks';
 import { useAccount } from 'wagmi';
 
 interface DonateComponentProps {
-  walletConected: boolean;
+  walletConnected: boolean;
   insufficientLiquidity: boolean;
-  priceImpace: boolean;
+  priceImpact: boolean;
   insufficientBalance: boolean;
   currentCollective: {
     name: string;
@@ -40,9 +40,9 @@ const frequencyOptions = [
 ];
 
 function DonateComponent({
-  walletConected,
+  walletConnected,
   insufficientLiquidity,
-  priceImpace,
+  priceImpact,
   insufficientBalance,
   currentCollective,
 }: DonateComponentProps) {
@@ -205,7 +205,7 @@ function DonateComponent({
           )}
         </>
 
-        {walletConected && (
+        {walletConnected && (
           <View style={styles.actionBox}>
             <View style={styles.reviewContainer}>
               <View>
@@ -314,7 +314,7 @@ function DonateComponent({
                 </View>
               )}
 
-              {priceImpace && (
+              {priceImpact && (
                 <View style={styles.warningView}>
                   <Image source={{ uri: InfoIconOrange }} style={styles.infoIcon} />
                   <View style={styles.actionBox}>
@@ -356,9 +356,9 @@ function DonateComponent({
         <TouchableOpacity>
           <RoundedButton
             maxWidth={isDesktopResolution ? 343 : undefined}
-            title={getButtonText(insufficientLiquidity, priceImpace, insufficientBalance)}
-            backgroundColor={getButtonBGC(insufficientLiquidity, priceImpace, insufficientBalance)}
-            color={getButtonTextColor(insufficientLiquidity, priceImpace, insufficientBalance)}
+            title={getButtonText(insufficientLiquidity, priceImpact, insufficientBalance)}
+            backgroundColor={getButtonBGC(insufficientLiquidity, priceImpact, insufficientBalance)}
+            color={getButtonTextColor(insufficientLiquidity, priceImpact, insufficientBalance)}
             fontSize={18}
             seeType={false}
             onPress={() => {
