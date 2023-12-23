@@ -4,7 +4,7 @@ import { SubgraphIpfsCollective } from './subgraphModels';
 
 const ipfsCollectives = gql`
   query IPFS_COLLECTIVES {
-    collectives {
+    ipfsCollectives {
       id
       name
       description
@@ -15,7 +15,7 @@ const ipfsCollectives = gql`
 
 const ipfsCollectivesById = gql`
   query IPFS_COLLECTIVES_BY_ID($ids: [String]) {
-    collectives(where: { id_in: $ids }) {
+    ipfsCollectives(where: { id_in: $ids }) {
       id
       name
       description

@@ -1,7 +1,7 @@
 import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { Colors } from '../../utils/colors';
-import { StewardListItem } from './StewardListItem';
+import { StewardsListItem } from './StewardsListItem';
 import { StewardCollective } from '../../models/models';
 import { useMemo } from 'react';
 import { profilePictures } from '../../utils/profilePictures';
@@ -34,7 +34,7 @@ function StewardList({ listType, stewards, hideTitle }: StewardListProps) {
       )}
       <View style={styles.list}>
         {stewards.map((steward, index) => (
-          <StewardListItem
+          <StewardsListItem
             steward={steward}
             showActions={listType === 'viewStewards'}
             key={steward.steward}

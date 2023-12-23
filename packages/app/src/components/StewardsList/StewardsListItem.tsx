@@ -10,7 +10,7 @@ interface StewardListItemProps {
   isVerified?: boolean;
 }
 
-export const StewardListItem = (props: StewardListItemProps) => {
+export const StewardsListItem = (props: StewardListItemProps) => {
   const { showActions, steward, profileImage, isVerified } = props;
 
   return (
