@@ -169,6 +169,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   let eventData = EventData.load(eventUri);
   if (eventData === null) {
     eventData = new EventData(eventUri);
+    eventData.claim = claimId.toHexString();
     eventData.eventType = eventType;
     eventData.timestamp = eventTimestamp;
     eventData.quantity = eventQuantity;

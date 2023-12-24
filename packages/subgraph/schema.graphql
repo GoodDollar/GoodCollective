@@ -97,7 +97,7 @@ type EventData @entity {
   rewardPerContributor: BigInt!
   contributors: [Steward!]!
   nft: ProvableNFT!
-  claim: Claim! @derivedFrom(field: "events")
+  claim: Claim!
 }
 
 type Claim @entity {
