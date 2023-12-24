@@ -1,6 +1,5 @@
 import { BigInt, log } from '@graphprotocol/graph-ts';
 import {
-  PoolCreated,
   PoolDetailsChanged,
   PoolVerifiedChanged,
 } from '../../generated/DirectPaymentsFactory/DirectPaymentsFactory';
@@ -21,52 +20,6 @@ import {
   StewardCollective,
 } from '../../generated/schema';
 import { createOrUpdateIpfsCollective } from './ipfsCollective';
-
-export function handlePoolCreated(event: PoolCreated): void {
-  const poolAddress = event.params.pool;
-  const projectID = event.params.projectId;
-  const ipfsHash = event.params.ipfs;
-  const nftType = event.params.nftType;
-  const poolSettings = event.params.poolSettings;
-  const poolLimits = event.params.poolLimits;
-
-  let directPaymentPool = Collective.load(poolAddress.toHexString());
-  if (directPaymentPool === null) {
-    directPaymentPool = new Collective(poolAddress.toHexString());
-    const directPaymentPoolSettings = new PoolSettings(poolAddress.toHexString());
-    const directPaymentPoolLimits = new SafetyLimits(poolAddress.toHexString());
-
-    // Pool
-    directPaymentPool.ipfs = ipfsHash;
-    directPaymentPool.projectId = projectID.toHexString();
-    directPaymentPool.isVerified = false;
-    directPaymentPool.poolFactory = event.address.toHexString()
-    directPaymentPool.timestamp = event.block.timestamp;
-
-    // Pool Settings
-    directPaymentPoolSettings.nftType = nftType;
-    directPaymentPoolSettings.manager = poolSettings.manager;
-    directPaymentPoolSettings.membersValidator = poolSettings.membersValidator;
-    directPaymentPoolSettings.uniquenessValidator = poolSettings.uniquenessValidator;
-    directPaymentPoolSettings.rewardToken = poolSettings.rewardToken;
-
-    //  Pool Limits
-    directPaymentPoolLimits.maxTotalPerMonth = poolLimits.maxTotalPerMonth;
-    directPaymentPoolLimits.maxMemberPerMonth = poolLimits.maxMemberPerMonth;
-    directPaymentPoolLimits.maxMemberPerDay = poolLimits.maxMemberPerDay;
-
-    // update and save pool
-    directPaymentPool.settings = directPaymentPoolSettings.id;
-    directPaymentPool.limits = directPaymentPoolLimits.id;
-
-    directPaymentPoolSettings.save();
-    directPaymentPoolLimits.save();
-    directPaymentPool.save();
-
-    // IpfsCollective
-    createOrUpdateIpfsCollective(poolAddress.toHexString(), ipfsHash);
-  }
-}
 
 export function handlePoolDetailsChanged(event: PoolDetailsChanged): void {
   const poolAddress = event.params.pool;
@@ -180,7 +133,6 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     if (claim === null) {
       claim = new Claim(claimId.toHexString());
     }
-    claim.events.push(eventUri);
     const eventReward = rewardPerContributor.times(eventQuantity).times(BigInt.fromI32(contributors.length));
     claim.totalRewards = claim.totalRewards.plus(eventReward);
 

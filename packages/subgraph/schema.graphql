@@ -103,5 +103,5 @@ type EventData @entity {
 type Claim @entity {
   id: String!
   totalRewards: BigInt!
-  events: [EventData!]!
+  events: [EventData!]! @derivedFrom(field: "claim")
 }
