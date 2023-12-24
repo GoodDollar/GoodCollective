@@ -38,8 +38,6 @@ export function handlePoolCreated(event: PoolCreated): void {
 
     // Pool
     directPaymentPool.ipfs = ipfsHash;
-    directPaymentPool.donors = new Array<string>();
-    directPaymentPool.stewards = new Array<string>();
     directPaymentPool.projectId = projectID.toHexString();
     directPaymentPool.isVerified = false;
     directPaymentPool.poolFactory = event.address.toHexString()
@@ -159,7 +157,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   const contributors = event.params.contributers;
   const rewardPerContributor = event.params.rewardPerContributer;
 
-  const nftAddress = claimId.toHexString();
+  const nftId = claimId.toHexString();
   const poolAddress = event.address.toHexString();
 
   let pool = Collective.load(poolAddress);
@@ -186,10 +184,10 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     claim.totalRewards = claim.totalRewards.plus(eventReward);
 
     // handle nft -> note that ProvableNFT.hash and ProvableNFT.owner are set by NFT mint event
-    eventData.nft = nftAddress;
-    let nft = ProvableNFT.load(nftAddress);
+    eventData.nft = nftId;
+    let nft = ProvableNFT.load(nftId);
     if (nft === null) {
-      nft = new ProvableNFT(nftAddress);
+      nft = new ProvableNFT(nftId);
     }
     nft.collective = poolAddress;
 
@@ -206,7 +204,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
       if (steward === null) {
         steward = new Steward(contributors[i].toHexString());
       }
-      steward.nfts.push(nftAddress);
+      steward.nfts.push(nftId);
       steward.actions = steward.actions + 1;
       const totalReward = rewardPerContributor.times(eventQuantity);
       steward.totalEarned = steward.totalEarned.plus(totalReward);
@@ -218,13 +216,8 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
       }
       stewardCollective.actions = stewardCollective.actions + 1;
       stewardCollective.totalEarned = stewardCollective.totalEarned.plus(totalReward);
-      // Add StewardCollective to Steward and Collective
-      if (!steward.collectives.includes(stewardCollectiveId)) {
-        steward.collectives.push(stewardCollectiveId);
-      }
-      if (!pool.stewards.includes(stewardCollectiveId)) {
-        pool.stewards.push(stewardCollectiveId);
-      }
+      stewardCollective.steward = steward.id
+      stewardCollective.collective = pool.id
 
       steward.save();
       stewardCollective.save();

@@ -2,14 +2,14 @@ type Donor @entity {
   id: String! # The address of the donor
   joined: BigInt!
   totalDonated: BigInt!
-  collectives: [DonorCollective!]!
+  collectives: [DonorCollective!]! @derivedFrom(field: "donor")
 }
 
 """Represents the relationship between a Donor and a Collective"""
 type DonorCollective @entity {
   id: String! # donorAddress + " " + collectiveAddress
-  donor: Donor! @derivedFrom(field: "collectives")
-  collective: Collective! @derivedFrom(field: "donors")
+  donor: Donor!
+  collective: Collective!
   contribution: BigInt! # This is the total contribution of the donor to the collective
   flowRate: BigInt!
 }
@@ -23,14 +23,14 @@ type Steward @entity {
   """NFT's minted to steward"""
   nfts: [ProvableNFT!]!
   """Collectives the steward is apart of"""
-  collectives: [StewardCollective!]!
+  collectives: [StewardCollective!]! @derivedFrom(field: "steward")
 }
 
 """Represents the relationship between a Steward and a Collective"""
 type StewardCollective @entity {
   id: String! # stewardAddress + " " + collectiveAddress
-  steward: Steward! @derivedFrom(field: "collectives")
-  collective: Collective! @derivedFrom(field: "stewards")
+  steward: Steward!
+  collective: Collective!
   actions: Int!
   totalEarned: BigInt!
 }
@@ -40,8 +40,8 @@ type Collective @entity {
   ipfs: String!
   settings: PoolSettings!
   limits: SafetyLimits!
-  donors: [DonorCollective!]!
-  stewards: [StewardCollective!]!
+  donors: [DonorCollective!]! @derivedFrom(field: "collective")
+  stewards: [StewardCollective!]! @derivedFrom(field: "collective")
   projectId: String!
   isVerified: Boolean!
   poolFactory: String! # pool factory (event source)
