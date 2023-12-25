@@ -1,6 +1,5 @@
-import { BigInt, Bytes, ipfs, json, JSONValueKind, log } from '@graphprotocol/graph-ts';
+import { BigInt, log } from '@graphprotocol/graph-ts';
 import {
-  PoolCreated,
   PoolDetailsChanged,
   PoolVerifiedChanged,
 } from '../../generated/DirectPaymentsFactory/DirectPaymentsFactory';
@@ -14,114 +13,13 @@ import {
   Claim,
   Collective,
   EventData,
-  IpfsCollective,
   PoolSettings,
   ProvableNFT,
   SafetyLimits,
   Steward,
   StewardCollective,
 } from '../../generated/schema';
-
-export function handlePoolCreated(event: PoolCreated): void {
-  const poolAddress = event.params.pool;
-  const projectID = event.params.projectId;
-  const ipfsHash = event.params.ipfs;
-  const nftType = event.params.nftType;
-  const poolSettings = event.params.poolSettings;
-  const poolLimits = event.params.poolLimits;
-
-  let directPaymentPool = Collective.load(poolAddress.toHexString());
-  if (directPaymentPool === null) {
-    directPaymentPool = new Collective(poolAddress.toHexString());
-    const directPaymentPoolSettings = new PoolSettings(poolAddress.toHexString());
-    const directPaymentPoolLimits = new SafetyLimits(poolAddress.toHexString());
-
-    // Pool
-    directPaymentPool.ipfs = ipfsHash;
-    directPaymentPool.donors = new Array<string>();
-    directPaymentPool.stewards = new Array<string>();
-    directPaymentPool.projectId = projectID.toHexString();
-    directPaymentPool.isVerified = false;
-    directPaymentPool.poolFactory = event.address.toHexString()
-    directPaymentPool.timestamp = event.block.timestamp;
-
-    // Pool Settings
-    directPaymentPoolSettings.nftType = nftType;
-    directPaymentPoolSettings.manager = poolSettings.manager;
-    directPaymentPoolSettings.membersValidator = poolSettings.membersValidator;
-    directPaymentPoolSettings.uniquenessValidator = poolSettings.uniquenessValidator;
-    directPaymentPoolSettings.rewardToken = poolSettings.rewardToken;
-
-    //  Pool Limits
-    directPaymentPoolLimits.maxTotalPerMonth = poolLimits.maxTotalPerMonth;
-    directPaymentPoolLimits.maxMemberPerMonth = poolLimits.maxMemberPerMonth;
-    directPaymentPoolLimits.maxMemberPerDay = poolLimits.maxMemberPerDay;
-
-    // update and save pool
-    directPaymentPool.settings = directPaymentPoolSettings.id;
-    directPaymentPool.limits = directPaymentPoolLimits.id;
-
-    directPaymentPoolSettings.save();
-    directPaymentPoolLimits.save();
-    directPaymentPool.save();
-
-    // IpfsCollective
-    let ipfsCollective = IpfsCollective.load(poolAddress.toHexString());
-    if (ipfsCollective === null) {
-      const data = fetchFromIpfsWithRetries(ipfsHash, 3);
-      if (data === null) {
-        log.error('Failed to fetch IPFS data using hash {} for collective {}', [ipfsHash, poolAddress.toHexString()]);
-        return;
-      }
-      ipfsCollective = new IpfsCollective(poolAddress.toHexString());
-      // mutates ipfsCollective
-      parseIpfsData(data, ipfsCollective, ipfsHash, poolAddress.toHexString());
-      ipfsCollective.save();
-    }
-  }
-}
-
-// mutates ipfsCollective
-function parseIpfsData(data: Bytes, ipfsCollective: IpfsCollective, ipfsHash: string, poolAddress: string): void {
-  // parse bytes to json
-  const jsonParseResult = json.try_fromBytes(data);
-  if (jsonParseResult.isError) {
-    log.error('Invalid JSON data found at IPFS hash {} for collective {}', [ipfsHash, poolAddress]);
-    return;
-  }
-  const jsonValue = jsonParseResult.value;
-
-  // make sure json is object
-  if (jsonValue.kind != JSONValueKind.OBJECT) {
-    log.error('Invalid JSON data found at IPFS hash {} for collective {}', [ipfsHash, poolAddress]);
-    return;
-  }
-  const jsonObject = jsonValue.toObject();
-
-  ipfsCollective.name = jsonObject.isSet("name") ? jsonObject.get('name')!!.toString() : "";
-  ipfsCollective.description = jsonObject.isSet("description") ? jsonObject.get('description')!!.toString() : "";
-  ipfsCollective.email = jsonObject.isSet("email") ? jsonObject.get('email')!!.toString() : null;
-  ipfsCollective.website = jsonObject.isSet("website") ? jsonObject.get('website')!!.toString() : null;
-  ipfsCollective.twitter = jsonObject.isSet("twitter") ? jsonObject.get('twitter')!!.toString() : null;
-  ipfsCollective.instagram = jsonObject.isSet("instagram") ? jsonObject.get('instagram')!!.toString() : null;
-  ipfsCollective.threads = jsonObject.isSet("threads") ? jsonObject.get('threads')!!.toString() : null;
-  ipfsCollective.headerImage = jsonObject.isSet("headerImage") ? jsonObject.get('headerImage')!!.toString() : null;
-  ipfsCollective.logo = jsonObject.isSet("logo") ? jsonObject.get('logo')!!.toString() : null;
-  ipfsCollective.images = jsonObject.isSet("images")
-    ? jsonObject.get('images')!!.toArray().map<string>((value) => value.toString())
-    : null;
-}
-
-function fetchFromIpfsWithRetries(ipfsHash: string, retries: i32): Bytes | null {
-  let data = ipfs.cat(ipfsHash);
-  let i = retries;
-  while (i > 0 && data === null) {
-    data = ipfs.cat(ipfsHash);
-    i--;
-  }
-  return data;
-}
-
+import { createOrUpdateIpfsCollective } from './ipfsCollective';
 
 export function handlePoolDetailsChanged(event: PoolDetailsChanged): void {
   const poolAddress = event.params.pool;
@@ -134,6 +32,9 @@ export function handlePoolDetailsChanged(event: PoolDetailsChanged): void {
   }
   directPaymentPool.ipfs = ipfsHash;
   directPaymentPool.save();
+
+  // IpfsCollective
+  createOrUpdateIpfsCollective(poolAddress.toHexString(), ipfsHash);
 }
 
 export function handlePoolVerifiedChange(event: PoolVerifiedChanged): void {
@@ -209,7 +110,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   const contributors = event.params.contributers;
   const rewardPerContributor = event.params.rewardPerContributer;
 
-  const nftAddress = claimId.toHexString();
+  const nftId = claimId.toHexString();
   const poolAddress = event.address.toHexString();
 
   let pool = Collective.load(poolAddress);
@@ -221,6 +122,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   let eventData = EventData.load(eventUri);
   if (eventData === null) {
     eventData = new EventData(eventUri);
+    eventData.claim = claimId.toHexString();
     eventData.eventType = eventType;
     eventData.timestamp = eventTimestamp;
     eventData.quantity = eventQuantity;
@@ -231,15 +133,14 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     if (claim === null) {
       claim = new Claim(claimId.toHexString());
     }
-    claim.events.push(eventUri);
     const eventReward = rewardPerContributor.times(eventQuantity).times(BigInt.fromI32(contributors.length));
     claim.totalRewards = claim.totalRewards.plus(eventReward);
 
     // handle nft -> note that ProvableNFT.hash and ProvableNFT.owner are set by NFT mint event
-    eventData.nft = nftAddress;
-    let nft = ProvableNFT.load(nftAddress);
+    eventData.nft = nftId;
+    let nft = ProvableNFT.load(nftId);
     if (nft === null) {
-      nft = new ProvableNFT(nftAddress);
+      nft = new ProvableNFT(nftId);
     }
     nft.collective = poolAddress;
 
@@ -256,7 +157,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
       if (steward === null) {
         steward = new Steward(contributors[i].toHexString());
       }
-      steward.nfts.push(nftAddress);
+      steward.nfts.push(nftId);
       steward.actions = steward.actions + 1;
       const totalReward = rewardPerContributor.times(eventQuantity);
       steward.totalEarned = steward.totalEarned.plus(totalReward);
@@ -268,13 +169,8 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
       }
       stewardCollective.actions = stewardCollective.actions + 1;
       stewardCollective.totalEarned = stewardCollective.totalEarned.plus(totalReward);
-      // Add StewardCollective to Steward and Collective
-      if (!steward.collectives.includes(stewardCollectiveId)) {
-        steward.collectives.push(stewardCollectiveId);
-      }
-      if (!pool.stewards.includes(stewardCollectiveId)) {
-        pool.stewards.push(stewardCollectiveId);
-      }
+      stewardCollective.steward = steward.id
+      stewardCollective.collective = pool.id
 
       steward.save();
       stewardCollective.save();
