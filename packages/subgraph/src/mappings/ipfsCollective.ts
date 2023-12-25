@@ -33,17 +33,20 @@ function parseIpfsData(data: Bytes, ipfsCollective: IpfsCollective, ipfsHash: st
   }
   const jsonObject = jsonValue.toObject();
 
-  ipfsCollective.name = jsonObject.isSet("name") ? jsonObject.get('name')!!.toString() : "";
-  ipfsCollective.description = jsonObject.isSet("description") ? jsonObject.get('description')!!.toString() : "";
-  ipfsCollective.email = jsonObject.isSet("email") ? jsonObject.get('email')!!.toString() : null;
-  ipfsCollective.website = jsonObject.isSet("website") ? jsonObject.get('website')!!.toString() : null;
-  ipfsCollective.twitter = jsonObject.isSet("twitter") ? jsonObject.get('twitter')!!.toString() : null;
-  ipfsCollective.instagram = jsonObject.isSet("instagram") ? jsonObject.get('instagram')!!.toString() : null;
-  ipfsCollective.threads = jsonObject.isSet("threads") ? jsonObject.get('threads')!!.toString() : null;
-  ipfsCollective.headerImage = jsonObject.isSet("headerImage") ? jsonObject.get('headerImage')!!.toString() : null;
-  ipfsCollective.logo = jsonObject.isSet("logo") ? jsonObject.get('logo')!!.toString() : null;
-  ipfsCollective.images = jsonObject.isSet("images")
-    ? jsonObject.get('images')!!.toArray().map<string>((value) => value.toString())
+  ipfsCollective.name = jsonObject.isSet('name') ? jsonObject.get('name')!!.toString() : '';
+  ipfsCollective.description = jsonObject.isSet('description') ? jsonObject.get('description')!!.toString() : '';
+  ipfsCollective.email = jsonObject.isSet('email') ? jsonObject.get('email')!!.toString() : null;
+  ipfsCollective.website = jsonObject.isSet('website') ? jsonObject.get('website')!!.toString() : null;
+  ipfsCollective.twitter = jsonObject.isSet('twitter') ? jsonObject.get('twitter')!!.toString() : null;
+  ipfsCollective.instagram = jsonObject.isSet('instagram') ? jsonObject.get('instagram')!!.toString() : null;
+  ipfsCollective.threads = jsonObject.isSet('threads') ? jsonObject.get('threads')!!.toString() : null;
+  ipfsCollective.headerImage = jsonObject.isSet('headerImage') ? jsonObject.get('headerImage')!!.toString() : null;
+  ipfsCollective.logo = jsonObject.isSet('logo') ? jsonObject.get('logo')!!.toString() : null;
+  ipfsCollective.images = jsonObject.isSet('images')
+    ? jsonObject
+        .get('images')!!
+        .toArray()
+        .map<string>((value) => value.toString())
     : null;
 }
 

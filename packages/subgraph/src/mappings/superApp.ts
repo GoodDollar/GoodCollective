@@ -5,7 +5,7 @@ import { Collective, Donor, DonorCollective } from '../../generated/schema';
 export function handleSupport(event: SupporterUpdated): void {
   const donorAddress = event.params.supporter.toHexString();
   const poolAddress = event.address.toHexString();
-  const donorCollectiveId = donorAddress + " " + poolAddress;
+  const donorCollectiveId = donorAddress + ' ' + poolAddress;
   const timestamp = event.block.timestamp;
 
   const contributionDelta = event.params.contribution.minus(event.params.previousContribution);

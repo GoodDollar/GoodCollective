@@ -1,9 +1,5 @@
 import { BigInt, log } from '@graphprotocol/graph-ts';
 import {
-  PoolDetailsChanged,
-  PoolVerifiedChanged,
-} from '../../generated/DirectPaymentsFactory/DirectPaymentsFactory';
-import {
   EventRewardClaimed,
   NFTClaimed,
   PoolLimitsChanged,
@@ -19,36 +15,6 @@ import {
   Steward,
   StewardCollective,
 } from '../../generated/schema';
-import { createOrUpdateIpfsCollective } from './ipfsCollective';
-
-export function handlePoolDetailsChanged(event: PoolDetailsChanged): void {
-  const poolAddress = event.params.pool;
-  const ipfsHash = event.params.ipfs;
-
-  let directPaymentPool = Collective.load(poolAddress.toHexString());
-  if (directPaymentPool === null) {
-    log.error('Missing Payment Pool {}', [event.address.toHex()]);
-    return;
-  }
-  directPaymentPool.ipfs = ipfsHash;
-  directPaymentPool.save();
-
-  // IpfsCollective
-  createOrUpdateIpfsCollective(poolAddress.toHexString(), ipfsHash);
-}
-
-export function handlePoolVerifiedChange(event: PoolVerifiedChanged): void {
-  const poolAddress = event.params.pool;
-  const verified = event.params.isVerified;
-
-  let directPaymentPool = Collective.load(poolAddress.toHexString());
-  if (directPaymentPool === null) {
-    log.error('Missing Payment Pool {}', [event.address.toHex()]);
-    return;
-  }
-  directPaymentPool.isVerified = verified;
-  directPaymentPool.save();
-}
 
 export function handlePoolSettingsChange(event: PoolSettingsChanged): void {
   const poolSettings = event.params.settings;
@@ -169,17 +135,17 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
       }
       stewardCollective.actions = stewardCollective.actions + 1;
       stewardCollective.totalEarned = stewardCollective.totalEarned.plus(totalReward);
-      stewardCollective.steward = steward.id
-      stewardCollective.collective = pool.id
+      stewardCollective.steward = steward.id;
+      stewardCollective.collective = pool.id;
 
       steward.save();
       stewardCollective.save();
     }
 
     // update pool
-    const totalRewards = rewardPerContributor.times(eventQuantity).times(BigInt.fromI32(contributors.length));
+    const totalRewards = rewardPerContributor.times(BigInt.fromI32(contributors.length));
     pool.totalRewards = pool.totalRewards.plus(totalRewards);
-    pool.paymentsMade = pool.paymentsMade + contributors.length * eventQuantity.toI32();
+    pool.paymentsMade = pool.paymentsMade + contributors.length;
 
     claim.save();
     nft.save();
