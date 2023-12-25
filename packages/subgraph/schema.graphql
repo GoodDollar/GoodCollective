@@ -86,7 +86,7 @@ type ProvableNFT @entity {
   owner: String!
   hash: String!
   steward: [Steward!]! @derivedFrom(field: "nfts")
-  collective: Collective!
+  collective: Collective # This is always populated, but not by the same handler that creates the ProvableNFT
 }
 
 type EventData @entity {

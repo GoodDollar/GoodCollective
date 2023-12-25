@@ -2,6 +2,7 @@ import { PoolCreated } from '../../generated/DirectPaymentsFactory/DirectPayment
 import { Collective, PoolSettings, SafetyLimits } from '../../generated/schema';
 import { createOrUpdateIpfsCollective } from './ipfsCollective';
 import { DirectPaymentsPool } from '../../generated/templates';
+import { BigInt } from '@graphprotocol/graph-ts';
 
 export function handlePoolCreated(event: PoolCreated): void {
   const poolAddress = event.params.pool.toHexString();
@@ -23,6 +24,9 @@ export function handlePoolCreated(event: PoolCreated): void {
     directPaymentPool.isVerified = false;
     directPaymentPool.poolFactory = event.address.toHexString();
     directPaymentPool.timestamp = event.block.timestamp;
+    directPaymentPool.paymentsMade = BigInt.fromI32(0);
+    directPaymentPool.totalDonations = BigInt.fromI32(0);
+    directPaymentPool.totalRewards = BigInt.fromI32(0);
 
     // Pool Settings
     directPaymentPoolSettings.nftType = nftType;

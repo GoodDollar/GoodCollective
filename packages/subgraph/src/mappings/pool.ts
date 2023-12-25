@@ -156,6 +156,9 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
       let steward = Steward.load(contributors[i].toHexString());
       if (steward === null) {
         steward = new Steward(contributors[i].toHexString());
+        steward.actions = 0;
+        steward.totalEarned = BigInt.fromI32(0);
+        steward.nfts = new Array<string>();
       }
       steward.nfts.push(nftId);
       steward.actions = steward.actions + 1;
@@ -166,6 +169,8 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
       let stewardCollective = StewardCollective.load(stewardCollectiveId);
       if (stewardCollective === null) {
         stewardCollective = new StewardCollective(stewardCollectiveId);
+        stewardCollective.actions = 0;
+        stewardCollective.totalEarned = BigInt.fromI32(0);
       }
       stewardCollective.actions = stewardCollective.actions + 1;
       stewardCollective.totalEarned = stewardCollective.totalEarned.plus(totalReward);

@@ -24,6 +24,7 @@ export function handleSupport(event: SupporterUpdated): void {
   if (donor == null) {
     donor = new Donor(donorAddress);
     donor.joined = timestamp;
+    donor.totalDonated = BigInt.fromI32(0);
   }
   donor.totalDonated = donor.totalDonated.plus(contributionDelta);
 
