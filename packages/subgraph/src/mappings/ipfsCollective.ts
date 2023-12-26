@@ -1,34 +1,21 @@
 import { IpfsCollective } from '../../generated/schema';
-import { Bytes, ipfs, json, JSONValueKind, log } from '@graphprotocol/graph-ts';
+import { Bytes, json, JSONValueKind, log, dataSource } from '@graphprotocol/graph-ts';
 
-export function createOrUpdateIpfsCollective(poolAddress: string, ipfsHash: string): void {
-  let ipfsCollective = IpfsCollective.load(poolAddress);
-  if (ipfsCollective === null) {
-    ipfsCollective = new IpfsCollective(poolAddress);
-  }
-  const data = ipfs.cat(ipfsHash);
-  if (data === null) {
-    log.error('Failed to fetch IPFS data using hash {} for collective {}', [ipfsHash, poolAddress]);
-    return;
-  }
-  // mutates ipfsCollective
-  parseIpfsData(data, ipfsCollective, ipfsHash, poolAddress);
-  ipfsCollective.save();
-}
+export function handleCreateIpfsCollective(data: Bytes): void {
+  const ipfsHash = dataSource.stringParam();
+  const ipfsCollective = new IpfsCollective(ipfsHash);
 
-// mutates ipfsCollective
-function parseIpfsData(data: Bytes, ipfsCollective: IpfsCollective, ipfsHash: string, poolAddress: string): void {
   // parse bytes to json
   const jsonParseResult = json.try_fromBytes(data);
   if (jsonParseResult.isError) {
-    log.error('Invalid JSON data found at IPFS hash {} for collective {}', [ipfsHash, poolAddress]);
+    log.error('Invalid JSON data found at IPFS hash {}', [ipfsHash]);
     return;
   }
   const jsonValue = jsonParseResult.value;
 
   // make sure json is object
   if (jsonValue.kind != JSONValueKind.OBJECT) {
-    log.error('Invalid JSON data found at IPFS hash {} for collective {}', [ipfsHash, poolAddress]);
+    log.error('Invalid JSON data found at IPFS hash {}', [ipfsHash]);
     return;
   }
   const jsonObject = jsonValue.toObject();
@@ -44,8 +31,10 @@ function parseIpfsData(data: Bytes, ipfsCollective: IpfsCollective, ipfsHash: st
   ipfsCollective.logo = jsonObject.isSet('logo') ? jsonObject.get('logo')!!.toString() : null;
   ipfsCollective.images = jsonObject.isSet('images')
     ? jsonObject
-        .get('images')!!
-        .toArray()
-        .map<string>((value) => value.toString())
+      .get('images')!!
+      .toArray()
+      .map<string>((value) => value.toString())
     : null;
+
+  ipfsCollective.save();
 }
