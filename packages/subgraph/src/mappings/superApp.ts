@@ -5,7 +5,7 @@ import { Collective, Donor, DonorCollective } from '../../generated/schema';
 export function handleSupport(event: SupporterUpdated): void {
   const donorAddress = event.params.supporter.toHexString();
   const poolAddress = event.address.toHexString();
-  const donorCollectiveId = donorAddress + " " + poolAddress;
+  const donorCollectiveId = donorAddress + ' ' + poolAddress;
   const timestamp = event.block.timestamp;
 
   const contributionDelta = event.params.contribution.minus(event.params.previousContribution);
@@ -37,9 +37,8 @@ export function handleSupport(event: SupporterUpdated): void {
   // This value is updated in _updateSupporter at line 260 of GoodCollectiveSuperApp.sol before the event is emitted
   donorCollective.contribution = event.params.contribution;
   donorCollective.flowRate = event.params.flowRate;
-
-  // add DonorCollective to Donor
-  donor.collectives.push(donorCollectiveId);
+  donorCollective.donor = donor.id;
+  donorCollective.collective = pool.id;
 
   donor.save();
   donorCollective.save();
