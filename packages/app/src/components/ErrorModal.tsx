@@ -1,9 +1,8 @@
 import { Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
-import { CloseIcon } from '../@constants/ChevronIcons';
 // import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
-import { ThankYouImg } from '../assets';
+import { CloseIcon, ThankYouImg } from '../assets';
 
 interface ErrorModalProps {
   openModal: boolean;
@@ -19,7 +18,7 @@ const ErrorModal = ({ openModal, setOpenModal }: ErrorModalProps) => {
           <View style={styles.modalView}>
             <View style={styles.modalCloseIconWrapper}>
               <TouchableOpacity style={styles.modalCloseIcon}>
-                <Image source={{ uri: CloseIcon }} style={styles.closeIcon} />
+                <Image source={CloseIcon} style={styles.closeIcon} />
               </TouchableOpacity>
             </View>
 
