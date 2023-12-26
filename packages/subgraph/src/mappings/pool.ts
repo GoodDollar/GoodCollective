@@ -107,6 +107,8 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     let nft = ProvableNFT.load(nftId);
     if (nft === null) {
       nft = new ProvableNFT(nftId);
+      nft.hash = '';
+      nft.owner = '';
     }
     nft.collective = poolAddress;
 
