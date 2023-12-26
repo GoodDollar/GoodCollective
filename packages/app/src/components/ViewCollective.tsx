@@ -393,11 +393,6 @@ const styles = StyleSheet.create({
     shadowRadius: 30,
     elevation: 15,
   },
-  mobileContainer: {
-    maxWidth: 640,
-    height: 540,
-    borderRadius: 16,
-  },
   collectiveDetails: { width: '100%', flexDirection: 'row' },
   collectiveDetailsMobile: { flexDirection: 'row', gap: 8 },
   collectiveDescription: {
@@ -499,7 +494,12 @@ const styles = StyleSheet.create({
   },
   collectiveDonateBox: { gap: 24, height: 230 },
   collectiveInformation: { flex: 1, flexDirection: 'row', gap: 8 },
-  collectiveDesktopActions: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', gap: 32 },
+  mobileContainer: {
+    maxWidth: '50%',
+    height: 540,
+    borderRadius: 16,
+  },
+  collectiveDesktopActions: { flex: 1, flexDirection: 'row', justifyContent: 'center', gap: 32, paddingHorizontal: 16 },
 });
 
 export default ViewCollective;
