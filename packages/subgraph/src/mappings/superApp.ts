@@ -24,6 +24,7 @@ export function handleSupport(event: SupporterUpdated): void {
   if (donor == null) {
     donor = new Donor(donorAddress);
     donor.joined = timestamp;
+    donor.totalDonated = BigInt.fromI32(0);
   }
   donor.totalDonated = donor.totalDonated.plus(contributionDelta);
 
@@ -37,6 +38,7 @@ export function handleSupport(event: SupporterUpdated): void {
   // This value is updated in _updateSupporter at line 260 of GoodCollectiveSuperApp.sol before the event is emitted
   donorCollective.contribution = event.params.contribution;
   donorCollective.flowRate = event.params.flowRate;
+  donorCollective.timestamp = timestamp;
   donorCollective.donor = donor.id;
   donorCollective.collective = pool.id;
 
