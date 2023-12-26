@@ -7,7 +7,6 @@ import {
 import { Collective, PoolSettings, SafetyLimits } from '../../generated/schema';
 import { createOrUpdateIpfsCollective } from './ipfsCollective';
 import { DirectPaymentsPool } from '../../generated/templates';
-import { BigInt } from '@graphprotocol/graph-ts';
 
 export function handlePoolDetailsChanged(event: PoolDetailsChanged): void {
   const poolAddress = event.params.pool;
@@ -40,7 +39,7 @@ export function handlePoolVerifiedChange(event: PoolVerifiedChanged): void {
 
 export function handlePoolCreated(event: PoolCreated): void {
   const poolAddress = event.params.pool.toHexString();
-  const projectID = event.params.projectId.toString();
+  const projectID = event.params.projectId.toHexString();
   const ipfsHash = event.params.ipfs;
   const nftType = event.params.nftType;
   const poolSettings = event.params.poolSettings;
