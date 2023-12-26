@@ -2,10 +2,10 @@ import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
-import { VerifiedIconUri } from '../@constants/ColorTypeIcons';
 import { ProfileTypes } from '../models/ProfileTypes';
 import { useMemo } from 'react';
 import { profilePictures } from '../utils/profilePictures';
+import { VerifiedIcon } from '../assets';
 
 interface ProfileViewProps {
   firstName: string;
@@ -37,7 +37,7 @@ function ProfileView({ firstName, lastName, ensDomain, userAddress, profileType 
         <Image source={profileImage} style={styles.pfp} />
         <View style={styles.profileText}>
           <Text style={styles.title}>
-            {firstName} {lastName} <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon} />
+            {firstName} {lastName} <Image source={VerifiedIcon} style={styles.verifiedIcon} />
           </Text>
           <Text style={styles.line}>{ensDomain}</Text>
         </View>

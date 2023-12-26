@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View, Image } from 'react-native';
-import { EmptyUri } from '../../@constants/EmptyProfileImg';
 import { InterSmall } from '../../utils/webFonts';
 import RoundedButton from '../RoundedButton';
 import { Colors } from '../../utils/colors';
 import useCrossNavigate from '../../routes/useCrossNavigate';
+import { empty } from '../../assets';
 
 function EmptyProfile() {
   const { navigate } = useCrossNavigate();
@@ -11,7 +11,7 @@ function EmptyProfile() {
   return (
     <View style={styles.component}>
       <Text style={styles.text}>It looks empty here. {'\n'} Donate to build your impact profile!</Text>
-      <Image source={{ uri: EmptyUri }} style={styles.image} />
+      <Image source={empty} style={styles.image} />
       <RoundedButton
         title="Support a Collective"
         backgroundColor={Colors.green[100]}

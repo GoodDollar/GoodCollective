@@ -1,10 +1,10 @@
 import { Text, View, Image } from 'react-native';
 import RoundedButton from '../RoundedButton';
-import { DonorGreenIcon, InfoIcon } from '../../@constants/ColorTypeIcons';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { DonorCollective, IpfsCollective } from '../../models/models';
 import { ethers } from 'ethers';
 import { styles } from './styles';
+import { DonorGreenIcon, InfoIcon } from '../../assets';
 
 interface DonorCollectiveCardProps {
   collective: DonorCollective;
@@ -26,11 +26,11 @@ function DonorCollectiveCard({ ipfsCollective, collective, ensName, tokenPrice }
 
   return (
     <View style={[styles.cardContainer, styles.elevation]}>
-      <Image source={{ uri: DonorGreenIcon }} alt="icon" style={styles.icon} />
+      <Image source={DonorGreenIcon} alt="icon" style={styles.icon} />
 
       <Text style={styles.title}>{ipfsCollective.name}</Text>
       <View style={styles.cardDescription}>
-        <Image source={{ uri: InfoIcon }} style={styles.infoIcon} />
+        <Image source={InfoIcon} style={styles.infoIcon} />
         <Text style={styles.description}>{ipfsCollective.description}</Text>
       </View>
 

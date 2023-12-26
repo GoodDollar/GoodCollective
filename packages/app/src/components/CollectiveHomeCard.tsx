@@ -4,7 +4,7 @@ import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
 import { useMediaQuery } from 'native-base';
 import { useState } from 'react';
-import oceanUri from '../@constants/SafariImagePlaceholder';
+import { Ocean } from '../assets';
 
 interface CollectiveHomeCardProps {
   name: string;
@@ -19,7 +19,7 @@ function CollectiveHomeCard({ name, description, headerImage, route }: Collectiv
     minWidth: 612,
   });
 
-  const imageUrl = headerImage ?? oceanUri;
+  const headerImg = { uri: headerImage } ?? Ocean;
 
   const [isParagraphExpanded, setIsParagraphExpanded] = useState(false);
 
@@ -32,7 +32,7 @@ function CollectiveHomeCard({ name, description, headerImage, route }: Collectiv
         isParagraphExpanded ? { height: 'auto' } : {},
       ]}
       onPress={() => navigate(`/collective/${route}`)}>
-      <Image source={{ uri: imageUrl }} style={styles.sectionImage} />
+      <Image source={headerImg} style={styles.sectionImage} />
       <View style={styles.cardDescriptionContainer}>
         <Text style={styles.cardTitle}>{name}</Text>
         <TouchableOpacity onPress={() => setIsParagraphExpanded(!isParagraphExpanded)}>

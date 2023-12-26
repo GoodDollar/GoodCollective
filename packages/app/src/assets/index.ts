@@ -1,5 +1,5 @@
 export { default as AfricanGreyParrot } from './AfricanGreyParrot.svg';
-export { default as AproveTokenImg } from './AproveTokenImg.svg';
+export { default as ApproveTokenImg } from './ApproveTokenImg.svg';
 export { default as AtIcon } from './AtIcon.svg';
 export { default as BackIcon } from './BackIcon.svg';
 export { default as BlackBrowedAlbatross } from './BlackBrowedAlbatross.svg';
@@ -51,3 +51,5 @@ export { default as Woman } from './Woman.svg';
 export { default as chevronDown } from './chevron-down.svg';
 export { default as chevronRight } from './chevron-right.svg';
 export { default as empty } from './empty.svg';
+export { default as MetaMaskLogo } from './MetaMask_Fox.svg';
+export { default as WalletConnectLogo } from './WalletConnectLogo.svg';

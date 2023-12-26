@@ -58,8 +58,8 @@ export type SubgraphCollective = {
   ipfs: string;
   settings?: PoolSettings | string;
   limits?: SafetyLimits | string;
-  donors: SubgraphDonorCollective[];
-  stewards: SubgraphStewardCollective[];
+  donors?: SubgraphDonorCollective[];
+  stewards?: SubgraphStewardCollective[];
   projectId?: string;
   isVerified?: boolean;
   poolFactory?: string;

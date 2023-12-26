@@ -16,16 +16,7 @@ function DonatePage() {
   return (
     <Layout>
       {isDesktopResolution && <Breadcrumb previousPage={`collective / ${collectiveId}`} currentPage={`donate`} />}
-      <DonateComponent
-        walletConnected={true}
-        insufficientLiquidity={false}
-        priceImpact={false}
-        insufficientBalance={false}
-        currentCollective={{
-          name: ipfsCollective.name,
-          description: ipfsCollective.description,
-        }}
-      />
+      <DonateComponent insufficientLiquidity={false} priceImpact={false} collective={ipfsCollective} />
     </Layout>
   );
 }

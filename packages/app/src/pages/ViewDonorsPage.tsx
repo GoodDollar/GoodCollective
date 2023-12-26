@@ -2,13 +2,12 @@ import { StyleSheet, Text, View, Image } from 'react-native';
 import Layout from '../components/Layout';
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
-import { Ocean } from '../assets';
+import { DonorBlue, Ocean } from '../assets';
 import { useLocation } from 'react-router-native';
 import { useCollectiveById } from '../hooks';
 import React from 'react';
 import { useMediaQuery } from 'native-base';
 import Breadcrumb from '../components/Breadcrumb';
-import { DonorBlueIcon } from '../@constants/ColorTypeIcons';
 import DonorList from '../components/DonorsList/DonorsList';
 
 function ViewDonorsPage() {
@@ -33,7 +32,7 @@ function ViewDonorsPage() {
                 <Text style={styles.desktopTitle}>{collective.name}</Text>
               </View>
               <View style={styles.desktopDonorsTitle}>
-                <Image source={{ uri: DonorBlueIcon }} style={styles.donorIcon} />
+                <Image source={DonorBlue} style={styles.donorIcon} />
                 <Text style={styles.listTitle}>Donors</Text>
               </View>
               <View style={styles.desktopDonorsContainer}>

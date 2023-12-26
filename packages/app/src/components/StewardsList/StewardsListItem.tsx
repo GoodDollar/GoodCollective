@@ -1,8 +1,8 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { VerifiedIconUri } from '../../@constants/ColorTypeIcons';
 import { Colors } from '../../utils/colors';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { StewardCollective } from '../../models/models';
+import { VerifiedIcon } from '../../assets';
 interface StewardListItemProps {
   steward: StewardCollective;
   showActions: boolean;
@@ -17,7 +17,7 @@ export const StewardsListItem = (props: StewardListItemProps) => {
     <View style={styles.row}>
       <Image source={{ uri: profileImage }} style={styles.rowImg} />
       <Text style={styles.title}>
-        {steward.steward} {isVerified && <Image source={{ uri: VerifiedIconUri }} style={styles.verifiedIcon} />}
+        {steward.steward} {isVerified && <Image source={VerifiedIcon} style={styles.verifiedIcon} />}
       </Text>
       {showActions && <Text style={styles.totalActions}>{steward.actions ?? 0} actions</Text>}
     </View>

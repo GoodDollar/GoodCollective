@@ -2,9 +2,8 @@ import { Image, StyleSheet, Text, TextStyle, TouchableOpacity, View } from 'reac
 import { useConnect } from 'wagmi';
 import { Colors } from '../../utils/colors';
 import { useState } from 'react';
-import { metamaskLogoUri, walletConnectLogoUri } from './assets';
-import { WebIconUri } from '../../@constants/ConnectIcons';
 import { RotatingArrowIcon } from './RotatingArrowIcon';
+import { MetaMaskLogo, WalletConnectLogo, WebIcon } from '../../assets';
 
 interface ConnectWalletMenuProps {
   dropdownOffset: { top: number; right?: number; left?: number };
@@ -16,14 +15,14 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
 
   const [openDropdown, setOpenDropdown] = useState<boolean>(false);
 
-  function connectorLogo(name: string): string {
+  function connectorLogo(name: string) {
     switch (name) {
       case 'MetaMask':
-        return metamaskLogoUri;
+        return MetaMaskLogo;
       case 'WalletConnect':
-        return walletConnectLogoUri;
+        return WalletConnectLogo;
       default:
-        return WebIconUri;
+        return WebIcon;
     }
   }
 
@@ -44,7 +43,7 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
                     disabled={!connector.ready}
                     onPress={() => connect({ connector })}>
                     <Image
-                      source={{ uri: connectorLogo(connector.name) }}
+                      source={connectorLogo(connector.name)}
                       resizeMode="contain"
                       style={[styles.walletConnectorLogo]}
                     />

@@ -1,11 +1,11 @@
 import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterSemiBold } from '../../utils/webFonts';
-import { DonorBlueIcon } from '../../@constants/ColorTypeIcons';
 import { Colors } from '../../utils/colors';
 import { DonorCollective } from '../../models/models';
 import { DonorsListItem } from './DonorsListItem';
 import { useMemo } from 'react';
 import { ethers } from 'ethers';
+import { DonorBlue } from '../../assets';
 
 interface DonorsListProps {
   donors: DonorCollective[];
@@ -21,7 +21,7 @@ function DonorsList({ donors }: DonorsListProps) {
   return (
     <View>
       <View style={styles.row}>
-        <Image source={{ uri: DonorBlueIcon }} style={styles.firstIcon} />
+        <Image source={{ uri: DonorBlue }} style={styles.firstIcon} />
         <Text style={styles.title}>Donors</Text>
       </View>
       {sortedDonors.map((donor, index) => (

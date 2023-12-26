@@ -1,10 +1,10 @@
 import { Text, View, Image } from 'react-native';
 import RoundedButton from '../RoundedButton';
-import { InfoIcon, StewardOrangeIcon } from '../../@constants/ColorTypeIcons';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { IpfsCollective, StewardCollective } from '../../models/models';
 import { ethers } from 'ethers';
 import { styles } from './styles';
+import { InfoIcon, StewardOrange } from '../../assets';
 
 interface StewardCollectiveCardProps {
   collective: StewardCollective;
@@ -23,11 +23,11 @@ function StewardCollectiveCard({ ipfsCollective, collective, ensName, tokenPrice
 
   return (
     <View style={[styles.cardContainer, styles.elevation]}>
-      <Image source={{ uri: StewardOrangeIcon }} alt="icon" style={styles.icon} />
+      <Image source={StewardOrange} alt="icon" style={styles.icon} />
 
       <Text style={styles.title}>{ipfsCollective.name}</Text>
       <View style={styles.cardDescription}>
-        <Image source={{ uri: InfoIcon }} style={styles.infoIcon} />
+        <Image source={InfoIcon} style={styles.infoIcon} />
         <Text style={styles.description}>{ipfsCollective.description}</Text>
       </View>
 

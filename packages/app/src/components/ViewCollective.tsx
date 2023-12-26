@@ -14,7 +14,6 @@ import { formatTime } from '../lib/formatTime';
 import { Collective } from '../models/models';
 import { useGetTokenPrice } from '../hooks';
 import { ethers } from 'ethers';
-import oceanUri from '../@constants/SafariImagePlaceholder';
 import { useAccount } from 'wagmi';
 import { useIsDonorOfCollective } from '../hooks/useIsDonorOfCollective';
 
@@ -26,6 +25,7 @@ import {
   InstagramIcon,
   LastRowIcon,
   ListGreenIcon,
+  Ocean,
   ReceiveLightIcon,
   SendIcon,
   SquaresIcon,
@@ -58,7 +58,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   } = collective;
 
   // default to oceanUri if headerImage is undefined
-  const imageUrl = headerImage ?? oceanUri;
+  const headerImg = { uri: headerImage } ?? Ocean;
 
   const stewardsPaid = stewardCollectives.length;
 
@@ -109,7 +109,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
         <View style={{ gap: 24 }}>
           <View style={styles.collectiveDesktopBox}>
             <View style={styles.collectiveDetails}>
-              <Image source={{ uri: imageUrl }} style={styles.imageMobile} />
+              <Image source={headerImg} style={styles.imageMobile} />
 
               <View style={styles.collectiveDesktopData}>
                 <Text style={[styles.title, styles.titleMobile]}>{name}</Text>
@@ -249,7 +249,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   return (
     <>
-      <Image source={{ uri: imageUrl }} style={styles.image} />
+      <Image source={headerImg} style={styles.image} />
       <View style={{ gap: 24 }}>
         <View style={[styles.container]}>
           <Text style={styles.title}>{name}</Text>

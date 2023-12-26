@@ -5,12 +5,11 @@ import Layout from '../components/Layout';
 import StewardList from '../components/StewardsList/StewardsList';
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
-import { StewardBlueIcon } from '../@constants/ColorTypeIcons';
 import Breadcrumb from '../components/Breadcrumb';
 import { useLocation } from 'react-router-native';
 import { useCollectiveById } from '../hooks';
 import React from 'react';
-import { Ocean } from '../assets';
+import { Ocean, StewardBlue } from '../assets';
 
 function ViewStewardsPage() {
   const [isDesktopResolution] = useMediaQuery({ minWidth: 612 });
@@ -34,7 +33,7 @@ function ViewStewardsPage() {
                 <Text style={styles.desktopTitle}>{collective.name}</Text>
               </View>
               <View style={styles.desktopStewardsTitle}>
-                <Image source={{ uri: StewardBlueIcon }} style={styles.stewardIcon} />
+                <Image source={StewardBlue} style={styles.stewardIcon} />
                 <Text style={styles.listTitle}>Stewards</Text>
               </View>
               <View style={styles.desktopStewardsContainer}>

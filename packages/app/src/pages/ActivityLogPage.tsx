@@ -1,11 +1,11 @@
 import { StyleSheet, Text, View, Image } from 'react-native';
 import Layout from '../components/Layout';
-import { LightningIconUri } from '../@constants/LightningIcon';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import ActivityLog from '../components/ActivityLog';
 import { Colors } from '../utils/colors';
 import ProfileView from '../components/ProfileView';
 import { ProfileTypes } from '../models/ProfileTypes';
+import { LightningIcon } from '../assets';
 
 function ActivityLogPage() {
   return (
@@ -25,7 +25,7 @@ function ActivityLogPage() {
           <Text style={styles.title}>Restoring the Kakamega Forest</Text>
 
           <View style={styles.logHeader}>
-            <Image source={{ uri: LightningIconUri }} style={styles.titleIcon} />
+            <Image source={LightningIcon} style={styles.titleIcon} />
             <Text style={styles.title}>Action Log</Text>
           </View>
         </View>

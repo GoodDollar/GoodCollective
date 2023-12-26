@@ -1,10 +1,9 @@
 import { Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
 import { CloseIcon } from '../@constants/ChevronIcons';
-// import { PhoneImg } from '../@constants/PhoneImg';
-import { ThankYouImg } from '../@constants/ThankYouImg';
 // import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
+import { ThankYouImg } from '../assets';
 
 interface ErrorModalProps {
   openModal: boolean;
@@ -27,7 +26,7 @@ const ErrorModal = ({ openModal, setOpenModal }: ErrorModalProps) => {
             <Text style={styles.title}>SOMETHING WENT WRONG</Text>
             <Text style={styles.paragraph}>Please try againd later.</Text>
             <Text style={styles.paragraph}>Reason: {'Error Code'}</Text>
-            <Image source={{ uri: ThankYouImg }} alt="woman" style={styles.image} />
+            <Image source={ThankYouImg} alt="woman" style={styles.image} />
             <TouchableOpacity style={styles.button} onPress={() => setOpenModal(false)}>
               <Text style={styles.buttonText}>OK</Text>
             </TouchableOpacity>
