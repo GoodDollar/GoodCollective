@@ -6,7 +6,7 @@ export function createOrUpdateIpfsCollective(poolAddress: string, ipfsHash: stri
   if (ipfsCollective === null) {
     ipfsCollective = new IpfsCollective(poolAddress);
   }
-  const data = fetchFromIpfsWithRetries(ipfsHash, 3);
+  const data = ipfs.cat(ipfsHash);
   if (data === null) {
     log.error('Failed to fetch IPFS data using hash {} for collective {}', [ipfsHash, poolAddress]);
     return;
@@ -48,14 +48,4 @@ function parseIpfsData(data: Bytes, ipfsCollective: IpfsCollective, ipfsHash: st
         .toArray()
         .map<string>((value) => value.toString())
     : null;
-}
-
-function fetchFromIpfsWithRetries(ipfsHash: string, retries: i32): Bytes | null {
-  let data = ipfs.cat(ipfsHash);
-  let i = retries;
-  while (i > 0 && data === null) {
-    data = ipfs.cat(ipfsHash);
-    i--;
-  }
-  return data;
 }
