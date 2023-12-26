@@ -10,20 +10,8 @@ export type SubgraphDonorCollective = {
   donor: string; // | SubgraphDonor; --> always fetched as string
   collective: string; // | SubgraphCollective;  --> always fetched as string
   contribution: string;
-  donations?: Donation[] | string[];
-};
-
-export type Donation = {
-  id: string;
-  donor: SubgraphDonor | string;
-  collective: SubgraphCollective | string;
-  timestamp: string;
-  originationContract: string;
-  previousContribution: string;
-  contribution: string;
-  previousFlowRate: string;
   flowRate: string;
-  isFlowUpdate: boolean;
+  timestamp: string;
 };
 
 export type SubgraphSteward = {
@@ -40,17 +28,6 @@ export type SubgraphStewardCollective = {
   collective: string; // | SubgraphCollective; --> always fetched as string
   actions: number;
   totalEarned: string;
-  rewards?: Reward[];
-};
-
-export type Reward = {
-  id: string;
-  steward: SubgraphSteward | string;
-  collective: SubgraphCollective | string;
-  timestamp: string;
-  quantity: string;
-  rewardPerContributor: string;
-  nft: SubgraphProvableNFT | string;
 };
 
 export type SubgraphCollective = {

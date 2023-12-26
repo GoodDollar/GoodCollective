@@ -17,6 +17,8 @@ export type DonorCollective = {
   donor: string;
   collective: string;
   contribution: string;
+  flowRate: string;
+  timestamp: number;
 };
 
 export type Donor = {

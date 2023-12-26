@@ -13,6 +13,8 @@ const donor = gql`
         donor
         collective
         contribution
+        flowRate
+        timestamp
       }
     }
   }
