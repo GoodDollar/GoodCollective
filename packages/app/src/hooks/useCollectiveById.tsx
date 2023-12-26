@@ -13,9 +13,21 @@ export function useCollectiveById(id: string): Collective | undefined {
 }
 
 export function useCollectivesMetadata(): IpfsCollective[] {
-  return useSubgraphIpfsCollectives();
+  const collectives = useSubgraphIpfsCollectives();
+  return (
+    collectives?.map((collective) => ({
+      ...collective,
+      id: collective.id,
+    })) ?? []
+  );
 }
 
 export function useCollectivesMetadataById(ids: string[]): IpfsCollective[] {
-  return useSubgraphIpfsCollectivesById(ids);
+  const collectives = useSubgraphIpfsCollectivesById(ids);
+  return (
+    collectives?.map((collective) => ({
+      ...collective,
+      id: collective.id,
+    })) ?? []
+  );
 }

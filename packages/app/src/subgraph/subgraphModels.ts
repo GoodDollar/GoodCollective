@@ -55,7 +55,7 @@ export type Reward = {
 
 export type SubgraphCollective = {
   id: string;
-  ipfs: string;
+  ipfs: SubgraphIpfsCollective | string;
   settings?: PoolSettings | string;
   limits?: SafetyLimits | string;
   donors?: SubgraphDonorCollective[];
@@ -70,7 +70,7 @@ export type SubgraphCollective = {
 };
 
 export type SubgraphIpfsCollective = {
-  id: string; // collective address
+  id: string; // ipfs hash
   name: string;
   description: string;
   email?: string;
