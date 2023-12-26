@@ -50,7 +50,7 @@ type StewardCollective @entity {
 
 type Collective @entity {
   id: String! # pool address
-  ipfs: String!
+  ipfs: IpfsCollective!
   settings: PoolSettings!
   limits: SafetyLimits!
   donors: [DonorCollective!] @derivedFrom(field: "collective")
@@ -65,7 +65,7 @@ type Collective @entity {
 }
 
 type IpfsCollective @entity {
-  id: String! # collective address
+  id: String! # ipfs hash
   name: String!
   description: String!
   email: String

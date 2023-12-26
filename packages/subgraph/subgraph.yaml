@@ -103,3 +103,15 @@ templates:
         - event: NFTClaimed(indexed uint256,uint256)
           handler: handleClaim
       file: ./src/mappings/pool.ts
+  - kind: file/ipfs
+    name: IpfsMetaData
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/ipfsCollective.ts
+      handler: handleCreateIpfsCollective
+      entities:
+        - IpfsCollective
+      abis:
+        - name: DirectPaymentsPool
+          file: ./abis/DirectPaymentsPool.json
