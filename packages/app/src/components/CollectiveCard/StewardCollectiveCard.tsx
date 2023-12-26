@@ -2,9 +2,9 @@ import { Text, View, Image } from 'react-native';
 import RoundedButton from '../RoundedButton';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { IpfsCollective, StewardCollective } from '../../models/models';
-import { ethers } from 'ethers';
 import { styles } from './styles';
 import { InfoIcon, StewardOrange } from '../../assets';
+import { calculateAmounts } from '../../lib/calculateAmounts';
 
 interface StewardCollectiveCardProps {
   collective: StewardCollective;
@@ -17,9 +17,10 @@ function StewardCollectiveCard({ ipfsCollective, collective, ensName, tokenPrice
   const { navigate } = useCrossNavigate();
   const userName = ensName ?? 'This wallet';
 
-  const rewards: number = parseFloat(ethers.utils.formatEther(collective.totalEarned));
-  const rewardsUsdValue = tokenPrice ? (rewards * tokenPrice).toFixed(2) : '0';
-  const formattedRewards = rewards.toFixed(3);
+  const { formatted: formattedRewards, usdValue: rewardsUsdValue } = calculateAmounts(
+    collective.totalEarned,
+    tokenPrice
+  );
 
   return (
     <View style={[styles.cardContainer, styles.elevation]}>

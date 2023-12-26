@@ -1,9 +1,9 @@
 import { Text, View } from 'react-native';
 import { Donor, Steward } from '../../models/models';
-import { ethers } from 'ethers';
 import { styles } from './styles';
 import { formatTime } from '../../lib/formatTime';
 import { countUniqueValuesInTwoArrays } from '../../lib/countUniqueValuesInTwoArrays';
+import { calculateAmounts } from '../../lib/calculateAmounts';
 
 interface BothWalletDetailsProps {
   donor: Donor;
@@ -12,13 +12,12 @@ interface BothWalletDetailsProps {
 }
 
 function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProps) {
-  const donations: number = parseFloat(ethers.utils.formatEther(donor.totalDonated));
-  const donationsUsdValue = tokenPrice ? (donations * tokenPrice).toFixed(2) : '0';
-  const formattedDonations = donations.toFixed(3);
+  const { formatted: formattedDonations, usdValue: donationsUsdValue } = calculateAmounts(
+    donor.totalDonated,
+    tokenPrice
+  );
 
-  const rewards: number = parseFloat(ethers.utils.formatEther(steward.totalEarned));
-  const rewardsUsdValue = tokenPrice ? (rewards * tokenPrice).toFixed(2) : '0';
-  const formattedRewards = rewards.toFixed(3);
+  const { formatted: formattedRewards, usdValue: rewardsUsdValue } = calculateAmounts(steward.totalEarned, tokenPrice);
 
   // TODO: how to calculate people supported?
   const peopleSupported = 0;

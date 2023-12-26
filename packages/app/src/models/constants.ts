@@ -1,4 +1,5 @@
 export const CELO_CHAIN_ID = 42220;
+export const CELO_DECIMNAL_PLACES = 18;
 
 // TODO: are these token addresses correct?
 export const tokenMapping: Record<string, `0x${string}`> = {

@@ -4564,6 +4564,7 @@ __metadata:
     axios: ^1.5.0
     babel-jest: ^29.2.1
     crypto-browserify: ^3.12.0
+    decimal.js: ^10.4.3
     eslint: ^8.19.0
     eslint-plugin-react-refresh: ^0.4.1
     ethers: 5.7.2
@@ -18971,6 +18972,13 @@ __metadata:
   version: 2.5.1
   resolution: "decimal.js-light@npm:2.5.1"
   checksum: f5a2c7eac1c4541c8ab8a5c8abea64fc1761cefc7794bd5f8afd57a8a78d1b51785e0c4e4f85f4895a043eaa90ddca1edc3981d1263eb6ddce60f32bf5fe66c9
+  languageName: node
+  linkType: hard
+
+"decimal.js@npm:^10.4.3":
+  version: 10.4.3
+  resolution: "decimal.js@npm:10.4.3"
+  checksum: 796404dcfa9d1dbfdc48870229d57f788b48c21c603c3f6554a1c17c10195fc1024de338b0cf9e1efe0c7c167eeb18f04548979bcc5fdfabebb7cc0ae3287bae
   languageName: node
   linkType: hard
 

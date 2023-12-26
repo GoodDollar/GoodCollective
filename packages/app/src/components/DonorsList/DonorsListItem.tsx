@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Colors } from '../../utils/colors';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { DonorCollective } from '../../models/models';
-import { ethers } from 'ethers';
+import Decimal from 'decimal.js';
 
 interface DonorsListItemProps {
   donor: DonorCollective;
@@ -11,9 +11,7 @@ interface DonorsListItemProps {
 
 export const DonorsListItem = (props: DonorsListItemProps) => {
   const { donor, rank } = props;
-
-  const decimalDonations = parseFloat(ethers.utils.formatEther(donor.contribution ?? 0));
-  const formattedDonations: string = decimalDonations.toFixed(3);
+  const formattedDonations: string = new Decimal(donor.contribution ?? 0).toFixed(3);
 
   if (rank === 1) {
     return (

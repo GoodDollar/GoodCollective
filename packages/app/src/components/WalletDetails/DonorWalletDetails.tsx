@@ -3,6 +3,7 @@ import { Donor } from '../../models/models';
 import { ethers } from 'ethers';
 import { styles } from './styles';
 import { formatTime } from '../../lib/formatTime';
+import { calculateAmounts } from '../../lib/calculateAmounts';
 
 interface DonorWalletDetailsProps {
   firstName: string;
@@ -11,9 +12,7 @@ interface DonorWalletDetailsProps {
 }
 
 function DonorWalletDetails({ firstName, donor, tokenPrice }: DonorWalletDetailsProps) {
-  const donations: number = parseFloat(ethers.utils.formatEther(donor.totalDonated));
-  const usdValue = tokenPrice ? (donations * tokenPrice).toFixed(2) : '0';
-  const formattedDonations = donations.toFixed(3);
+  const { formatted: formattedDonations, usdValue } = calculateAmounts(donor.totalDonated, tokenPrice);
 
   // TODO: how to calculate people supported?
   const peopleSupported = 0;

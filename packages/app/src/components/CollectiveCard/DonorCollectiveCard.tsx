@@ -2,9 +2,9 @@ import { Text, View, Image } from 'react-native';
 import RoundedButton from '../RoundedButton';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { DonorCollective, IpfsCollective } from '../../models/models';
-import { ethers } from 'ethers';
 import { styles } from './styles';
 import { DonorGreenIcon, InfoIcon } from '../../assets';
+import { useFlowingBalance } from '../../hooks/useFlowingBalance';
 
 interface DonorCollectiveCardProps {
   collective: DonorCollective;
@@ -20,9 +20,12 @@ function DonorCollectiveCard({ ipfsCollective, collective, ensName, tokenPrice }
   // TODO: how to calculate people supported?
   const peopleSupported = 0;
 
-  const donations: number = parseFloat(ethers.utils.formatEther(collective.contribution));
-  const donationsUsdValue = tokenPrice ? (donations * tokenPrice).toFixed(2) : '0';
-  const formattedDonations = donations.toFixed(3);
+  const { formatted: donationsFormatted, usdValue: donationsUsdValue } = useFlowingBalance(
+    collective.contribution,
+    collective.timestamp, // Timestamp in Subgraph's UTC.
+    collective.flowRate,
+    tokenPrice
+  );
 
   return (
     <View style={[styles.cardContainer, styles.elevation]}>
@@ -39,7 +42,7 @@ function DonorCollectiveCard({ ipfsCollective, collective, ensName, tokenPrice }
           <Text style={styles.info}>{userName} has donated</Text>
           <View style={styles.row}>
             <Text style={styles.bold}>G$ </Text>
-            <Text style={styles.totalReceived}>{formattedDonations}</Text>
+            <Text style={styles.totalReceived}>{donationsFormatted}</Text>
           </View>
           <Text style={styles.formattedUsd}>= {donationsUsdValue} USD</Text>
         </View>
