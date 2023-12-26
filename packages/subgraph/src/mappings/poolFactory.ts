@@ -7,6 +7,7 @@ import {
 import { Collective, PoolSettings, SafetyLimits } from '../../generated/schema';
 import { createOrUpdateIpfsCollective } from './ipfsCollective';
 import { DirectPaymentsPool } from '../../generated/templates';
+import { BigInt } from '@graphprotocol/graph-ts';
 
 export function handlePoolDetailsChanged(event: PoolDetailsChanged): void {
   const poolAddress = event.params.pool;
@@ -60,6 +61,7 @@ export function handlePoolCreated(event: PoolCreated): void {
     directPaymentPool.paymentsMade = 0;
     directPaymentPool.totalDonations = new BigInt(0);
     directPaymentPool.totalRewards = new BigInt(0);
+
     // Pool Settings
     directPaymentPoolSettings.nftType = nftType;
     directPaymentPoolSettings.manager = poolSettings.manager;

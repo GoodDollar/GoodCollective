@@ -14,6 +14,7 @@ type DonorCollective @entity {
   collective: Collective!
   contribution: BigInt! # This is the total contribution of the donor to the collective
   flowRate: BigInt!
+  timestamp: BigInt!
 }
 
 type Steward @entity {
@@ -98,7 +99,7 @@ type ProvableNFT @entity {
   owner: String!
   hash: String!
   steward: [Steward!]! @derivedFrom(field: "nfts")
-  collective: Collective!
+  collective: Collective # This is always populated, but not by the same handler that creates the ProvableNFT
 }
 
 type EventData @entity {
