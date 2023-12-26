@@ -5,9 +5,7 @@ import {
   PoolVerifiedChanged,
 } from '../../generated/DirectPaymentsFactory/DirectPaymentsFactory';
 import { Collective, PoolSettings, SafetyLimits } from '../../generated/schema';
-import { createOrUpdateIpfsCollective } from './ipfsCollective';
-import { DirectPaymentsPool } from '../../generated/templates';
-import { BigInt } from '@graphprotocol/graph-ts';
+import { DirectPaymentsPool, IpfsMetaData } from '../../generated/templates';
 
 export function handlePoolDetailsChanged(event: PoolDetailsChanged): void {
   const poolAddress = event.params.pool;
@@ -20,9 +18,7 @@ export function handlePoolDetailsChanged(event: PoolDetailsChanged): void {
   }
   directPaymentPool.ipfs = ipfsHash;
   directPaymentPool.save();
-
-  // IpfsCollective
-  createOrUpdateIpfsCollective(poolAddress.toHexString(), ipfsHash);
+  IpfsMetaData.create(ipfsHash);
 }
 
 export function handlePoolVerifiedChange(event: PoolVerifiedChanged): void {
@@ -40,7 +36,7 @@ export function handlePoolVerifiedChange(event: PoolVerifiedChanged): void {
 
 export function handlePoolCreated(event: PoolCreated): void {
   const poolAddress = event.params.pool.toHexString();
-  const projectID = event.params.projectId.toString();
+  const projectID = event.params.projectId.toHexString();
   const ipfsHash = event.params.ipfs;
   const nftType = event.params.nftType;
   const poolSettings = event.params.poolSettings;
@@ -82,8 +78,6 @@ export function handlePoolCreated(event: PoolCreated): void {
     directPaymentPoolLimits.save();
     directPaymentPool.save();
     DirectPaymentsPool.create(event.params.pool);
-
-    // IpfsCollective
-    createOrUpdateIpfsCollective(poolAddress, ipfsHash);
+    IpfsMetaData.create(ipfsHash);
   }
 }

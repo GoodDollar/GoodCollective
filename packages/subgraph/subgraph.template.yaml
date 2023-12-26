@@ -28,36 +28,6 @@ dataSources:
           handler: handlePoolVerifiedChange
       file: ./src/mappings/pool.ts
 
-  - kind: ethereum/contract
-    name: DirectPaymentsPool
-    # prettier-ignore
-    network: {{network}}
-    source:
-      abi: DirectPaymentsPool
-      startBlock: 20920303
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - DirectPaymentPool
-        - SafetyLimits
-        - PoolSettings
-        - Claim
-      abis:
-        - name: DirectPaymentsPool
-          file: ./abis/DirectPaymentsPool.json
-      eventHandlers:
-        - event: PoolSettingsChanged((uint32,uint16[],uint128[],address,address,address,address,bool))
-          handler: handlePoolSettingsChange
-        - event: PoolLimitsChanged((uint256,uint256,uint256))
-          handler: handlePoolLimitsChange
-        - event: EventRewardClaimed(indexed uint256,uint16,uint32,uint256,string,address[],uint256)
-          handler: handleRewardClaim
-        - event: NFTClaimed(indexed uint256,uint256)
-          handler: handleClaim
-      file: ./src/mappings/pool.ts
-
   - kind: ethereum
     name: ProvableNFT
     # prettier-ignore
@@ -101,3 +71,44 @@ dataSources:
         - event: SupporterUpdated(indexed address,uint256,uint256,int96,int96,bool)
           handler: handleSupport
       file: ./src/mappings/superApp.ts
+templates:
+  - kind: ethereum/contract
+    name: DirectPaymentsPool
+    # prettier-ignore
+    network: {{network}}
+    source:
+      abi: DirectPaymentsPool
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - DirectPaymentPool
+        - SafetyLimits
+        - PoolSettings
+        - Claim
+      abis:
+        - name: DirectPaymentsPool
+          file: ./abis/DirectPaymentsPool.json
+      eventHandlers:
+        - event: PoolSettingsChanged((uint32,uint16[],uint128[],address,address,address,address,bool))
+          handler: handlePoolSettingsChange
+        - event: PoolLimitsChanged((uint256,uint256,uint256))
+          handler: handlePoolLimitsChange
+        - event: EventRewardClaimed(indexed uint256,uint16,uint32,uint256,string,address[],uint256)
+          handler: handleRewardClaim
+        - event: NFTClaimed(indexed uint256,uint256)
+          handler: handleClaim
+      file: ./src/mappings/pool.ts
+  - kind: file/ipfs
+    name: IpfsMetaData
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/ipfsCollective.ts
+      handler: handleCreateIpfsCollective
+      entities:
+        - IpfsCollective
+      abis:
+        - name: DirectPaymentsFactory
+          file: ./abis/DirectPaymentsFactory.json
