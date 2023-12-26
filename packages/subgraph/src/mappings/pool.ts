@@ -86,79 +86,81 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   }
 
   let eventData = EventData.load(eventUri);
-  if (eventData === null) {
-    eventData = new EventData(eventUri);
-    eventData.claim = claimId.toHexString();
-    eventData.eventType = eventType;
-    eventData.timestamp = eventTimestamp;
-    eventData.quantity = eventQuantity;
-    eventData.rewardPerContributor = rewardPerContributor;
-
-    // handle claim
-    let claim = Claim.load(claimId.toHexString());
-    if (claim === null) {
-      claim = new Claim(claimId.toHexString());
-    }
-    const eventReward = rewardPerContributor.times(eventQuantity).times(BigInt.fromI32(contributors.length));
-    claim.totalRewards = claim.totalRewards.plus(eventReward);
-
-    // handle nft -> note that ProvableNFT.hash and ProvableNFT.owner are set by NFT mint event
-    eventData.nft = nftId;
-    let nft = ProvableNFT.load(nftId);
-    if (nft === null) {
-      nft = new ProvableNFT(nftId);
-      nft.hash = '';
-      nft.owner = '';
-    }
-    nft.collective = poolAddress;
-
-    eventData.contributors = new Array<string>();
-    for (let i = 0; i < contributors.length; i++) {
-      const stewardAddress = contributors[i].toHexString();
-      const stewardCollectiveId = `${stewardAddress} ${poolAddress}`;
-
-      // adds steward to event data
-      eventData.contributors.push(stewardAddress);
-
-      // update Steward
-      let steward = Steward.load(contributors[i].toHexString());
-      if (steward === null) {
-        steward = new Steward(contributors[i].toHexString());
-        steward.actions = 0;
-        steward.totalEarned = BigInt.fromI32(0);
-        steward.nfts = new Array<string>();
-      }
-      steward.nfts.push(nftId);
-      steward.actions = steward.actions + 1;
-      const totalReward = rewardPerContributor.times(eventQuantity);
-      steward.totalEarned = steward.totalEarned.plus(totalReward);
-
-      // update StewardCollective
-      let stewardCollective = StewardCollective.load(stewardCollectiveId);
-      if (stewardCollective === null) {
-        stewardCollective = new StewardCollective(stewardCollectiveId);
-        stewardCollective.actions = 0;
-        stewardCollective.totalEarned = BigInt.fromI32(0);
-      }
-      stewardCollective.actions = stewardCollective.actions + 1;
-      stewardCollective.totalEarned = stewardCollective.totalEarned.plus(totalReward);
-      stewardCollective.steward = steward.id;
-      stewardCollective.collective = pool.id;
-
-      steward.save();
-      stewardCollective.save();
-    }
-
-    // update pool
-    const totalRewards = rewardPerContributor.times(BigInt.fromI32(contributors.length));
-    pool.totalRewards = pool.totalRewards.plus(totalRewards);
-    pool.paymentsMade = pool.paymentsMade + contributors.length;
-
-    claim.save();
-    nft.save();
-    pool.save();
-    eventData.save();
+  if (eventData !== null) {
+    return;
   }
+  eventData = new EventData(eventUri);
+  eventData.claim = claimId.toHexString();
+  eventData.eventType = eventType;
+  eventData.timestamp = eventTimestamp;
+  eventData.quantity = eventQuantity;
+  eventData.rewardPerContributor = rewardPerContributor;
+
+  // handle claim
+  let claim = Claim.load(claimId.toHexString());
+  if (claim === null) {
+    claim = new Claim(claimId.toHexString());
+    claim.totalRewards = BigInt.fromI32(0);
+  }
+  const eventReward = rewardPerContributor.times(eventQuantity).times(BigInt.fromI32(contributors.length));
+  claim.totalRewards = claim.totalRewards.plus(eventReward);
+
+  // handle nft -> note that ProvableNFT.hash and ProvableNFT.owner are set by NFT mint event
+  eventData.nft = nftId;
+  let nft = ProvableNFT.load(nftId);
+  if (nft === null) {
+    nft = new ProvableNFT(nftId);
+    nft.hash = '';
+    nft.owner = '';
+  }
+  nft.collective = poolAddress;
+
+  eventData.contributors = new Array<string>();
+  for (let i = 0; i < contributors.length; i++) {
+    const stewardAddress = contributors[i].toHexString();
+    const stewardCollectiveId = `${stewardAddress} ${poolAddress}`;
+
+    // adds steward to event data
+    eventData.contributors.push(stewardAddress);
+
+    // update Steward
+    let steward = Steward.load(contributors[i].toHexString());
+    if (steward === null) {
+      steward = new Steward(contributors[i].toHexString());
+      steward.actions = 0;
+      steward.totalEarned = BigInt.fromI32(0);
+      steward.nfts = new Array<string>();
+    }
+    steward.nfts.push(nftId);
+    steward.actions = steward.actions + 1;
+    const totalReward = rewardPerContributor.times(eventQuantity);
+    steward.totalEarned = steward.totalEarned.plus(totalReward);
+
+    // update StewardCollective
+    let stewardCollective = StewardCollective.load(stewardCollectiveId);
+    if (stewardCollective === null) {
+      stewardCollective = new StewardCollective(stewardCollectiveId);
+      stewardCollective.actions = 0;
+      stewardCollective.totalEarned = BigInt.fromI32(0);
+    }
+    stewardCollective.actions = stewardCollective.actions + 1;
+    stewardCollective.totalEarned = stewardCollective.totalEarned.plus(totalReward);
+    stewardCollective.steward = steward.id;
+    stewardCollective.collective = pool.id;
+
+    steward.save();
+    stewardCollective.save();
+  }
+
+  // update pool
+  const totalRewards = rewardPerContributor.times(BigInt.fromI32(contributors.length));
+  pool.totalRewards = pool.totalRewards.plus(totalRewards);
+  pool.paymentsMade = pool.paymentsMade + contributors.length;
+
+  claim.save();
+  nft.save();
+  pool.save();
+  eventData.save();
 }
 
 export function handleClaim(event: NFTClaimed): void {
