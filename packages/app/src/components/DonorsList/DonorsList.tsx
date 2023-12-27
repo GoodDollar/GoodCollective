@@ -20,10 +20,6 @@ function DonorsList({ donors }: DonorsListProps) {
 
   return (
     <View>
-      <View style={styles.row}>
-        <Image source={{ uri: DonorBlue }} style={styles.firstIcon} />
-        <Text style={styles.title}>Donors</Text>
-      </View>
       {sortedDonors.map((donor, index) => (
         <DonorsListItem donor={donor} rank={index + 1} key={donor.donor} />
       ))}

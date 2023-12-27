@@ -12,10 +12,9 @@ import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import { formatTime } from '../lib/formatTime';
 import { Collective } from '../models/models';
-import { useGetTokenPrice } from '../hooks';
+import { useGetTokenPrice, useIsDonorOfCollective } from '../hooks';
 import { ethers } from 'ethers';
 import { useAccount } from 'wagmi';
-import { useIsDonorOfCollective } from '../hooks/useIsDonorOfCollective';
 
 //assets
 import {
@@ -87,21 +86,18 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const formattedCurrentPool: string = decimalCurrentPool.toFixed(3);
   const currentPoolUsdValue = tokenPrice ? tokenPrice * decimalCurrentPool : undefined;
 
-  const renderDonorsButton = () =>
-    isDesktopResolution ? (
-      <></>
-    ) : (
-      <RoundedButton
-        title="See all donors"
-        backgroundColor={Colors.purple[100]}
-        color={Colors.purple[200]}
-        fontSize={18}
-        seeType={true}
-        onPress={() => {
-          navigate(`/collective/${poolAddress}/donors`);
-        }}
-      />
-    );
+  const renderDonorsButton = () => (
+    <RoundedButton
+      title="See all donors"
+      backgroundColor={Colors.purple[100]}
+      color={Colors.purple[200]}
+      fontSize={18}
+      seeType={true}
+      onPress={() => {
+        navigate(`/collective/${poolAddress}/donors`);
+      }}
+    />
+  );
 
   if (isDesktopResolution) {
     return (

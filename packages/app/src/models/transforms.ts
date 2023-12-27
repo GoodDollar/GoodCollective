@@ -44,10 +44,8 @@ export function subgraphDonorToModel(subgraphDonor: SubgraphDonor): Donor {
   };
 }
 
-export function subgraphCollectiveToModel(
-  subgraphCollective: SubgraphCollective,
-  ipfsCollective: IpfsCollective
-): Collective {
+export function subgraphCollectiveToModel(subgraphCollective: SubgraphCollective): Collective {
+  const ipfsCollective = subgraphCollective.ipfs as IpfsCollective;
   return {
     address: subgraphCollective.id,
     name: ipfsCollective?.name,

@@ -6,7 +6,12 @@ export const collective = gql`
   query COLLECTIVE($id: String) {
     collectives(where: { id: $id }) {
       id
-      ipfs
+      ipfs {
+        id
+        name
+        description
+        headerImage
+      }
       stewards {
         id
         steward
@@ -36,7 +41,7 @@ export function useSubgraphCollective(id: string): SubgraphCollective | undefine
   });
   const data = (response as CollectivesSubgraphResponse).collectives;
   if (!data || data.length === 0) {
-    console.error(`[useSubgraphCollective]: No Collective found for id ${id}`);
+    console.error(`[useSubgraphCollective]: Loading, or no Collective found for id ${id}`);
     return undefined;
   }
   return data[0];

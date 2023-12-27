@@ -10,7 +10,6 @@ import { ForwardIcon } from '../assets';
 
 function HomePage() {
   const collectives = useCollectivesMetadata();
-  // console.log(JSON.stringify(collectives[0], null, 2));
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
@@ -24,7 +23,7 @@ function HomePage() {
           ) : (
             collectives?.map((ipfsCollective: IpfsCollective) => (
               <CollectiveHomeCard
-                key={ipfsCollective.id}
+                key={ipfsCollective.collective}
                 name={ipfsCollective.name}
                 description={ipfsCollective.description}
                 headerImage={ipfsCollective.headerImage}

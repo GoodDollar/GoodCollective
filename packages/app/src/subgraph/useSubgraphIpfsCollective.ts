@@ -27,6 +27,7 @@ const ipfsCollectivesById = gql`
         description
         headerImage
       }
+    }
   }
 `;
 

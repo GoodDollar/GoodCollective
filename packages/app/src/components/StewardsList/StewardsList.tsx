@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     marginVertical: 8,
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   title: {
     fontSize: 16,

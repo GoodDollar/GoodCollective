@@ -14,7 +14,8 @@ function ViewDonorsPage() {
   const [isDesktopResolution] = useMediaQuery({ minWidth: 612 });
 
   const location = useLocation();
-  const collectiveId = location.pathname.slice('/collective/'.length);
+  const collectiveId = location.pathname.slice('/collective/'.length, location.pathname.indexOf('/donors'));
+  console.log(collectiveId);
   const collective = useCollectiveById(collectiveId);
   const headerImage = collective?.headerImage ? { uri: collective.headerImage } : Ocean;
 
