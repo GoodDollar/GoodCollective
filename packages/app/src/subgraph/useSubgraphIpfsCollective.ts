@@ -1,41 +1,59 @@
 import { gql } from '@apollo/client';
-import { IpfsCollectivesSubgraphResponse, useSubgraphData } from './useSubgraphData';
+import { CollectivesSubgraphResponse, useSubgraphData } from './useSubgraphData';
 import { SubgraphIpfsCollective } from './subgraphModels';
+import { useMemo } from 'react';
 
-const ipfsCollectives = gql`
+const allIpfsCollectives = gql`
   query IPFS_COLLECTIVES {
-    ipfsCollectives {
+    collectives {
       id
-      collective
-      name
-      description
-      headerImage
+      ipfs {
+        id
+        name
+        description
+        headerImage
+      }
     }
   }
 `;
 
 const ipfsCollectivesById = gql`
-  query IPFS_COLLECTIVES_BY_ID($addresses: [String]) {
-    ipfsCollectives(where: { address_in: $addresses }) {
+  query IPFS_COLLECTIVES_BY_ID($ids: [String]) {
+    collectives(where: { id_in: $ids }) {
       id
-      collective
-      name
-      description
-      headerImage
-    }
+      ipfs {
+        id
+        name
+        description
+        headerImage
+      }
   }
 `;
 
-export function useSubgraphIpfsCollectives(): SubgraphIpfsCollective[] {
-  const response = useSubgraphData(ipfsCollectives);
-  return (response as IpfsCollectivesSubgraphResponse).ipfsCollectives ?? [];
+export function useSubgraphIpfsCollectives(): (SubgraphIpfsCollective & { collective: string })[] {
+  const response = useSubgraphData(allIpfsCollectives);
+  return useMemo(
+    () =>
+      (response as CollectivesSubgraphResponse).collectives?.map((collective) => ({
+        collective: collective.id,
+        ...(collective.ipfs as SubgraphIpfsCollective),
+      })) ?? [],
+    [response]
+  );
 }
 
-export function useSubgraphIpfsCollectivesById(addresses: string[]): SubgraphIpfsCollective[] {
+export function useSubgraphIpfsCollectivesById(ids: string[]): (SubgraphIpfsCollective & { collective: string })[] {
   const response = useSubgraphData(ipfsCollectivesById, {
     variables: {
-      addresses: addresses,
+      ids: ids,
     },
   });
-  return (response as IpfsCollectivesSubgraphResponse).ipfsCollectives ?? [];
+  return useMemo(
+    () =>
+      (response as CollectivesSubgraphResponse).collectives?.map((collective) => ({
+        collective: collective.id,
+        ...(collective.ipfs as SubgraphIpfsCollective),
+      })) ?? [],
+    [response]
+  );
 }
