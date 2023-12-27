@@ -66,7 +66,7 @@ type Collective @entity {
 
 type IpfsCollective @entity {
   id: String! # ipfs hash
-  address: Collective! @derivedFrom(field: "ipfs")
+  collective: Collective! @derivedFrom(field: "ipfs")
   name: String!
   description: String!
   email: String
