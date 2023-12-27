@@ -28,7 +28,7 @@ function HomePage() {
                 name={ipfsCollective.name}
                 description={ipfsCollective.description}
                 headerImage={ipfsCollective.headerImage}
-                route={ipfsCollective.id}
+                route={ipfsCollective.collective}
               />
             ))
           )}

@@ -44,7 +44,8 @@ export interface Collective {
 }
 
 export type IpfsCollective = {
-  id: string; // collective address
+  id: string; // ipfs hash
+  collective: string; // collective address
   name: string;
   description: string;
   email?: string;

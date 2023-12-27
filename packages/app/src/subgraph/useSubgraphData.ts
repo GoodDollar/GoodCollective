@@ -1,8 +1,15 @@
 import { LazyQueryHookOptions, OperationVariables, TypedDocumentNode, useLazyQuery } from '@apollo/client';
 import { useEffect, useMemo } from 'react';
 import { DocumentNode } from 'graphql/language';
-import { SubgraphCollective, SubgraphDonor, SubgraphDonorCollective, SubgraphSteward } from './subgraphModels';
+import {
+  SubgraphCollective,
+  SubgraphDonor,
+  SubgraphDonorCollective,
+  SubgraphIpfsCollective,
+  SubgraphSteward,
+} from './subgraphModels';
 
+export type IpfsCollectivesSubgraphResponse = { ipfsCollectives?: SubgraphIpfsCollective[] };
 export type CollectivesSubgraphResponse = { collectives?: SubgraphCollective[] };
 export type DonorsSubgraphResponse = { donors?: SubgraphDonor[] };
 export type StewardsSubgraphResponse = { stewards?: SubgraphSteward[] };

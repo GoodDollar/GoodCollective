@@ -71,6 +71,7 @@ export type SubgraphCollective = {
 
 export type SubgraphIpfsCollective = {
   id: string; // ipfs hash
+  address: string; // collective id
   name: string;
   description: string;
   email?: string;
