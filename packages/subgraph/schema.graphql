@@ -66,6 +66,7 @@ type Collective @entity {
 
 type IpfsCollective @entity {
   id: String! # ipfs hash
+  address: Collective! @derivedFrom(field: "ipfs")
   name: String!
   description: String!
   email: String
@@ -73,8 +74,8 @@ type IpfsCollective @entity {
   twitter: String
   instagram: String
   threads: String
-  headerImage: String
-  logo: String
+  headerImage: String!
+  logo: String!
   images: [String!]
 }
 
