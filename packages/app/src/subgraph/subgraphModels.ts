@@ -78,8 +78,8 @@ export type SubgraphIpfsCollective = {
   twitter?: string;
   instagram?: string;
   threads?: string;
-  headerImage?: string;
-  logo?: string;
+  headerImage: string;
+  logo: string;
   images?: string[];
 };
 

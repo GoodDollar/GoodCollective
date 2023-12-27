@@ -3,10 +3,10 @@ import { InterRegular } from '../../utils/webFonts';
 import { formatAmount } from '../../lib/formatAmount';
 import displayAddress from '../../lib/displayAddress';
 import { useEffect, useState } from 'react';
-import { placeholderAvatarUri } from './assets';
 import { useNetwork } from 'wagmi';
 import { fetchBalance, fetchEnsName } from 'wagmi/actions';
 import { Colors } from '../../utils/colors';
+import { PlaceholderAvatar } from '../../assets';
 
 interface ConnectedAccountDisplayProps {
   isDesktopResolution: boolean;
@@ -65,7 +65,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
               }}>
               <Text style={styles.amountText}>{formatAmount(tokenBalance as any)}</Text>
               <View style={styles.walletConnected}>
-                <Image source={{ uri: placeholderAvatarUri }} resizeMode="contain" style={{ width: 25, height: 25 }} />
+                <Image source={PlaceholderAvatar} resizeMode="contain" style={{ width: 25, height: 25 }} />
                 {ensName.length ? (
                   <Text style={styles.walletConnectedText}>{ensName}</Text>
                 ) : (
@@ -94,7 +94,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
             }}>
             <Text style={styles.amountText}>{formatAmount(tokenBalance as any)}</Text>
             <View style={styles.walletConnected}>
-              <Image source={{ uri: placeholderAvatarUri }} resizeMode="contain" style={{ width: 25, height: 25 }} />
+              <Image source={PlaceholderAvatar} resizeMode="contain" style={{ width: 25, height: 25 }} />
               {ensName.length ? (
                 <Text style={styles.walletConnectedText}>{ensName}</Text>
               ) : (
