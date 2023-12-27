@@ -1,7 +1,6 @@
 import React, { Suspense } from 'react';
 import Layout from '../components/Layout';
-import { useDonorById } from '../hooks/useDonorById';
-import { useStewardById } from '../hooks/useStewardById';
+import { useDonorById, useStewardById } from '../hooks';
 
 // Lazy load the WalletProfile component
 const WalletProfileLazy = React.lazy(() => import('../components/WalletProfile'));
@@ -12,8 +11,8 @@ function WalletProfilePage() {
   const steward = useStewardById(profileAddress);
 
   // TODO: how to get first name and last name of users?
-  const firstName = 'Wonderful';
-  const lastName = 'Person';
+  const firstName = profileAddress ? 'Wonderful' : 'Not';
+  const lastName = profileAddress ? 'Person' : 'Connected';
 
   return (
     <Layout>

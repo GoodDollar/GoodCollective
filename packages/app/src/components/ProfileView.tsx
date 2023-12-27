@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
-import { Link, useMediaQuery } from 'native-base';
+import { Link } from 'native-base';
 import { ProfileTypes } from '../models/ProfileTypes';
 import { useMemo } from 'react';
 import { profilePictures } from '../utils/profilePictures';
@@ -16,24 +16,15 @@ interface ProfileViewProps {
 }
 
 function ProfileView({ firstName, lastName, ensDomain, userAddress, profileType }: ProfileViewProps) {
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
-  });
-
   const profileImage = useMemo(() => {
     return profilePictures.sort(() => Math.random())[0];
   }, []);
 
   const profileLink = 'https://app.prosperity.global';
 
-  const resizableProfileView = {
-    ...styles.profileView,
-    ...(isDesktopResolution ? styles.profileDesktopView : {}),
-  };
-
   if (profileType === ProfileTypes.nameAndDomain) {
     return (
-      <TouchableOpacity style={resizableProfileView}>
+      <TouchableOpacity style={styles.profileView}>
         <Image source={profileImage} style={styles.pfp} />
         <View style={styles.profileText}>
           <Text style={styles.title}>
@@ -46,7 +37,7 @@ function ProfileView({ firstName, lastName, ensDomain, userAddress, profileType 
   }
   if (profileType === ProfileTypes.domain) {
     return (
-      <TouchableOpacity style={resizableProfileView}>
+      <TouchableOpacity style={styles.profileView}>
         <Image source={profileImage} style={styles.pfp} />
         <View style={[styles.profileText, { justifyContent: 'center' }]}>
           <Text style={styles.title}>{ensDomain}</Text>
@@ -56,7 +47,7 @@ function ProfileView({ firstName, lastName, ensDomain, userAddress, profileType 
   }
   if (profileType === ProfileTypes.claimDomain) {
     return (
-      <TouchableOpacity style={resizableProfileView}>
+      <TouchableOpacity style={styles.profileView}>
         <Image source={profileImage} style={styles.pfp} />
         <View style={styles.profileText}>
           <Text style={styles.title}>{userAddress}</Text>
@@ -69,7 +60,7 @@ function ProfileView({ firstName, lastName, ensDomain, userAddress, profileType 
   }
   if (profileType === ProfileTypes.justId) {
     return (
-      <TouchableOpacity style={resizableProfileView}>
+      <TouchableOpacity style={styles.profileView}>
         <Image source={profileImage} style={styles.pfp} />
         <View style={styles.profileText}>
           <Link href="" style={styles.title}>
@@ -90,17 +81,16 @@ const styles = StyleSheet.create({
     borderRadius: 32,
   },
   profileView: {
-    width: 345,
+    width: '100%',
     height: 80,
+    minHeight: 80,
     backgroundColor: Colors.gray[400],
     flex: 1,
     flexDirection: 'row',
-    padding: 8,
+    paddingHorizontal: 8,
     borderRadius: 20,
     alignSelf: 'center',
-  },
-  profileDesktopView: {
-    width: '100%',
+    alignItems: 'center',
   },
   profileText: {
     padding: 8,

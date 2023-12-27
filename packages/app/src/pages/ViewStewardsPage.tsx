@@ -17,7 +17,7 @@ function ViewStewardsPage() {
   const location = useLocation();
   const collectiveId = location.pathname.slice('/collective/'.length, location.pathname.indexOf('/stewards'));
   const collective = useCollectiveById(collectiveId);
-  const headerImage = collective?.headerImage ? { uri: collective.headerImage } : Ocean;
+  const headerImage = collective?.ipfs.headerImage ? { uri: collective.ipfs.headerImage } : Ocean;
 
   if (isDesktopResolution) {
     return (
@@ -26,21 +26,19 @@ function ViewStewardsPage() {
         {!collective ? (
           <p>Loading...</p>
         ) : (
-          <>
-            <View style={styles.desktopContainer}>
-              <View style={styles.desktopTopRow}>
-                <Image source={headerImage} style={styles.desktopImage} />
-                <Text style={styles.desktopTitle}>{collective.name}</Text>
-              </View>
-              <View style={styles.desktopStewardsTitle}>
-                <Image source={StewardBlue} style={styles.stewardIcon} />
-                <Text style={styles.listTitle}>Stewards</Text>
-              </View>
-              <View style={styles.desktopStewardsContainer}>
-                <StewardList hideTitle stewards={collective.stewardCollectives} listType="viewStewards" />
-              </View>
+          <View style={styles.desktopContainer}>
+            <View style={styles.desktopTopRow}>
+              <Image source={headerImage} style={styles.desktopImage} />
+              <Text style={styles.desktopTitle}>{collective.ipfs.name}</Text>
             </View>
-          </>
+            <View style={styles.desktopStewardsTitle}>
+              <Image source={StewardBlue} style={styles.stewardIcon} />
+              <Text style={styles.listTitle}>Stewards</Text>
+            </View>
+            <View style={styles.desktopStewardsContainer}>
+              <StewardList hideTitle stewards={collective.stewardCollectives} listType="viewStewards" />
+            </View>
+          </View>
         )}
       </Layout>
     );
@@ -54,7 +52,7 @@ function ViewStewardsPage() {
         <>
           <Image source={headerImage} style={styles.image} />
           <View style={[styles.titleContainer]}>
-            <Text style={styles.title}>{collective.name}</Text>
+            <Text style={styles.title}>{collective.ipfs.name}</Text>
           </View>
           <View style={[styles.stewardsContainer]}>
             <StewardList stewards={collective.stewardCollectives} listType="viewStewards" />
@@ -89,6 +87,7 @@ const styles = StyleSheet.create({
     height: 'auto',
     borderRadius: 16,
     padding: 50,
+    marginBottom: 32,
   },
   desktopTopRow: {
     flexDirection: 'row',

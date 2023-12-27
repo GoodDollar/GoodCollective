@@ -14,7 +14,6 @@ import ActivityLogPage from './pages/ActivityLogPage';
 import { Providers } from './Providers';
 import DonatePage from './pages/DonatePage';
 import ModalTestPage from './pages/ModalTestPage';
-import WalletProfilePageEmpty from './pages/WalletProfilePageEmpty';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import { celo } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
@@ -85,7 +84,7 @@ function App(): JSX.Element {
                   <WebRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
                   <WebRoute.Route path="/profile/:id" element={<WalletProfilePage />} />
                   <WebRoute.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
-                  <WebRoute.Route path="/walletEmpty" element={<WalletProfilePageEmpty />} />
+                  <WebRoute.Route path="/profile/" element={<WalletProfilePage />} />
                   <WebRoute.Route path="/donate/:id" element={<DonatePage />} />
                   <WebRoute.Route path="/modalTest" element={<ModalTestPage />} />
                 </WebRoute.Routes>

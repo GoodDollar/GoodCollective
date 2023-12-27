@@ -15,9 +15,8 @@ function ViewDonorsPage() {
 
   const location = useLocation();
   const collectiveId = location.pathname.slice('/collective/'.length, location.pathname.indexOf('/donors'));
-  console.log(collectiveId);
   const collective = useCollectiveById(collectiveId);
-  const headerImage = collective?.headerImage ? { uri: collective.headerImage } : Ocean;
+  const headerImage = collective?.ipfs.headerImage ? { uri: collective.ipfs.headerImage } : Ocean;
 
   if (isDesktopResolution) {
     return (
@@ -26,21 +25,19 @@ function ViewDonorsPage() {
         {!collective ? (
           <p>Loading...</p>
         ) : (
-          <>
-            <View style={styles.desktopContainer}>
-              <View style={styles.desktopTopRow}>
-                <Image source={headerImage} style={styles.desktopImage} />
-                <Text style={styles.desktopTitle}>{collective.name}</Text>
-              </View>
-              <View style={styles.desktopDonorsTitle}>
-                <Image source={DonorBlue} style={styles.donorIcon} />
-                <Text style={styles.listTitle}>Donors</Text>
-              </View>
-              <View style={styles.desktopDonorsContainer}>
-                <DonorList donors={collective.donorCollectives} />
-              </View>
+          <View style={styles.desktopContainer}>
+            <View style={styles.desktopTopRow}>
+              <Image source={headerImage} style={styles.desktopImage} />
+              <Text style={styles.desktopTitle}>{collective.ipfs.name}</Text>
             </View>
-          </>
+            <View style={styles.desktopDonorsTitle}>
+              <Image source={DonorBlue} style={styles.donorIcon} />
+              <Text style={styles.listTitle}>Donors</Text>
+            </View>
+            <View style={styles.desktopDonorsContainer}>
+              <DonorList donors={collective.donorCollectives} />
+            </View>
+          </View>
         )}
       </Layout>
     );
@@ -54,7 +51,7 @@ function ViewDonorsPage() {
         <>
           <Image source={headerImage} style={styles.image} />
           <View style={[styles.titleContainer]}>
-            <Text style={styles.title}>{collective.name}</Text>
+            <Text style={styles.title}>{collective.ipfs.name}</Text>
           </View>
           <View style={[styles.donorsContainer]}>
             <DonorList donors={collective.donorCollectives} />
@@ -89,6 +86,7 @@ const styles = StyleSheet.create({
     height: 'auto',
     borderRadius: 16,
     padding: 50,
+    marginBottom: 32,
   },
   desktopTopRow: {
     flexDirection: 'row',

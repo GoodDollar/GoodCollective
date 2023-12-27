@@ -10,8 +10,12 @@ const steward = gql`
       totalEarned
       collectives {
         id
-        steward
-        collective
+        steward {
+          id
+        }
+        collective {
+          id
+        }
         actions
         totalEarned
       }

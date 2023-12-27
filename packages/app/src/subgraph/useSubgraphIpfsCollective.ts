@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client';
-import { CollectivesSubgraphResponse, useSubgraphData } from './useSubgraphData';
+import { IpfsCollectivesSubgraphResponse, useSubgraphData } from './useSubgraphData';
 import { SubgraphIpfsCollective } from './subgraphModels';
-import { useMemo } from 'react';
 
 const allIpfsCollectives = gql`
   query IPFS_COLLECTIVES {
@@ -31,30 +30,16 @@ const ipfsCollectivesById = gql`
   }
 `;
 
-export function useSubgraphIpfsCollectives(): (SubgraphIpfsCollective & { collective: string })[] {
+export function useSubgraphIpfsCollectives(): { id: string; ipfs: SubgraphIpfsCollective }[] {
   const response = useSubgraphData(allIpfsCollectives);
-  return useMemo(
-    () =>
-      (response as CollectivesSubgraphResponse).collectives?.map((collective) => ({
-        collective: collective.id,
-        ...(collective.ipfs as SubgraphIpfsCollective),
-      })) ?? [],
-    [response]
-  );
+  return (response as IpfsCollectivesSubgraphResponse).collectives ?? [];
 }
 
-export function useSubgraphIpfsCollectivesById(ids: string[]): (SubgraphIpfsCollective & { collective: string })[] {
+export function useSubgraphIpfsCollectivesById(ids: string[]): { id: string; ipfs: SubgraphIpfsCollective }[] {
   const response = useSubgraphData(ipfsCollectivesById, {
     variables: {
       ids: ids,
     },
   });
-  return useMemo(
-    () =>
-      (response as CollectivesSubgraphResponse).collectives?.map((collective) => ({
-        collective: collective.id,
-        ...(collective.ipfs as SubgraphIpfsCollective),
-      })) ?? [],
-    [response]
-  );
+  return (response as IpfsCollectivesSubgraphResponse).collectives ?? [];
 }

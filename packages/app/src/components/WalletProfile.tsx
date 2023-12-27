@@ -42,7 +42,7 @@ function WalletProfile({ firstName, lastName, donor, steward }: WalletProfilePro
   if (isDesktopResolution) {
     return (
       <>
-        <Breadcrumb currentPage={`profile / ${address}`} />
+        <Breadcrumb currentPage={`profile / ${address ?? ''}`} />
         <View style={styles.profileContentBox}>
           <View style={[styles.container, styles.desktopContainer]}>
             <View style={{ gap: 24 }}>
@@ -55,7 +55,7 @@ function WalletProfile({ firstName, lastName, donor, steward }: WalletProfilePro
               />
               <View style={styles.row}>
                 <Image style={styles.lIcon} source={LightningIcon} />
-                <Text style={[styles.title, { height: 27, padding: 8 }]}>Impact Profile</Text>
+                <Text style={styles.title}>Impact Profile</Text>
               </View>
             </View>
             <WalletDetails donor={donor} steward={steward} tokenPrice={tokenPrice} firstName={firstName} />
@@ -102,7 +102,7 @@ function WalletProfile({ firstName, lastName, donor, steward }: WalletProfilePro
           />
           <View style={styles.row}>
             <Image style={styles.lIcon} source={LightningIcon} />
-            <Text style={[styles.title, { height: 27, padding: 8 }]}>Impact Profile</Text>
+            <Text style={styles.title}>Impact Profile</Text>
           </View>
         </View>
         <WalletDetails donor={donor} steward={steward} tokenPrice={tokenPrice} firstName={firstName} />
@@ -177,6 +177,7 @@ const styles = StyleSheet.create({
     height: 32,
   },
   title: {
+    lineHeight: 27,
     fontSize: 18,
     ...InterSemiBold,
   },
@@ -184,8 +185,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     marginBottom: 24,
-    height: 28,
+    height: 32,
     gap: 8,
+    alignItems: 'center',
   },
   collectiveCardsContainer: {
     flex: 1,

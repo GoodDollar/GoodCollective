@@ -3,6 +3,7 @@ import {
   SubgraphCollective,
   SubgraphDonor,
   SubgraphDonorCollective,
+  SubgraphIpfsCollective,
   SubgraphSteward,
   SubgraphStewardCollective,
 } from '../subgraph';
@@ -11,8 +12,8 @@ export function subgraphStewardCollectiveToModel(
   subgraphStewardCollective: SubgraphStewardCollective
 ): StewardCollective {
   return {
-    steward: subgraphStewardCollective.steward,
-    collective: subgraphStewardCollective.collective,
+    steward: subgraphStewardCollective.steward.id,
+    collective: subgraphStewardCollective.collective.id,
     actions: subgraphStewardCollective.actions,
     totalEarned: subgraphStewardCollective.totalEarned,
   };
@@ -29,8 +30,8 @@ export function subgraphStewardToModel(subgraphSteward: SubgraphSteward): Stewar
 
 export function subgraphDonorCollectiveToModel(subgraphDonorCollective: SubgraphDonorCollective): DonorCollective {
   return {
-    donor: subgraphDonorCollective.donor,
-    collective: subgraphDonorCollective.collective,
+    donor: subgraphDonorCollective.donor.id,
+    collective: subgraphDonorCollective.collective.id,
     contribution: subgraphDonorCollective.contribution,
   };
 }
@@ -45,21 +46,34 @@ export function subgraphDonorToModel(subgraphDonor: SubgraphDonor): Donor {
 }
 
 export function subgraphCollectiveToModel(subgraphCollective: SubgraphCollective): Collective {
-  const ipfsCollective = subgraphCollective.ipfs as IpfsCollective;
   return {
     address: subgraphCollective.id,
-    name: ipfsCollective?.name,
-    description: ipfsCollective?.description,
-    email: ipfsCollective?.email,
-    twitter: ipfsCollective?.twitter,
-    instagram: ipfsCollective?.instagram,
-    website: ipfsCollective?.website,
-    headerImage: ipfsCollective?.headerImage,
+    ipfs: subgraphCollective.ipfs as IpfsCollective,
     donorCollectives: subgraphCollective.donors?.map(subgraphDonorCollectiveToModel) ?? [],
     stewardCollectives: subgraphCollective.stewards?.map(subgraphStewardCollectiveToModel) ?? [],
     timestamp: subgraphCollective.timestamp,
     paymentsMade: subgraphCollective.paymentsMade,
     totalDonations: subgraphCollective.totalDonations,
     totalRewards: subgraphCollective.totalRewards,
+  };
+}
+
+export function ipfsSubgraphCollectiveToModel(subgraphCollective: {
+  id: string;
+  ipfs: SubgraphIpfsCollective;
+}): IpfsCollective {
+  return {
+    id: subgraphCollective.ipfs.id,
+    collective: subgraphCollective.id,
+    name: subgraphCollective.ipfs.name,
+    description: subgraphCollective.ipfs.description,
+    email: subgraphCollective.ipfs?.email,
+    twitter: subgraphCollective.ipfs?.twitter,
+    instagram: subgraphCollective.ipfs?.instagram,
+    website: subgraphCollective.ipfs?.website,
+    headerImage: subgraphCollective.ipfs.headerImage,
+    logo: subgraphCollective.ipfs.logo,
+    threads: subgraphCollective.ipfs?.threads,
+    images: subgraphCollective.ipfs?.images,
   };
 }

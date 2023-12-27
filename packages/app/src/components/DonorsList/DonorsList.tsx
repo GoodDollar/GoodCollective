@@ -1,15 +1,14 @@
-import { Image, Text, View, StyleSheet } from 'react-native';
-import { InterSemiBold } from '../../utils/webFonts';
-import { Colors } from '../../utils/colors';
+import { StyleSheet, View } from 'react-native';
 import { DonorCollective } from '../../models/models';
 import { DonorsListItem } from './DonorsListItem';
 import { useMemo } from 'react';
 import { ethers } from 'ethers';
-import { DonorBlue } from '../../assets';
 
 interface DonorsListProps {
   donors: DonorCollective[];
 }
+
+// TODO: DonorsList and StewardsList will not look correct on Desktop when there are more than 5 donors. They will in one column, but they should be in three columns.
 
 function DonorsList({ donors }: DonorsListProps) {
   const sortedDonors: DonorCollective[] = useMemo(() => {
@@ -19,7 +18,7 @@ function DonorsList({ donors }: DonorsListProps) {
   }, [donors]);
 
   return (
-    <View>
+    <View style={styles.list}>
       {sortedDonors.map((donor, index) => (
         <DonorsListItem donor={donor} rank={index + 1} key={donor.donor} />
       ))}
@@ -28,25 +27,12 @@ function DonorsList({ donors }: DonorsListProps) {
 }
 
 const styles = StyleSheet.create({
-  firstIcon: {
-    height: 32,
-    width: 32,
-  },
-  row: {
+  donorsHeader: { width: '100%' },
+  list: {
     width: '100%',
-    backgroundColor: Colors.white,
-    flex: 1,
-    flexDirection: 'row',
-    marginBottom: 24,
-    alignItems: 'center',
-    ...InterSemiBold,
-  },
-  title: {
-    fontSize: 16,
-    ...InterSemiBold,
-    marginLeft: 16,
-    width: '100%',
-    color: Colors.black,
+    maxHeight: 400,
+    overflow: 'scroll',
   },
 });
+
 export default DonorsList;

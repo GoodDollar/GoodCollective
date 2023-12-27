@@ -10,8 +10,12 @@ const donor = gql`
       totalDonated
       collectives {
         id
-        donor
-        collective
+        donor {
+          id
+        }
+        collective {
+          id
+        }
         contribution
       }
     }

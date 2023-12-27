@@ -7,57 +7,34 @@ export type SubgraphDonor = {
 
 export type SubgraphDonorCollective = {
   id: string;
-  donor: string; // | SubgraphDonor; --> always fetched as string
-  collective: string; // | SubgraphCollective;  --> always fetched as string
+  donor: SubgraphDonor | { id: string };
+  collective: SubgraphCollective | { id: string };
   contribution: string;
-  donations?: Donation[] | string[];
-};
-
-export type Donation = {
-  id: string;
-  donor: SubgraphDonor | string;
-  collective: SubgraphCollective | string;
-  timestamp: string;
-  originationContract: string;
-  previousContribution: string;
-  contribution: string;
-  previousFlowRate: string;
   flowRate: string;
-  isFlowUpdate: boolean;
+  timestamp: string;
 };
 
 export type SubgraphSteward = {
   id: string;
   actions: number;
   totalEarned: string;
-  nfts?: SubgraphProvableNFT[] | string[];
+  nfts?: SubgraphProvableNFT[] | { id: string }[];
   collectives: SubgraphStewardCollective[];
 };
 
 export type SubgraphStewardCollective = {
   id: string;
-  steward: string; // | SubgraphSteward; --> always fetched as string
-  collective: string; // | SubgraphCollective; --> always fetched as string
+  steward: { id: string }; // | SubgraphSteward; --> always fetched as id
+  collective: { id: string }; // | SubgraphCollective; --> always fetched as id
   actions: number;
   totalEarned: string;
-  rewards?: Reward[];
-};
-
-export type Reward = {
-  id: string;
-  steward: SubgraphSteward | string;
-  collective: SubgraphCollective | string;
-  timestamp: string;
-  quantity: string;
-  rewardPerContributor: string;
-  nft: SubgraphProvableNFT | string;
 };
 
 export type SubgraphCollective = {
   id: string;
-  ipfs: SubgraphIpfsCollective | string;
-  settings?: PoolSettings | string;
-  limits?: SafetyLimits | string;
+  ipfs: SubgraphIpfsCollective;
+  settings?: PoolSettings;
+  limits?: SafetyLimits;
   donors?: SubgraphDonorCollective[];
   stewards?: SubgraphStewardCollective[];
   projectId?: string;
@@ -114,13 +91,13 @@ export type EventData = {
   quantity: string;
   uri: string;
   rewardPerContributor: string;
-  contributors: SubgraphSteward[] | string[];
-  nft: SubgraphProvableNFT | string;
+  contributors: SubgraphSteward[] | { id: string }[];
+  nft: SubgraphProvableNFT | { id: string };
   claim: Claim;
 };
 
 export type Claim = {
   id: string;
   totalRewards: string;
-  event: EventData | string;
+  event: EventData | { id: string };
 };

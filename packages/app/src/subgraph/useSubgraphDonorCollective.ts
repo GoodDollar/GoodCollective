@@ -6,8 +6,12 @@ const donorCollectiveByEntities = gql`
   query DONOR_COLLECTIVE_BY_ENTITIES($donor: String, $collective: String) {
     donorCollectives(where: { donor: $donor, collective: $collective }) {
       id
-      donor
-      collective
+      donor {
+        id
+      }
+      collective {
+        id
+      }
       contribution
     }
   }

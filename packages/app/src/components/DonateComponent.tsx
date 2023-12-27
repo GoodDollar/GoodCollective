@@ -212,25 +212,24 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
                 </View>
               </View>
 
-              {frequency != 'One-Time' && (
-                <View>
-                  <View style={styles.reviewRow}>
-                    <Text style={styles.reviewSubtitle}>Donation Duration:</Text>
-                    <View>
-                      <Text style={[styles.subHeading, { textAlign: 'right' }]}>
-                        {duration} <Text style={styles.headerLabel}>{getFrequencyTime(frequency)}</Text>
-                      </Text>
-                    </View>
+              {frequency !== 'One-Time' && (
+                <View style={styles.reviewRow}>
+                  <Text style={styles.reviewSubtitle}>Donation Duration:</Text>
+                  <View>
+                    <Text style={[styles.subHeading, { textAlign: 'right' }]}>
+                      {duration} <Text style={styles.headerLabel}>{getFrequencyTime(frequency)}</Text>
+                    </Text>
                   </View>
-
-                  <View style={styles.reviewRow}>
-                    <Text style={styles.reviewSubtitle}>Total Amount:</Text>
-                    <View>
-                      <Text style={[styles.subHeading, { textAlign: 'right' }]}>
-                        {currency} <Text style={styles.headerLabel}>{getTotalAmount(duration, donationAmount)}</Text>
-                      </Text>
-                      <Text style={styles.descriptionLabel}>{usdValue} USD</Text>
-                    </View>
+                </View>
+              )}
+              {frequency !== 'One-Time' && (
+                <View style={styles.reviewRow}>
+                  <Text style={styles.reviewSubtitle}>Total Amount:</Text>
+                  <View>
+                    <Text style={[styles.subHeading, { textAlign: 'right' }]}>
+                      {currency} <Text style={styles.headerLabel}>{getTotalAmount(duration, donationAmount)}</Text>
+                    </Text>
+                    <Text style={styles.descriptionLabel}>{usdValue} USD</Text>
                   </View>
                 </View>
               )}
@@ -372,6 +371,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'left',
     ...InterSemiBold,
+    marginBottom: 16,
   },
   description: {
     color: Colors.gray[200],

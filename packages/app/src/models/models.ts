@@ -28,13 +28,7 @@ export type Donor = {
 
 export interface Collective {
   address: string;
-  name?: string;
-  description?: string;
-  email?: string;
-  twitter?: string;
-  instagram?: string;
-  website?: string;
-  headerImage?: string;
+  ipfs: IpfsCollective;
   donorCollectives: DonorCollective[];
   stewardCollectives: StewardCollective[];
   timestamp: number;

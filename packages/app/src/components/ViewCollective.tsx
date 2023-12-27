@@ -15,8 +15,6 @@ import { Collective } from '../models/models';
 import { useGetTokenPrice, useIsDonorOfCollective } from '../hooks';
 import { ethers } from 'ethers';
 import { useAccount } from 'wagmi';
-
-//assets
 import {
   AtIcon,
   CalendarIcon,
@@ -43,13 +41,13 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const recentTransactions = {};
   // TODO: what is current pool?
   const currentPool = '0';
+  // TODO: how do i get the action label?
+  const actionLabel = "Stewards get G$ 800 each time they log a tree's status.";
 
   const {
     address: poolAddress,
-    name,
-    description,
+    ipfs,
     timestamp,
-    headerImage,
     stewardCollectives,
     paymentsMade,
     totalRewards,
@@ -57,7 +55,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   } = collective;
 
   // default to oceanUri if headerImage is undefined
-  const headerImg = { uri: headerImage } ?? Ocean;
+  const headerImg = { uri: ipfs.headerImage } ?? Ocean;
 
   const stewardsPaid = stewardCollectives.length;
 
@@ -108,8 +106,8 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               <Image source={headerImg} style={styles.imageMobile} />
 
               <View style={styles.collectiveDesktopData}>
-                <Text style={[styles.title, styles.titleMobile]}>{name}</Text>
-                <Text style={styles.description}>{description}</Text>
+                <Text style={[styles.title, styles.titleMobile]}>{ipfs.name}</Text>
+                <Text style={styles.description}>{ipfs.description}</Text>
                 <View style={[styles.icons, { position: 'absolute', bottom: 0, left: 25 }]}>
                   <Link href={'/'}>
                     <Image source={WebIcon} style={styles.rowIcon} />
@@ -180,7 +178,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             </View>
 
             <View style={styles.collectiveDesktopTimeline}>
-              <View style={{ flex: 1 }}>
+              <View style={{ flex: 1, gap: 16 }}>
                 <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
                 <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
                 <RowItem
@@ -190,7 +188,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                   currency=""
                 />
               </View>
-              <View style={{ flex: 1 }}>
+              <View style={{ flex: 1, gap: 16 }}>
                 <RowItem
                   imageUrl={ReceiveLightIcon}
                   rowInfo="Total Donations Received"
@@ -248,8 +246,8 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
       <Image source={headerImg} style={styles.image} />
       <View style={{ gap: 24 }}>
         <View style={[styles.container]}>
-          <Text style={styles.title}>{name}</Text>
-          <Text style={styles.description}>{description}</Text>
+          <Text style={styles.title}>{ipfs.name}</Text>
+          <Text style={styles.description}>{ipfs.description}</Text>
           <View style={styles.icons}>
             <Link href={'/'}>
               <Image source={WebIcon} style={styles.rowIcon} />
@@ -273,7 +271,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
           </View>
           <View style={styles.collectiveInformation}>
             <Image source={InfoIcon} style={styles.infoIcon} />
-            <Text style={styles.informationLabel}>Stewards get G$ 800 each time they log a tree's status.</Text>
+            <Text style={styles.informationLabel}>{actionLabel}</Text>
           </View>
 
           <View style={styles.rowContainer}>
@@ -317,7 +315,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                   seeType={false}
                   onPress={() => {
                     setStopDonationModal(true);
-                    console.log(stopDonationModal);
                   }}
                 />
                 {renderDonorsButton()}

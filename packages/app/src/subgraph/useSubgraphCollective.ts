@@ -14,15 +14,23 @@ export const collective = gql`
       }
       stewards {
         id
-        steward
-        collective
+        steward {
+          id
+        }
+        collective {
+          id
+        }
         actions
         totalEarned
       }
       donors {
         id
-        donor
-        collective
+        donor {
+          id
+        }
+        collective {
+          id
+        }
         contribution
       }
       timestamp

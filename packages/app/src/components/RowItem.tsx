@@ -2,6 +2,7 @@ import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
 import { formatFiatCurrency } from '../lib/formatFiatCurrency';
+import { useMediaQuery } from 'native-base';
 
 interface RowItemProps {
   rowInfo: string;
@@ -12,19 +13,25 @@ interface RowItemProps {
 }
 
 function RowItem({ rowInfo, rowData, balance, currency, imageUrl }: RowItemProps) {
+  const [isDesktopResolution] = useMediaQuery({
+    minWidth: 612,
+  });
+
   const usdBalance = balance ? formatFiatCurrency(balance) : '0.00';
 
   return (
     <View style={styles.row}>
-      <Image source={{ uri: imageUrl }} style={styles.rowIcon} />
-      <Text style={styles.rowInfo}>{rowInfo}</Text>
+      <View style={styles.imageTitleRow}>
+        <Image source={{ uri: imageUrl }} style={styles.rowIcon} />
+        <Text style={styles.rowInfo}>{rowInfo}</Text>
+      </View>
       <Text style={styles.rowData}>
         <View style={{ gap: 2 }}>
           <Text>
             <Text>{currency}</Text> <Text style={{ ...InterRegular }}>{rowData}</Text>
+            {isDesktopResolution && currency && <Text style={styles.rowBalance}> = {usdBalance} USD</Text>}
           </Text>
-
-          {currency && <Text style={styles.rowBalance}>= {usdBalance} USD</Text>}
+          {!isDesktopResolution && currency && <Text style={styles.rowBalance}>= {usdBalance} USD</Text>}
         </View>
       </Text>
     </View>
@@ -39,16 +46,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  imageTitleRow: {
+    width: '100%',
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   rowIcon: {
     height: 28,
     width: 28,
   },
   rowInfo: {
-    paddingLeft: 8,
+    marginLeft: 8,
+    maxWidth: '60%',
     fontWeight: '700',
     fontSize: 16,
     color: Colors.black,
-    width: '50%',
     ...InterSemiBold,
   },
   rightItem: {
@@ -57,11 +70,10 @@ const styles = StyleSheet.create({
   },
   rowData: {
     color: Colors.gray[100],
-    width: '50%',
     textAlign: 'right',
     fontSize: 16,
-    paddingVertical: 2,
     ...InterSemiBold,
+    gap: 2,
   },
   rowBalance: {
     fontSize: 12,

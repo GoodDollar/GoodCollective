@@ -6,16 +6,16 @@ import { chevronRight } from '../assets';
 
 interface ImpactButtonProps {
   title: string;
-  path: string;
+  onClick: () => void;
 }
 
-function ImpactButton({ title }: ImpactButtonProps) {
+function ImpactButton({ title, onClick }: ImpactButtonProps) {
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
 
   return (
-    <TouchableOpacity style={[styles.button, isDesktopResolution && styles.desktopButton]}>
+    <TouchableOpacity style={[styles.button, isDesktopResolution && styles.desktopButton]} onPress={onClick}>
       <View style={[styles.buttonContent, isDesktopResolution && styles.buttonDesktopContent]}>
         <Text style={styles.buttonText}>{title}</Text>
         <Image source={chevronRight} style={styles.icon} />
