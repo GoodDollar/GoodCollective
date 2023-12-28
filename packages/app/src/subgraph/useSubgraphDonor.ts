@@ -17,6 +17,8 @@ const donor = gql`
           id
         }
         contribution
+        flowRate
+        timestamp
       }
     }
   }
@@ -25,12 +27,12 @@ const donor = gql`
 export function useSubgraphDonor(donorAddress: string): SubgraphDonor | undefined {
   const response = useSubgraphData(donor, {
     variables: {
-      supporter: donorAddress,
+      id: donorAddress,
     },
   });
   const data = (response as DonorsSubgraphResponse).donors;
   if (!data || data.length === 0) {
-    console.error(`[useSubgraphDonor]: No Donor found for id ${donorAddress}`);
+    console.error(`[useSubgraphDonor]: Loading, or no Donor found for id ${donorAddress}`);
     return undefined;
   }
   return data[0];

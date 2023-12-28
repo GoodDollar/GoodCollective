@@ -33,6 +33,8 @@ export function subgraphDonorCollectiveToModel(subgraphDonorCollective: Subgraph
     donor: subgraphDonorCollective.donor.id,
     collective: subgraphDonorCollective.collective.id,
     contribution: subgraphDonorCollective.contribution,
+    flowRate: subgraphDonorCollective.flowRate,
+    timestamp: parseInt(subgraphDonorCollective.timestamp, 10),
   };
 }
 

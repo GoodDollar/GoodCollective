@@ -1,9 +1,10 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../utils/colors';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { DonorCollective } from '../../models/models';
 import { ethers } from 'ethers';
 import { VerifiedIcon } from '../../assets';
+import useCrossNavigate from '../../routes/useCrossNavigate';
 
 interface DonorsListItemProps {
   donor: DonorCollective;
@@ -12,6 +13,7 @@ interface DonorsListItemProps {
 
 export const DonorsListItem = (props: DonorsListItemProps) => {
   const { donor, rank } = props;
+  const { navigate } = useCrossNavigate();
 
   const decimalDonations = parseFloat(ethers.utils.formatEther(donor.contribution ?? 0));
   const formattedDonations: string = decimalDonations.toFixed(3);
@@ -20,7 +22,7 @@ export const DonorsListItem = (props: DonorsListItemProps) => {
 
   if (rank === 1) {
     return (
-      <View style={styles.rowBetween}>
+      <TouchableOpacity style={styles.rowBetween} onPress={() => navigate(`/profile/${donor.donor}`)}>
         <View style={styles.rowTogether}>
           <View style={[styles.circle, { backgroundColor: Colors.yellow[100] }]}>
             <Text style={[styles.circleText, { color: Colors.yellow[200] }]}>{rank}</Text>
@@ -30,11 +32,11 @@ export const DonorsListItem = (props: DonorsListItemProps) => {
         <Text style={styles.totalDonated}>
           <Text style={styles.currency}>G$</Text> {formattedDonations}
         </Text>
-      </View>
+      </TouchableOpacity>
     );
   } else if (rank === 2) {
     return (
-      <View style={styles.rowBetween}>
+      <TouchableOpacity style={styles.rowBetween} onPress={() => navigate(`/profile/${donor.donor}`)}>
         <View style={styles.rowTogether}>
           <View style={[styles.circle, { backgroundColor: Colors.gray[700] }]}>
             <Text style={[styles.circleText, { color: Colors.blue[200] }]}>{rank}</Text>
@@ -44,11 +46,11 @@ export const DonorsListItem = (props: DonorsListItemProps) => {
         <Text style={styles.totalDonated}>
           <Text style={styles.currency}>G$</Text> {formattedDonations}
         </Text>
-      </View>
+      </TouchableOpacity>
     );
   } else if (rank === 3) {
     return (
-      <View style={styles.rowBetween}>
+      <TouchableOpacity style={styles.rowBetween} onPress={() => navigate(`/profile/${donor.donor}`)}>
         <View style={styles.rowTogether}>
           <View style={[styles.circle, { backgroundColor: Colors.orange[400] }]}>
             <Text style={[styles.circleText, { color: Colors.brown[100] }]}>{rank}</Text>
@@ -58,12 +60,12 @@ export const DonorsListItem = (props: DonorsListItemProps) => {
         <Text style={styles.totalDonated}>
           <Text style={styles.currency}>G$</Text> {formattedDonations}
         </Text>
-      </View>
+      </TouchableOpacity>
     );
   }
 
   return (
-    <View style={styles.rowBetween}>
+    <TouchableOpacity style={styles.rowBetween} onPress={() => navigate(`/profile/${donor.donor}`)}>
       <View style={styles.rowTogether}>
         <Text style={styles.rowNumber}>{rank}</Text>
         <Text style={[styles.title, { color: Colors.black }]}>{donor.donor}</Text>
@@ -71,7 +73,7 @@ export const DonorsListItem = (props: DonorsListItemProps) => {
       <Text style={styles.totalDonated}>
         <Text style={styles.currency}>G$</Text> {formattedDonations}
       </Text>
-    </View>
+    </TouchableOpacity>
   );
 };
 
