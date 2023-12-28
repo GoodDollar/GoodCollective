@@ -8,10 +8,10 @@ import { Link, useMediaQuery } from 'native-base';
 import Dropdown from './Dropdown';
 import { getButtonBGC, getButtonText, getButtonTextColor, getFrequencyTime, getTotalAmount } from '../utils';
 import { useGetTokenPrice, useContractCalls } from '../hooks';
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 import { IpfsCollective } from '../models/models';
 import { useGetBalance } from '../hooks/useGetBalance';
-import { currencyOptions, frequencyOptions } from '../models/constants';
+import { currencyOptions, frequencyOptions, SupportedTokens } from '../models/constants';
 import { InfoIconOrange } from '../assets';
 import { useLocation } from 'react-router-native';
 
@@ -30,8 +30,9 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
 
   const { supportFlowWithSwap, supportFlow } = useContractCalls();
   const { address, isConnected } = useAccount();
+  const { chain } = useNetwork();
 
-  const { balance } = useGetBalance(currency, address);
+  const balance = useGetBalance(currency as keyof SupportedTokens, address, chain?.id);
   const isInsufficientBalance = balance ? donationAmount > balance : true;
 
   const { price } = useGetTokenPrice(currency);

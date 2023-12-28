@@ -1,40 +1,24 @@
-import { CELO_CHAIN_ID, tokenMapping } from '../models/constants';
-import { erc20ABI, useContractRead } from 'wagmi';
-import { ethers } from 'ethers';
+import { tokenMapping } from '../models/constants';
+import { useEffect, useState } from 'react';
+import { fetchBalance } from 'wagmi/actions';
 
 export const useGetBalance = (
-  currencySymbol: string,
-  accountAddress: `0x${string}` | undefined
-): { balance?: number; isLoading: boolean } => {
-  let tokenAddress: `0x${string}` = '0x';
-  for (const [token, address] of Object.entries(tokenMapping)) {
-    if (currencySymbol === token) {
-      tokenAddress = address;
-    }
-  }
+  currencySymbol: keyof typeof tokenMapping,
+  accountAddress: `0x${string}` | undefined,
+  chainId: number | undefined
+): number => {
+  const [tokenBalance, setTokenBalance] = useState<string>('0');
 
-  const {
-    data: balance,
-    isError,
-    isLoading,
-  } = useContractRead({
-    chainId: CELO_CHAIN_ID,
-    address: tokenAddress,
-    abi: erc20ABI,
-    account: accountAddress ?? '0x',
-    functionName: 'balanceOf',
-    args: [accountAddress ?? '0x'],
-  });
+  useEffect(() => {
+    if (!accountAddress) return;
+    fetchBalance({
+      address: accountAddress,
+      chainId: chainId,
+      token: tokenMapping[currencySymbol],
+    }).then((res) => {
+      setTokenBalance(res.formatted);
+    });
+  }, [currencySymbol, accountAddress, chainId]);
 
-  if (isError || isLoading) {
-    return {
-      balance: undefined,
-      isLoading,
-    };
-  }
-
-  return {
-    balance: parseFloat(ethers.utils.formatEther(balance ?? 0)),
-    isLoading,
-  };
+  return parseFloat(tokenBalance);
 };

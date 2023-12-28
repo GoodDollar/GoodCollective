@@ -1,7 +1,13 @@
-export const CELO_CHAIN_ID = 42220;
+export type SupportedTokens = {
+  CELO: `0x${string}`;
+  cUSD: `0x${string}`;
+  WBTC: `0x${string}`;
+  G$: `0x${string}`;
+  // RECY: `0x${string}`;
+  WETH: `0x${string}`;
+};
 
-// TODO: are these token addresses correct?
-export const tokenMapping: Record<string, `0x${string}`> = {
+export const tokenMapping: SupportedTokens = {
   CELO: '0x471EcE3750Da237f93B8E339c536989b8978a438',
   cUSD: '0x765de816845861e75a25fca122bb6898b8b1282a',
   WBTC: '0xD629eb00dEced2a080B7EC630eF6aC117e614f1b',
@@ -10,7 +16,7 @@ export const tokenMapping: Record<string, `0x${string}`> = {
   WETH: '0x66803FB87aBd4aaC3cbB3fAd7C3aa01f6F3FB207',
 };
 
-export const currencyOptions = [
+export const currencyOptions: { value: keyof SupportedTokens; label: keyof SupportedTokens }[] = [
   { value: 'G$', label: 'G$' },
   { value: 'CELO', label: 'CELO' },
   { value: 'cUSD', label: 'cUSD' },

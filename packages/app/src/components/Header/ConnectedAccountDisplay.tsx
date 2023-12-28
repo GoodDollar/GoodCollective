@@ -2,11 +2,10 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import { InterRegular } from '../../utils/webFonts';
 import { formatAmount } from '../../lib/formatAmount';
 import displayAddress from '../../lib/displayAddress';
-import { useEffect, useState } from 'react';
-import { useNetwork } from 'wagmi';
-import { fetchBalance, fetchEnsName } from 'wagmi/actions';
+import { useEnsName, useNetwork } from 'wagmi';
 import { Colors } from '../../utils/colors';
 import { PlaceholderAvatar } from '../../assets';
+import { useGetBalance } from '../../hooks/useGetBalance';
 
 interface ConnectedAccountDisplayProps {
   isDesktopResolution: boolean;
@@ -19,30 +18,8 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
   const { chain } = useNetwork();
   const chainName = chain?.name.replace(/\d+|\s/g, '');
 
-  const [tokenBalance, setTokenBalance] = useState<string>('0');
-  const [ensName, setEnsName] = useState<any>('');
-
-  // TODO: what token is this? Will the token always be the same?
-  useEffect(() => {
-    if (!address) return;
-    fetchBalance({
-      address: address,
-      chainId: chain?.id,
-      token: '0x471EcE3750Da237f93B8E339c536989b8978a438',
-    }).then((res) => {
-      setTokenBalance(res.formatted);
-    });
-  }, [address, chain?.id]);
-
-  useEffect(() => {
-    if (!address) return;
-    fetchEnsName({
-      address: address,
-      chainId: chain?.id,
-    }).then((res) => {
-      setEnsName(res);
-    });
-  }, [address, chain?.id]);
+  const tokenBalance = useGetBalance('G$', address, chain?.id);
+  const { data: ensName } = useEnsName({ address });
 
   return (
     <View style={styles.walletConnectContainer}>
@@ -66,7 +43,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
               <Text style={styles.amountText}>{formatAmount(tokenBalance as any)}</Text>
               <View style={styles.walletConnected}>
                 <Image source={PlaceholderAvatar} resizeMode="contain" style={{ width: 25, height: 25 }} />
-                {ensName.length ? (
+                {ensName ? (
                   <Text style={styles.walletConnectedText}>{ensName}</Text>
                 ) : (
                   <Text style={styles.walletConnectedText}>{displayAddress(address)}</Text>
@@ -95,7 +72,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
             <Text style={styles.amountText}>{formatAmount(tokenBalance as any)}</Text>
             <View style={styles.walletConnected}>
               <Image source={PlaceholderAvatar} resizeMode="contain" style={{ width: 25, height: 25 }} />
-              {ensName.length ? (
+              {ensName ? (
                 <Text style={styles.walletConnectedText}>{ensName}</Text>
               ) : (
                 <Text style={styles.walletConnectedText}>{displayAddress(address)}</Text>
