@@ -9,7 +9,7 @@ import {
   SubgraphSteward,
 } from './subgraphModels';
 
-export type IpfsCollectivesSubgraphResponse = { collectives?: SubgraphIpfsCollective[] };
+export type IpfsCollectivesSubgraphResponse = { collectives?: { id: string; ipfs: SubgraphIpfsCollective }[] };
 export type CollectivesSubgraphResponse = { collectives?: SubgraphCollective[] };
 export type DonorsSubgraphResponse = { donors?: SubgraphDonor[] };
 export type StewardsSubgraphResponse = { stewards?: SubgraphSteward[] };
@@ -18,7 +18,12 @@ export type DonorCollectiveSubgraphResponse = { donorCollectives?: SubgraphDonor
 export function useSubgraphData<T>(
   query: DocumentNode | TypedDocumentNode<any, OperationVariables>,
   options?: LazyQueryHookOptions<T>
-): CollectivesSubgraphResponse | DonorsSubgraphResponse | StewardsSubgraphResponse {
+):
+  | CollectivesSubgraphResponse
+  | DonorsSubgraphResponse
+  | StewardsSubgraphResponse
+  | DonorCollectiveSubgraphResponse
+  | IpfsCollectivesSubgraphResponse {
   const [getData, { data, error, refetch }] = useLazyQuery<any>(query, options);
 
   useEffect(() => {

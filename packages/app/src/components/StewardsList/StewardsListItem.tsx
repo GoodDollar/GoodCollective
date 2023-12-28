@@ -3,6 +3,7 @@ import { Colors } from '../../utils/colors';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { StewardCollective } from '../../models/models';
 import { VerifiedIcon } from '../../assets';
+
 interface StewardListItemProps {
   steward: StewardCollective;
   showActions: boolean;
@@ -13,11 +14,13 @@ interface StewardListItemProps {
 export const StewardsListItem = (props: StewardListItemProps) => {
   const { showActions, steward, profileImage, isVerified } = props;
 
+  const formattedAddress = steward.steward.slice(0, 6) + '...' + steward.steward.slice(-4);
+
   return (
     <View style={styles.row}>
       <Image source={{ uri: profileImage }} style={styles.rowImg} />
       <Text style={styles.title}>
-        {steward.steward} {isVerified && <Image source={VerifiedIcon} style={styles.verifiedIcon} />}
+        {formattedAddress} {isVerified && <Image source={VerifiedIcon} style={styles.verifiedIcon} />}
       </Text>
       {showActions && <Text style={styles.totalActions}>{steward.actions ?? 0} actions</Text>}
     </View>

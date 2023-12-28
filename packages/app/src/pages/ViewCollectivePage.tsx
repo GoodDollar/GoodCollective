@@ -4,9 +4,11 @@ import React from 'react';
 import Breadcrumb from '../components/Breadcrumb';
 import { useMediaQuery } from 'native-base';
 import { useCollectiveById } from '../hooks';
+import { useLocation } from 'react-router-native';
 
 function ViewCollectivePage() {
-  const collectiveId = window.location.pathname.slice('/collective/'.length);
+  const location = useLocation();
+  const collectiveId = location.pathname.slice('/collective/'.length);
   const collective = useCollectiveById(collectiveId);
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,

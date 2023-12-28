@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated } from 'react-native';
-import { backIconUri } from './assets';
 import { Colors } from '../../utils/colors';
+import { BackIcon } from '../../assets';
 
 interface RotatingArrowIconProps {
   openDropdown: boolean;
@@ -32,7 +32,7 @@ export const RotatingArrowIcon = (props: RotatingArrowIconProps) => {
 
   return (
     <Animated.Image
-      source={{ uri: backIconUri }}
+      source={BackIcon}
       resizeMode="contain"
       style={[styles.arrowIcon, { transform: [{ rotate: rotation }] }]}
     />

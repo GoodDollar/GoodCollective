@@ -30,13 +30,7 @@ export type Donor = {
 
 export interface Collective {
   address: string;
-  name?: string;
-  description?: string;
-  email?: string;
-  twitter?: string;
-  instagram?: string;
-  website?: string;
-  headerImage?: string;
+  ipfs: IpfsCollective;
   donorCollectives: DonorCollective[];
   stewardCollectives: StewardCollective[];
   timestamp: number;
@@ -46,7 +40,8 @@ export interface Collective {
 }
 
 export type IpfsCollective = {
-  id: string; // collective address
+  id: string; // ipfs hash
+  collective: string; // collective address
   name: string;
   description: string;
   email?: string;
@@ -54,8 +49,8 @@ export type IpfsCollective = {
   twitter?: string;
   instagram?: string;
   threads?: string;
-  headerImage?: string;
-  logo?: string;
+  headerImage: string;
+  logo: string;
   images?: string[];
 };
 

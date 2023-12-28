@@ -28,7 +28,13 @@ const styles = StyleSheet.create({
   },
   activePage: { color: Colors.purple[200] },
   nextPage: { color: Colors.gray[200] },
-  backIcon: { width: 20, height: 20, marginRight: 10, transform: [{ rotate: '180deg' }] },
+  backIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
+    transform: [{ rotate: '180deg' }],
+    tintColor: Colors.purple[400],
+  },
 });
 
 export default Breadcrumb;

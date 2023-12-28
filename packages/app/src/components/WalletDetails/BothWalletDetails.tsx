@@ -28,20 +28,20 @@ function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProp
   );
 
   return (
-    <View>
-      <View style={styles.row}>
+    <View style={styles.walletDetailsContainer}>
+      <View style={[styles.row]}>
         <View style={[styles.impactBar, styles.greenBar]} />
         <View style={styles.rowContent}>
           <Text style={styles.rowTitle}>This wallet has donated a total of</Text>
-          <View style={[styles.row, { marginVertical: 4 }]}>
+          <View style={[styles.row]}>
             <Text style={styles.rowBoldText}>G$</Text>
             <Text style={styles.rowText}>{formattedDonations}</Text>
           </View>
-          <Text style={styles.formattedUsd}>= {donationsUsdValue}</Text>
+          <Text style={styles.formattedUsd}>= {donationsUsdValue} USD</Text>
         </View>
       </View>
 
-      <View style={styles.row}>
+      <View style={[styles.row]}>
         <View style={[styles.impactBar, styles.greenBar]} />
         <View style={styles.rowContent}>
           <Text style={styles.rowTitle}>Since</Text>
@@ -49,22 +49,22 @@ function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProp
         </View>
       </View>
 
-      <View style={styles.row}>
+      <View style={[styles.row]}>
         <View style={[styles.impactBar, styles.greenBar]} />
         <View style={styles.rowContent}>
           <Text style={styles.rowTitle}>This wallet's funding supported</Text>
-          <View style={[styles.row, { marginVertical: 4 }]}>
+          <View style={[styles.row]}>
             <Text style={styles.rowBoldText}>{peopleSupported}</Text>
             <Text style={styles.rowText}> people</Text>
           </View>
         </View>
       </View>
 
-      <View style={styles.row}>
+      <View style={[styles.row]}>
         <View style={[styles.impactBar, styles.orangeBar]} />
         <View style={styles.rowContent}>
           <Text style={styles.rowTitle}>And received</Text>
-          <View style={[styles.row, { marginVertical: 4 }]}>
+          <View style={[styles.row]}>
             <Text style={styles.rowBoldText}>G$</Text>
             <Text style={styles.rowText}>{formattedRewards}</Text>
           </View>
@@ -72,11 +72,11 @@ function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProp
         </View>
       </View>
 
-      <View style={styles.row}>
+      <View style={[styles.row]}>
         <View style={[styles.impactBar, styles.blueBar]} />
         <View style={styles.rowContent}>
           <Text style={styles.rowTitle}>in the following</Text>
-          <View style={[styles.row, { marginVertical: 4 }]}>
+          <View style={[styles.row]}>
             <Text style={styles.rowBoldText}>{nCollectives}</Text>
             <Text style={styles.rowText}> Collectives</Text>
           </View>

@@ -75,10 +75,10 @@ const styles = StyleSheet.create({
   row: {
     width: '100%',
     backgroundColor: Colors.white,
-    flex: 1,
     flexDirection: 'row',
     marginVertical: 8,
     alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   title: {
     fontSize: 16,

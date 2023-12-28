@@ -8,11 +8,12 @@ import { Link, useMediaQuery } from 'native-base';
 import Dropdown from './Dropdown';
 import { getButtonBGC, getButtonText, getButtonTextColor, getFrequencyTime, getTotalAmount } from '../utils';
 import { useGetTokenPrice, useContractCalls } from '../hooks';
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 import { IpfsCollective } from '../models/models';
 import { useGetBalance } from '../hooks/useGetBalance';
-import { currencyOptions, frequencyOptions } from '../models/constants';
+import { currencyOptions, frequencyOptions, SupportedTokens } from '../models/constants';
 import { InfoIconOrange } from '../assets';
+import { useLocation } from 'react-router-native';
 
 interface DonateComponentProps {
   insufficientLiquidity: boolean;
@@ -29,8 +30,9 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
 
   const { supportFlowWithSwap, supportFlow } = useContractCalls();
   const { address, isConnected } = useAccount();
+  const { chain } = useNetwork();
 
-  const { balance } = useGetBalance(currency, address);
+  const balance = useGetBalance(currency as keyof SupportedTokens, address, chain?.id);
   const isInsufficientBalance = balance ? donationAmount > balance : true;
 
   const { price } = useGetTokenPrice(currency);
@@ -39,6 +41,9 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
+
+  const location = useLocation();
+  const collectiveId = location.pathname.slice('/donate/'.length);
 
   return (
     <View style={[styles.body, isDesktopResolution && styles.bodyDesktop]}>
@@ -212,25 +217,24 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
                 </View>
               </View>
 
-              {frequency != 'One-Time' && (
-                <View>
-                  <View style={styles.reviewRow}>
-                    <Text style={styles.reviewSubtitle}>Donation Duration:</Text>
-                    <View>
-                      <Text style={[styles.subHeading, { textAlign: 'right' }]}>
-                        {duration} <Text style={styles.headerLabel}>{getFrequencyTime(frequency)}</Text>
-                      </Text>
-                    </View>
+              {frequency !== 'One-Time' && (
+                <View style={styles.reviewRow}>
+                  <Text style={styles.reviewSubtitle}>Donation Duration:</Text>
+                  <View>
+                    <Text style={[styles.subHeading, { textAlign: 'right' }]}>
+                      {duration} <Text style={styles.headerLabel}>{getFrequencyTime(frequency)}</Text>
+                    </Text>
                   </View>
-
-                  <View style={styles.reviewRow}>
-                    <Text style={styles.reviewSubtitle}>Total Amount:</Text>
-                    <View>
-                      <Text style={[styles.subHeading, { textAlign: 'right' }]}>
-                        {currency} <Text style={styles.headerLabel}>{getTotalAmount(duration, donationAmount)}</Text>
-                      </Text>
-                      <Text style={styles.descriptionLabel}>{usdValue} USD</Text>
-                    </View>
+                </View>
+              )}
+              {frequency !== 'One-Time' && (
+                <View style={styles.reviewRow}>
+                  <Text style={styles.reviewSubtitle}>Total Amount:</Text>
+                  <View>
+                    <Text style={[styles.subHeading, { textAlign: 'right' }]}>
+                      {currency} <Text style={styles.headerLabel}>{getTotalAmount(duration, donationAmount)}</Text>
+                    </Text>
+                    <Text style={styles.descriptionLabel}>{usdValue} USD</Text>
                   </View>
                 </View>
               )}
@@ -342,7 +346,7 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
             seeType={false}
             onPress={() => {
               if (currency === 'G$') {
-                supportFlow(window.location.pathname.slice('/donate/'.length), donationAmount, address);
+                supportFlow(collectiveId, donationAmount, address);
               } else {
                 supportFlowWithSwap();
               }
@@ -372,6 +376,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'left',
     ...InterSemiBold,
+    marginBottom: 16,
   },
   description: {
     color: Colors.gray[200],

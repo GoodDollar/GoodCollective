@@ -18,20 +18,20 @@ function DonorWalletDetails({ firstName, donor, tokenPrice }: DonorWalletDetails
   const peopleSupported = 0;
 
   return (
-    <View>
-      <View style={styles.row}>
+    <View style={styles.walletDetailsContainer}>
+      <View style={[styles.row]}>
         <View style={[styles.impactBar, styles.greenBar]} />
-        <View style={styles.rowContent}>
+        <View style={[styles.rowContent]}>
           <Text style={styles.rowTitle}>{firstName} has donated a total of</Text>
-          <View style={[styles.row, { marginVertical: 4 }]}>
+          <View style={[styles.row]}>
             <Text style={styles.rowBoldText}>G$</Text>
             <Text style={styles.rowText}>{formattedDonations}</Text>
           </View>
-          <Text style={styles.formattedUsd}>= {usdValue}</Text>
+          <Text style={styles.formattedUsd}>= {usdValue} USD</Text>
         </View>
       </View>
 
-      <View style={styles.row}>
+      <View style={[styles.row]}>
         <View style={[styles.impactBar, styles.greenBar]} />
         <View style={styles.rowContent}>
           <Text style={styles.rowTitle}>Since</Text>
@@ -39,22 +39,22 @@ function DonorWalletDetails({ firstName, donor, tokenPrice }: DonorWalletDetails
         </View>
       </View>
 
-      <View style={styles.row}>
+      <View style={[styles.row]}>
         <View style={[styles.impactBar, styles.greenBar]} />
         <View style={styles.rowContent}>
           <Text style={styles.rowTitle}>{firstName}'s funding supported</Text>
-          <View style={[styles.row, { marginVertical: 4 }]}>
+          <View style={[styles.row]}>
             <Text style={styles.rowBoldText}>{peopleSupported}</Text>
             <Text style={styles.rowText}> people</Text>
           </View>
         </View>
       </View>
 
-      <View style={styles.row}>
+      <View style={[styles.row]}>
         <View style={[styles.impactBar, styles.greenBar]} />
         <View style={styles.rowContent}>
           <Text style={styles.rowTitle}>in the following</Text>
-          <View style={[styles.row, { marginVertical: 4 }]}>
+          <View style={[styles.row]}>
             <Text style={styles.rowBoldText}>{donor.collectives.length}</Text>
             <Text style={styles.rowText}> collectives</Text>
           </View>

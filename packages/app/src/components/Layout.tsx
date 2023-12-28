@@ -6,6 +6,7 @@ import { useLocation } from 'react-router-native';
 import { Colors } from '../utils/colors';
 import { useAccount } from 'wagmi';
 import { useMediaQuery } from 'native-base';
+import useCrossNavigate from '../routes/useCrossNavigate';
 
 interface LayoutProps {
   children: ReactNode;
@@ -20,6 +21,9 @@ function Layout({ children }: LayoutProps) {
   });
 
   const location = useLocation();
+  const { navigate } = useCrossNavigate();
+  const onClickImpactButton = () => navigate('/profile/' + (address ?? ''));
+
   const bodyStyles = {
     ...styles.body,
     backgroundColor: isDesktopResolution ? Colors.brown[200] : Colors.gray[400],
@@ -32,14 +36,14 @@ function Layout({ children }: LayoutProps) {
         <View style={styles.desktopScrollView}>
           {children}
           {location.pathname.includes('collective') && (
-            <ImpactButton title="SEE YOUR IMPACT" path={'/profile/' + address + 'donors'} />
+            <ImpactButton title="SEE YOUR IMPACT" onClick={onClickImpactButton} />
           )}
         </View>
       ) : (
         <ScrollView style={[styles.scrollView, { maxHeight: scrollViewHeight }]}>{children}</ScrollView>
       )}
       {location.pathname.includes('collective') && !isDesktopResolution && (
-        <ImpactButton title="SEE YOUR IMPACT" path={'/profile/' + address + 'donors'} />
+        <ImpactButton title="SEE YOUR IMPACT" onClick={onClickImpactButton} />
       )}
     </View>
   );

@@ -3,18 +3,27 @@ import { Colors } from '../../utils/colors';
 import { InterRegular, InterSemiBold, InterSmall } from '../../utils/webFonts';
 
 export const styles = StyleSheet.create({
+  walletCardsContainer: {
+    flex: 1,
+    gap: 24,
+    align: 'center',
+  },
   cardContainer: {
-    width: '90%',
-    height: 'auto',
+    width: '100%',
+    maxHeight: '450',
     backgroundColor: Colors.white,
     paddingHorizontal: 12,
     paddingVertical: 16,
     borderRadius: 20,
-    flex: 1,
-    marginTop: 20,
-    marginBottom: 20,
-    alignSelf: 'center',
     gap: 24,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
+  cardContentContainer: {
+    width: '100%',
+    gap: 24,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
   },
   actionsContent: {
     gap: 16,
@@ -38,7 +47,6 @@ export const styles = StyleSheet.create({
     height: 30,
     alignSelf: 'center',
   },
-
   title: {
     fontSize: 20,
     lineHeight: 25,
@@ -59,7 +67,6 @@ export const styles = StyleSheet.create({
   performedActions: {
     fontSize: 18,
     color: Colors.gray[100],
-    textDecorationLine: 'underline',
     ...InterSmall,
   },
   totalReceived: {
@@ -73,10 +80,9 @@ export const styles = StyleSheet.create({
     ...InterRegular,
   },
   row: {
-    flex: 1,
     flexDirection: 'row',
     marginBottom: 0,
   },
   formattedUsd: { ...InterSmall, fontSize: 12, color: '#959090' },
-  cardDescription: { flex: 1, flexDirection: 'row', gap: 8 },
+  cardDescription: { flexDirection: 'row', gap: 8 },
 });

@@ -2,6 +2,8 @@ import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
 import { ethers } from 'ethers';
 import { useAccount, useWalletClient } from 'wagmi';
 import { useEthersSigner } from './wagmiF';
+import { useLocation } from 'react-router-native';
+import useCrossNavigate from '../routes/useCrossNavigate';
 
 // import { erc20ABI } from 'wagmi';
 // import { getContract } from 'wagmi/actions';
@@ -13,6 +15,7 @@ export const useContractCalls = () => {
     'https://celo-mainnet.infura.io/v3/655061f57d2c42d6a6d98259bf196567'
   );
   const signer = useEthersSigner();
+  const { navigate } = useCrossNavigate();
 
   const calculateFlow = (amount: any): number | null => {
     const numAmount = Number(amount);
@@ -44,7 +47,8 @@ export const useContractCalls = () => {
       console.log(flowRate);
       const tx = await sdk.deleteFlow(signer as any, poolAddress, flowRate as any);
       await tx.wait();
-      return (window.location.href = '/profile/' + user);
+      navigate('/profile/' + user);
+      return;
     } catch (error) {
       alert('TX Failed');
       console.error('An error occurred:', error);

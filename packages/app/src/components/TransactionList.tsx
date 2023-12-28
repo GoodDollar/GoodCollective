@@ -24,7 +24,7 @@ function TransactionList({ username, currency, amount, transactionId, transactio
 
   return (
     <View style={styles.txContainer}>
-      <View style={styles.row}>
+      <View style={[styles.row, { marginBottom: 24 }]}>
         <Image source={{ uri: TransactionIcon }} style={styles.firstIcon} />
         <Text style={styles.rowText}>Recent Transactions</Text>
       </View>
