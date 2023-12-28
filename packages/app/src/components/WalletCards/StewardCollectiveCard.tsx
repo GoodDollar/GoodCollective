@@ -5,6 +5,7 @@ import { IpfsCollective, StewardCollective } from '../../models/models';
 import { ethers } from 'ethers';
 import { styles } from './styles';
 import { InfoIcon, StewardOrange } from '../../assets';
+import { calculateAmounts } from '../../lib/calculateAmounts';
 
 interface StewardCollectiveCardProps {
   collective: StewardCollective;
@@ -25,9 +26,10 @@ function StewardCollectiveCard({
   const { navigate } = useCrossNavigate();
   const userName = ensName ?? 'This wallet';
 
-  const rewards: number = parseFloat(ethers.utils.formatEther(collective.totalEarned));
-  const rewardsUsdValue = tokenPrice ? (rewards * tokenPrice).toFixed(2) : '0';
-  const formattedRewards = rewards.toFixed(3);
+  const { formatted: rewardsFormatted, usdValue: rewardsUsdValue } = calculateAmounts(
+    collective.totalEarned,
+    tokenPrice
+  );
 
   const dynamicContainerStyle = isDesktopResolution ? { width: '48%' } : {};
 
@@ -55,7 +57,7 @@ function StewardCollectiveCard({
             <Text style={styles.info}>Towards this collective, and received</Text>
             <View style={styles.row}>
               <Text style={styles.bold}>G$ </Text>
-              <Text style={styles.totalReceived}>{formattedRewards}</Text>
+              <Text style={styles.totalReceived}>{rewardsFormatted}</Text>
             </View>
             <Text style={styles.formattedUsd}>= {rewardsUsdValue} USD</Text>
           </View>

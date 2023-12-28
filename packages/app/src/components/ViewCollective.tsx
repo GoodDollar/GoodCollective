@@ -73,23 +73,12 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
 
-  const {
-    decimal: decimalDonations,
-    formatted: formattedDonations,
-    usdValue: donationsUsdValue,
-  } = calculateAmounts(totalDonations, tokenPrice);
-
-  const {
-    decimal: decimalTotalRewards,
-    formatted: formattedTotalRewards,
-    usdValue: totalRewardsUsdValue,
-  } = calculateAmounts(totalRewards, tokenPrice);
-
-  const {
-    decimal: decimalCurrentPool,
-    formatted: formattedCurrentPool,
-    usdValue: currentPoolUsdValue,
-  } = calculateAmounts(currentPool, tokenPrice);
+  const { formatted: formattedDonations, usdValue: donationsUsdValue } = calculateAmounts(totalDonations, tokenPrice);
+  const { formatted: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateAmounts(
+    totalRewards,
+    tokenPrice
+  );
+  const { formatted: formattedCurrentPool, usdValue: currentPoolUsdValue } = calculateAmounts(currentPool, tokenPrice);
 
   const renderDonorsButton = () => (
     <RoundedButton
