@@ -13,6 +13,7 @@ import { IpfsCollective } from '../models/models';
 import { useGetBalance } from '../hooks/useGetBalance';
 import { currencyOptions, frequencyOptions } from '../models/constants';
 import { InfoIconOrange } from '../assets';
+import { useLocation } from 'react-router-native';
 
 interface DonateComponentProps {
   insufficientLiquidity: boolean;
@@ -39,6 +40,9 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
+
+  const location = useLocation();
+  const collectiveId = location.pathname.slice('/donate/'.length);
 
   return (
     <View style={[styles.body, isDesktopResolution && styles.bodyDesktop]}>
@@ -341,7 +345,7 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
             seeType={false}
             onPress={() => {
               if (currency === 'G$') {
-                supportFlow(window.location.pathname.slice('/donate/'.length), donationAmount, address);
+                supportFlow(collectiveId, donationAmount, address);
               } else {
                 supportFlowWithSwap();
               }
