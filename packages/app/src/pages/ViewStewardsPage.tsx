@@ -8,7 +8,7 @@ import { Colors } from '../utils/colors';
 import Breadcrumb from '../components/Breadcrumb';
 import { useLocation } from 'react-router-native';
 import { useCollectiveById } from '../hooks';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Ocean } from '../assets';
 
 function ViewStewardsPage() {
@@ -28,8 +28,6 @@ function ViewStewardsPage() {
       totalEarned: '48000000000000000000000000',
     });
   }
-
-  console.log(JSON.stringify(collective?.stewardCollectives, null, 2));
 
   if (isDesktopResolution) {
     return (
