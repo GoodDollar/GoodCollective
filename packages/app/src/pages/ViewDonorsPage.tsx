@@ -108,14 +108,7 @@ const styles = StyleSheet.create({
     color: Colors.black,
   },
   desktopDonorsContainer: {
-    width: '100%',
-    height: '100%',
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     marginTop: 20,
-    gap: 100,
   },
   donorsContainer: {
     width: '100%',

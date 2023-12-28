@@ -5,7 +5,6 @@ import StewardCollectiveCard from './StewardCollectiveCard';
 import DonorCollectiveCard from './DonorCollectiveCard';
 import React from 'react';
 import { styles } from './styles';
-import { Colors } from '../../utils/colors';
 
 interface WalletCardsProps {
   donor?: Donor;
