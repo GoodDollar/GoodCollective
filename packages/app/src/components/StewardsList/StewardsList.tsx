@@ -10,10 +10,10 @@ import { StewardBlue, StewardGreen } from '../../assets';
 interface StewardListProps {
   listType: 'viewCollective' | 'viewStewards';
   stewards: StewardCollective[];
-  hideTitle?: boolean;
+  titleStyle?: Record<string, any>;
 }
 
-function StewardList({ listType, stewards, hideTitle }: StewardListProps) {
+function StewardList({ listType, stewards, titleStyle }: StewardListProps) {
   const titleIcon = listType === 'viewCollective' ? StewardGreen : StewardBlue;
   const stewardsCountText = listType === 'viewCollective' ? ` (${stewards.length})` : '';
 
@@ -26,12 +26,10 @@ function StewardList({ listType, stewards, hideTitle }: StewardListProps) {
 
   return (
     <View style={styles.stewardsHeader}>
-      {!hideTitle && (
-        <View style={[styles.row, { marginBottom: 24 }]}>
-          <Image source={titleIcon} style={styles.titleIcon} />
-          <Text style={styles.title}>Stewards{stewardsCountText}</Text>
-        </View>
-      )}
+      <View style={[styles.row, { marginBottom: 24, ...(titleStyle ?? {}) }]}>
+        <Image source={titleIcon} style={styles.titleIcon} />
+        <Text style={styles.title}>Stewards{stewardsCountText}</Text>
+      </View>
       <View style={styles.list}>
         {stewards.map((steward, index) => (
           <StewardsListItem

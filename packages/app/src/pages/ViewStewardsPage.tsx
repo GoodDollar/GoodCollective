@@ -19,6 +19,8 @@ function ViewStewardsPage() {
   const collective = useCollectiveById(collectiveId);
   const headerImage = collective?.ipfs.headerImage ? { uri: collective.ipfs.headerImage } : Ocean;
 
+  console.log(JSON.stringify(collective?.stewardCollectives, null, 2));
+
   if (isDesktopResolution) {
     return (
       <Layout>
@@ -31,12 +33,12 @@ function ViewStewardsPage() {
               <Image source={headerImage} style={styles.desktopImage} />
               <Text style={styles.desktopTitle}>{collective.ipfs.name}</Text>
             </View>
-            <View style={styles.desktopStewardsTitle}>
-              <Image source={StewardBlue} style={styles.stewardIcon} />
-              <Text style={styles.listTitle}>Stewards</Text>
-            </View>
             <View style={styles.desktopStewardsContainer}>
-              <StewardList hideTitle stewards={collective.stewardCollectives} listType="viewStewards" />
+              <StewardList
+                titleStyle={styles.desktopTitleUnderline}
+                stewards={collective.stewardCollectives}
+                listType="viewStewards"
+              />
             </View>
           </View>
         )}
@@ -86,7 +88,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 'auto',
     borderRadius: 16,
-    padding: 50,
+    padding: 16,
     marginBottom: 32,
   },
   desktopTopRow: {
@@ -104,26 +106,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: Colors.black,
   },
-  desktopStewardsTitle: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 15,
+  desktopTitleUnderline: {
+    marginBottom: 8,
+    paddingBottom: 16,
     borderBottomColor: Colors.gray[600],
     borderBottomWidth: 1,
     borderStyle: 'solid',
-    paddingBottom: 20,
-    marginTop: 35,
-  },
-  stewardIcon: {
-    width: 32,
-    height: 32,
-  },
-  listTitle: {
-    fontSize: 16,
-    ...InterSemiBold,
-    width: '100%',
-    color: Colors.black,
   },
   desktopStewardsContainer: {
     width: '100%',
