@@ -19,16 +19,6 @@ function ViewStewardsPage() {
   const collective = useCollectiveById(collectiveId);
   const headerImage = collective?.ipfs.headerImage ? { uri: collective.ipfs.headerImage } : Ocean;
 
-  const mockStewardCollectives = collective?.stewardCollectives ?? [];
-  for (let i = 0; i < 16; i++) {
-    mockStewardCollectives.push({
-      steward: '0x52484d481b11fe639c55bbf139702b238ef8ff64',
-      collective: '0x11f18e8f2a27d54a605cf10486b3d4c5aeeba81f',
-      actions: 123,
-      totalEarned: '48000000000000000000000000',
-    });
-  }
-
   if (isDesktopResolution) {
     return (
       <Layout>
@@ -44,7 +34,7 @@ function ViewStewardsPage() {
             <View style={styles.desktopStewardsContainer}>
               <StewardList
                 titleStyle={styles.desktopTitleUnderline}
-                stewards={mockStewardCollectives}
+                stewards={collective?.stewardCollectives}
                 listType="viewStewards"
               />
             </View>
