@@ -63,23 +63,6 @@ function ViewDonorsPage() {
 }
 
 const styles = StyleSheet.create({
-  desktopLink: {
-    flex: 1,
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  chevronIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 10,
-  },
-  linkText: {
-    color: Colors.purple[200],
-  },
-  grayText: {
-    color: Colors.gray[200],
-  },
   desktopContainer: {
     backgroundColor: Colors.white,
     width: '100%',
@@ -125,17 +108,7 @@ const styles = StyleSheet.create({
     color: Colors.black,
   },
   desktopDonorsContainer: {
-    width: '100%',
-    height: '100%',
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     marginTop: 20,
-    gap: 100,
-  },
-  mobileDonorsContainer: {
-    backgroundColor: Colors.gray[800],
   },
   donorsContainer: {
     width: '100%',
@@ -152,15 +125,6 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,
     marginBottom: 16,
-  },
-  listContainer: {
-    width: '100%',
-    padding: 16,
-    shadowColor: Colors.black,
-    gap: 24,
-    backgroundColor: Colors.white,
-    borderRadius: 0,
-    marginBottom: 50,
   },
   image: {
     width: '100%',

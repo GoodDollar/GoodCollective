@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
     width: 16,
   },
   row: {
+    minHeight: 48,
     width: '100%',
     backgroundColor: Colors.white,
     flex: 1,

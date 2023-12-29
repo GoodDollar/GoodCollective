@@ -9,7 +9,7 @@ import Breadcrumb from '../components/Breadcrumb';
 import { useLocation } from 'react-router-native';
 import { useCollectiveById } from '../hooks';
 import React from 'react';
-import { Ocean, StewardBlue } from '../assets';
+import { Ocean } from '../assets';
 
 function ViewStewardsPage() {
   const [isDesktopResolution] = useMediaQuery({ minWidth: 612 });
@@ -18,6 +18,16 @@ function ViewStewardsPage() {
   const collectiveId = location.pathname.slice('/collective/'.length, location.pathname.indexOf('/stewards'));
   const collective = useCollectiveById(collectiveId);
   const headerImage = collective?.ipfs.headerImage ? { uri: collective.ipfs.headerImage } : Ocean;
+
+  const mockStewardCollectives = collective?.stewardCollectives ?? [];
+  for (let i = 0; i < 16; i++) {
+    mockStewardCollectives.push({
+      steward: '0x52484d481b11fe639c55bbf139702b238ef8ff64',
+      collective: '0x11f18e8f2a27d54a605cf10486b3d4c5aeeba81f',
+      actions: 123,
+      totalEarned: '48000000000000000000000000',
+    });
+  }
 
   if (isDesktopResolution) {
     return (
@@ -31,12 +41,12 @@ function ViewStewardsPage() {
               <Image source={headerImage} style={styles.desktopImage} />
               <Text style={styles.desktopTitle}>{collective.ipfs.name}</Text>
             </View>
-            <View style={styles.desktopStewardsTitle}>
-              <Image source={StewardBlue} style={styles.stewardIcon} />
-              <Text style={styles.listTitle}>Stewards</Text>
-            </View>
             <View style={styles.desktopStewardsContainer}>
-              <StewardList hideTitle stewards={collective.stewardCollectives} listType="viewStewards" />
+              <StewardList
+                titleStyle={styles.desktopTitleUnderline}
+                stewards={mockStewardCollectives}
+                listType="viewStewards"
+              />
             </View>
           </View>
         )}
@@ -64,29 +74,12 @@ function ViewStewardsPage() {
 }
 
 const styles = StyleSheet.create({
-  desktopLink: {
-    flex: 1,
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  chevronIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 10,
-  },
-  linkText: {
-    color: Colors.purple[200],
-  },
-  grayText: {
-    color: Colors.gray[200],
-  },
   desktopContainer: {
     backgroundColor: Colors.white,
     width: '100%',
     height: 'auto',
     borderRadius: 16,
-    padding: 50,
+    padding: 16,
     marginBottom: 32,
   },
   desktopTopRow: {
@@ -104,39 +97,15 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: Colors.black,
   },
-  desktopStewardsTitle: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 15,
+  desktopTitleUnderline: {
+    marginBottom: 8,
+    paddingBottom: 16,
     borderBottomColor: Colors.gray[600],
     borderBottomWidth: 1,
     borderStyle: 'solid',
-    paddingBottom: 20,
-    marginTop: 35,
-  },
-  stewardIcon: {
-    width: 32,
-    height: 32,
-  },
-  listTitle: {
-    fontSize: 16,
-    ...InterSemiBold,
-    width: '100%',
-    color: Colors.black,
   },
   desktopStewardsContainer: {
-    width: '100%',
-    height: '100%',
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     marginTop: 20,
-    gap: 100,
-  },
-  mobileStewardsContainer: {
-    backgroundColor: Colors.gray[800],
   },
   stewardsContainer: {
     width: '100%',
@@ -153,15 +122,6 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,
     marginBottom: 16,
-  },
-  listContainer: {
-    width: '100%',
-    padding: 16,
-    shadowColor: Colors.black,
-    gap: 24,
-    backgroundColor: Colors.white,
-    borderRadius: 0,
-    marginBottom: 50,
   },
   image: {
     width: '100%',
