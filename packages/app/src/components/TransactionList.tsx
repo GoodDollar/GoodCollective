@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { Image, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
-import { TransactionIcon } from '../@constants/ColorTypeIcons';
 import TransactionListItem from './TransactionListItem';
 import { Colors } from '../utils/colors';
 import { useMediaQuery } from 'native-base';
-import { ChevronDownIcon } from '../@constants/ChevronIcons';
+import { chevronDown, TransactionIcon } from '../assets';
 
 const placeholderTransactions = [true, false, true, true, false, true, false, true, true, false, true, false];
 
@@ -25,7 +24,7 @@ function TransactionList({ username, currency, amount, transactionId, transactio
 
   return (
     <View style={styles.txContainer}>
-      <View style={styles.row}>
+      <View style={[styles.row, { marginBottom: 24 }]}>
         <Image source={{ uri: TransactionIcon }} style={styles.firstIcon} />
         <Text style={styles.rowText}>Recent Transactions</Text>
       </View>
@@ -44,7 +43,7 @@ function TransactionList({ username, currency, amount, transactionId, transactio
         <TouchableOpacity onPress={() => setShowAll(!showAll)} style={styles.showMoreButton}>
           <Text style={styles.showMoreText}>Show {showAll ? 'less' : 'more'}</Text>
           <Image
-            source={{ uri: ChevronDownIcon }}
+            source={chevronDown}
             style={[styles.showMoreIcon, { transform: [{ rotate: !showAll ? '0deg' : '180deg' }] }]}
           />
         </TouchableOpacity>

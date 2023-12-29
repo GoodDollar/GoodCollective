@@ -1,15 +1,61 @@
+export type StewardCollective = {
+  steward: string;
+  collective: string;
+  actions: number;
+  totalEarned: string;
+};
+
 export interface Steward {
-  username: string;
-  actions?: number;
-  isVerified: boolean;
+  address: string;
+  actions: number;
+  totalEarned: string;
+  // nfts: ProvableNFT[] | string[]; --> This can be fetched, but we are not using it in the MVP
+  collectives: StewardCollective[];
 }
 
-export interface Collective {
-  name?: string;
-  description?: string;
-  email?: string;
-  twitter?: string;
-  id: string;
+export type DonorCollective = {
+  donor: string;
+  collective: string;
+  contribution: string;
+  flowRate: string;
   timestamp: number;
-  contributions?: number;
+};
+
+export type Donor = {
+  address: string;
+  joined: number;
+  totalDonated: string;
+  collectives: DonorCollective[];
+};
+
+export interface Collective {
+  address: string;
+  ipfs: IpfsCollective;
+  donorCollectives: DonorCollective[];
+  stewardCollectives: StewardCollective[];
+  timestamp: number;
+  paymentsMade: number;
+  totalDonations: string;
+  totalRewards: string;
 }
+
+export type IpfsCollective = {
+  id: string; // ipfs hash
+  collective: string; // collective address
+  name: string;
+  description: string;
+  email?: string;
+  website?: string;
+  twitter?: string;
+  instagram?: string;
+  threads?: string;
+  headerImage: string;
+  logo: string;
+  images?: string[];
+};
+
+// export type ProvableNFT = {
+//   owner: string;
+//   hash: string;
+//   collective: Collective | string;
+// };

@@ -1,15 +1,11 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-import oceanUri from '../@constants/SafariImagePlaceholder';
+import { StyleSheet, Text, View, Image } from 'react-native';
 import Layout from '../components/Layout';
-import StewardList from '../components/StewardsList/StewardsList';
-import ImpactButton from '../components/ImpactButton';
-import { LightningIconUri } from '../@constants/LightningIcon';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import ActivityLog from '../components/ActivityLog';
 import { Colors } from '../utils/colors';
-import { FruitDoveUri } from '../@constants/ProfilePictures';
-import ProfileView from '../components/ProfileComponent';
-import { ProfileTypes } from '../@constants/ProfileTypes';
+import ProfileView from '../components/ProfileView';
+import { ProfileTypes } from '../models/ProfileTypes';
+import { LightningIcon } from '../assets';
 
 function ActivityLogPage() {
   return (
@@ -18,22 +14,18 @@ function ActivityLogPage() {
         <View style={[styles.container, styles.elevation]}>
           <View>
             <ProfileView
-              profileData={{
-                imageUrl: FruitDoveUri,
-                firstName: 'John',
-                lastName: 'Doe',
-                profileLink: 'https://app.prosperity.global',
-                domain: 'John.CELO',
-                userId: 'q827tbc1386..134c',
-                profileType: ProfileTypes.domain,
-              }}
+              firstName={'John'}
+              lastName={'Doe'}
+              ensDomain={'John.CELO'}
+              userAddress={'q827tbc1386..134c'}
+              profileType={ProfileTypes.domain}
             />
           </View>
 
           <Text style={styles.title}>Restoring the Kakamega Forest</Text>
 
           <View style={styles.logHeader}>
-            <Image source={{ uri: LightningIconUri }} style={styles.titleIcon} />
+            <Image source={LightningIcon} style={styles.titleIcon} />
             <Text style={styles.title}>Action Log</Text>
           </View>
         </View>

@@ -1,11 +1,9 @@
 import { Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import useCrossNavigate from '../routes/useCrossNavigate';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
-// import { CloseIcon } from '../@constants/ChevronIcons';
-// import { PhoneImg } from '../@constants/PhoneImg';
-import { ThankYouImg } from '../@constants/ThankYouImg';
 import { Colors } from '../utils/colors';
 import { useAccount } from 'wagmi';
+import { ThankYouImg } from '../assets';
 
 interface ThankYouModalProps {
   openModal: boolean;
@@ -26,7 +24,7 @@ const ThankYouModal = ({ openModal }: ThankYouModalProps) => {
             <Text style={styles.paragraph}>
               To stop your donation, visit the Restoring the Kakamega Forest GoodCollective page.
             </Text>
-            <Image source={{ uri: ThankYouImg }} alt="woman" style={styles.image} />
+            <Image source={ThankYouImg} alt="woman" style={styles.image} />
             <TouchableOpacity style={styles.button} onPress={() => navigate('/walletProfile/' + address)}>
               <Text style={styles.buttonText}>GO TO PROFILE</Text>
             </TouchableOpacity>

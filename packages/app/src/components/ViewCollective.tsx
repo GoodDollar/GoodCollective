@@ -10,10 +10,11 @@ import StopDonationModal from './StopDonationModal';
 import ThankYouModal from './ThankYouModal';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
-import { formatTime } from '../hooks/functions/formatTime';
+import { formatTime } from '../lib/formatTime';
 import { Collective } from '../models/models';
-
-//assets
+import { useGetTokenPrice, useIsDonorOfCollective } from '../hooks';
+import { ethers } from 'ethers';
+import { useAccount } from 'wagmi';
 import {
   AtIcon,
   CalendarIcon,
@@ -21,6 +22,7 @@ import {
   InstagramIcon,
   LastRowIcon,
   ListGreenIcon,
+  Ocean,
   ReceiveLightIcon,
   SendIcon,
   SquaresIcon,
@@ -31,57 +33,69 @@ import {
 } from '../assets/';
 
 interface ViewCollectiveProps {
-  imageUrl?: string;
   collective: Collective;
-  stewardsPaid?: number;
-  paymentsMade?: number;
-  totalPaidOut?: number;
-  currentPool?: number;
-  stewards?: {};
-  recentTransactions?: {};
-  isDonating: boolean;
 }
 
-function ViewCollective({
-  collective,
-  imageUrl,
-  stewardsPaid,
-  paymentsMade,
-  totalPaidOut,
-  currentPool,
-  stewards,
-  recentTransactions,
-  isDonating,
-}: ViewCollectiveProps) {
-  const { name, description, timestamp, id, contributions } = collective;
+function ViewCollective({ collective }: ViewCollectiveProps) {
+  // TODO: fetch recent transactions
+  const recentTransactions = {};
+  // TODO: what is current pool?
+  const currentPool = '0';
+  // TODO: how do i get the action label?
+  const actionLabel = "Stewards get G$ 800 each time they log a tree's status.";
+
+  const {
+    address: poolAddress,
+    ipfs,
+    timestamp,
+    stewardCollectives,
+    paymentsMade,
+    totalRewards,
+    totalDonations,
+  } = collective;
+
+  // default to oceanUri if headerImage is undefined
+  const headerImg = { uri: ipfs.headerImage } ?? Ocean;
+
+  const stewardsPaid = stewardCollectives.length;
+
+  const { address } = useAccount();
+  const isDonating = useIsDonorOfCollective(address ?? '', poolAddress);
 
   const [stopDonationModal, setStopDonationModal] = useState(false);
   const [donateModal, setDonateModal] = useState(false);
+
   const { navigate } = useCrossNavigate();
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
-  // TODO: need actual token price
-  const tokenPrice = 0.00018672442844237;
-  const decimalDonations = (contributions ?? 0) / 10 ** 18;
-  const formattedDonations: string = decimalDonations.toFixed(3);
-  const usdValue = tokenPrice * decimalDonations;
 
-  const renderDonorsButton = () =>
-    isDesktopResolution ? (
-      <></>
-    ) : (
-      <RoundedButton
-        title="See all donors"
-        backgroundColor={Colors.purple[100]}
-        color={Colors.purple[200]}
-        fontSize={18}
-        seeType={true}
-        onPress={() => {
-          navigate(`/collective/${id}/donors`);
-        }}
-      />
-    );
+  const { price: tokenPrice } = useGetTokenPrice('G$');
+
+  const decimalDonations = parseFloat(ethers.utils.formatEther(totalDonations ?? 0));
+  const formattedDonations: string = decimalDonations.toFixed(3);
+  const donationsUsdValue = tokenPrice ? tokenPrice * decimalDonations : undefined;
+
+  const decimalTotalRewards = parseFloat(ethers.utils.formatEther(totalRewards ?? 0));
+  const formattedTotalRewards: string = decimalTotalRewards.toFixed(3);
+  const totalRewardsUsdValue = tokenPrice ? tokenPrice * decimalTotalRewards : undefined;
+
+  const decimalCurrentPool = parseFloat(ethers.utils.formatEther(currentPool ?? 0));
+  const formattedCurrentPool: string = decimalCurrentPool.toFixed(3);
+  const currentPoolUsdValue = tokenPrice ? tokenPrice * decimalCurrentPool : undefined;
+
+  const renderDonorsButton = () => (
+    <RoundedButton
+      title="See all donors"
+      backgroundColor={Colors.purple[100]}
+      color={Colors.purple[200]}
+      fontSize={18}
+      seeType={true}
+      onPress={() => {
+        navigate(`/collective/${poolAddress}/donors`);
+      }}
+    />
+  );
 
   if (isDesktopResolution) {
     return (
@@ -89,11 +103,11 @@ function ViewCollective({
         <View style={{ gap: 24 }}>
           <View style={styles.collectiveDesktopBox}>
             <View style={styles.collectiveDetails}>
-              <Image source={{ uri: imageUrl }} style={styles.imageMobile} />
+              <Image source={headerImg} style={styles.imageMobile} />
 
               <View style={styles.collectiveDesktopData}>
-                <Text style={[styles.title, styles.titleMobile]}>{name}</Text>
-                <Text style={styles.description}>{description}</Text>
+                <Text style={[styles.title, styles.titleMobile]}>{ipfs.name}</Text>
+                <Text style={styles.description}>{ipfs.description}</Text>
                 <View style={[styles.icons, { position: 'absolute', bottom: 0, left: 25 }]}>
                   <Link href={'/'}>
                     <Image source={WebIcon} style={styles.rowIcon} />
@@ -154,7 +168,7 @@ function ViewCollective({
                       fontSize={18}
                       seeType={false}
                       onPress={() => {
-                        navigate(`/donate/${id}`);
+                        navigate(`/donate/${poolAddress}`);
                       }}
                     />
                     {renderDonorsButton()}
@@ -164,7 +178,7 @@ function ViewCollective({
             </View>
 
             <View style={styles.collectiveDesktopTimeline}>
-              <View style={{ flex: 1 }}>
+              <View style={{ flex: 1, gap: 16 }}>
                 <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
                 <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
                 <RowItem
@@ -174,37 +188,27 @@ function ViewCollective({
                   currency=""
                 />
               </View>
-              <View style={{ flex: 1 }}>
-                {contributions ? (
-                  <RowItem
-                    imageUrl={ReceiveLightIcon}
-                    rowInfo="Total Donations Received"
-                    rowData={formattedDonations}
-                    currency="G$"
-                    balance={usdValue.toFixed(5)}
-                  />
-                ) : (
-                  <RowItem
-                    imageUrl={ReceiveLightIcon}
-                    rowInfo="Total Donations Received"
-                    rowData={formattedDonations}
-                    currency="G$"
-                    balance={0}
-                  />
-                )}
+              <View style={{ flex: 1, gap: 16 }}>
+                <RowItem
+                  imageUrl={ReceiveLightIcon}
+                  rowInfo="Total Donations Received"
+                  rowData={formattedDonations}
+                  currency="G$"
+                  balance={donationsUsdValue ?? 0}
+                />
                 <RowItem
                   imageUrl={SendIcon}
                   rowInfo="Total Paid Out"
-                  rowData={totalPaidOut ?? 0}
+                  rowData={formattedTotalRewards}
                   currency="G$"
-                  balance={tokenPrice * (totalPaidOut ?? 0)}
+                  balance={totalRewardsUsdValue ?? 0}
                 />
                 <RowItem
                   imageUrl={SquaresIcon}
                   rowInfo="Current Pool"
-                  rowData={currentPool ?? 0}
+                  rowData={formattedCurrentPool}
                   currency="G$"
-                  balance={tokenPrice * (currentPool ?? 0)}
+                  balance={currentPoolUsdValue ?? 0}
                 />
               </View>
             </View>
@@ -212,14 +216,14 @@ function ViewCollective({
 
           <View style={styles.collectiveDesktopActions}>
             <View style={[styles.container, styles.mobileContainer]}>
-              <StewardList stewards={[]} listType="viewCollective" />
+              <StewardList stewards={stewardCollectives.slice(0, 6)} listType="viewCollective" />
               <RoundedButton
                 title="See all stewards"
                 backgroundColor={Colors.purple[100]}
                 color={Colors.purple[200]}
                 fontSize={18}
                 seeType={true}
-                onPress={() => navigate(`/collective/${id}/stewards`)}
+                onPress={() => navigate(`/collective/${poolAddress}/stewards`)}
               />
             </View>
             <View style={[styles.container, styles.mobileContainer]}>
@@ -232,7 +236,6 @@ function ViewCollective({
             </View>
           </View>
           <StopDonationModal openModal={stopDonationModal} setOpenModal={setStopDonationModal} />
-          {/* <ThankYouModal openModal={donateModal} setOpenModal={setDonateModal} /> */}
         </View>
       </>
     );
@@ -240,11 +243,11 @@ function ViewCollective({
 
   return (
     <>
-      <Image source={{ uri: imageUrl }} style={styles.image} />
+      <Image source={headerImg} style={styles.image} />
       <View style={{ gap: 24 }}>
         <View style={[styles.container]}>
-          <Text style={styles.title}>{name}</Text>
-          <Text style={styles.description}>{description}</Text>
+          <Text style={styles.title}>{ipfs.name}</Text>
+          <Text style={styles.description}>{ipfs.description}</Text>
           <View style={styles.icons}>
             <Link href={'/'}>
               <Image source={WebIcon} style={styles.rowIcon} />
@@ -268,39 +271,33 @@ function ViewCollective({
           </View>
           <View style={styles.collectiveInformation}>
             <Image source={InfoIcon} style={styles.infoIcon} />
-            <Text style={styles.informationLabel}>Stewards get G$ 800 each time they log a tree's status.</Text>
+            <Text style={styles.informationLabel}>{actionLabel}</Text>
           </View>
 
           <View style={styles.rowContainer}>
             <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
-            <RowItem
-              imageUrl={StewardGreen}
-              rowInfo="Stewards Paid"
-              rowData={stewardsPaid ?? 0}
-              currency="G$"
-              balance={tokenPrice * (stewardsPaid ?? 0)}
-            />
+            <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
             <RowItem imageUrl={ListGreenIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
             <RowItem
               imageUrl={ReceiveLightIcon}
               rowInfo="Total Donations Received"
-              rowData={contributions ?? 0}
+              rowData={formattedDonations}
               currency="G$"
-              balance={tokenPrice * (contributions ?? 0)}
+              balance={donationsUsdValue ?? 0}
             />
             <RowItem
               imageUrl={SendIcon}
               rowInfo="Total Paid Out"
-              rowData={totalPaidOut ?? 0}
+              rowData={formattedTotalRewards}
               currency="G$"
-              balance={tokenPrice * (totalPaidOut ?? 0)}
+              balance={totalRewardsUsdValue ?? 0}
             />
             <RowItem
               imageUrl={SquaresIcon}
               rowInfo="Current Pool"
-              rowData={currentPool ?? 0}
+              rowData={formattedCurrentPool}
               currency="G$"
-              balance={tokenPrice * (currentPool ?? 0)}
+              balance={currentPoolUsdValue ?? 0}
             />
           </View>
 
@@ -318,7 +315,6 @@ function ViewCollective({
                   seeType={false}
                   onPress={() => {
                     setStopDonationModal(true);
-                    console.log(stopDonationModal);
                   }}
                 />
                 {renderDonorsButton()}
@@ -333,7 +329,7 @@ function ViewCollective({
                 fontSize={18}
                 seeType={false}
                 onPress={() => {
-                  navigate(`/donate/${id}`);
+                  navigate(`/donate/${poolAddress}`);
                 }}
               />
               {renderDonorsButton()}
@@ -342,14 +338,14 @@ function ViewCollective({
         </View>
 
         <View style={[styles.container]}>
-          <StewardList stewards={[]} listType="viewCollective" />
+          <StewardList stewards={stewardCollectives.slice(0, 5)} listType="viewCollective" />
           <RoundedButton
             title="See all stewards"
             backgroundColor={Colors.purple[100]}
             color={Colors.purple[200]}
             fontSize={18}
             seeType={true}
-            onPress={() => navigate(`/collective/${id}/stewards`)}
+            onPress={() => navigate(`/collective/${poolAddress}/stewards`)}
           />
         </View>
         <View style={styles.container}>

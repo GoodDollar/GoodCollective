@@ -11,14 +11,9 @@ import * as MobileRoute from './routes/routing.native';
 import * as WebRoute from './routes/routing.web';
 
 import ActivityLogPage from './pages/ActivityLogPage';
-// import WalletProfilePageDonor from './pages/WalletProfilePageDonor';
-// import WalletProfilePageSteward from './pages/WalletProfilePageSteward';
-// import EmptyProfile from './components/EmptyProfile';
 import { Providers } from './Providers';
-import CollectiveCardPage from './pages/CollectiveCardPage';
 import DonatePage from './pages/DonatePage';
 import ModalTestPage from './pages/ModalTestPage';
-import WalletProfilePageEmpty from './pages/WalletProfilePageEmpty';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import { celo } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
@@ -68,7 +63,6 @@ function App(): JSX.Element {
                 <MobileRoute.Routes>
                   <MobileRoute.Route path="/" element={<HomePage />} />
                   <MobileRoute.Route path="/about" element={<AboutPage />} />
-                  <MobileRoute.Route path="/cards" element={<CollectiveCardPage />} />
                   <MobileRoute.Route path="/collective/:id" element={<ViewCollectivePage />} />
                   <MobileRoute.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
                   <MobileRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
@@ -85,13 +79,12 @@ function App(): JSX.Element {
                 <WebRoute.Routes>
                   <WebRoute.Route path="/" element={<HomePage />} />
                   <WebRoute.Route path="/about" element={<AboutPage />} />
-                  <WebRoute.Route path="/cards" element={<CollectiveCardPage />} />
                   <WebRoute.Route path="/collective/:id" element={<ViewCollectivePage />} />
                   <WebRoute.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
                   <WebRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
                   <WebRoute.Route path="/profile/:id" element={<WalletProfilePage />} />
                   <WebRoute.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
-                  <WebRoute.Route path="/walletEmpty" element={<WalletProfilePageEmpty />} />
+                  <WebRoute.Route path="/profile/" element={<WalletProfilePage />} />
                   <WebRoute.Route path="/donate/:id" element={<DonatePage />} />
                   <WebRoute.Route path="/modalTest" element={<ModalTestPage />} />
                 </WebRoute.Routes>

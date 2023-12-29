@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "prepare": "mustache config/celo.json subgraph.template.yaml > subgraph.yaml",
-    "codegen": "yarn build:copyabi && graph codegen",
-    "build": "yarn build:copyabi && graph build",
+    "codegen": "graph codegen",
+    "build": "yarn build:copyabi && yarn codegen && graph build",
     "build:copyabi": "find ../contracts/artifacts/contracts/ -type f -not -name '*.dbg.json' -exec cp '{}' ./abis/ \\;",
     "deploy": "graph deploy --product hosted-service gooddollar/goodcollective",
     "create-local": "graph create --node http://localhost:8020/ scaffold-eth/your-contract",

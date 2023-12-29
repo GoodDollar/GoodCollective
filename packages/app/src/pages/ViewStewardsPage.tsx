@@ -1,89 +1,64 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { useMediaQuery } from 'native-base';
 
-import oceanUri from '../@constants/SafariImagePlaceholder';
 import Layout from '../components/Layout';
 import StewardList from '../components/StewardsList/StewardsList';
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
-import { StewardBlueIcon } from '../@constants/ColorTypeIcons';
 import Breadcrumb from '../components/Breadcrumb';
 import { useLocation } from 'react-router-native';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useCollectiveSpecificData } from '../hooks/useSubgraphData';
-import { Collective } from '../models/models';
+import { useCollectiveById } from '../hooks';
+import React from 'react';
+import { Ocean, StewardBlue } from '../assets';
 
 function ViewStewardsPage() {
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
-  });
+  const [isDesktopResolution] = useMediaQuery({ minWidth: 612 });
 
   const location = useLocation();
-  const collectiveId = location.pathname.slice('/collective/'.length);
-
-  const { request } = useCollectiveSpecificData(collectiveId);
-  const [collective, setCollective] = useState<Collective | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (!request || request.length === 0) {
-      setIsLoading(false);
-      return;
-    }
-    axios
-      .get(`https://gateway.pinata.cloud/ipfs/${request[0].ipfs}`)
-      .then((response) => ({
-        name: response.data?.name,
-        description: response.data?.description,
-        email: response.data?.email,
-        twitter: response.data?.twitter,
-        id: request[0].id,
-        timestamp: request[0].timestamp,
-        contributions: request[0]?.contributions,
-      }))
-      .then((data) => {
-        console.log(JSON.stringify(data, null, 2));
-        setCollective(data);
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [request]);
+  const collectiveId = location.pathname.slice('/collective/'.length, location.pathname.indexOf('/stewards'));
+  const collective = useCollectiveById(collectiveId);
+  const headerImage = collective?.ipfs.headerImage ? { uri: collective.ipfs.headerImage } : Ocean;
 
   if (isDesktopResolution) {
     return (
       <Layout>
         <Breadcrumb currentPage={`collective / ${collectiveId} / stewards`} />
-        <View style={styles.desktopContainer}>
-          <View style={styles.desktopTopRow}>
-            <Image source={{ uri: oceanUri }} style={styles.desktopImage} />
-            <Text style={styles.desktopTitle}>Restoring the Kakamega Forest</Text>
+        {!collective ? (
+          <p>Loading...</p>
+        ) : (
+          <View style={styles.desktopContainer}>
+            <View style={styles.desktopTopRow}>
+              <Image source={headerImage} style={styles.desktopImage} />
+              <Text style={styles.desktopTitle}>{collective.ipfs.name}</Text>
+            </View>
+            <View style={styles.desktopStewardsTitle}>
+              <Image source={StewardBlue} style={styles.stewardIcon} />
+              <Text style={styles.listTitle}>Stewards</Text>
+            </View>
+            <View style={styles.desktopStewardsContainer}>
+              <StewardList hideTitle stewards={collective.stewardCollectives} listType="viewStewards" />
+            </View>
           </View>
-          <View style={styles.desktopStewardsTitle}>
-            <Image source={{ uri: StewardBlueIcon }} style={styles.stewardIcon} />
-            <Text style={styles.listTitle}>Stewards</Text>
-          </View>
-          <View style={styles.desktopStewardsContainer}>
-            <StewardList hideTitle stewards={[]} listType="viewStewards" />
-          </View>
-        </View>
+        )}
       </Layout>
     );
   }
 
   return (
     <Layout>
-      <Image source={{ uri: oceanUri }} style={styles.image} />
-      <View style={[styles.titleContainer]}>
-        <Text style={styles.title}>Restoring the Forest</Text>
-      </View>
-      <View style={[styles.stewardsContainer]}>
-        <StewardList stewards={[]} listType="viewStewards" />
-      </View>
+      {!collective ? (
+        <p>Loading...</p>
+      ) : (
+        <>
+          <Image source={headerImage} style={styles.image} />
+          <View style={[styles.titleContainer]}>
+            <Text style={styles.title}>{collective.ipfs.name}</Text>
+          </View>
+          <View style={[styles.stewardsContainer]}>
+            <StewardList stewards={collective.stewardCollectives} listType="viewStewards" />
+          </View>
+        </>
+      )}
     </Layout>
   );
 }
@@ -112,6 +87,7 @@ const styles = StyleSheet.create({
     height: 'auto',
     borderRadius: 16,
     padding: 50,
+    marginBottom: 32,
   },
   desktopTopRow: {
     flexDirection: 'row',

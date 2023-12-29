@@ -1,8 +1,8 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useState } from 'react';
-import { ChevronDownIcon } from '../@constants/ChevronIcons';
 import { Colors } from '../utils/colors';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
+import { chevronDown } from '../assets';
 
 function renderDropdownItemText(current: string, selection: string) {
   if (current === selection) {
@@ -45,7 +45,7 @@ function Dropdown({ onSelect, value, options }: DropdownProps) {
           setOpen(!open);
         }}>
         <Text style={styles.buttonText}>{value}</Text>
-        <Image source={{ uri: ChevronDownIcon }} style={styles.downIcon} />
+        <Image source={chevronDown} style={styles.downIcon} />
       </TouchableOpacity>
       {open && (
         <View style={styles.dropdownContainer}>

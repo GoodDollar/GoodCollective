@@ -1,7 +1,7 @@
 import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
-import { ReceiveIcon, SendIcon } from '../@constants/ColorTypeIcons';
 import { Colors } from '../utils/colors';
+import { ReceiveIcon, SendIcon } from '../assets';
 
 interface TransactionListProps {
   username: string;

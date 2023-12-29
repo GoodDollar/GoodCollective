@@ -1,7 +1,7 @@
 import { Image, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { ChevronLeftIcon } from '../@constants/ChevronIcons';
 import { Colors } from '../utils/colors';
 import { useNavigate } from 'react-router-dom';
+import { chevronRight } from '../assets';
 
 interface BreadcrumbProps {
   previousPage?: string;
@@ -12,7 +12,7 @@ function Breadcrumb({ currentPage, previousPage }: BreadcrumbProps) {
   const navigate = useNavigate();
   return (
     <TouchableOpacity style={styles.container} onPress={() => navigate(-1)}>
-      <Image source={{ uri: ChevronLeftIcon }} style={styles.backIcon} />
+      <Image source={chevronRight} style={styles.backIcon} />
       <Text style={styles.activePage}>{previousPage ?? 'GoodCollective Home'}</Text>
       <Text style={styles.nextPage}> / {currentPage}</Text>
     </TouchableOpacity>
@@ -28,7 +28,13 @@ const styles = StyleSheet.create({
   },
   activePage: { color: Colors.purple[200] },
   nextPage: { color: Colors.gray[200] },
-  backIcon: { width: 20, height: 20, marginRight: 10 },
+  backIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
+    transform: [{ rotate: '180deg' }],
+    tintColor: Colors.purple[400],
+  },
 });
 
 export default Breadcrumb;

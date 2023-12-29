@@ -3,26 +3,27 @@ import DonateComponent from '../components/DonateComponent';
 import React from 'react';
 import Breadcrumb from '../components/Breadcrumb';
 import { useMediaQuery } from 'native-base';
+import { useCollectivesMetadataById } from '../hooks';
+import { useLocation } from 'react-router-native';
 
 function DonatePage() {
-  const collectiveId = window.location.pathname.slice('/donate/'.length);
+  const location = useLocation();
+  const collectiveId = location.pathname.slice('/donate/'.length);
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
 
+  const ipfsCollectives = useCollectivesMetadataById([collectiveId]);
+  const ipfsCollective = ipfsCollectives.length > 0 ? ipfsCollectives[0] : undefined;
+
   return (
     <Layout>
       {isDesktopResolution && <Breadcrumb previousPage={`collective / ${collectiveId}`} currentPage={`donate`} />}
-      <DonateComponent
-        walletConected={true}
-        insufficientLiquidity={false}
-        priceImpace={false}
-        insufficientBalance={false}
-        currentCollective={{
-          name: 'Restoring the Kakamega Forest',
-          description: '',
-        }}
-      />
+      {!ipfsCollective ? (
+        <p>Loading...</p>
+      ) : (
+        <DonateComponent insufficientLiquidity={false} priceImpact={false} collective={ipfsCollective} />
+      )}
     </Layout>
   );
 }

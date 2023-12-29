@@ -1,10 +1,9 @@
 import { Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
-import { CloseIcon } from '../@constants/ChevronIcons';
-import { PhoneImg } from '../@constants/PhoneImg';
 // import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
 import { modalStyles } from './shared';
+import { CloseIcon, PhoneImg } from '../assets';
 
 interface CompleteDonationModalProps {
   openModal: boolean;
@@ -25,12 +24,12 @@ const CompleteDonationModal = ({ openModal, setOpenModal }: CompleteDonationModa
                   setOpenModal(false);
                   console.log(openModal);
                 }}>
-                <Image source={{ uri: CloseIcon }} style={styles.closeIcon} />
+                <Image source={CloseIcon} style={styles.closeIcon} />
               </TouchableOpacity>
             </View>
             <Text style={styles.title}>COMPLETE YOUR DONATION</Text>
             <Text style={styles.paragraph}>To complete your donation, sign with your wallet.</Text>
-            <Image source={{ uri: PhoneImg }} alt="woman" style={styles.image} />
+            <Image source={PhoneImg} alt="woman" style={styles.image} />
             <TouchableOpacity style={styles.button} onPress={() => setOpenModal(false)}>
               <Text style={styles.buttonText}>OK</Text>
             </TouchableOpacity>

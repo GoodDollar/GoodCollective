@@ -1,42 +1,46 @@
 import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
-import { StewardBlueIcon, StewardGreenIcon } from '../../@constants/ColorTypeIcons';
 import { Colors } from '../../utils/colors';
-import { useMediaQuery } from 'native-base';
-import { StewardListItem } from './StewardListItem';
-import { Steward } from '../../models/models';
-
-const mockStewardData: Steward[] = [0, 1, 2, 3, 4, 5, 6].map(() => ({
-  username: 'username' + Math.floor(Math.random() * 10000),
-  isVerified: true,
-  actions: 730,
-}));
+import { StewardsListItem } from './StewardsListItem';
+import { StewardCollective } from '../../models/models';
+import { useMemo } from 'react';
+import { profilePictures } from '../../utils/profilePictures';
+import { StewardBlue, StewardGreen } from '../../assets';
 
 interface StewardListProps {
   listType: 'viewCollective' | 'viewStewards';
-  stewards: Steward[];
+  stewards: StewardCollective[];
   hideTitle?: boolean;
 }
 
 function StewardList({ listType, stewards, hideTitle }: StewardListProps) {
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
-  });
+  const titleIcon = listType === 'viewCollective' ? StewardGreen : StewardBlue;
+  const stewardsCountText = listType === 'viewCollective' ? ` (${stewards.length})` : '';
 
-  const toShow = listType === 'viewStewards' ? mockStewardData : mockStewardData.slice(0, isDesktopResolution ? 6 : 5);
+  const profileImages: string[] = useMemo(() => {
+    return profilePictures.sort(() => Math.random());
+  }, []);
+
+  // TODO: determine if stewards are verified
+  const isVerified: boolean[] = [true, false, true, false, true, false];
 
   return (
     <View style={styles.stewardsHeader}>
       {!hideTitle && (
         <View style={[styles.row, { marginBottom: 24 }]}>
-          {listType === 'viewCollective' && <Image source={{ uri: StewardGreenIcon }} style={styles.titleIcon} />}
-          <Text style={styles.title}>Stewards{listType === 'viewCollective' ? ` (0)` : ''}</Text>
-          {listType === 'viewStewards' && <Image source={{ uri: StewardBlueIcon }} style={styles.titleIcon} />}
+          <Image source={titleIcon} style={styles.titleIcon} />
+          <Text style={styles.title}>Stewards{stewardsCountText}</Text>
         </View>
       )}
       <View style={styles.list}>
-        {toShow.map((steward) => (
-          <StewardListItem steward={steward} showActions={listType === 'viewStewards'} key={steward.username} />
+        {stewards.map((steward, index) => (
+          <StewardsListItem
+            steward={steward}
+            showActions={listType === 'viewStewards'}
+            key={steward.steward}
+            profileImage={profileImages[index % profileImages.length]}
+            isVerified={isVerified[index]}
+          />
         ))}
       </View>
     </View>
@@ -71,10 +75,10 @@ const styles = StyleSheet.create({
   row: {
     width: '100%',
     backgroundColor: Colors.white,
-    flex: 1,
     flexDirection: 'row',
     marginVertical: 8,
     alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   title: {
     fontSize: 16,

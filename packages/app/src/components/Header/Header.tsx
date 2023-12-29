@@ -4,9 +4,9 @@ import { useAccount } from 'wagmi';
 import { ConnectedAccountDisplay } from './ConnectedAccountDisplay';
 import { ConnectWalletMenu } from './ConnectWalletMenu';
 import { DropdownMenu } from './DropdownMenu';
-import { backIconUri, logoUri } from './assets';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { Colors } from '../../utils/colors';
+import { BackIcon, HeaderLogo } from '../../assets';
 
 function Header(): JSX.Element {
   const { address } = useAccount();
@@ -21,11 +21,7 @@ function Header(): JSX.Element {
         <View style={[styles.headerMobileContainer, styles.desktopWrapper]}>
           <View style={[styles.logoContainerImage, styles.logoContainerImageDesktop]}>
             <TouchableOpacity onPress={() => navigate('/')}>
-              <Image
-                source={{ uri: logoUri }}
-                resizeMode="contain"
-                style={[styles.logoImage, styles.logoImageDesktop]}
-              />
+              <Image source={HeaderLogo} resizeMode="contain" style={[styles.logoImage, styles.logoImageDesktop]} />
             </TouchableOpacity>
           </View>
           <View style={[styles.walletInfoContainer, styles.walletInfoContainerDesktop]}>
@@ -52,10 +48,10 @@ function Header(): JSX.Element {
           </View>
           <View style={styles.logoContainer}>
             <TouchableOpacity onPress={() => navigate(-1)}>
-              <Image source={{ uri: backIconUri }} resizeMode="contain" style={styles.backIcon} />
+              <Image source={BackIcon} resizeMode="contain" style={styles.backIcon} />
             </TouchableOpacity>
             <View style={styles.logoContainerImage}>
-              <Image source={{ uri: logoUri }} resizeMode="contain" style={styles.logoImage} />
+              <Image source={HeaderLogo} resizeMode="contain" style={styles.logoImage} />
             </View>
           </View>
         </View>

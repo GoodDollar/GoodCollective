@@ -1,11 +1,8 @@
 import { Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
-// import { CloseIcon } from '../@constants/ChevronIcons';
-// import { PhoneImg } from '../@constants/PhoneImg';
-// import { ThankYouImg } from '../@constants/ThankYouImg';
-import { QuestionImg } from '../@constants/QuestionImg';
 // import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
+import { QuestionImg } from '../assets';
 
 interface StopDonationModalProps {
   openModal: boolean;
@@ -25,7 +22,7 @@ const StopDonationModal = ({ openModal, setOpenModal }: StopDonationModalProps) 
               support.
             </Text>
 
-            <Image source={{ uri: QuestionImg }} alt="woman" style={styles.image} />
+            <Image source={QuestionImg} alt="woman" style={styles.image} />
             <TouchableOpacity style={styles.button} onPress={() => setOpenModal(false)}>
               <Text style={styles.buttonText}>GO BACK</Text>
             </TouchableOpacity>

@@ -1,97 +1,56 @@
-import { useEffect, useState } from 'react';
-// import Header from './Header';
+import { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-// import ImpactButton from './ImpactButton';
 import { InterRegular, InterSemiBold, InterSmall } from '../utils/webFonts';
 import RoundedButton from './RoundedButton';
-import { InfoIconOrange } from '../@constants/ColorTypeIcons';
-// import useCrossNavigate from '../routes/useCrossNavigate';
 import CompleteDonationModal from './CompleteDonationModal';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import Dropdown from './Dropdown';
 import { getButtonBGC, getButtonText, getButtonTextColor, getFrequencyTime, getTotalAmount } from '../utils';
-import { useGetTokenPrice } from '../hooks/useGetTokenPrice';
-import { useContractCalls } from '../hooks/useContractCalls';
-import { useAccount } from 'wagmi';
+import { useGetTokenPrice, useContractCalls } from '../hooks';
+import { useAccount, useNetwork } from 'wagmi';
+import { IpfsCollective } from '../models/models';
+import { useGetBalance } from '../hooks/useGetBalance';
+import { currencyOptions, frequencyOptions, SupportedTokens } from '../models/constants';
+import { InfoIconOrange } from '../assets';
+import { useLocation } from 'react-router-native';
+
 interface DonateComponentProps {
-  walletConected: boolean;
   insufficientLiquidity: boolean;
-  priceImpace: boolean;
-  insufficientBalance: boolean;
-  currentCollective: {
-    name: string;
-    description: string;
-  };
+  priceImpact: boolean;
+  collective: IpfsCollective;
 }
 
-const currencyOptions = [
-  { value: 'G$', label: 'G$' },
-  { value: 'CELO', label: 'CELO' },
-  { value: 'cUSD', label: 'cUSD' },
-  { value: 'RECY', label: 'RECY' },
-  { value: 'WBTC', label: 'WBTC' },
-  { value: 'WETH', label: 'WETH' },
-];
-
-const frequencyOptions = [
-  { value: 'One-Time', label: 'One-Time' },
-  { value: 'Daily', label: 'Daily' },
-  { value: 'Weekly', label: 'Weekly' },
-  { value: 'Monthly', label: 'Monthly' },
-  { value: 'Yearly', label: 'Yearly' },
-];
-
-const tokenMapping = {
-  CELO: '0x471EcE3750Da237f93B8E339c536989b8978a438',
-  cUSD: '0x765de816845861e75a25fca122bb6898b8b1282a',
-  WBTC: '0xD629eb00dEced2a080B7EC630eF6aC117e614f1b',
-};
-
-function DonateComponent({
-  walletConected,
-  insufficientLiquidity,
-  priceImpace,
-  insufficientBalance,
-  currentCollective,
-}: DonateComponentProps) {
-  // const { navigate } = useCrossNavigate();
+function DonateComponent({ insufficientLiquidity, priceImpact, collective }: DonateComponentProps) {
   const [modalVisible, setModalVisible] = useState(false);
   const [currency, setCurrency] = useState('G$');
   const [frequency, setFrequency] = useState('One-Time');
   const [duration, setDuration] = useState(1);
-  const [amount, setAmount] = useState(0);
-  const [usdValue, setUsdValue] = useState<number>();
-  const { getPrice } = useGetTokenPrice();
-  const { supportFlowWithSwap, supportFlow } = useContractCalls();
-  const { address } = useAccount();
+  const [donationAmount, setDonationAmount] = useState(0);
 
-  useEffect(() => {
-    if (currency === 'G$') {
-      // TODO: is the price of G$ fixed?
-      setUsdValue(0.00018672442844237 * amount);
-      return;
-    }
-    for (const [token, tokenAddress] of Object.entries(tokenMapping)) {
-      if (currency === token) {
-        getPrice(tokenAddress).then((res: any) => {
-          setUsdValue(res * amount);
-        });
-        break;
-      }
-    }
-  }, [amount, currency, getPrice, usdValue, setUsdValue]);
+  const { supportFlowWithSwap, supportFlow } = useContractCalls();
+  const { address, isConnected } = useAccount();
+  const { chain } = useNetwork();
+
+  const balance = useGetBalance(currency as keyof SupportedTokens, address, chain?.id);
+  const isInsufficientBalance = balance ? donationAmount > balance : true;
+
+  const { price } = useGetTokenPrice(currency);
+  const usdValue = price ? donationAmount * price : undefined;
 
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
+
+  const location = useLocation();
+  const collectiveId = location.pathname.slice('/donate/'.length);
 
   return (
     <View style={[styles.body, isDesktopResolution && styles.bodyDesktop]}>
       <View>
         <Text style={styles.title}>Donate</Text>
         <Text style={styles.description}>
-          Support {currentCollective.name}{' '}
+          Support {collective.name}{' '}
           {isDesktopResolution && (
             <>
               <br />
@@ -120,7 +79,7 @@ function DonateComponent({
                     placeholder={'0.00'}
                     style={styles.subHeading}
                     maxLength={7}
-                    onChangeText={(value: any) => setAmount(value)}
+                    onChangeText={(value: string) => setDonationAmount(parseFloat(value))}
                   />
                 </View>
                 <View style={styles.divider} />
@@ -150,7 +109,7 @@ function DonateComponent({
                       placeholder={'0.00'}
                       style={styles.subHeading}
                       maxLength={7}
-                      onChangeText={(value: any) => setAmount(value)}
+                      onChangeText={(value: string) => setDonationAmount(parseFloat(value))}
                     />
                   </View>
                   <View style={styles.divider} />
@@ -230,7 +189,7 @@ function DonateComponent({
           )}
         </>
 
-        {walletConected && (
+        {isConnected && (
           <View style={styles.actionBox}>
             <View style={styles.reviewContainer}>
               <View>
@@ -252,31 +211,30 @@ function DonateComponent({
                 <Text style={styles.reviewSubtitle}>Donation Amount:</Text>
                 <View>
                   <Text style={[styles.subHeading, { textAlign: 'right' }]}>
-                    {currency} <Text style={styles.headerLabel}>{amount}</Text>
+                    {currency} <Text style={styles.headerLabel}>{donationAmount}</Text>
                   </Text>
                   <Text style={styles.descriptionLabel}>{usdValue} USD</Text>
                 </View>
               </View>
 
-              {frequency != 'One-Time' && (
-                <View>
-                  <View style={styles.reviewRow}>
-                    <Text style={styles.reviewSubtitle}>Donation Duration:</Text>
-                    <View>
-                      <Text style={[styles.subHeading, { textAlign: 'right' }]}>
-                        {duration} <Text style={styles.headerLabel}>{getFrequencyTime(frequency)}</Text>
-                      </Text>
-                    </View>
+              {frequency !== 'One-Time' && (
+                <View style={styles.reviewRow}>
+                  <Text style={styles.reviewSubtitle}>Donation Duration:</Text>
+                  <View>
+                    <Text style={[styles.subHeading, { textAlign: 'right' }]}>
+                      {duration} <Text style={styles.headerLabel}>{getFrequencyTime(frequency)}</Text>
+                    </Text>
                   </View>
-
-                  <View style={styles.reviewRow}>
-                    <Text style={styles.reviewSubtitle}>Total Amount:</Text>
-                    <View>
-                      <Text style={[styles.subHeading, { textAlign: 'right' }]}>
-                        {currency} <Text style={styles.headerLabel}>{getTotalAmount(duration, amount)}</Text>
-                      </Text>
-                      <Text style={styles.descriptionLabel}>{usdValue} USD</Text>
-                    </View>
+                </View>
+              )}
+              {frequency !== 'One-Time' && (
+                <View style={styles.reviewRow}>
+                  <Text style={styles.reviewSubtitle}>Total Amount:</Text>
+                  <View>
+                    <Text style={[styles.subHeading, { textAlign: 'right' }]}>
+                      {currency} <Text style={styles.headerLabel}>{getTotalAmount(duration, donationAmount)}</Text>
+                    </Text>
+                    <Text style={styles.descriptionLabel}>{usdValue} USD</Text>
                   </View>
                 </View>
               )}
@@ -285,7 +243,7 @@ function DonateComponent({
             <View style={styles.actionBox}>
               {insufficientLiquidity && (
                 <View style={styles.warningView}>
-                  <Image source={{ uri: InfoIconOrange }} style={styles.infoIcon} />
+                  <Image source={InfoIconOrange} style={styles.infoIcon} />
                   <View style={styles.actionBox}>
                     <View style={styles.actionHeader}>
                       <Text style={styles.warningTitle}>Insufficient liquidity!</Text>
@@ -312,7 +270,7 @@ function DonateComponent({
                 </View>
               )}
 
-              {insufficientLiquidity && (
+              {isInsufficientBalance && (
                 <View style={styles.warningView}>
                   <Image source={{ uri: InfoIconOrange }} style={styles.infoIcon} />
                   <View style={styles.actionBox}>
@@ -339,7 +297,7 @@ function DonateComponent({
                 </View>
               )}
 
-              {priceImpace && (
+              {priceImpact && (
                 <View style={styles.warningView}>
                   <Image source={{ uri: InfoIconOrange }} style={styles.infoIcon} />
                   <View style={styles.actionBox}>
@@ -381,14 +339,14 @@ function DonateComponent({
         <TouchableOpacity>
           <RoundedButton
             maxWidth={isDesktopResolution ? 343 : undefined}
-            title={getButtonText(insufficientLiquidity, priceImpace, insufficientBalance)}
-            backgroundColor={getButtonBGC(insufficientLiquidity, priceImpace, insufficientBalance)}
-            color={getButtonTextColor(insufficientLiquidity, priceImpace, insufficientBalance)}
+            title={getButtonText(insufficientLiquidity, priceImpact, isInsufficientBalance)}
+            backgroundColor={getButtonBGC(insufficientLiquidity, priceImpact, isInsufficientBalance)}
+            color={getButtonTextColor(insufficientLiquidity, priceImpact, isInsufficientBalance)}
             fontSize={18}
             seeType={false}
             onPress={() => {
               if (currency === 'G$') {
-                supportFlow(window.location.pathname.slice('/donate/'.length), amount, address);
+                supportFlow(collectiveId, donationAmount, address);
               } else {
                 supportFlowWithSwap();
               }
@@ -418,6 +376,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'left',
     ...InterSemiBold,
+    marginBottom: 16,
   },
   description: {
     color: Colors.gray[200],
