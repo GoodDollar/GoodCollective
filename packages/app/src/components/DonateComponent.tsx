@@ -270,7 +270,7 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
                 </View>
               )}
 
-              {insufficientLiquidity && (
+              {isInsufficientBalance && (
                 <View style={styles.warningView}>
                   <Image source={{ uri: InfoIconOrange }} style={styles.infoIcon} />
                   <View style={styles.actionBox}>
