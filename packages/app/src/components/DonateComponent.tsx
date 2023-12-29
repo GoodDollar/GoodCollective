@@ -55,6 +55,12 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const currencyDecimals = useGetTokenDecimals(currency, chain?.id);
   const donorCurrencyBalance = useGetDecimalBalance(currency as SupportedTokenSymbol, address, chain?.id);
 
+  const totalDecimalDonation = duration * decimalDonationAmount;
+  const totalDonationFormatted = new Decimal(totalDecimalDonation)
+    .toDecimalPlaces(currencyDecimals, Decimal.ROUND_DOWN)
+    .toString();
+
+  // TODO: need to check approval status and implement token approval flow
   const { supportFlowWithSwap, supportFlow, supportSingleTransferAndCall } = useContractCalls(
     collectiveId,
     currency,
@@ -64,13 +70,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
     (error) => setErrorMessage(error)
   );
 
-  const totalDecimalDonation = duration * decimalDonationAmount;
-  const totalDonationFormatted = new Decimal(totalDecimalDonation)
-    .toDecimalPlaces(currencyDecimals, Decimal.ROUND_DOWN)
-    .toString();
-
   const isInsufficientBalance = donorCurrencyBalance ? totalDecimalDonation > donorCurrencyBalance : true;
-
   // TODO: determine if there is sufficient liquidity for swap
   const isInsufficientLiquidity = false;
   // TODO: determine price impact for swap

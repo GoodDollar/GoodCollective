@@ -117,7 +117,7 @@ export const useContractCalls = (
         minReturn: Number.MAX_SAFE_INTEGER, // TODO: need to get min return using uniswap sdk
         path: '0x', // TODO: need to get path using uniswap sdk
         swapFrom: tokenMapping[currency],
-        deadline: (Date.now() + 18000).toString(),
+        deadline: Math.floor(Date.now() / 1000 + 1800).toString(),
       });
       await tx.wait();
       navigate(`/profile/${address}`);
