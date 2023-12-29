@@ -1,87 +1,213 @@
 import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
-import { ethers } from 'ethers';
-import { useAccount, useWalletClient } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 import { useEthersSigner } from './wagmiF';
-import { useLocation } from 'react-router-native';
 import useCrossNavigate from '../routes/useCrossNavigate';
+import {
+  Frequency,
+  SupportedNetwork,
+  SupportedNetworkNames,
+  SupportedTokenSymbol,
+  tokenMapping,
+} from '../models/constants';
+import { useGetTokenDecimals } from './useGetTokenDecimals';
+import { useCallback } from 'react';
+import { calculateFlowRate } from '../lib/calculateFlowRate';
+import { calculateRawTotalDonation } from '../lib/calculateRawTotalDonation';
+import Decimal from 'decimal.js';
 
-// import { erc20ABI } from 'wagmi';
-// import { getContract } from 'wagmi/actions';
+interface ContractCalls {
+  supportFlowWithSwap: () => Promise<void>;
+  supportFlow: () => Promise<void>;
+  supportSingleTransferAndCall: () => Promise<void>;
+  supportSingleBatch: () => Promise<void>;
+}
 
-export const useContractCalls = () => {
-  const { data: walletClient } = useWalletClient();
+export const useContractCalls = (
+  collective: string,
+  currency: SupportedTokenSymbol,
+  decimalAmountIn: number,
+  duration: number,
+  frequency: Frequency,
+  onError: (error: string) => void
+): ContractCalls => {
   const { address } = useAccount();
-  const provider = new ethers.providers.JsonRpcProvider(
-    'https://celo-mainnet.infura.io/v3/655061f57d2c42d6a6d98259bf196567'
-  );
-  const signer = useEthersSigner();
+  const { chain } = useNetwork();
+  const signer = useEthersSigner({ chainId: chain?.id });
+  const currencyDecimals = useGetTokenDecimals(currency, chain?.id);
   const { navigate } = useCrossNavigate();
 
-  const calculateFlow = (amount: any): number | null => {
-    const numAmount = Number(amount);
-    console.log(numAmount);
-    if (isNaN(numAmount)) {
-      alert('You can only calculate a flowRate based on a number');
-      return null;
+  const supportFlow = useCallback(async () => {
+    if (!address) {
+      onError('No address found. Please connect your wallet.');
+      return;
+    }
+    if (!chain?.id || !(chain?.id in SupportedNetwork)) {
+      onError('Unsupported network. Please connect to Celo Mainnet or Celo Alfajores.');
+      return;
+    }
+    if (!signer) {
+      onError('Failed to get signer.');
+      return;
     }
 
-    const monthlyAmount = ethers.utils.parseEther(amount.toString()) as any as number;
-    return Math.floor(monthlyAmount / 3600 / 24 / (365 / 12)) as number;
-  };
-
-  const supportFlow = async (poolAddress: string, amountIn: any, user: any) => {
-    const flowRate = calculateFlow(amountIn);
-
+    const flowRate = calculateFlowRate(decimalAmountIn, duration, frequency, currencyDecimals);
     if (!flowRate) {
-      console.error('Failed to calculate flow rate.');
+      onError('Failed to calculate flow rate.');
       return;
     }
 
-    try {
-      const sdk = new GoodCollectiveSDK('42220', provider, {
-        network: 'celo',
-        nftStorageKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
-      });
+    const chainIdString = chain.id.toString() as `${SupportedNetwork}`;
+    const network = SupportedNetworkNames[chain.id as SupportedNetwork];
 
-      if (!address) return;
-      console.log(flowRate);
-      const tx = await sdk.deleteFlow(signer as any, poolAddress, flowRate as any);
+    try {
+      const sdk = new GoodCollectiveSDK(chainIdString, signer.provider, { network });
+      const tx = await sdk.supportFlow(signer, collective, flowRate);
       await tx.wait();
-      navigate('/profile/' + user);
+      navigate(`/profile/${address}`);
       return;
     } catch (error) {
-      alert('TX Failed');
-      console.error('An error occurred:', error);
+      onError(`An unexpected error occurred: ${error}`);
     }
-  };
-  const supportFlowWithSwap = async () => {
+  }, [
+    address,
+    chain?.id,
+    collective,
+    currencyDecimals,
+    decimalAmountIn,
+    duration,
+    frequency,
+    navigate,
+    onError,
+    signer,
+  ]);
+
+  const supportFlowWithSwap = useCallback(async () => {
+    if (!address) {
+      onError('No address found. Please connect your wallet.');
+      return;
+    }
+    if (!chain?.id || !(chain?.id in SupportedNetwork)) {
+      onError('Unsupported network. Please connect to Celo Mainnet or Celo Alfajores.');
+      return;
+    }
+    if (!signer) {
+      onError('Failed to get signer.');
+      return;
+    }
+
+    const flowRate = calculateFlowRate(decimalAmountIn, duration, frequency, currencyDecimals);
+    if (!flowRate) {
+      onError('Failed to calculate flow rate.');
+      return;
+    }
+
+    const chainIdString = chain.id.toString() as `${SupportedNetwork}`;
+    const network = SupportedNetworkNames[chain.id as SupportedNetwork];
+
+    // swap values
+    const amountIn = calculateRawTotalDonation(decimalAmountIn, duration, currencyDecimals).toFixed(
+      0,
+      Decimal.ROUND_DOWN
+    );
+
     try {
-      const sdk = new GoodCollectiveSDK('42220', provider, {
-        network: 'celo',
-        nftStorageKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
+      const sdk = new GoodCollectiveSDK(chainIdString, signer.provider, { network });
+      const tx = await sdk.supportFlowWithSwap(signer, collective, flowRate, {
+        amount: amountIn,
+        minReturn: Number.MAX_SAFE_INTEGER, // TODO: need to get min return using uniswap sdk
+        path: '0x', // TODO: need to get path using uniswap sdk
+        swapFrom: tokenMapping[currency],
+        deadline: (Date.now() + 18000).toString(),
       });
-      if (!address) return;
-      await sdk.supportFlowWithSwap(
-        walletClient?.sendTransaction as any,
-        '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A',
-        '100000000000000',
-        {
-          amount: 100,
-          minReturn: 100000000000000,
-          path: '0x',
-          swapFrom: '0xCAa7349CEA390F89641fe306D93591f87595dc1F',
-          deadline: (Date.now() + 1000000 / 1000).toFixed(0),
-        }
-      );
+      await tx.wait();
+      navigate(`/profile/${address}`);
+      return;
     } catch (error) {
-      console.error('An error occurred:', error);
+      onError(`An unexpected error occurred: ${error}`);
     }
-  };
-  const supportSingleTransferAndCall = async () => {};
-  const supportSingleBatch = async () => {};
+  }, [
+    address,
+    chain?.id,
+    collective,
+    currency,
+    currencyDecimals,
+    decimalAmountIn,
+    duration,
+    frequency,
+    navigate,
+    onError,
+    signer,
+  ]);
+
+  const supportSingleTransferAndCall = useCallback(async () => {
+    if (!address) {
+      onError('No address found. Please connect your wallet.');
+      return;
+    }
+    if (!chain?.id || !(chain?.id in SupportedNetwork)) {
+      onError('Unsupported network. Please connect to Celo Mainnet or Celo Alfajores.');
+      return;
+    }
+    if (!signer) {
+      onError('Failed to get signer.');
+      return;
+    }
+
+    const chainIdString = chain.id.toString() as `${SupportedNetwork}`;
+    const network = SupportedNetworkNames[chain.id as SupportedNetwork];
+
+    const donationAmount = calculateRawTotalDonation(decimalAmountIn, duration, currencyDecimals).toFixed(
+      0,
+      Decimal.ROUND_DOWN
+    );
+
+    try {
+      const sdk = new GoodCollectiveSDK(chainIdString, signer.provider, { network });
+      const tx = await sdk.supportSingleTransferAndCall(signer, collective, donationAmount);
+      await tx.wait();
+      navigate(`/profile/${address}`);
+      return;
+    } catch (error) {
+      onError(`An unexpected error occurred: ${error}`);
+    }
+  }, [address, chain?.id, collective, currencyDecimals, decimalAmountIn, duration, navigate, onError, signer]);
+
+  const supportSingleBatch = useCallback(async () => {
+    if (!address) {
+      onError('No address found. Please connect your wallet.');
+      return;
+    }
+    if (!chain?.id || !(chain?.id in SupportedNetwork)) {
+      onError('Unsupported network. Please connect to Celo Mainnet or Celo Alfajores.');
+      return;
+    }
+    if (!signer) {
+      onError('Failed to get signer.');
+      return;
+    }
+
+    const chainIdString = chain.id.toString() as `${SupportedNetwork}`;
+    const network = SupportedNetworkNames[chain.id as SupportedNetwork];
+
+    const donationAmount = calculateRawTotalDonation(decimalAmountIn, duration, currencyDecimals).toFixed(
+      0,
+      Decimal.ROUND_DOWN
+    );
+
+    try {
+      const sdk = new GoodCollectiveSDK(chainIdString, signer.provider, { network });
+      const tx = await sdk.supportSingleBatch(signer, collective, donationAmount);
+      await tx.wait();
+      navigate(`/profile/${address}`);
+      return;
+    } catch (error) {
+      onError(`An unexpected error occurred: ${error}`);
+    }
+  }, [address, chain?.id, collective, currencyDecimals, decimalAmountIn, duration, navigate, onError, signer]);
+
   return {
-    supportFlowWithSwap,
     supportFlow,
+    supportFlowWithSwap,
     supportSingleTransferAndCall,
     supportSingleBatch,
   };

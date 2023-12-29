@@ -1,5 +1,4 @@
 import Layout from '../components/Layout';
-import DonateComponent from '../components/DonateComponent';
 import SwitchModal from '../components/SwitchModal';
 import CompleteDonationModal from '../components/CompleteDonationModal';
 import ThankYouModal from '../components/ThankYouModal';
@@ -15,7 +14,7 @@ function ModalTestPage() {
       <SwitchModal openModal={openModal} setOpenModal={setOpenModal} />
       <CompleteDonationModal openModal={openModal} setOpenModal={setOpenModal} />
       <ThankYouModal openModal={openModal} setOpenModal={setOpenModal} />
-      <ErrorModal openModal={openModal} setOpenModal={setOpenModal} />
+      <ErrorModal openModal={openModal} setOpenModal={setOpenModal} message={'Something went wrong'} />
       <AproveSwapModal openModal={openModal} setOpenModal={setOpenModal} />
       <StopDonationModal openModal={openModal} setOpenModal={setOpenModal} />
     </Layout>

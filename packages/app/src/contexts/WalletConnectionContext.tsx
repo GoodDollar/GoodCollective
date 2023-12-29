@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useEthers } from '@usedapp/core';
 import { useConnectWallet } from '@web3-onboard/react';
-import { shortenAddress } from '../utils';
 import { useSwitchNetwork } from '@gooddollar/web3sdk-v2';
+import { formatAddress } from '../lib/formatAddress';
 interface IWalletConnectionContext {
   disconnectWallet: () => Promise<void>;
   connectWallet: () => Promise<void>;
@@ -42,12 +42,12 @@ const WalletConnectionProvider: React.FC<{
       setWalletName('Luis.celo');
       return;
     }
-    setWalletName(shortenAddress(_account));
+    setWalletName(formatAddress(_account, 3));
   };
 
   useEffect(() => {
     setWalletAddress(account || '');
-    if (account) getWalletName(shortenAddress(account));
+    if (account) getWalletName(formatAddress(account, 3));
   }, [account]);
 
   return (

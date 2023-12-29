@@ -1,11 +1,11 @@
-import { tokenMapping } from '../models/constants';
+import { SupportedNetwork, SupportedTokenSymbol, tokenMapping } from '../models/constants';
 import { useEffect, useState } from 'react';
 import { fetchBalance } from 'wagmi/actions';
 
-export const useGetBalance = (
-  currencySymbol: keyof typeof tokenMapping,
+export const useGetDecimalBalance = (
+  currencySymbol: SupportedTokenSymbol,
   accountAddress: `0x${string}` | undefined,
-  chainId: number | undefined
+  chainId: number = SupportedNetwork.celo
 ): number => {
   const [tokenBalance, setTokenBalance] = useState<string>('0');
 

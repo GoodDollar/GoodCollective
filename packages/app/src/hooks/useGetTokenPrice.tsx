@@ -1,21 +1,17 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { tokenMapping } from '../models/constants';
+import { SupportedTokenSymbol, tokenMapping } from '../models/constants';
 
-export const useGetTokenPrice = (currency: string): { price?: number; isLoading: boolean } => {
+export const useGetTokenPrice = (currency: SupportedTokenSymbol): { price?: number; isLoading: boolean } => {
   const [price, setPrice] = useState<number | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
-    for (const [token, tokenAddress] of Object.entries(tokenMapping)) {
-      if (currency === token) {
-        getTokenPrice(tokenAddress).then((res: number | undefined) => {
-          setPrice(res);
-        });
-        break;
-      }
-    }
+    const tokenAddress = tokenMapping[currency];
+    getTokenPrice(tokenAddress).then((res: number | undefined) => {
+      setPrice(res);
+    });
     setIsLoading(false);
   }, [currency]);
 

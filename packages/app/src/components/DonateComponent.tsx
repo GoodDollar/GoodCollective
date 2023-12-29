@@ -1,49 +1,83 @@
 import { useState } from 'react';
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TextInput, View } from 'react-native';
 import { InterRegular, InterSemiBold, InterSmall } from '../utils/webFonts';
 import RoundedButton from './RoundedButton';
 import CompleteDonationModal from './CompleteDonationModal';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import Dropdown from './Dropdown';
-import { getButtonBGC, getButtonText, getButtonTextColor, getFrequencyTime, getTotalAmount } from '../utils';
-import { useGetTokenPrice, useContractCalls } from '../hooks';
+import {
+  getDonateButtonBackgroundColor,
+  getDonateButtonText,
+  getDonateButtonTextColor,
+  getFrequencyPlural,
+} from '../utils';
+import { useContractCalls, useGetTokenPrice } from '../hooks';
 import { useAccount, useNetwork } from 'wagmi';
 import { IpfsCollective } from '../models/models';
-import { useGetBalance } from '../hooks/useGetBalance';
-import { currencyOptions, frequencyOptions, SupportedTokens } from '../models/constants';
+import { useGetDecimalBalance } from '../hooks/useGetDecimalBalance';
+import {
+  currencyOptions,
+  Frequency,
+  frequencyOptions,
+  SupportedNetwork,
+  SupportedTokenSymbol,
+} from '../models/constants';
 import { InfoIconOrange } from '../assets';
 import { useLocation } from 'react-router-native';
+import { useGetTokenDecimals } from '../hooks/useGetTokenDecimals';
+import Decimal from 'decimal.js';
+import { formatFiatCurrency } from '../lib/formatFiatCurrency';
+import ErrorModal from './ErrorModal';
 
 interface DonateComponentProps {
-  insufficientLiquidity: boolean;
-  priceImpact: boolean;
   collective: IpfsCollective;
 }
 
-function DonateComponent({ insufficientLiquidity, priceImpact, collective }: DonateComponentProps) {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [currency, setCurrency] = useState('G$');
-  const [frequency, setFrequency] = useState('One-Time');
-  const [duration, setDuration] = useState(1);
-  const [donationAmount, setDonationAmount] = useState(0);
-
-  const { supportFlowWithSwap, supportFlow } = useContractCalls();
-  const { address, isConnected } = useAccount();
-  const { chain } = useNetwork();
-
-  const balance = useGetBalance(currency as keyof SupportedTokens, address, chain?.id);
-  const isInsufficientBalance = balance ? donationAmount > balance : true;
-
-  const { price } = useGetTokenPrice(currency);
-  const usdValue = price ? donationAmount * price : undefined;
-
+function DonateComponent({ collective }: DonateComponentProps) {
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
-
   const location = useLocation();
   const collectiveId = location.pathname.slice('/donate/'.length);
+
+  const { address, isConnected } = useAccount();
+  const { chain } = useNetwork();
+
+  const [completeDonationModalVisible, setCompleteDonationModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+
+  const [currency, setCurrency] = useState<SupportedTokenSymbol>('G$');
+  const [frequency, setFrequency] = useState<Frequency>(Frequency.OneTime);
+  const [duration, setDuration] = useState(1);
+  const [decimalDonationAmount, setDecimalDonationAmount] = useState(0);
+
+  const currencyDecimals = useGetTokenDecimals(currency, chain?.id);
+  const donorCurrencyBalance = useGetDecimalBalance(currency as SupportedTokenSymbol, address, chain?.id);
+
+  const { supportFlowWithSwap, supportFlow, supportSingleTransferAndCall } = useContractCalls(
+    collectiveId,
+    currency,
+    decimalDonationAmount,
+    duration,
+    frequency,
+    (error) => setErrorMessage(error)
+  );
+
+  const totalDecimalDonation = duration * decimalDonationAmount;
+  const totalDonationFormatted = new Decimal(totalDecimalDonation)
+    .toDecimalPlaces(currencyDecimals, Decimal.ROUND_DOWN)
+    .toString();
+
+  const isInsufficientBalance = donorCurrencyBalance ? totalDecimalDonation > donorCurrencyBalance : true;
+
+  // TODO: determine if there is sufficient liquidity for swap
+  const isInsufficientLiquidity = false;
+  // TODO: determine price impact for swap
+  const isUnacceptablePriceImpact = false;
+
+  const { price } = useGetTokenPrice(currency as SupportedTokenSymbol);
+  const usdValue = price ? formatFiatCurrency(decimalDonationAmount * price) : undefined;
 
   return (
     <View style={[styles.body, isDesktopResolution && styles.bodyDesktop]}>
@@ -79,7 +113,7 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
                     placeholder={'0.00'}
                     style={styles.subHeading}
                     maxLength={7}
-                    onChangeText={(value: string) => setDonationAmount(parseFloat(value))}
+                    onChangeText={(value: string) => setDecimalDonationAmount(parseFloat(value))}
                   />
                 </View>
                 <View style={styles.divider} />
@@ -109,7 +143,7 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
                       placeholder={'0.00'}
                       style={styles.subHeading}
                       maxLength={7}
-                      onChangeText={(value: string) => setDonationAmount(parseFloat(value))}
+                      onChangeText={(value: string) => setDecimalDonationAmount(parseFloat(value))}
                     />
                   </View>
                   <View style={styles.divider} />
@@ -126,7 +160,11 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
                 How often do you want to donate this {!isDesktopResolution && <br />} amount?
               </Text>
             </View>
-            <Dropdown value={frequency} onSelect={(value: string) => setFrequency(value)} options={frequencyOptions} />
+            <Dropdown
+              value={frequency}
+              onSelect={(value: string) => setFrequency(value as Frequency)}
+              options={frequencyOptions}
+            />
           </View>
           <View>
             {frequency !== 'One-Time' && (
@@ -151,7 +189,9 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
                     onChangeText={(value: string) => setDuration(Number(value))}
                   />
 
-                  <Text style={[styles.durationInput, styles.durationLabel]}>{getFrequencyTime(frequency)}</Text>
+                  <Text style={[styles.durationInput, styles.durationLabel]}>
+                    {getFrequencyPlural(frequency as Frequency)}
+                  </Text>
                 </View>
               </View>
             )}
@@ -165,7 +205,7 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
             <>
               <Dropdown
                 value={frequency}
-                onSelect={(value: string) => setFrequency(value)}
+                onSelect={(value: string) => setFrequency(value as Frequency)}
                 options={frequencyOptions}
               />
               {frequency !== 'One-Time' && (
@@ -181,7 +221,7 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
                       onChangeText={(value: any) => setDuration(value)}
                     />
 
-                    <Text style={[styles.durationInput, styles.durationLabel]}>{getFrequencyTime(frequency)}</Text>
+                    <Text style={[styles.durationInput, styles.durationLabel]}>{getFrequencyPlural(frequency)}</Text>
                   </View>
                 </View>
               )}
@@ -211,7 +251,7 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
                 <Text style={styles.reviewSubtitle}>Donation Amount:</Text>
                 <View>
                   <Text style={[styles.subHeading, { textAlign: 'right' }]}>
-                    {currency} <Text style={styles.headerLabel}>{donationAmount}</Text>
+                    {currency} <Text style={styles.headerLabel}>{decimalDonationAmount}</Text>
                   </Text>
                   <Text style={styles.descriptionLabel}>{usdValue} USD</Text>
                 </View>
@@ -222,17 +262,17 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
                   <Text style={styles.reviewSubtitle}>Donation Duration:</Text>
                   <View>
                     <Text style={[styles.subHeading, { textAlign: 'right' }]}>
-                      {duration} <Text style={styles.headerLabel}>{getFrequencyTime(frequency)}</Text>
+                      {duration} <Text style={styles.headerLabel}>{getFrequencyPlural(frequency)}</Text>
                     </Text>
                   </View>
                 </View>
               )}
-              {frequency !== 'One-Time' && (
+              {frequency !== Frequency.OneTime && (
                 <View style={styles.reviewRow}>
                   <Text style={styles.reviewSubtitle}>Total Amount:</Text>
                   <View>
                     <Text style={[styles.subHeading, { textAlign: 'right' }]}>
-                      {currency} <Text style={styles.headerLabel}>{getTotalAmount(duration, donationAmount)}</Text>
+                      {currency} <Text style={styles.headerLabel}>{totalDonationFormatted}</Text>
                     </Text>
                     <Text style={styles.descriptionLabel}>{usdValue} USD</Text>
                   </View>
@@ -241,7 +281,7 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
             </View>
 
             <View style={styles.actionBox}>
-              {insufficientLiquidity && (
+              {isInsufficientLiquidity && (
                 <View style={styles.warningView}>
                   <Image source={InfoIconOrange} style={styles.infoIcon} />
                   <View style={styles.actionBox}>
@@ -270,7 +310,7 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
                 </View>
               )}
 
-              {insufficientLiquidity && (
+              {isInsufficientBalance && (
                 <View style={styles.warningView}>
                   <Image source={{ uri: InfoIconOrange }} style={styles.infoIcon} />
                   <View style={styles.actionBox}>
@@ -297,7 +337,7 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
                 </View>
               )}
 
-              {priceImpact && (
+              {isUnacceptablePriceImpact && (
                 <View style={styles.warningView}>
                   <Image source={{ uri: InfoIconOrange }} style={styles.infoIcon} />
                   <View style={styles.actionBox}>
@@ -336,25 +376,49 @@ function DonateComponent({ insufficientLiquidity, priceImpact, collective }: Don
           </View>
         )}
 
-        <TouchableOpacity>
-          <RoundedButton
-            maxWidth={isDesktopResolution ? 343 : undefined}
-            title={getButtonText(insufficientLiquidity, priceImpact, isInsufficientBalance)}
-            backgroundColor={getButtonBGC(insufficientLiquidity, priceImpact, isInsufficientBalance)}
-            color={getButtonTextColor(insufficientLiquidity, priceImpact, isInsufficientBalance)}
-            fontSize={18}
-            seeType={false}
-            onPress={() => {
-              if (currency === 'G$') {
-                supportFlow(collectiveId, donationAmount, address);
-              } else {
-                supportFlowWithSwap();
-              }
-            }}
-          />
-        </TouchableOpacity>
+        <RoundedButton
+          maxWidth={isDesktopResolution ? 343 : undefined}
+          title={getDonateButtonText(
+            !!address,
+            !!(chain?.id && chain.id in SupportedNetwork),
+            isInsufficientLiquidity,
+            isUnacceptablePriceImpact,
+            isInsufficientBalance
+          )}
+          backgroundColor={getDonateButtonBackgroundColor(
+            !!address,
+            !!(chain?.id && chain.id in SupportedNetwork),
+            isInsufficientLiquidity,
+            isUnacceptablePriceImpact,
+            isInsufficientBalance
+          )}
+          color={getDonateButtonTextColor(
+            !!address,
+            !!(chain?.id && chain.id in SupportedNetwork),
+            isInsufficientLiquidity,
+            isUnacceptablePriceImpact,
+            isInsufficientBalance
+          )}
+          fontSize={18}
+          seeType={false}
+          onPress={() => {
+            if (frequency === Frequency.OneTime) {
+              supportSingleTransferAndCall();
+            } else if (currency === 'G$') {
+              supportFlow();
+            } else {
+              supportFlowWithSwap();
+            }
+          }}
+          disabled={address === undefined || chain?.id === undefined || !(chain.id in SupportedNetwork)}
+        />
       </View>
-      <CompleteDonationModal openModal={modalVisible} setOpenModal={setModalVisible} />
+      <ErrorModal
+        openModal={!!errorMessage}
+        setOpenModal={() => setErrorMessage(undefined)}
+        message={errorMessage ?? ''}
+      />
+      <CompleteDonationModal openModal={completeDonationModalVisible} setOpenModal={setCompleteDonationModalVisible} />
     </View>
   );
 }

@@ -4,6 +4,7 @@ import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { DonorCollective } from '../../models/models';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import Decimal from 'decimal.js';
+import { formatAddress } from '../../lib/formatAddress';
 
 interface DonorsListItemProps {
   donor: DonorCollective;
@@ -15,7 +16,7 @@ export const DonorsListItem = (props: DonorsListItemProps) => {
   const { navigate } = useCrossNavigate();
 
   const formattedDonations: string = new Decimal(donor.contribution ?? 0).toFixed(3);
-  const formattedAddress = donor.donor.slice(0, 6) + '...' + donor.donor.slice(-4);
+  const formattedAddress = formatAddress(donor.donor, 5);
 
   if (rank === 1) {
     return (

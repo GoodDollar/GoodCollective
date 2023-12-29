@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BigNumberish, ethers } from 'ethers';
-import { calculateAmounts, CalculatedAmounts } from '../lib/calculateAmounts';
+import { calculateGoodDollarAmounts, CalculatedAmounts } from '../lib/calculateGoodDollarAmounts';
 
 // based on https://github.com/superfluid-finance/superfluid-console/blob/master/src/components/FlowingBalance.tsx
 
@@ -53,5 +53,5 @@ export function useFlowingBalance(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [balance, balanceTimestamp, flowRate]);
 
-  return calculateAmounts(weiValue.toString(), tokenPrice);
+  return calculateGoodDollarAmounts(weiValue.toString(), tokenPrice);
 }
