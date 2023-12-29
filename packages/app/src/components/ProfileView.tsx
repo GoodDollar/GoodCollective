@@ -8,10 +8,10 @@ import { profilePictures } from '../utils/profilePictures';
 import { VerifiedIcon } from '../assets';
 
 interface ProfileViewProps {
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   ensDomain?: string;
-  userAddress: string;
+  userAddress?: string;
   profileType: ProfileTypes;
 }
 
@@ -22,55 +22,32 @@ function ProfileView({ firstName, lastName, ensDomain, userAddress, profileType 
 
   const profileLink = 'https://app.prosperity.global';
 
-  if (profileType === ProfileTypes.nameAndDomain) {
-    return (
-      <TouchableOpacity style={styles.profileView}>
-        <Image source={profileImage} style={styles.pfp} />
-        <View style={styles.profileText}>
-          <Text style={styles.title}>
-            {firstName} {lastName} <Image source={VerifiedIcon} style={styles.verifiedIcon} />
-          </Text>
-          <Text style={styles.line}>{ensDomain}</Text>
-        </View>
-      </TouchableOpacity>
-    );
-  }
-  if (profileType === ProfileTypes.domain) {
-    return (
-      <TouchableOpacity style={styles.profileView}>
-        <Image source={profileImage} style={styles.pfp} />
-        <View style={[styles.profileText, { justifyContent: 'center' }]}>
-          <Text style={styles.title}>{ensDomain}</Text>
-        </View>
-      </TouchableOpacity>
-    );
-  }
-  if (profileType === ProfileTypes.claimDomain) {
-    return (
-      <TouchableOpacity style={styles.profileView}>
-        <Image source={profileImage} style={styles.pfp} />
-        <View style={styles.profileText}>
-          <Text style={styles.title}>{userAddress}</Text>
-          <Link style={styles.line} href={profileLink} isExternal>
-            Claim your .Celo domain.
-          </Link>
-        </View>
-      </TouchableOpacity>
-    );
-  }
-  if (profileType === ProfileTypes.justId) {
-    return (
-      <TouchableOpacity style={styles.profileView}>
-        <Image source={profileImage} style={styles.pfp} />
-        <View style={styles.profileText}>
-          <Link href="" style={styles.title}>
-            {ensDomain}
-          </Link>
-          <Text style={styles.line}>{userAddress}</Text>
-        </View>
-      </TouchableOpacity>
-    );
-  }
+  const formattedAddress = userAddress?.slice(0, 6) + '...' + userAddress?.slice(-4);
+
+  return (
+    <TouchableOpacity style={styles.profileView}>
+      <Image source={profileImage} style={styles.pfp} />
+      <View style={styles.profileText}>
+        {profileType === ProfileTypes.nameAndDomain && (
+          <>
+            <Text style={styles.title}>
+              {firstName} {lastName} <Image source={VerifiedIcon} style={styles.verifiedIcon} />
+            </Text>
+            <Text style={styles.line}>{ensDomain}</Text>
+          </>
+        )}
+        {profileType === ProfileTypes.domain && <Text style={styles.title}>{ensDomain}</Text>}
+        {profileType === ProfileTypes.claimDomain && (
+          <>
+            <Text style={styles.title}>{formattedAddress}</Text>
+            <Link style={styles.line} href={profileLink} isExternal>
+              Claim your .Celo domain.
+            </Link>
+          </>
+        )}
+      </View>
+    </TouchableOpacity>
+  );
 }
 
 const styles = StyleSheet.create({

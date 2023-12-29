@@ -26,6 +26,7 @@ function WalletProfile({ address, firstName, lastName, donor, steward }: WalletP
   });
 
   const { data: ensName } = useEnsName({ address });
+  const profileType = ensName ? ProfileTypes.nameAndDomain : ProfileTypes.claimDomain;
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
 
@@ -46,8 +47,8 @@ function WalletProfile({ address, firstName, lastName, donor, steward }: WalletP
               firstName={firstName}
               lastName={lastName}
               ensDomain={ensName ?? undefined}
-              userAddress={address ?? ''}
-              profileType={ProfileTypes.nameAndDomain}
+              userAddress={address}
+              profileType={profileType}
             />
             <View style={styles.row}>
               <Image style={styles.lIcon} source={LightningIcon} />
@@ -76,8 +77,8 @@ function WalletProfile({ address, firstName, lastName, donor, steward }: WalletP
             firstName={firstName}
             lastName={lastName}
             ensDomain={ensName ?? undefined}
-            userAddress={address ?? ''}
-            profileType={ProfileTypes.nameAndDomain}
+            userAddress={address}
+            profileType={profileType}
           />
           <View style={styles.row}>
             <Image style={styles.lIcon} source={LightningIcon} />
