@@ -12,7 +12,7 @@ export function useSupportSingleBatch(
   currencyDecimals: number,
   decimalAmountIn: number,
   onError: (error: string) => void,
-  toggleCompleteDonationModal: () => void
+  toggleCompleteDonationModal: (value: boolean) => void
 ) {
   const { address } = useAccount();
   const { chain } = useNetwork();
@@ -44,11 +44,12 @@ export function useSupportSingleBatch(
     try {
       const sdk = new GoodCollectiveSDK(chainIdString, signer.provider, { network });
       const tx = await sdk.supportSingleBatch(signer, collective, donationAmount);
-      toggleCompleteDonationModal();
+      toggleCompleteDonationModal(true);
       await tx.wait();
       navigate(`/profile/${address}`);
       return;
     } catch (error) {
+      toggleCompleteDonationModal(false);
       onError(`An unexpected error occurred: ${error}`);
     }
   }, [

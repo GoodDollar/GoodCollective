@@ -12,12 +12,13 @@ const V3_ROUTER_ADDRESS = '0x5615CDAb10dc425a742d643d949a7F474C01abc4';
 export function useApproveSwapTokenCallback(
   currencyIn: SupportedTokenSymbol,
   decimalAmountIn: number,
-  duration: number
+  duration: number,
+  toggleApproveSwapModalVisible: (value: boolean) => void
 ): {
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
-  handleApproveToken?: () => Promise<`0x${string}`>;
+  handleApproveToken?: () => Promise<`0x${string}` | undefined>;
 } {
   const { address } = useAccount();
   const { chain } = useNetwork();
@@ -44,10 +45,15 @@ export function useApproveSwapTokenCallback(
       return undefined;
     }
     return async () => {
-      const result = await writeAsync();
-      return result.hash;
+      toggleApproveSwapModalVisible(true);
+      const result = await writeAsync().catch((_) => {
+        // user rejected the transaction
+        toggleApproveSwapModalVisible(false);
+        return undefined;
+      });
+      return result?.hash;
     };
-  }, [writeAsync]);
+  }, [writeAsync, toggleApproveSwapModalVisible]);
 
   return {
     isLoading,

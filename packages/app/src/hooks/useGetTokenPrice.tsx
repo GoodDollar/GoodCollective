@@ -21,9 +21,7 @@ const getTokenPrice = (currency: string): Promise<number | undefined> => {
   let tokenAddress = coingeckoTokenMapping[currency];
   const url = `https://api.coingecko.com/api/v3/simple/token_price/celo?contract_addresses=${coingeckoTokenMapping[currency]}&vs_currencies=usd`;
   return axios
-    .get(url, {
-      withCredentials: false,
-    })
+    .get(url)
     .then((res) => {
       return res.data[tokenAddress.toLowerCase()].usd;
     })

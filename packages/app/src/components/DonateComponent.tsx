@@ -33,6 +33,7 @@ import { SwapRouteState, useSwapRoute } from '../hooks/useSwapRoute';
 import { useApproveSwapTokenCallback } from '../hooks/useApproveSwapTokenCallback';
 import ApproveSwapModal from './ApproveSwapModal';
 import { waitForTransaction } from '@wagmi/core';
+import { TransactionReceipt } from 'viem';
 
 interface DonateComponentProps {
   collective: IpfsCollective;
@@ -68,7 +69,9 @@ function DonateComponent({ collective }: DonateComponentProps) {
     handleApproveToken,
     isLoading: handleApproveTokenIsLoading,
     isError: handleApproveTokenIsError,
-  } = useApproveSwapTokenCallback(currency, decimalDonationAmount, duration);
+  } = useApproveSwapTokenCallback(currency, decimalDonationAmount, duration, (value: boolean) =>
+    setApproveSwapModalVisible(value)
+  );
 
   const { supportFlowWithSwap, supportFlow, supportSingleTransferAndCall } = useContractCalls(
     collectiveId,
@@ -77,7 +80,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
     duration,
     frequency,
     (error) => setErrorMessage(error),
-    () => setCompleteDonationModalVisible(!completeDonationModalVisible),
+    (value: boolean) => setCompleteDonationModalVisible(value),
     rawMinimumAmountOut,
     swapPath
   );
@@ -90,15 +93,25 @@ function DonateComponent({ collective }: DonateComponentProps) {
       setErrorMessage('An error occurred while generating a transaction to approve the token.');
       return;
     }
+    let txReceipt: TransactionReceipt | undefined;
     const txHash = await handleApproveToken();
-    setApproveSwapModalVisible(!approveSwapModalVisible);
-    const txReceipt = await waitForTransaction({
-      chainId: chain?.id,
-      confirmations: 1,
-      hash: txHash,
-      timeout: 1000 * 60 * 5,
-    });
-    if (txReceipt.status === 'success') {
+    if (txHash === undefined) {
+      return;
+    }
+    try {
+      txReceipt = await waitForTransaction({
+        chainId: chain?.id,
+        confirmations: 1,
+        hash: txHash,
+        timeout: 1000 * 60 * 5,
+      });
+    } catch (error) {
+      setApproveSwapModalVisible(false);
+      setErrorMessage(
+        'Something went wrong: Your token approval transaction was not confirmed within the timeout period.'
+      );
+    }
+    if (txReceipt?.status === 'success') {
       if (frequency === Frequency.OneTime) {
         await supportSingleTransferAndCall();
       } else if (currency === 'G$') {
@@ -108,7 +121,6 @@ function DonateComponent({ collective }: DonateComponentProps) {
       }
     }
   }, [
-    approveSwapModalVisible,
     chain?.id,
     currency,
     frequency,
@@ -224,30 +236,20 @@ function DonateComponent({ collective }: DonateComponentProps) {
           </View>
           <View>
             {frequency !== 'One-Time' && (
-              <View style={[styles.row, styles.actionBox, isDesktopResolution && { flex: 1, flexDirection: 'column' }]}>
+              <View style={[styles.row, styles.actionBox, styles.desktopActionBox]}>
                 <Text style={styles.title}>For How Long: </Text>
-                <View
-                  style={[
-                    styles.frequencyDetails,
-                    isDesktopResolution && {
-                      flex: 1,
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    },
-                  ]}>
+                <View style={[styles.frequencyDetails, styles.desktopFrequencyDetails]}>
                   <TextInput
                     keyboardType="decimal-pad"
                     multiline={false}
-                    placeholder={'0'}
+                    placeholder={duration.toString()}
+                    value={duration.toString()}
                     style={styles.durationInput}
                     maxLength={2}
                     onChangeText={(value: string) => setDuration(Number(value))}
                   />
 
-                  <Text style={[styles.durationInput, styles.durationLabel]}>
-                    {getFrequencyPlural(frequency as Frequency)}
-                  </Text>
+                  <Text style={[styles.durationLabel]}>{getFrequencyPlural(frequency as Frequency)}</Text>
                 </View>
               </View>
             )}
@@ -255,7 +257,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
         </View>
       )}
 
-      <View style={styles.frecuencyWrapper}>
+      <View style={styles.frequencyWrapper}>
         <>
           {!isDesktopResolution && (
             <>
@@ -265,19 +267,20 @@ function DonateComponent({ collective }: DonateComponentProps) {
                 options={frequencyOptions}
               />
               {frequency !== 'One-Time' && (
-                <View style={[styles.row, styles.actionBox]}>
-                  <Text style={styles.title}>For How Long: </Text>
+                <View style={[styles.row, styles.actionBox, { alignItems: 'center', marginTop: 19, marginBottom: 12 }]}>
+                  <Text style={[styles.title, { marginBottom: 0 }]}>For How Long: </Text>
                   <View style={styles.frequencyDetails}>
                     <TextInput
                       keyboardType="decimal-pad"
                       multiline={false}
-                      placeholder={'0'}
+                      placeholder={duration.toString()}
+                      value={duration.toString()}
                       style={styles.durationInput}
                       maxLength={2}
                       onChangeText={(value: any) => setDuration(value)}
                     />
 
-                    <Text style={[styles.durationInput, styles.durationLabel]}>{getFrequencyPlural(frequency)}</Text>
+                    <Text style={[styles.durationLabel]}>{getFrequencyPlural(frequency)}</Text>
                   </View>
                 </View>
               )}
@@ -528,6 +531,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
+  desktopActionBox: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
   headerLabel: {
     fontSize: 18,
     lineHeight: 27,
@@ -551,28 +559,33 @@ const styles = StyleSheet.create({
     ...InterRegular,
   },
   frequencyDetails: {
+    height: 32,
     gap: 8,
     backgroundColor: Colors.purple[100],
-    paddingTop: 2,
     justifyContent: 'center',
+    alignItems: 'center',
     borderColor: Colors.gray[600],
     borderBottomWidth: 1,
     flex: 1,
     flexDirection: 'row',
   },
+  desktopFrequencyDetails: {
+    maxHeight: 59,
+  },
   durationInput: {
     fontSize: 18,
     lineHeight: 27,
     ...InterSemiBold,
-    // textAlign: 'right',
     width: '20%',
     color: Colors.purple[400],
     textAlign: 'center',
   },
   durationLabel: {
     ...InterSmall,
-    textAlign: 'left',
-    width: 'auto',
+    fontSize: 18,
+    lineHeight: 27,
+    color: Colors.purple[400],
+    textAlignVertical: 'bottom',
   },
   downIcon: {
     width: 24,
@@ -648,7 +661,7 @@ const styles = StyleSheet.create({
     ...InterSmall,
   },
   italic: { fontStyle: 'italic' },
-  frecuencyWrapper: { gap: 17, zIndex: -1 },
+  frequencyWrapper: { gap: 17, zIndex: -1 },
   donationAction: { width: 'auto', flexGrow: 1 },
   donationCurrencyHeader: { flexDirection: 'row', width: 'auto', gap: 20 },
 });

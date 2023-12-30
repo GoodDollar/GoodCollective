@@ -20,7 +20,7 @@ export const useContractCalls = (
   duration: number,
   frequency: Frequency,
   onError: (error: string) => void,
-  toggleCompleteDonationModal: () => void,
+  toggleCompleteDonationModal: (value: boolean) => void,
   minReturnFromSwap?: string,
   swapPath?: string
 ): ContractCalls => {

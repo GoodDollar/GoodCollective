@@ -13,7 +13,7 @@ export function useSupportFlow(
   duration: number,
   frequency: Frequency,
   onError: (error: string) => void,
-  toggleCompleteDonationModal: () => void
+  toggleCompleteDonationModal: (value: boolean) => void
 ) {
   const { address } = useAccount();
   const { chain } = useNetwork();
@@ -46,11 +46,12 @@ export function useSupportFlow(
     try {
       const sdk = new GoodCollectiveSDK(chainIdString, signer.provider, { network });
       const tx = await sdk.supportFlow(signer, collective, flowRate);
-      toggleCompleteDonationModal();
+      toggleCompleteDonationModal(true);
       await tx.wait();
       navigate(`/profile/${address}`);
       return;
     } catch (error) {
+      toggleCompleteDonationModal(false);
       onError(`An unexpected error occurred: ${error}`);
     }
   }, [

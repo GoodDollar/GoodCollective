@@ -1,5 +1,5 @@
 import { AlphaRouter, SwapRoute, SwapType, V3Route } from '@uniswap/smart-order-router';
-import { CurrencyAmount, Percent, Token, TradeType } from '@uniswap/sdk-core';
+import { CurrencyAmount, Fraction, Percent, Token, TradeType } from '@uniswap/sdk-core';
 import { useAccount, useNetwork } from 'wagmi';
 import { SupportedNetwork, SupportedTokenSymbol, tokenMapping } from '../models/constants';
 import { useEthersSigner } from './wagmiF';

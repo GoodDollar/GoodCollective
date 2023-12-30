@@ -22,7 +22,7 @@ export function useSupportFlowWithSwap(
   duration: number,
   frequency: Frequency,
   onError: (error: string) => void,
-  toggleCompleteDonationModal: () => void,
+  toggleCompleteDonationModal: (value: boolean) => void,
   minReturnFromSwap?: string,
   swapPath?: string
 ) {
@@ -74,11 +74,12 @@ export function useSupportFlowWithSwap(
         swapFrom: tokenMapping[currency],
         deadline: Math.floor(Date.now() / 1000 + 1800).toString(),
       });
-      toggleCompleteDonationModal();
+      toggleCompleteDonationModal(true);
       await tx.wait();
       navigate(`/profile/${address}`);
       return;
     } catch (error) {
+      toggleCompleteDonationModal(false);
       onError(`An unexpected error occurred: ${error}`);
     }
   }, [

@@ -44,6 +44,7 @@
     "ethers": "^5.6.2",
     "fast-text-encoding": "^1.0.6",
     "graphql": "^16.6.0",
+    "jsbi": "3.1.4",
     "lodash": "^4.17.21",
     "mixpanel-react-native": "^2.3.1",
     "mobile-device-detect": "^0.4.3",
