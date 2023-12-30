@@ -18,42 +18,17 @@ export const DonorsListItem = (props: DonorsListItemProps) => {
   const formattedDonations: string = new Decimal(donor.contribution ?? 0).toFixed(3);
   const formattedAddress = formatAddress(donor.donor, 5);
 
-  if (rank === 1) {
+  const circleBackgroundColor = rank === 1 ? Colors.yellow[100] : rank === 2 ? Colors.gray[700] : Colors.orange[400];
+  const circleTextColor = rank === 1 ? Colors.yellow[200] : rank === 2 ? Colors.blue[200] : Colors.brown[100];
+
+  if (rank < 4) {
     return (
       <TouchableOpacity style={styles.rowBetween} onPress={() => navigate(`/profile/${donor.donor}`)}>
         <View style={styles.rowTogether}>
-          <View style={[styles.circle, { backgroundColor: Colors.yellow[100] }]}>
-            <Text style={[styles.circleText, { color: Colors.yellow[200] }]}>{rank}</Text>
+          <View style={[styles.circle, { backgroundColor: circleBackgroundColor }]}>
+            <Text style={[styles.circleText, { color: circleTextColor }]}>{rank}</Text>
           </View>
-          <Text style={[styles.title, { color: Colors.yellow[200] }]}>{formattedAddress}</Text>
-        </View>
-        <Text style={styles.totalDonated}>
-          <Text style={styles.currency}>G$</Text> {formattedDonations}
-        </Text>
-      </TouchableOpacity>
-    );
-  } else if (rank === 2) {
-    return (
-      <TouchableOpacity style={styles.rowBetween} onPress={() => navigate(`/profile/${donor.donor}`)}>
-        <View style={styles.rowTogether}>
-          <View style={[styles.circle, { backgroundColor: Colors.gray[700] }]}>
-            <Text style={[styles.circleText, { color: Colors.blue[200] }]}>{rank}</Text>
-          </View>
-          <Text style={[styles.title, { color: Colors.blue[200] }]}>{formattedAddress}</Text>
-        </View>
-        <Text style={styles.totalDonated}>
-          <Text style={styles.currency}>G$</Text> {formattedDonations}
-        </Text>
-      </TouchableOpacity>
-    );
-  } else if (rank === 3) {
-    return (
-      <TouchableOpacity style={styles.rowBetween} onPress={() => navigate(`/profile/${donor.donor}`)}>
-        <View style={styles.rowTogether}>
-          <View style={[styles.circle, { backgroundColor: Colors.orange[400] }]}>
-            <Text style={[styles.circleText, { color: Colors.brown[100] }]}>{rank}</Text>
-          </View>
-          <Text style={[styles.title, { color: Colors.brown[100] }]}>{donor.donor}</Text>
+          <Text style={[styles.title, { color: circleTextColor }]}>{formattedAddress}</Text>
         </View>
         <Text style={styles.totalDonated}>
           <Text style={styles.currency}>G$</Text> {formattedDonations}
@@ -107,6 +82,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   row: {
+    minHeight: 48,
     width: '100%',
     backgroundColor: Colors.white,
     flex: 1,

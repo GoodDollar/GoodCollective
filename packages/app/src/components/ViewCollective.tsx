@@ -13,7 +13,6 @@ import { Link, useMediaQuery } from 'native-base';
 import { formatTime } from '../lib/formatTime';
 import { Collective } from '../models/models';
 import { useGetTokenPrice, useIsDonorOfCollective } from '../hooks';
-import { ethers } from 'ethers';
 import { useAccount } from 'wagmi';
 import {
   AtIcon,
@@ -36,6 +35,8 @@ import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 interface ViewCollectiveProps {
   collective: Collective;
 }
+
+// TODO: "See all Stewards" button doesn't work for me and I can't figure out why
 
 function ViewCollective({ collective }: ViewCollectiveProps) {
   // TODO: fetch recent transactions
