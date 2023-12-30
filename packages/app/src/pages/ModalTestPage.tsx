@@ -3,7 +3,7 @@ import SwitchModal from '../components/SwitchModal';
 import CompleteDonationModal from '../components/CompleteDonationModal';
 import ThankYouModal from '../components/ThankYouModal';
 import ErrorModal from '../components/ErrorModal';
-import AproveSwapModal from '../components/AproveSwapModal';
+import ApproveSwapModal from '../components/ApproveSwapModal';
 import StopDonationModal from '../components/StopDonationModal';
 import { useState } from 'react';
 
@@ -15,7 +15,7 @@ function ModalTestPage() {
       <CompleteDonationModal openModal={openModal} setOpenModal={setOpenModal} />
       <ThankYouModal openModal={openModal} setOpenModal={setOpenModal} />
       <ErrorModal openModal={openModal} setOpenModal={setOpenModal} message={'Something went wrong'} />
-      <AproveSwapModal openModal={openModal} setOpenModal={setOpenModal} />
+      <ApproveSwapModal openModal={openModal} setOpenModal={setOpenModal} />
       <StopDonationModal openModal={openModal} setOpenModal={setOpenModal} />
     </Layout>
   );

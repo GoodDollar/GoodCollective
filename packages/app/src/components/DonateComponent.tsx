@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, View } from 'react-native';
 import { InterRegular, InterSemiBold, InterSmall } from '../utils/webFonts';
 import RoundedButton from './RoundedButton';
@@ -29,6 +29,10 @@ import { useGetTokenDecimals } from '../hooks/useGetTokenDecimals';
 import Decimal from 'decimal.js';
 import { formatFiatCurrency } from '../lib/formatFiatCurrency';
 import ErrorModal from './ErrorModal';
+import { SwapRouteState, useSwapRoute } from '../hooks/useSwapRoute';
+import { useApproveSwapTokenCallback } from '../hooks/useApproveSwapTokenCallback';
+import ApproveSwapModal from './ApproveSwapModal';
+import { waitForTransaction } from '@wagmi/core';
 
 interface DonateComponentProps {
   collective: IpfsCollective;
@@ -46,11 +50,75 @@ function DonateComponent({ collective }: DonateComponentProps) {
 
   const [completeDonationModalVisible, setCompleteDonationModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+  const [approveSwapModalVisible, setApproveSwapModalVisible] = useState(false);
 
   const [currency, setCurrency] = useState<SupportedTokenSymbol>('G$');
   const [frequency, setFrequency] = useState<Frequency>(Frequency.OneTime);
   const [duration, setDuration] = useState(1);
   const [decimalDonationAmount, setDecimalDonationAmount] = useState(0);
+
+  const {
+    path: swapPath,
+    rawMinimumAmountOut,
+    priceImpact,
+    status: swapRouteStatus,
+  } = useSwapRoute(currency, decimalDonationAmount, duration);
+
+  const {
+    handleApproveToken,
+    isLoading: handleApproveTokenIsLoading,
+    isError: handleApproveTokenIsError,
+  } = useApproveSwapTokenCallback(currency, decimalDonationAmount, duration);
+
+  const { supportFlowWithSwap, supportFlow, supportSingleTransferAndCall } = useContractCalls(
+    collectiveId,
+    currency,
+    decimalDonationAmount,
+    duration,
+    frequency,
+    (error) => setErrorMessage(error),
+    () => setCompleteDonationModalVisible(!completeDonationModalVisible),
+    rawMinimumAmountOut,
+    swapPath
+  );
+
+  const handleDonate = useCallback(async () => {
+    if (frequency === Frequency.OneTime) {
+      await supportSingleTransferAndCall();
+    } else if (currency === 'G$') {
+      await supportFlow();
+    } else {
+      while (handleApproveTokenIsLoading) {
+        await new Promise((r) => setTimeout(r, 50));
+      }
+      if (handleApproveTokenIsError || handleApproveToken === undefined) {
+        setErrorMessage('An error occurred while generating a transaction to approve the token.');
+        return;
+      }
+      const txHash = await handleApproveToken();
+      setApproveSwapModalVisible(!approveSwapModalVisible);
+      const txReceipt = await waitForTransaction({
+        chainId: chain?.id,
+        confirmations: 1,
+        hash: txHash,
+        timeout: 1000 * 60 * 5,
+      });
+      if (txReceipt.status === 'success') {
+        await supportFlowWithSwap();
+      }
+    }
+  }, [
+    approveSwapModalVisible,
+    chain?.id,
+    currency,
+    frequency,
+    handleApproveToken,
+    handleApproveTokenIsError,
+    handleApproveTokenIsLoading,
+    supportFlow,
+    supportFlowWithSwap,
+    supportSingleTransferAndCall,
+  ]);
 
   const currencyDecimals = useGetTokenDecimals(currency, chain?.id);
   const donorCurrencyBalance = useGetDecimalBalance(currency as SupportedTokenSymbol, address, chain?.id);
@@ -60,21 +128,9 @@ function DonateComponent({ collective }: DonateComponentProps) {
     .toDecimalPlaces(currencyDecimals, Decimal.ROUND_DOWN)
     .toString();
 
-  // TODO: need to check approval status and implement token approval flow
-  const { supportFlowWithSwap, supportFlow, supportSingleTransferAndCall } = useContractCalls(
-    collectiveId,
-    currency,
-    decimalDonationAmount,
-    duration,
-    frequency,
-    (error) => setErrorMessage(error)
-  );
-
   const isInsufficientBalance = donorCurrencyBalance ? totalDecimalDonation > donorCurrencyBalance : true;
-  // TODO: determine if there is sufficient liquidity for swap
-  const isInsufficientLiquidity = false;
-  // TODO: determine price impact for swap
-  const isUnacceptablePriceImpact = false;
+  const isInsufficientLiquidity = swapRouteStatus === SwapRouteState.NO_ROUTE;
+  const isUnacceptablePriceImpact = priceImpact ? priceImpact.gte(0.1) : false;
 
   const { price } = useGetTokenPrice(currency as SupportedTokenSymbol);
   const usdValue = price ? formatFiatCurrency(decimalDonationAmount * price) : undefined;
@@ -401,15 +457,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
           )}
           fontSize={18}
           seeType={false}
-          onPress={() => {
-            if (frequency === Frequency.OneTime) {
-              supportSingleTransferAndCall();
-            } else if (currency === 'G$') {
-              supportFlow();
-            } else {
-              supportFlowWithSwap();
-            }
-          }}
+          onPress={handleDonate}
           disabled={address === undefined || chain?.id === undefined || !(chain.id in SupportedNetwork)}
         />
       </View>
@@ -418,6 +466,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
         setOpenModal={() => setErrorMessage(undefined)}
         message={errorMessage ?? ''}
       />
+      <ApproveSwapModal openModal={approveSwapModalVisible} setOpenModal={setApproveSwapModalVisible} />
       <CompleteDonationModal openModal={completeDonationModalVisible} setOpenModal={setCompleteDonationModalVisible} />
     </View>
   );

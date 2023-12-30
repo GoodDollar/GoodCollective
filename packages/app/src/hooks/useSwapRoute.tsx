@@ -1,5 +1,5 @@
-import { AlphaRouter, SwapRoute, SwapType } from '@uniswap/smart-order-router';
-import { Token, CurrencyAmount, TradeType, Percent } from '@uniswap/sdk-core';
+import { AlphaRouter, SwapRoute, SwapType, V3Route } from '@uniswap/smart-order-router';
+import { CurrencyAmount, Percent, Token, TradeType } from '@uniswap/sdk-core';
 import { useAccount, useNetwork } from 'wagmi';
 import { SupportedNetwork, SupportedTokenSymbol, tokenMapping } from '../models/constants';
 import { useEthersSigner } from './wagmiF';
@@ -7,6 +7,7 @@ import { calculateRawTotalDonation } from '../lib/calculateRawTotalDonation';
 import { useGetTokenDecimals } from './useGetTokenDecimals';
 import Decimal from 'decimal.js';
 import { useEffect, useState } from 'react';
+import { encodeRouteToPath } from '@uniswap/v3-sdk';
 
 export enum SwapRouteState {
   LOADING,
@@ -19,10 +20,13 @@ const GDToken = new Token(SupportedNetwork.celo, tokenMapping.G$, 18);
 export function useSwapRoute(
   currencyIn: SupportedTokenSymbol,
   decimalAmountIn: number,
-  duration: number
+  duration: number,
+  slippageTolerance: Percent = new Percent(1, 100)
 ): {
-  route?: SwapRoute;
-  approveTokenCallback?: () => Promise<void>;
+  path?: string;
+  quote?: Decimal;
+  rawMinimumAmountOut?: string;
+  priceImpact?: Decimal;
   status: SwapRouteState;
 } {
   const { address } = useAccount();
@@ -59,9 +63,14 @@ export function useSwapRoute(
 
   if (!route) {
     return { status: SwapRouteState.LOADING };
-  } else if (!route.route) {
+  } else if (!route.methodParameters) {
     return { status: SwapRouteState.NO_ROUTE };
   } else {
-    return { route, status: SwapRouteState.READY };
+    // This typecast is safe because Uniswap v2 is not deployed on Celo
+    const path = encodeRouteToPath(route.route[0].route as V3Route, false);
+    const quote = new Decimal(route.quote.toFixed(18));
+    const rawMinimumAmountOut = route.trade.minimumAmountOut(slippageTolerance).numerator.toString();
+    const priceImpact = new Decimal(route.trade.priceImpact.toFixed(4));
+    return { path, quote, rawMinimumAmountOut, priceImpact, status: SwapRouteState.READY };
   }
 }

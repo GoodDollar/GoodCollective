@@ -1,11 +1,12 @@
 import { useAccount, useContractWrite, useNetwork, usePrepareContractWrite } from 'wagmi';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { calculateRawTotalDonation } from '../lib/calculateRawTotalDonation';
 import { SupportedTokenSymbol, tokenMapping } from '../models/constants';
 import { useGetTokenDecimals } from './useGetTokenDecimals';
 import Decimal from 'decimal.js';
 import ERC20 from '../abi/ERC20.json';
 
+// Uniswap V3 Router on Celo
 const V3_ROUTER_ADDRESS = '0x5615CDAb10dc425a742d643d949a7F474C01abc4';
 
 export function useApproveSwapTokenCallback(
@@ -16,8 +17,7 @@ export function useApproveSwapTokenCallback(
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
-  data?: { hash: `0x${string}` };
-  handleApproveToken?: () => Promise<string | undefined>;
+  handleApproveToken?: () => Promise<`0x${string}`>;
 } {
   const { address } = useAccount();
   const { chain } = useNetwork();
@@ -37,18 +37,22 @@ export function useApproveSwapTokenCallback(
     args: [V3_ROUTER_ADDRESS, rawAmountIn],
   });
 
-  const { data, isLoading, isSuccess, isError, writeAsync } = useContractWrite(config);
+  const { isLoading, isSuccess, isError, writeAsync } = useContractWrite(config);
 
-  const handleApproveToken = useCallback(async () => {
-    const testing = await writeAsync?.();
-    return testing?.hash;
+  const handleApproveToken = useMemo(() => {
+    if (!writeAsync) {
+      return undefined;
+    }
+    return async () => {
+      const result = await writeAsync();
+      return result.hash;
+    };
   }, [writeAsync]);
 
   return {
     isLoading,
     isSuccess,
     isError,
-    data,
     handleApproveToken,
   };
 }
