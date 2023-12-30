@@ -51,6 +51,7 @@ function Dropdown({ onSelect, value, options }: DropdownProps) {
         <View style={styles.dropdownContainer}>
           {options.map((option) => (
             <TouchableOpacity
+              key={option.value}
               style={styles.dropdownItem}
               onPress={() => {
                 onSelect(option.value);

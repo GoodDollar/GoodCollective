@@ -83,27 +83,27 @@ function DonateComponent({ collective }: DonateComponentProps) {
   );
 
   const handleDonate = useCallback(async () => {
-    if (frequency === Frequency.OneTime) {
-      await supportSingleTransferAndCall();
-    } else if (currency === 'G$') {
-      await supportFlow();
-    } else {
-      while (handleApproveTokenIsLoading) {
-        await new Promise((r) => setTimeout(r, 50));
-      }
-      if (handleApproveTokenIsError || handleApproveToken === undefined) {
-        setErrorMessage('An error occurred while generating a transaction to approve the token.');
-        return;
-      }
-      const txHash = await handleApproveToken();
-      setApproveSwapModalVisible(!approveSwapModalVisible);
-      const txReceipt = await waitForTransaction({
-        chainId: chain?.id,
-        confirmations: 1,
-        hash: txHash,
-        timeout: 1000 * 60 * 5,
-      });
-      if (txReceipt.status === 'success') {
+    while (handleApproveTokenIsLoading) {
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    if (handleApproveTokenIsError || handleApproveToken === undefined) {
+      setErrorMessage('An error occurred while generating a transaction to approve the token.');
+      return;
+    }
+    const txHash = await handleApproveToken();
+    setApproveSwapModalVisible(!approveSwapModalVisible);
+    const txReceipt = await waitForTransaction({
+      chainId: chain?.id,
+      confirmations: 1,
+      hash: txHash,
+      timeout: 1000 * 60 * 5,
+    });
+    if (txReceipt.status === 'success') {
+      if (frequency === Frequency.OneTime) {
+        await supportSingleTransferAndCall();
+      } else if (currency === 'G$') {
+        await supportFlow();
+      } else {
         await supportFlowWithSwap();
       }
     }
@@ -129,8 +129,8 @@ function DonateComponent({ collective }: DonateComponentProps) {
     .toString();
 
   const isInsufficientBalance = donorCurrencyBalance ? totalDecimalDonation > donorCurrencyBalance : true;
-  const isInsufficientLiquidity = swapRouteStatus === SwapRouteState.NO_ROUTE;
-  const isUnacceptablePriceImpact = priceImpact ? priceImpact.gte(0.1) : false;
+  const isInsufficientLiquidity = currency !== 'G$' && swapRouteStatus === SwapRouteState.NO_ROUTE;
+  const isUnacceptablePriceImpact = currency !== 'G$' && priceImpact ? priceImpact.gte(0.1) : false;
 
   const { price } = useGetTokenPrice(currency as SupportedTokenSymbol);
   const usdValue = price ? formatFiatCurrency(decimalDonationAmount * price) : undefined;

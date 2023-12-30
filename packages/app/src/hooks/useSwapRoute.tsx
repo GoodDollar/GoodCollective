@@ -37,7 +37,7 @@ export function useSwapRoute(
   const [route, setRoute] = useState<SwapRoute | undefined>(undefined);
 
   useEffect(() => {
-    if (!address || !chain?.id || !signer?.provider) {
+    if (!address || !chain?.id || !signer?.provider || currencyIn === 'G$') {
       setRoute(undefined);
       return;
     }
@@ -53,13 +53,22 @@ export function useSwapRoute(
       .route(inputAmount, GDToken, TradeType.EXACT_INPUT, {
         type: SwapType.SWAP_ROUTER_02,
         recipient: address,
-        slippageTolerance: new Percent(1, 100),
+        slippageTolerance: slippageTolerance,
         deadline: Math.floor(Date.now() / 1000 + 1800),
       })
       .then((swapRoute) => {
         setRoute(swapRoute ?? undefined);
       });
-  }, [address, chain?.id, signer?.provider, currencyIn, currencyInDecimals, decimalAmountIn, duration]);
+  }, [
+    address,
+    chain?.id,
+    signer?.provider,
+    currencyIn,
+    currencyInDecimals,
+    decimalAmountIn,
+    duration,
+    slippageTolerance,
+  ]);
 
   if (!route) {
     return { status: SwapRouteState.LOADING };

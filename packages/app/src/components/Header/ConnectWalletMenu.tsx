@@ -37,7 +37,7 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
           {connectors.map(
             (connector, i) =>
               (connector.ready || isLoading) && (
-                <>
+                <View key={connector.id}>
                   <TouchableOpacity
                     style={styles.walletConnector}
                     disabled={!connector.ready}
@@ -47,13 +47,13 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
                       resizeMode="contain"
                       style={[styles.walletConnectorLogo]}
                     />
-                    <Text key={connector.id} style={styles.walletConnectorText}>
+                    <Text style={styles.walletConnectorText}>
                       {connector.name}
                       {isLoading && connector.id === pendingConnector?.id && ' (connecting)'}
                     </Text>
                   </TouchableOpacity>
                   {i < connectors.length - 1 && <View style={styles.divider} />}
-                </>
+                </View>
               )
           )}
         </View>
