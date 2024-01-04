@@ -1,30 +1,17 @@
+import { useMemo } from 'react';
 import { Token } from '@uniswap/sdk-core';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import CeloTokenList from '../models/CeloTokenList.json';
 
-interface TokenList {
-  tokens: {
-    name: string;
-    address: string;
-    symbol: string;
-    decimals: number;
-    chainId: number;
-  }[];
+export function useToken(symbol: string): Token {
+  return useTokenList()[symbol];
 }
 
-export function useTokenList(): Token[] {
-  const [tokens, setTokens] = useState<Token[]>([]);
-
-  useEffect(() => {
-    axios
-      .get<TokenList>('https://raw.githubusercontent.com/celo-org/celo-token-list/main/celo.tokenlist.json')
-      .then((response) => {
-        const tokenData = response.data.tokens.map(
-          (token) => new Token(token.chainId, token.address, token.decimals, token.symbol, token.name)
-        );
-        setTokens(tokenData);
-      });
+export function useTokenList(): Record<string, Token> {
+  return useMemo(() => {
+    const tokenList: Record<string, Token> = {};
+    CeloTokenList.tokens.forEach((token) => {
+      tokenList[token.symbol] = new Token(token.chainId, token.address, token.decimals, token.symbol);
+    });
+    return tokenList;
   }, []);
-
-  return tokens;
 }

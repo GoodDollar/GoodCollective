@@ -1,13 +1,13 @@
 import { AlphaRouter, SwapRoute, SwapType, V3Route } from '@uniswap/smart-order-router';
-import { CurrencyAmount, Fraction, Percent, Token, TradeType } from '@uniswap/sdk-core';
+import { CurrencyAmount, Percent, TradeType } from '@uniswap/sdk-core';
 import { useAccount, useNetwork } from 'wagmi';
-import { SupportedNetwork, SupportedTokenSymbol, tokenMapping } from '../models/constants';
+import { GDToken } from '../models/constants';
 import { useEthersSigner } from './wagmiF';
 import { calculateRawTotalDonation } from '../lib/calculateRawTotalDonation';
-import { useGetTokenDecimals } from './useGetTokenDecimals';
 import Decimal from 'decimal.js';
 import { useEffect, useState } from 'react';
 import { encodeRouteToPath } from '@uniswap/v3-sdk';
+import { useToken } from './useTokenList';
 
 export enum SwapRouteState {
   LOADING,
@@ -15,10 +15,8 @@ export enum SwapRouteState {
   NO_ROUTE,
 }
 
-const GDToken = new Token(SupportedNetwork.celo, tokenMapping.G$, 18);
-
 export function useSwapRoute(
-  currencyIn: SupportedTokenSymbol,
+  currencyIn: string,
   decimalAmountIn: number,
   duration: number,
   slippageTolerance: Percent = new Percent(1, 100)
@@ -32,12 +30,13 @@ export function useSwapRoute(
   const { address } = useAccount();
   const { chain } = useNetwork();
   const signer = useEthersSigner({ chainId: chain?.id });
-  const currencyInDecimals = useGetTokenDecimals(currencyIn, chain?.id);
+
+  const tokenIn = useToken(currencyIn);
 
   const [route, setRoute] = useState<SwapRoute | undefined>(undefined);
 
   useEffect(() => {
-    if (!address || !chain?.id || !signer?.provider || currencyIn === 'G$') {
+    if (!address || !chain?.id || !signer?.provider || tokenIn.symbol === 'G$') {
       setRoute(undefined);
       return;
     }
@@ -46,9 +45,8 @@ export function useSwapRoute(
       provider: signer.provider,
     });
 
-    const inputToken = new Token(chain.id, tokenMapping[currencyIn], currencyInDecimals);
-    const rawAmountIn = calculateRawTotalDonation(decimalAmountIn, duration, currencyInDecimals);
-    const inputAmount = CurrencyAmount.fromRawAmount(inputToken, rawAmountIn.toFixed(0, Decimal.ROUND_DOWN));
+    const rawAmountIn = calculateRawTotalDonation(decimalAmountIn, duration, tokenIn.decimals);
+    const inputAmount = CurrencyAmount.fromRawAmount(tokenIn, rawAmountIn.toFixed(0, Decimal.ROUND_DOWN));
     router
       .route(inputAmount, GDToken, TradeType.EXACT_INPUT, {
         type: SwapType.SWAP_ROUTER_02,
@@ -59,16 +57,7 @@ export function useSwapRoute(
       .then((swapRoute) => {
         setRoute(swapRoute ?? undefined);
       });
-  }, [
-    address,
-    chain?.id,
-    signer?.provider,
-    currencyIn,
-    currencyInDecimals,
-    decimalAmountIn,
-    duration,
-    slippageTolerance,
-  ]);
+  }, [address, chain?.id, signer?.provider, tokenIn, decimalAmountIn, duration, slippageTolerance]);
 
   if (!route) {
     return { status: SwapRouteState.LOADING };

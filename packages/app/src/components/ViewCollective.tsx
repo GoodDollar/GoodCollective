@@ -30,7 +30,6 @@ import {
   TwitterIcon,
   WebIcon,
 } from '../assets/';
-import { calculateAmounts } from '../lib/calculateAmounts';
 import { useDonorCollectivesFlowingBalances } from '../hooks/useFlowingBalance';
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 

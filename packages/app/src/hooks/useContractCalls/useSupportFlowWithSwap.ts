@@ -1,11 +1,5 @@
 import { useCallback } from 'react';
-import {
-  Frequency,
-  SupportedNetwork,
-  SupportedNetworkNames,
-  SupportedTokenSymbol,
-  tokenMapping,
-} from '../../models/constants';
+import { Frequency, SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
 import { calculateFlowRate } from '../../lib/calculateFlowRate';
 import { calculateRawTotalDonation } from '../../lib/calculateRawTotalDonation';
 import Decimal from 'decimal.js';
@@ -13,11 +7,11 @@ import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
 import { useAccount, useNetwork } from 'wagmi';
 import { useEthersSigner } from '../wagmiF';
 import useCrossNavigate from '../../routes/useCrossNavigate';
+import { Token } from '@uniswap/sdk-core';
 
 export function useSupportFlowWithSwap(
   collective: string,
-  currency: SupportedTokenSymbol,
-  currencyDecimals: number,
+  tokenIn: Token,
   decimalAmountIn: number,
   duration: number,
   frequency: Frequency,
@@ -50,7 +44,7 @@ export function useSupportFlowWithSwap(
       return;
     }
 
-    const flowRate = calculateFlowRate(decimalAmountIn, duration, frequency, currencyDecimals);
+    const flowRate = calculateFlowRate(decimalAmountIn, duration, frequency, tokenIn.decimals);
     if (!flowRate) {
       onError('Failed to calculate flow rate.');
       return;
@@ -60,7 +54,7 @@ export function useSupportFlowWithSwap(
     const network = SupportedNetworkNames[chain.id as SupportedNetwork];
 
     // swap values
-    const amountIn = calculateRawTotalDonation(decimalAmountIn, duration, currencyDecimals).toFixed(
+    const amountIn = calculateRawTotalDonation(decimalAmountIn, duration, tokenIn.decimals).toFixed(
       0,
       Decimal.ROUND_DOWN
     );
@@ -71,7 +65,7 @@ export function useSupportFlowWithSwap(
         amount: amountIn,
         minReturn: minReturnFromSwap,
         path: swapPath,
-        swapFrom: tokenMapping[currency],
+        swapFrom: tokenIn.address,
         deadline: Math.floor(Date.now() / 1000 + 1800).toString(),
       });
       toggleCompleteDonationModal(true);
@@ -86,8 +80,7 @@ export function useSupportFlowWithSwap(
     address,
     chain?.id,
     collective,
-    currency,
-    currencyDecimals,
+    tokenIn,
     decimalAmountIn,
     duration,
     frequency,

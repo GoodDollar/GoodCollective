@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, View } from 'react-native';
 import { InterRegular, InterSemiBold, InterSmall } from '../utils/webFonts';
 import RoundedButton from './RoundedButton';
@@ -16,16 +16,9 @@ import { useContractCalls, useGetTokenPrice } from '../hooks';
 import { useAccount, useNetwork } from 'wagmi';
 import { IpfsCollective } from '../models/models';
 import { useGetDecimalBalance } from '../hooks/useGetDecimalBalance';
-import {
-  currencyOptions,
-  Frequency,
-  frequencyOptions,
-  SupportedNetwork,
-  SupportedTokenSymbol,
-} from '../models/constants';
+import { Frequency, frequencyOptions, SupportedNetwork } from '../models/constants';
 import { InfoIconOrange } from '../assets';
 import { useLocation } from 'react-router-native';
-import { useGetTokenDecimals } from '../hooks/useGetTokenDecimals';
 import Decimal from 'decimal.js';
 import { formatFiatCurrency } from '../lib/formatFiatCurrency';
 import ErrorModal from './ErrorModal';
@@ -34,6 +27,7 @@ import { useApproveSwapTokenCallback } from '../hooks/useApproveSwapTokenCallbac
 import ApproveSwapModal from './ApproveSwapModal';
 import { waitForTransaction } from '@wagmi/core';
 import { TransactionReceipt } from 'viem';
+import { useToken, useTokenList } from '../hooks/useTokenList';
 
 interface DonateComponentProps {
   collective: IpfsCollective;
@@ -49,11 +43,20 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const { address, isConnected } = useAccount();
   const { chain } = useNetwork();
 
+  const tokenList = useTokenList();
+
+  const currencyOptions: { value: string; label: string }[] = useMemo(() => {
+    return Object.keys(tokenList).map((key) => ({
+      value: key,
+      label: key,
+    }));
+  }, [tokenList]);
+
   const [completeDonationModalVisible, setCompleteDonationModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [approveSwapModalVisible, setApproveSwapModalVisible] = useState(false);
 
-  const [currency, setCurrency] = useState<SupportedTokenSymbol>('G$');
+  const [currency, setCurrency] = useState<string>('G$');
   const [frequency, setFrequency] = useState<Frequency>(Frequency.OneTime);
   const [duration, setDuration] = useState(1);
   const [decimalDonationAmount, setDecimalDonationAmount] = useState(0);
@@ -132,8 +135,8 @@ function DonateComponent({ collective }: DonateComponentProps) {
     supportSingleTransferAndCall,
   ]);
 
-  const currencyDecimals = useGetTokenDecimals(currency, chain?.id);
-  const donorCurrencyBalance = useGetDecimalBalance(currency as SupportedTokenSymbol, address, chain?.id);
+  const currencyDecimals = useToken(currency).decimals;
+  const donorCurrencyBalance = useGetDecimalBalance(currency, address, chain?.id);
 
   const totalDecimalDonation = duration * decimalDonationAmount;
   const totalDonationFormatted = new Decimal(totalDecimalDonation)
@@ -144,7 +147,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const isInsufficientLiquidity = currency !== 'G$' && swapRouteStatus === SwapRouteState.NO_ROUTE;
   const isUnacceptablePriceImpact = currency !== 'G$' && priceImpact ? priceImpact.gte(0.1) : false;
 
-  const { price } = useGetTokenPrice(currency as SupportedTokenSymbol);
+  const { price } = useGetTokenPrice(currency);
   const usdValue = price ? formatFiatCurrency(decimalDonationAmount * price) : undefined;
 
   return (

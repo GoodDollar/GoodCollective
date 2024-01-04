@@ -1,10 +1,10 @@
 import { useNetwork } from 'wagmi';
-import { Frequency, SupportedTokenSymbol } from '../../models/constants';
-import { useGetTokenDecimals } from '../useGetTokenDecimals';
+import { Frequency } from '../../models/constants';
 import { useSupportFlow } from './useSupportFlow';
 import { useSupportFlowWithSwap } from './useSupportFlowWithSwap';
 import { useSupportSingleTransferAndCall } from './useSupportSingleTransferAndCall';
 import { useSupportSingleBatch } from './useSupportSingleBatch';
+import { useToken } from '../useTokenList';
 
 interface ContractCalls {
   supportFlowWithSwap: () => Promise<void>;
@@ -15,7 +15,7 @@ interface ContractCalls {
 
 export const useContractCalls = (
   collective: string,
-  currency: SupportedTokenSymbol,
+  currency: string,
   decimalAmountIn: number,
   duration: number,
   frequency: Frequency,
@@ -24,12 +24,11 @@ export const useContractCalls = (
   minReturnFromSwap?: string,
   swapPath?: string
 ): ContractCalls => {
-  const { chain } = useNetwork();
-  const currencyDecimals = useGetTokenDecimals(currency, chain?.id);
+  const tokenIn = useToken(currency);
 
   const supportFlow = useSupportFlow(
     collective,
-    currencyDecimals,
+    tokenIn.decimals,
     decimalAmountIn,
     duration,
     frequency,
@@ -38,8 +37,7 @@ export const useContractCalls = (
   );
   const supportFlowWithSwap = useSupportFlowWithSwap(
     collective,
-    currency,
-    currencyDecimals,
+    tokenIn,
     decimalAmountIn,
     duration,
     frequency,
@@ -50,14 +48,14 @@ export const useContractCalls = (
   );
   const supportSingleTransferAndCall = useSupportSingleTransferAndCall(
     collective,
-    currencyDecimals,
+    tokenIn.decimals,
     decimalAmountIn,
     onError,
     toggleCompleteDonationModal
   );
   const supportSingleBatch = useSupportSingleBatch(
     collective,
-    currencyDecimals,
+    tokenIn.decimals,
     decimalAmountIn,
     onError,
     toggleCompleteDonationModal
