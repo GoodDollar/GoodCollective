@@ -1,4 +1,3 @@
-import { useNetwork } from 'wagmi';
 import { Frequency } from '../../models/constants';
 import { useSupportFlow } from './useSupportFlow';
 import { useSupportFlowWithSwap } from './useSupportFlowWithSwap';
