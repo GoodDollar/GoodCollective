@@ -31,6 +31,26 @@ let nftProxy: string;
 let deployedNFT: ProvableNFT;
 let sdk: GoodCollectiveSDK;
 
+const testPoolSettings = [
+  wallet,
+  'test',
+  'testipfs',
+  {
+    nftType: 3,
+    manager: wallet.address,
+    membersValidator: ethers.constants.AddressZero,
+    rewardPerEvent: [10],
+    validEvents: [1],
+    rewardToken: gooddollar.address,
+    uniquenessValidator: ethers.constants.AddressZero,
+    allowRewardOverride: false,
+  },
+  {
+    maxMemberPerDay: 1000,
+    maxMemberPerMonth: 10000,
+    maxTotalPerMonth: 100000,
+  },
+];
 describe('GoodCollective SDK', () => {
   beforeAll(async () => {
     sdk = new GoodCollectiveSDK('31337', localProvider, {
@@ -53,24 +73,7 @@ describe('GoodCollective SDK', () => {
   });
 
   it('should deploy pool', async () => {
-    const pool = await sdk.createPool(
-      wallet,
-      'test',
-      'testipfs',
-      {
-        manager: wallet.address,
-        membersValidator: ethers.constants.AddressZero,
-        rewardPerEvent: [10],
-        validEvents: [1],
-        rewardToken: gooddollar.address,
-        uniquenessValidator: ethers.constants.AddressZero,
-      },
-      {
-        maxMemberPerDay: 1000,
-        maxMemberPerMonth: 10000,
-        maxTotalPerMonth: 100000,
-      }
-    );
+    const pool = await sdk.createPool(...testPoolSettings);
     expect(pool.address).not.equal(ethers.constants.AddressZero);
   });
 
@@ -93,6 +96,7 @@ describe('GoodCollective SDK', () => {
         validEvents: [1],
         rewardToken: gooddollar.address,
         uniquenessValidator: ethers.constants.AddressZero,
+        allowRewardOverride: false,
       },
       {
         maxMemberPerDay: 1000,
@@ -103,15 +107,16 @@ describe('GoodCollective SDK', () => {
     const assignedType = (await pool.settings()).nftType;
     const toMint = {
       nftType: assignedType,
-      nftUri: 'ipfs://test' + Math.random(),
       version: 1,
+      nftUri: 'ipfs://test' + Math.random(),
       events: [
         {
-          eventUri: 'ipfs://event1',
           subtype: 1,
-          contributers: [wallet.address],
           timestamp: 1000000,
           quantity: ethers.BigNumber.from(10),
+          eventUri: 'ipfs://event1',
+          contributers: [wallet.address],
+          rewardOverride: ethers.BigNumber.from(0),
         },
       ],
     };
@@ -122,79 +127,30 @@ describe('GoodCollective SDK', () => {
     expect(mintEvent).toBeTruthy();
 
     const stored = await sdk.getNft(mintEvent?.args?.tokenId);
-    expect(stored).toMatchObject(toMint);
+    expect(stored.flat(2)).toMatchObject(
+      Object.values(toMint)
+        .flat(2)
+        .map((_) => (typeof _ === 'object' ? Object.values(_) : _))
+        .flat(1)
+    );
   });
 
   it('should support with gooddollar single donation using transferAndCall', async () => {
-    const pool = await sdk.createPool(
-      wallet,
-      'test',
-      'testipfs',
-      {
-        nftType: 3,
-        manager: wallet.address,
-        membersValidator: ethers.constants.AddressZero,
-        rewardPerEvent: [10],
-        validEvents: [1],
-        rewardToken: gooddollar.address,
-        uniquenessValidator: ethers.constants.AddressZero,
-      },
-      {
-        maxMemberPerDay: 1000,
-        maxMemberPerMonth: 10000,
-        maxTotalPerMonth: 100000,
-      }
-    );
+    const pool = await sdk.createPool(...testPoolSettings);
     const tx = await sdk.supportSingleTransferAndCall(wallet, pool.address, '100');
     // const stream = await sdk.supportFlow(wallet, pool.address, '100');
     expect(tx.wait()).not.rejects;
   });
 
   it('should support with gooddollar single donation using superfluid batch', async () => {
-    const pool = await sdk.createPool(
-      wallet,
-      'test',
-      'testipfs',
-      {
-        nftType: 3,
-        manager: wallet.address,
-        membersValidator: ethers.constants.AddressZero,
-        rewardPerEvent: [10],
-        validEvents: [1],
-        rewardToken: gooddollar.address,
-        uniquenessValidator: ethers.constants.AddressZero,
-      },
-      {
-        maxMemberPerDay: 1000,
-        maxMemberPerMonth: 10000,
-        maxTotalPerMonth: 100000,
-      }
-    );
+    const pool = await sdk.createPool(...testPoolSettings);
     const tx = await sdk.supportSingleBatch(wallet, pool.address, '100');
     // const stream = await sdk.supportFlow(wallet, pool.address, '100');
     expect(tx.wait()).not.rejects;
   });
 
   it('should support with gooddollar superfluid stream', async () => {
-    const pool = await sdk.createPool(
-      wallet,
-      'test',
-      'testipfs',
-      {
-        nftType: 3,
-        manager: wallet.address,
-        membersValidator: ethers.constants.AddressZero,
-        rewardPerEvent: [10],
-        validEvents: [1],
-        rewardToken: gooddollar.address,
-        uniquenessValidator: ethers.constants.AddressZero,
-      },
-      {
-        maxMemberPerDay: 1000,
-        maxMemberPerMonth: 10000,
-        maxTotalPerMonth: 100000,
-      }
-    );
+    const pool = await sdk.createPool(...testPoolSettings);
 
     // await (await gooddollar.connect(wallet).approve(pool.address, '1000')).wait();
     const tx = await sdk.supportFlow(wallet, pool.address, '100000000000000');
@@ -203,25 +159,7 @@ describe('GoodCollective SDK', () => {
   });
 
   it('should support with gooddollar superfluid stream with swap', async () => {
-    const pool = await sdk.createPool(
-      wallet,
-      'test',
-      'testipfs',
-      {
-        nftType: 3,
-        manager: wallet.address,
-        membersValidator: ethers.constants.AddressZero,
-        rewardPerEvent: [10],
-        validEvents: [1],
-        rewardToken: gooddollar.address,
-        uniquenessValidator: ethers.constants.AddressZero,
-      },
-      {
-        maxMemberPerDay: 1000,
-        maxMemberPerMonth: 10000,
-        maxTotalPerMonth: 100000,
-      }
-    );
+    const pool = await sdk.createPool(...testPoolSettings);
 
     await (await gooddollar.connect(wallet).approve(pool.address, '1000')).wait();
     const tx = await sdk.supportFlowWithSwap(wallet, pool.address, '100000000000000', {

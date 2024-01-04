@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button } from 'native-base';
 import { useConnectWallet } from '@web3-onboard/react';
 

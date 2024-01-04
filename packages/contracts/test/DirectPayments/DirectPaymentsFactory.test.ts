@@ -27,6 +27,7 @@ describe('DirectPaymentsFactory', () => {
         timestamp: 1,
         eventUri: 'uri2',
         contributers: ['0xdA030751FF448Cf127911f0518a2B9b012f72424'],
+        rewardOverride: 0,
       },
     ],
   };
@@ -35,14 +36,18 @@ describe('DirectPaymentsFactory', () => {
   const fixture = async () => {
     const f = await ethers.getContractFactory('DirectPaymentsFactory');
     const swapMock = await ethers.deployContract('SwapRouterMock', [gdframework.GoodDollar.address]);
-    const dpimpl = await ethers.deployContract('DirectPaymentsPool', [sfFramework['host'], swapMock.address]);
+    const helper = await ethers.deployContract('HelperLibrary');
 
+    const dpimpl = await ethers.deployContract('DirectPaymentsPool', [sfFramework['host'], swapMock.address], {
+      libraries: { HelperLibrary: helper.address },
+    });
     const nft = (await upgrades.deployProxy(await ethers.getContractFactory('ProvableNFT'), ['nft', 'cc'], {
       kind: 'uups',
     })) as ProvableNFT;
 
     factory = (await upgrades.deployProxy(f, [signer.address, dpimpl.address, nft.address, signers[1].address, 1000], {
       kind: 'uups',
+      unsafeAllowLinkedLibraries: true,
     })) as DirectPaymentsFactory;
 
     await nft.grantRole(ethers.constants.HashZero, factory.address);
@@ -57,7 +62,10 @@ describe('DirectPaymentsFactory', () => {
     const { frameworkDeployer } = await deployTestFramework();
     sfFramework = await frameworkDeployer.getFramework();
     signers = await ethers.getSigners();
-    gdframework = await deploySuperGoodDollar(signers[0], sfFramework);
+    gdframework = await deploySuperGoodDollar(signers[0], sfFramework, [
+      ethers.constants.AddressZero,
+      ethers.constants.AddressZero,
+    ]);
     signer = signers[0];
     poolSettings = {
       nftType: 1,
@@ -67,6 +75,7 @@ describe('DirectPaymentsFactory', () => {
       manager: signers[1].address,
       membersValidator: ethers.constants.AddressZero,
       rewardToken: '0x03d3daB843e6c03b3d271eff9178e6A96c28D25f',
+      allowRewardOverride: false,
     };
 
     poolLimits = {

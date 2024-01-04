@@ -22,7 +22,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const sfFramework = await frameworkDeployer.getFramework();
 
     const signers = await ethers.getSigners();
-    const gdframework = await deploySuperGoodDollar(signers[0], sfFramework);
+    const gdframework = await deploySuperGoodDollar(signers[0], sfFramework, [
+      ethers.constants.AddressZero,
+      ethers.constants.AddressZero,
+    ]);
 
     swapMock = await deploy('SwapRouterMock', {
       from: deployer,

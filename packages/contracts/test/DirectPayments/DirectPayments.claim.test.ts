@@ -29,10 +29,11 @@ describe('DirectPaymentsPool Claim', () => {
         timestamp: 1,
         eventUri: 'uri2',
         contributers: ['0xdA030751FF448Cf127911f0518a2B9b012f72424'],
+        rewardOverride: 0,
       },
     ],
   };
-  const nftSampleId = '56540060779879397317558633372065109751397093370573329176446590137680733287562';
+  let nftSampleId = '56540060779879397317558633372065109751397093370573329176446590137680733287562';
 
   before(async () => {
     const { frameworkDeployer } = await deployTestFramework();
@@ -40,7 +41,10 @@ describe('DirectPaymentsPool Claim', () => {
 
     signers = await ethers.getSigners();
 
-    gdframework = await deploySuperGoodDollar(signers[0], sfFramework);
+    gdframework = await deploySuperGoodDollar(signers[0], sfFramework, [
+      ethers.constants.AddressZero,
+      ethers.constants.AddressZero,
+    ]);
     signer = signers[0];
     poolSettings = {
       nftType: 1,
@@ -50,6 +54,7 @@ describe('DirectPaymentsPool Claim', () => {
       manager: signer.address,
       membersValidator: ethers.constants.AddressZero,
       rewardToken: gdframework.GoodDollar.address,
+      allowRewardOverride: false,
     };
 
     poolLimits = {
@@ -62,7 +67,10 @@ describe('DirectPaymentsPool Claim', () => {
   const fixture = async () => {
     const factory = await ethers.getContractFactory('ProvableNFT');
     nft = (await upgrades.deployProxy(factory, ['nft', 'cc'], { kind: 'uups' })) as ProvableNFT;
-    const Pool = await ethers.getContractFactory('DirectPaymentsPool');
+    const helper = await ethers.deployContract('HelperLibrary');
+    const Pool = await ethers.getContractFactory('DirectPaymentsPool', {
+      libraries: { HelperLibrary: helper.address },
+    });
     membersValidator = await deployMockContract(signers[0], [
       'function isMemberValid(address pool,address operator,address member,bytes memory extraData) external returns (bool)',
     ]);
@@ -79,12 +87,14 @@ describe('DirectPaymentsPool Claim', () => {
         ethers.constants.AddressZero,
       ],
       {
+        unsafeAllowLinkedLibraries: true,
         constructorArgs: [await gdframework.GoodDollar.getHost(), ethers.constants.AddressZero],
       }
     )) as DirectPaymentsPool;
     await pool.deployed();
-    const tx = await nft.mintPermissioned(signers[0].address, nftSample, true, []);
-    await gdframework.GoodDollar.mint(pool.address, ethers.constants.WeiPerEther.mul(100000));
+    const tx = await nft.mintPermissioned(signers[0].address, nftSample, true, []).then((_) => _.wait());
+    await gdframework.GoodDollar.mint(pool.address, ethers.constants.WeiPerEther.mul(100000)).then((_) => _.wait());
+    nftSampleId = tx.events?.find((e) => e.event === 'Transfer')?.args?.tokenId;
     // return { pool, nft, membersValidator };
   };
 

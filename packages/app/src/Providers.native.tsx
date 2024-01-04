@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+// import { PropsWithChildren, ReactNode } from 'react';
 import { NativeBaseProvider } from 'native-base';
 import { ethers } from 'ethers';
 import { Web3Provider } from '@gooddollar/web3sdk-v2';
@@ -6,9 +6,9 @@ import { WalletConnectModal, useWalletConnectModal } from '@walletconnect/modal-
 // usedapp fix for native
 import LocalStorage from '@usedapp/core/dist/cjs/src/helpers/LocalStorage';
 
-type Props = {
-  children?: ReactNode;
-};
+import { nbTheme } from './theme/theme';
+
+type Props = { children: any };
 
 if (!window) {
   window = {} as any;
@@ -39,7 +39,7 @@ const Web3ProviderWrapper = ({ children }: Props) => {
 };
 export const Providers = ({ children }: Props) => {
   return (
-    <NativeBaseProvider>
+    <NativeBaseProvider theme={nbTheme}>
       <WalletConnectModal projectId={projectId} providerMetadata={providerMetadata} />
       <Web3ProviderWrapper>{children}</Web3ProviderWrapper>
     </NativeBaseProvider>

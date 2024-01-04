@@ -1,41 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NNPTP7GK17"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag('js', new Date());
-
-      gtag('config', 'G-NNPTP7GK17');
-    </script>
-    <title>GoodCollective</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="./web/main.tsx"></script>
-  </body>
-  <style>
-    /* These styles make the body full-height */
-    html,
-    body {
-      height: 100%;
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GoodCollective</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NNPTP7GK17"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
     }
+    gtag('js', new Date());
 
-    /* These styles disable body scrolling if you are using <ScrollView> */
-    body {
-      overflow: hidden;
-    }
+    gtag('config', 'G-NNPTP7GK17');
+  </script>
+  <title>GoodCollective</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="./web/main.tsx"></script>
+</body>
+<style>
+  /* These styles make the body full-height */
+  html,
+  body {
+    height: 100%;
+  }
 
-    /* These styles make the root element full-height */
-    #root {
-      height: 100%;
-    }
-  </style>
+  /* These styles disable body scrolling if you are using <ScrollView> */
+  body {
+    overflow: hidden;
+  }
+
+  /* These styles make the root element full-height */
+  #root {
+    height: 100%;
+  }
+</style>
 </html>
