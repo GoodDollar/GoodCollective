@@ -32,6 +32,8 @@ export const collective = gql`
           id
         }
         contribution
+        timestamp
+        flowRate
       }
       timestamp
       paymentsMade

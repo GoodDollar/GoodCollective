@@ -30,6 +30,8 @@ import {
   TwitterIcon,
   WebIcon,
 } from '../assets/';
+import { calculateAmounts } from '../lib/calculateAmounts';
+import { useDonorCollectivesFlowingBalances } from '../hooks/useFlowingBalance';
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 
 interface ViewCollectiveProps {
@@ -51,9 +53,9 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
     ipfs,
     timestamp,
     stewardCollectives,
+    donorCollectives,
     paymentsMade,
     totalRewards,
-    totalDonations,
   } = collective;
 
   // default to oceanUri if headerImage is undefined
@@ -74,10 +76,11 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
 
-  const { formatted: formattedDonations, usdValue: donationsUsdValue } = calculateGoodDollarAmounts(
-    totalDonations,
+  const { formatted: formattedDonations, usdValue: donationsUsdValue } = useDonorCollectivesFlowingBalances(
+    donorCollectives,
     tokenPrice
   );
+
   const { formatted: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateGoodDollarAmounts(
     totalRewards,
     tokenPrice

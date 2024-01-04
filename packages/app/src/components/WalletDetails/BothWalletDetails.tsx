@@ -4,6 +4,7 @@ import { styles } from './styles';
 import { formatTime } from '../../lib/formatTime';
 import { countUniqueValuesInTwoArrays } from '../../lib/countUniqueValuesInTwoArrays';
 import { calculateGoodDollarAmounts } from '../../lib/calculateGoodDollarAmounts';
+import { useDonorCollectivesFlowingBalances } from '../../hooks/useFlowingBalance';
 
 interface BothWalletDetailsProps {
   donor: Donor;
@@ -12,8 +13,8 @@ interface BothWalletDetailsProps {
 }
 
 function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProps) {
-  const { formatted: formattedDonations, usdValue: donationsUsdValue } = calculateGoodDollarAmounts(
-    donor.totalDonated,
+  const { formatted: formattedDonations, usdValue: donationsUsdValue } = useDonorCollectivesFlowingBalances(
+    donor.collectives,
     tokenPrice
   );
 

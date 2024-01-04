@@ -1,9 +1,8 @@
 import { Text, View } from 'react-native';
 import { Donor } from '../../models/models';
-import { ethers } from 'ethers';
 import { styles } from './styles';
 import { formatTime } from '../../lib/formatTime';
-import { calculateGoodDollarAmounts } from '../../lib/calculateGoodDollarAmounts';
+import { useDonorCollectivesFlowingBalances } from '../../hooks/useFlowingBalance';
 
 interface DonorWalletDetailsProps {
   firstName: string;
@@ -12,7 +11,7 @@ interface DonorWalletDetailsProps {
 }
 
 function DonorWalletDetails({ firstName, donor, tokenPrice }: DonorWalletDetailsProps) {
-  const { formatted: formattedDonations, usdValue } = calculateGoodDollarAmounts(donor.totalDonated, tokenPrice);
+  const { formatted: formattedDonations, usdValue } = useDonorCollectivesFlowingBalances(donor.collectives, tokenPrice);
 
   // TODO: how to calculate people supported?
   const peopleSupported = 0;

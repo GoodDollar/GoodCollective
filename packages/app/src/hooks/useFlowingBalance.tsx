@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BigNumberish, ethers } from 'ethers';
+import { DonorCollective } from '../models/models';
 import { calculateGoodDollarAmounts, CalculatedAmounts } from '../lib/calculateGoodDollarAmounts';
 
 // based on https://github.com/superfluid-finance/superfluid-console/blob/master/src/components/FlowingBalance.tsx
@@ -12,20 +13,63 @@ export function useFlowingBalance(
   flowRate: string,
   tokenPrice: number | undefined
 ): CalculatedAmounts {
+  const balances = useMemo(() => [balance], [balance]);
+  const balanceTimestamps = useMemo(() => [balanceTimestamp], [balanceTimestamp]);
+  const flowRates = useMemo(() => [flowRate], [flowRate]);
+  return useSumOfFlowingBalances(balances, balanceTimestamps, flowRates, tokenPrice);
+}
+
+export function useDonorCollectivesFlowingBalances(
+  donorCollectives: DonorCollective[],
+  tokenPrice: number | undefined
+): CalculatedAmounts {
+  const donationInputs = useMemo(() => {
+    const aggregation: { contributions: string[]; timestamps: number[]; flowRates: string[] } = {
+      contributions: [],
+      timestamps: [],
+      flowRates: [],
+    };
+    donorCollectives.forEach((donorCollective) => {
+      aggregation.contributions.push(donorCollective.contribution);
+      aggregation.timestamps.push(donorCollective.timestamp);
+      aggregation.flowRates.push(donorCollective.flowRate);
+    });
+    return aggregation;
+  }, [donorCollectives]);
+  return useSumOfFlowingBalances(
+    donationInputs.contributions,
+    donationInputs.timestamps,
+    donationInputs.flowRates,
+    tokenPrice
+  );
+}
+
+export function useSumOfFlowingBalances(
+  balances: string[],
+  balanceTimestamps: number[], // Timestamp in Subgraph's UTC.
+  flowRates: string[],
+  tokenPrice: number | undefined
+): CalculatedAmounts {
+  const balance = useMemo(
+    () => balances.reduce((a, b) => a.add(ethers.BigNumber.from(b)), ethers.BigNumber.from(0)),
+    [balances]
+  );
   const [weiValue, setWeiValue] = useState<BigNumberish>(balance);
   useEffect(() => setWeiValue(balance), [balance]);
 
-  const flowRateBigNumber = useMemo(() => ethers.BigNumber.from(flowRate), [flowRate]);
-  const balanceTimestampMs = useMemo(() => ethers.BigNumber.from(balanceTimestamp).mul(1000), [balanceTimestamp]);
+  const flowRateBigNumbers = useMemo(() => flowRates.map((flowRate) => ethers.BigNumber.from(flowRate)), [flowRates]);
+  const balanceTimestampsMs = useMemo(
+    () => balanceTimestamps.map((balanceTimestamp) => ethers.BigNumber.from(balanceTimestamp).mul(1000)),
+    [balanceTimestamps]
+  );
 
-  //If balance in settings is 0, then show smart flowing balance
   useEffect(() => {
     const balanceBigNumber = ethers.BigNumber.from(balance);
 
     let stopAnimation = false;
-    let lastAnimationTimestamp: DOMHighResTimeStamp = 0;
+    let lastAnimationTimestamp = 0;
 
-    const animationStep = (currentAnimationTimestamp: DOMHighResTimeStamp) => {
+    const animationStep = (currentAnimationTimestamp: number) => {
       if (stopAnimation) {
         return;
       }
@@ -35,23 +79,25 @@ export function useFlowingBalance(
           new Date().valueOf() // Milliseconds elapsed since UTC epoch, disregards timezone.
         );
 
-        setWeiValue(
-          balanceBigNumber.add(currentTimestampBigNumber.sub(balanceTimestampMs).mul(flowRateBigNumber).div(1000))
-        );
+        const update = balanceTimestampsMs
+          .map((balanceTimestampMs, i) =>
+            currentTimestampBigNumber.sub(balanceTimestampMs).mul(flowRateBigNumbers[i]).div(1000)
+          )
+          .reduce((a, b) => a.add(b), ethers.BigNumber.from(0));
+        setWeiValue(balanceBigNumber.add(update));
 
         lastAnimationTimestamp = currentAnimationTimestamp;
       }
 
-      window.requestAnimationFrame(animationStep);
+      requestAnimationFrame(animationStep);
     };
 
-    window.requestAnimationFrame(animationStep);
+    requestAnimationFrame(animationStep);
 
     return () => {
       stopAnimation = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [balance, balanceTimestamp, flowRate]);
+  }, [balance, balanceTimestampsMs, flowRateBigNumbers]);
 
   return calculateGoodDollarAmounts(weiValue.toString(), tokenPrice);
 }
