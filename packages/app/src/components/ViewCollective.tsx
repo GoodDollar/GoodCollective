@@ -31,6 +31,7 @@ import {
   WebIcon,
 } from '../assets/';
 import { calculateAmounts } from '../lib/calculateAmounts';
+import { useDonorCollectivesFlowingBalances } from '../hooks/useFlowingBalance';
 
 interface ViewCollectiveProps {
   collective: Collective;
@@ -51,9 +52,9 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
     ipfs,
     timestamp,
     stewardCollectives,
+    donorCollectives,
     paymentsMade,
     totalRewards,
-    totalDonations,
   } = collective;
 
   // default to oceanUri if headerImage is undefined
@@ -74,7 +75,11 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
 
-  const { formatted: formattedDonations, usdValue: donationsUsdValue } = calculateAmounts(totalDonations, tokenPrice);
+  const { formatted: formattedDonations, usdValue: donationsUsdValue } = useDonorCollectivesFlowingBalances(
+    donorCollectives,
+    tokenPrice
+  );
+
   const { formatted: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateAmounts(
     totalRewards,
     tokenPrice
