@@ -13,6 +13,8 @@ const donorCollectiveByEntities = gql`
         id
       }
       contribution
+      flowRate
+      timestamp
     }
   }
 `;

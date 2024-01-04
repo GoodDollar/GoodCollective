@@ -10,10 +10,11 @@ import { StewardBlue, StewardGreen } from '../../assets';
 interface StewardListProps {
   listType: 'viewCollective' | 'viewStewards';
   stewards: StewardCollective[];
-  hideTitle?: boolean;
+  titleStyle?: Record<string, any>;
+  listStyle?: Record<string, any>;
 }
 
-function StewardList({ listType, stewards, hideTitle }: StewardListProps) {
+function StewardList({ listType, stewards, titleStyle, listStyle }: StewardListProps) {
   const titleIcon = listType === 'viewCollective' ? StewardGreen : StewardBlue;
   const stewardsCountText = listType === 'viewCollective' ? ` (${stewards.length})` : '';
 
@@ -25,14 +26,12 @@ function StewardList({ listType, stewards, hideTitle }: StewardListProps) {
   const isVerified: boolean[] = [true, false, true, false, true, false];
 
   return (
-    <View style={styles.stewardsHeader}>
-      {!hideTitle && (
-        <View style={[styles.row, { marginBottom: 24 }]}>
-          <Image source={titleIcon} style={styles.titleIcon} />
-          <Text style={styles.title}>Stewards{stewardsCountText}</Text>
-        </View>
-      )}
-      <View style={styles.list}>
+    <View style={styles.stewardsListContainer}>
+      <View style={[styles.row, { marginBottom: 24, ...(titleStyle ?? {}) }]}>
+        <Image source={titleIcon} style={styles.titleIcon} />
+        <Text style={styles.title}>Stewards{stewardsCountText}</Text>
+      </View>
+      <View style={[styles.list, { ...(listStyle ?? {}) }]}>
         {stewards.map((steward, index) => (
           <StewardsListItem
             steward={steward}
@@ -48,7 +47,7 @@ function StewardList({ listType, stewards, hideTitle }: StewardListProps) {
 }
 
 const styles = StyleSheet.create({
-  stewardsHeader: { flex: 1 },
+  stewardsListContainer: { width: '100%' },
   titleIcon: {
     height: 32,
     width: 32,

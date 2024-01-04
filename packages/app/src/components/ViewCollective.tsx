@@ -13,7 +13,6 @@ import { Link, useMediaQuery } from 'native-base';
 import { formatTime } from '../lib/formatTime';
 import { Collective } from '../models/models';
 import { useGetTokenPrice, useIsDonorOfCollective } from '../hooks';
-import { ethers } from 'ethers';
 import { useAccount } from 'wagmi';
 import {
   AtIcon,
@@ -31,10 +30,14 @@ import {
   TwitterIcon,
   WebIcon,
 } from '../assets/';
+import { calculateAmounts } from '../lib/calculateAmounts';
+import { useDonorCollectivesFlowingBalances } from '../hooks/useFlowingBalance';
 
 interface ViewCollectiveProps {
   collective: Collective;
 }
+
+// TODO: "See all Stewards" button doesn't work for me and I can't figure out why
 
 function ViewCollective({ collective }: ViewCollectiveProps) {
   // TODO: fetch recent transactions
@@ -49,9 +52,9 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
     ipfs,
     timestamp,
     stewardCollectives,
+    donorCollectives,
     paymentsMade,
     totalRewards,
-    totalDonations,
   } = collective;
 
   // default to oceanUri if headerImage is undefined
@@ -72,17 +75,16 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
 
-  const decimalDonations = parseFloat(ethers.utils.formatEther(totalDonations ?? 0));
-  const formattedDonations: string = decimalDonations.toFixed(3);
-  const donationsUsdValue = tokenPrice ? tokenPrice * decimalDonations : undefined;
+  const { formatted: formattedDonations, usdValue: donationsUsdValue } = useDonorCollectivesFlowingBalances(
+    donorCollectives,
+    tokenPrice
+  );
 
-  const decimalTotalRewards = parseFloat(ethers.utils.formatEther(totalRewards ?? 0));
-  const formattedTotalRewards: string = decimalTotalRewards.toFixed(3);
-  const totalRewardsUsdValue = tokenPrice ? tokenPrice * decimalTotalRewards : undefined;
-
-  const decimalCurrentPool = parseFloat(ethers.utils.formatEther(currentPool ?? 0));
-  const formattedCurrentPool: string = decimalCurrentPool.toFixed(3);
-  const currentPoolUsdValue = tokenPrice ? tokenPrice * decimalCurrentPool : undefined;
+  const { formatted: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateAmounts(
+    totalRewards,
+    tokenPrice
+  );
+  const { formatted: formattedCurrentPool, usdValue: currentPoolUsdValue } = calculateAmounts(currentPool, tokenPrice);
 
   const renderDonorsButton = () => (
     <RoundedButton
@@ -192,21 +194,21 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 <RowItem
                   imageUrl={ReceiveLightIcon}
                   rowInfo="Total Donations Received"
-                  rowData={formattedDonations}
+                  rowData={formattedDonations ?? '0'}
                   currency="G$"
                   balance={donationsUsdValue ?? 0}
                 />
                 <RowItem
                   imageUrl={SendIcon}
                   rowInfo="Total Paid Out"
-                  rowData={formattedTotalRewards}
+                  rowData={formattedTotalRewards ?? '0'}
                   currency="G$"
                   balance={totalRewardsUsdValue ?? 0}
                 />
                 <RowItem
                   imageUrl={SquaresIcon}
                   rowInfo="Current Pool"
-                  rowData={formattedCurrentPool}
+                  rowData={formattedCurrentPool ?? '0'}
                   currency="G$"
                   balance={currentPoolUsdValue ?? 0}
                 />
@@ -281,21 +283,21 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             <RowItem
               imageUrl={ReceiveLightIcon}
               rowInfo="Total Donations Received"
-              rowData={formattedDonations}
+              rowData={formattedDonations ?? '0'}
               currency="G$"
               balance={donationsUsdValue ?? 0}
             />
             <RowItem
               imageUrl={SendIcon}
               rowInfo="Total Paid Out"
-              rowData={formattedTotalRewards}
+              rowData={formattedTotalRewards ?? '0'}
               currency="G$"
               balance={totalRewardsUsdValue ?? 0}
             />
             <RowItem
               imageUrl={SquaresIcon}
               rowInfo="Current Pool"
-              rowData={formattedCurrentPool}
+              rowData={formattedCurrentPool ?? '0'}
               currency="G$"
               balance={currentPoolUsdValue ?? 0}
             />

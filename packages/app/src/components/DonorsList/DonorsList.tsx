@@ -6,11 +6,12 @@ import { ethers } from 'ethers';
 
 interface DonorsListProps {
   donors: DonorCollective[];
+  listStyle?: Record<string, any>;
 }
 
 // TODO: DonorsList and StewardsList will not look correct on Desktop when there are more than 5 donors. They will in one column, but they should be in three columns.
 
-function DonorsList({ donors }: DonorsListProps) {
+function DonorsList({ donors, listStyle }: DonorsListProps) {
   const sortedDonors: DonorCollective[] = useMemo(() => {
     return donors.sort((donor) => {
       return parseFloat(ethers.utils.formatEther(donor.contribution ?? 0));
@@ -18,7 +19,7 @@ function DonorsList({ donors }: DonorsListProps) {
   }, [donors]);
 
   return (
-    <View style={styles.list}>
+    <View style={[styles.list, { ...(listStyle ?? {}) }]}>
       {sortedDonors.map((donor, index) => (
         <DonorsListItem donor={donor} rank={index + 1} key={donor.donor} />
       ))}
@@ -27,7 +28,7 @@ function DonorsList({ donors }: DonorsListProps) {
 }
 
 const styles = StyleSheet.create({
-  donorsHeader: { width: '100%' },
+  donorsListContainer: { width: '100%' },
   list: {
     width: '100%',
     maxHeight: 400,

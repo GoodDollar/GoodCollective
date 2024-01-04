@@ -2,8 +2,8 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../utils/colors';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { DonorCollective } from '../../models/models';
-import { ethers } from 'ethers';
 import useCrossNavigate from '../../routes/useCrossNavigate';
+import Decimal from 'decimal.js';
 
 interface DonorsListItemProps {
   donor: DonorCollective;
@@ -14,9 +14,7 @@ export const DonorsListItem = (props: DonorsListItemProps) => {
   const { donor, rank } = props;
   const { navigate } = useCrossNavigate();
 
-  const decimalDonations = parseFloat(ethers.utils.formatEther(donor.contribution ?? 0));
-  const formattedDonations: string = decimalDonations.toFixed(3);
-
+  const formattedDonations: string = new Decimal(donor.contribution ?? 0).toFixed(3);
   const formattedAddress = donor.donor.slice(0, 6) + '...' + donor.donor.slice(-4);
 
   const circleBackgroundColor = rank === 1 ? Colors.yellow[100] : rank === 2 ? Colors.gray[700] : Colors.orange[400];
@@ -83,6 +81,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   row: {
+    minHeight: 48,
     width: '100%',
     backgroundColor: Colors.white,
     flex: 1,
