@@ -27,7 +27,7 @@ const getTokenPrice = (currency: string, token: Token): Promise<number | undefin
   return axios
     .get(url)
     .then((res) => {
-      return res.data[tokenAddress.toLowerCase()].usd;
+      return res.data[tokenAddress.toLowerCase()]?.usd;
     })
     .catch((err) => {
       console.error(err);

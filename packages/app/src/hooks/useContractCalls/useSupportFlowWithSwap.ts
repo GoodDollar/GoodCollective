@@ -61,6 +61,7 @@ export function useSupportFlowWithSwap(
 
     try {
       const sdk = new GoodCollectiveSDK(chainIdString, signer.provider, { network });
+      toggleCompleteDonationModal(true);
       const tx = await sdk.supportFlowWithSwap(signer, collective, flowRate, {
         amount: amountIn,
         minReturn: minReturnFromSwap,
@@ -68,7 +69,6 @@ export function useSupportFlowWithSwap(
         swapFrom: tokenIn.address,
         deadline: Math.floor(Date.now() / 1000 + 1800).toString(),
       });
-      toggleCompleteDonationModal(true);
       await tx.wait();
       navigate(`/profile/${address}`);
       return;

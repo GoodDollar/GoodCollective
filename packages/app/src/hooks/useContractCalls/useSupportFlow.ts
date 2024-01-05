@@ -45,8 +45,8 @@ export function useSupportFlow(
 
     try {
       const sdk = new GoodCollectiveSDK(chainIdString, signer.provider, { network });
-      const tx = await sdk.supportFlow(signer, collective, flowRate);
       toggleCompleteDonationModal(true);
+      const tx = await sdk.supportFlow(signer, collective, flowRate);
       await tx.wait();
       navigate(`/profile/${address}`);
       return;

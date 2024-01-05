@@ -28,6 +28,7 @@ import ApproveSwapModal from './ApproveSwapModal';
 import { waitForTransaction } from '@wagmi/core';
 import { TransactionReceipt } from 'viem';
 import { useToken, useTokenList } from '../hooks/useTokenList';
+import { formatDecimalStringInput } from '../lib/formatDecimalStringInput';
 
 interface DonateComponentProps {
   collective: IpfsCollective;
@@ -96,11 +97,11 @@ function DonateComponent({ collective }: DonateComponentProps) {
       setErrorMessage('An error occurred while generating a transaction to approve the token.');
       return;
     }
-    let txReceipt: TransactionReceipt | undefined;
     const txHash = await handleApproveToken();
     if (txHash === undefined) {
       return;
     }
+    let txReceipt: TransactionReceipt | undefined;
     try {
       txReceipt = await waitForTransaction({
         chainId: chain?.id,
@@ -109,7 +110,6 @@ function DonateComponent({ collective }: DonateComponentProps) {
         timeout: 1000 * 60 * 5,
       });
     } catch (error) {
-      setApproveSwapModalVisible(false);
       setErrorMessage(
         'Something went wrong: Your token approval transaction was not confirmed within the timeout period.'
       );
@@ -144,7 +144,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
     .toString();
 
   const isInsufficientBalance = donorCurrencyBalance ? totalDecimalDonation > donorCurrencyBalance : true;
-  const isInsufficientLiquidity = currency !== 'G$' && swapRouteStatus === SwapRouteState.NO_ROUTE;
+  const isInsufficientLiquidity = currency !== 'G$' && swapRouteStatus !== SwapRouteState.READY;
   const isUnacceptablePriceImpact = currency !== 'G$' && priceImpact ? priceImpact.gte(0.1) : false;
 
   const { price } = useGetTokenPrice(currency);
@@ -184,7 +184,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
                     placeholder={'0.00'}
                     style={styles.subHeading}
                     maxLength={7}
-                    onChangeText={(value: string) => setDecimalDonationAmount(parseFloat(value))}
+                    onChangeText={(value: string) => setDecimalDonationAmount(formatDecimalStringInput(value))}
                   />
                 </View>
                 <View style={styles.divider} />
@@ -214,7 +214,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
                       placeholder={'0.00'}
                       style={styles.subHeading}
                       maxLength={7}
-                      onChangeText={(value: string) => setDecimalDonationAmount(parseFloat(value))}
+                      onChangeText={(value: string) => setDecimalDonationAmount(formatDecimalStringInput(value))}
                     />
                   </View>
                   <View style={styles.divider} />

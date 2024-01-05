@@ -43,8 +43,8 @@ export function useSupportSingleBatch(
 
     try {
       const sdk = new GoodCollectiveSDK(chainIdString, signer.provider, { network });
-      const tx = await sdk.supportSingleBatch(signer, collective, donationAmount);
       toggleCompleteDonationModal(true);
+      const tx = await sdk.supportSingleBatch(signer, collective, donationAmount);
       await tx.wait();
       navigate(`/profile/${address}`);
       return;

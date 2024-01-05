@@ -1,6 +1,5 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { InterRegular } from '../../utils/webFonts';
-import { formatAmount } from '../../lib/formatAmount';
 import { formatAddress } from '../../lib/formatAddress';
 import { useEnsName, useNetwork } from 'wagmi';
 import { Colors } from '../../utils/colors';
@@ -40,7 +39,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
                 width: 240,
                 justifyContent: 'space-between',
               }}>
-              <Text style={styles.amountText}>{formatAmount(tokenBalance as any)}</Text>
+              <Text style={styles.amountText}>{tokenBalance}</Text>
               <View style={styles.walletConnected}>
                 <Image source={PlaceholderAvatar} resizeMode="contain" style={{ width: 25, height: 25 }} />
                 {ensName ? (
@@ -69,7 +68,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
               flex: 1,
               justifyContent: 'space-between',
             }}>
-            <Text style={styles.amountText}>{formatAmount(tokenBalance as any)}</Text>
+            <Text style={styles.amountText}>{tokenBalance}</Text>
             <View style={styles.walletConnected}>
               <Image source={PlaceholderAvatar} resizeMode="contain" style={{ width: 25, height: 25 }} />
               {ensName ? (
