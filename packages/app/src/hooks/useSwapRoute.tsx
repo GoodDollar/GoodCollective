@@ -20,7 +20,7 @@ export function useSwapRoute(
   currencyIn: string,
   decimalAmountIn: number,
   duration: number,
-  slippageTolerance: Percent = new Percent(3, 100)
+  slippageTolerance: Percent = new Percent(50, 10_000)
 ): {
   path?: string;
   quote?: Decimal;
@@ -83,8 +83,9 @@ export function useSwapRoute(
     const path = encodeRouteToPath(route.route[0].route as V3Route, false);
     const quote = new Decimal(route.quote.toFixed(18));
     // TODO: use commented out values when https://github.com/Uniswap/sdk-core/issues/20 is resolved by https://github.com/Uniswap/sdk-core/pull/69
-    const rawMinimumAmountOut = route.quoteGasAdjusted?.numerator.toString(); // route.trade.minimumAmountOut(slippageTolerance).numerator.toString();
-    const priceImpact = new Decimal(0.05); // new Decimal(route.trade.priceImpact.toFixed(4));
+    const rawMinimumAmountOut =
+      route.quoteGasAndPortionAdjusted?.numerator.toString() ?? route.quoteGasAdjusted.numerator.toString(); // route.trade.minimumAmountOut(slippageTolerance).numerator.toString();
+    const priceImpact = new Decimal(0.005); // new Decimal(route.trade.priceImpact.toFixed(4));
     return { path, quote, rawMinimumAmountOut, priceImpact, status: SwapRouteState.READY };
   }
 }
