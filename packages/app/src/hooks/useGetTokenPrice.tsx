@@ -21,13 +21,29 @@ export const useGetTokenPrice = (currency: string): { price?: number; isLoading:
   return { price, isLoading };
 };
 
-const getTokenPrice = (currency: string, token: Token): Promise<number | undefined> => {
+const getTokenPrice = async (currency: string, token: Token): Promise<number | undefined> => {
   let tokenAddress = coingeckoTokenMapping[currency] ?? token.address;
-  const url = `https://api.coingecko.com/api/v3/simple/token_price/celo?contract_addresses=${tokenAddress}&vs_currencies=usd`;
-  return axios
-    .get(url)
+  const priceByContractUrl = `https://api.coingecko.com/api/v3/simple/token_price/celo?contract_addresses=${tokenAddress}&vs_currencies=usd`;
+  const priceByContract: number | undefined = await axios
+    .get(priceByContractUrl)
     .then((res) => {
       return res.data[tokenAddress.toLowerCase()]?.usd;
+    })
+    .catch((err) => {
+      console.error(err);
+      return undefined;
+    });
+
+  if (priceByContract !== undefined) {
+    return priceByContract;
+  }
+
+  // fallback
+  const priceBySymbolUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${currency}&vs_currencies=usd`;
+  return await axios
+    .get(priceBySymbolUrl)
+    .then((res) => {
+      return res.data[currency.toLowerCase()]?.usd;
     })
     .catch((err) => {
       console.error(err);
