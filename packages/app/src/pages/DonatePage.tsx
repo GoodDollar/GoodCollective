@@ -19,11 +19,7 @@ function DonatePage() {
   return (
     <Layout>
       {isDesktopResolution && <Breadcrumb previousPage={`collective / ${collectiveId}`} currentPage={`donate`} />}
-      {!ipfsCollective ? (
-        <p>Loading...</p>
-      ) : (
-        <DonateComponent insufficientLiquidity={false} priceImpact={false} collective={ipfsCollective} />
-      )}
+      {!ipfsCollective ? <p>Loading...</p> : <DonateComponent collective={ipfsCollective} />}
     </Layout>
   );
 }

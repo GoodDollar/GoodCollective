@@ -11,12 +11,23 @@ interface RoundedButtonProps {
   seeType: boolean;
   onPress?: () => void;
   maxWidth?: number | string;
+  disabled?: boolean;
 }
 
-function RoundedButton({ title, backgroundColor, color, fontSize, seeType, onPress, maxWidth }: RoundedButtonProps) {
+function RoundedButton({
+  title,
+  backgroundColor,
+  color,
+  fontSize,
+  seeType,
+  onPress,
+  maxWidth,
+  disabled,
+}: RoundedButtonProps) {
   if (!seeType) {
     return (
       <TouchableOpacity
+        disabled={disabled}
         style={[
           styles.button,
           {
@@ -39,7 +50,10 @@ function RoundedButton({ title, backgroundColor, color, fontSize, seeType, onPre
     );
   }
   return (
-    <TouchableOpacity style={[styles.button, { backgroundColor: backgroundColor }]} onPress={onPress}>
+    <TouchableOpacity
+      disabled={disabled}
+      style={[styles.button, { backgroundColor: backgroundColor }]}
+      onPress={onPress}>
       <View
         style={{
           flexDirection: 'row',

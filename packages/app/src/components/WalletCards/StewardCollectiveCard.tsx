@@ -5,7 +5,7 @@ import { IpfsCollective, StewardCollective } from '../../models/models';
 import { ethers } from 'ethers';
 import { styles } from './styles';
 import { InfoIcon, StewardOrange } from '../../assets';
-import { calculateAmounts } from '../../lib/calculateAmounts';
+import { calculateGoodDollarAmounts } from '../../lib/calculateGoodDollarAmounts';
 
 interface StewardCollectiveCardProps {
   collective: StewardCollective;
@@ -26,7 +26,7 @@ function StewardCollectiveCard({
   const { navigate } = useCrossNavigate();
   const userName = ensName ?? 'This wallet';
 
-  const { formatted: rewardsFormatted, usdValue: rewardsUsdValue } = calculateAmounts(
+  const { formatted: rewardsFormatted, usdValue: rewardsUsdValue } = calculateGoodDollarAmounts(
     collective.totalEarned,
     tokenPrice
   );

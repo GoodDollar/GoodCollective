@@ -51,6 +51,7 @@ function Dropdown({ onSelect, value, options }: DropdownProps) {
         <View style={styles.dropdownContainer}>
           {options.map((option) => (
             <TouchableOpacity
+              key={option.value}
               style={styles.dropdownItem}
               onPress={() => {
                 onSelect(option.value);
@@ -108,8 +109,10 @@ const styles = StyleSheet.create({
     height: 24,
   },
   dropdownContainer: {
-    height: 'auto',
     width: 'auto',
+    height: 'auto',
+    maxHeight: 400,
+    overflowY: 'scroll',
     backgroundColor: Colors.white,
     paddingTop: 10,
     paddingBottom: 10,
@@ -132,6 +135,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     minWidth: 105,
     width: '100%',
+    minHeight: 60,
     alignItems: 'center',
   },
   dropdownSeparator: {

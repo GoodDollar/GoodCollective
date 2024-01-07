@@ -1,26 +1,36 @@
 import { Colors } from './colors';
+import { Frequency } from '../models/constants';
 
-export function shortenAddress(address: string, length = 3) {
-  if (!address) return '';
-  const start = address.substring(0, length);
-  const end = address.substring(address.length - length);
-  return `${start}...${end}`;
-}
-
-export function getButtonBGC(insufficientLiquidity: boolean, priceImpace: boolean, insufficientBalance: boolean) {
-  if (insufficientLiquidity || insufficientBalance) {
+export function getDonateButtonBackgroundColor(
+  hasAddress: boolean,
+  isValidChainId: boolean,
+  insufficientLiquidity: boolean,
+  priceImpact: boolean,
+  insufficientBalance: boolean
+) {
+  if (!hasAddress || !isValidChainId || insufficientLiquidity || insufficientBalance) {
     return Colors.gray[1000];
-  } else if (priceImpace) {
+  } else if (priceImpact) {
     return Colors.orange[100];
   } else {
     return Colors.green[100];
   }
 }
 
-export function getButtonText(insufficientLiquidity: boolean, priceImpace: boolean, insufficientBalance: boolean) {
-  if (insufficientLiquidity) {
+export function getDonateButtonText(
+  hasAddress: boolean,
+  isValidChainId: boolean,
+  insufficientLiquidity: boolean,
+  priceImpact: boolean,
+  insufficientBalance: boolean
+) {
+  if (!hasAddress) {
+    return 'Please connect wallet';
+  } else if (!isValidChainId) {
+    return 'Unsupported network';
+  } else if (insufficientLiquidity) {
     return 'Insufficient liquidity for this trade';
-  } else if (priceImpace) {
+  } else if (priceImpact) {
     return 'Confirm & Swap Anyway';
   } else if (insufficientBalance) {
     return 'Confirm & Swap Anyway';
@@ -28,17 +38,30 @@ export function getButtonText(insufficientLiquidity: boolean, priceImpace: boole
     return 'Confirm';
   }
 }
-export function getButtonTextColor(insufficientLiquidity: boolean, priceImpace: boolean, insufficientBalance: boolean) {
-  if (insufficientLiquidity || insufficientBalance) {
+export function getDonateButtonTextColor(
+  hasAddress: boolean,
+  isValidChainId: boolean,
+  insufficientLiquidity: boolean,
+  priceImpact: boolean,
+  insufficientBalance: boolean
+) {
+  if (
+    !hasAddress ||
+    !isValidChainId ||
+    insufficientLiquidity ||
+    insufficientBalance ||
+    insufficientLiquidity ||
+    insufficientBalance
+  ) {
     return Colors.gray[300];
-  } else if (priceImpace) {
+  } else if (priceImpact) {
     return Colors.black;
   } else {
     return Colors.green[200];
   }
 }
 
-export function getFrequencyTime(frequency: string) {
+export function getFrequencyPlural(frequency: Frequency) {
   switch (frequency) {
     case 'Daily':
       return 'Days';
@@ -49,8 +72,4 @@ export function getFrequencyTime(frequency: string) {
     case 'Yearly':
       return 'Years';
   }
-}
-
-export function getTotalAmount(duration: number, amount: number) {
-  return duration * amount;
 }

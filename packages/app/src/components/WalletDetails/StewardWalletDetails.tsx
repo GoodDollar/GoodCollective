@@ -2,7 +2,7 @@ import { Text, View } from 'react-native';
 import { Steward } from '../../models/models';
 import { ethers } from 'ethers';
 import { styles } from './styles';
-import { calculateAmounts } from '../../lib/calculateAmounts';
+import { calculateGoodDollarAmounts } from '../../lib/calculateGoodDollarAmounts';
 
 interface StewardWalletDetailsProps {
   firstName: string;
@@ -11,7 +11,7 @@ interface StewardWalletDetailsProps {
 }
 
 function StewardWalletDetails({ firstName, steward, tokenPrice }: StewardWalletDetailsProps) {
-  const { formatted: formattedRewards, usdValue } = calculateAmounts(steward.totalEarned, tokenPrice);
+  const { formatted: formattedRewards, usdValue } = calculateGoodDollarAmounts(steward.totalEarned, tokenPrice);
 
   return (
     <View style={styles.walletDetailsContainer}>

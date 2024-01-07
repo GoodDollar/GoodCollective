@@ -9,18 +9,22 @@ interface AproveSwapModalProps {
   setOpenModal: any;
 }
 
-const AproveSwapModal = ({ openModal, setOpenModal }: AproveSwapModalProps) => {
+const ApproveSwapModal = ({ openModal, setOpenModal }: AproveSwapModalProps) => {
   return (
     <View style={styles.centeredView}>
       <Modal animationType="slide" transparent={true} visible={openModal}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <View style={modalStyles.modalCloseIconWrapper}>
-              <TouchableOpacity style={modalStyles.modalCloseIcon}>
+              <TouchableOpacity
+                style={modalStyles.modalCloseIcon}
+                onPress={() => {
+                  setOpenModal(false);
+                }}>
                 <Image source={CloseIcon} style={styles.closeIcon} />
               </TouchableOpacity>
             </View>
-            <Text style={styles.title}>APROVE TOKEN SWAP</Text>
+            <Text style={styles.title}>APPROVE TOKEN SWAP</Text>
             <Text style={styles.paragraph}>
               To approve the exchange from your donation currency to this GoodCollective's currency, sign with your
               wallet.
@@ -112,4 +116,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AproveSwapModal;
+export default ApproveSwapModal;

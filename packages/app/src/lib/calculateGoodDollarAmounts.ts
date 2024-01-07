@@ -3,7 +3,8 @@ import { ethers } from 'ethers';
 
 export type CalculatedAmounts = { decimal?: Decimal; formatted?: string; usdValue?: number };
 
-export function calculateAmounts(onChainAmount?: string, tokenPrice?: number): CalculatedAmounts {
+// assumes 18 decimals
+export function calculateGoodDollarAmounts(onChainAmount?: string, tokenPrice?: number): CalculatedAmounts {
   if (onChainAmount === undefined) {
     return {
       decimal: undefined,
