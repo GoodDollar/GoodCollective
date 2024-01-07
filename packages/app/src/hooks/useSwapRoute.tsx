@@ -25,7 +25,7 @@ export function useSwapRoute(
   path?: string;
   quote?: Decimal;
   rawMinimumAmountOut?: string;
-  priceImpact?: Decimal;
+  priceImpact?: number;
   status: SwapRouteState;
 } {
   const { address } = useAccount();
@@ -81,7 +81,7 @@ export function useSwapRoute(
     const path = encodeRouteToPath(route.route[0].route as V3Route, false);
     const quote = new Decimal(route.quote.toFixed(18));
     const rawMinimumAmountOut = route.trade.minimumAmountOut(slippageTolerance).numerator.toString();
-    const priceImpact = new Decimal(route.trade.priceImpact.toFixed(4));
+    const priceImpact = parseFloat(route.trade.priceImpact.toFixed(4));
     return { path, quote, rawMinimumAmountOut, priceImpact, status: SwapRouteState.READY };
   }
 }

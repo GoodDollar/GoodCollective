@@ -146,7 +146,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const isInsufficientBalance = donorCurrencyBalance ? totalDecimalDonation > donorCurrencyBalance : true;
   const isInsufficientLiquidity = currency !== 'G$' && swapRouteStatus !== SwapRouteState.READY;
   // TODO: what is an acceptable price impact?
-  const isUnacceptablePriceImpact = currency !== 'G$' && priceImpact ? priceImpact.gte(10) : false;
+  const isUnacceptablePriceImpact = currency !== 'G$' && priceImpact ? priceImpact > 10 : false;
 
   const { price } = useGetTokenPrice(currency);
   const usdValue = price ? formatFiatCurrency(decimalDonationAmount * price) : undefined;
