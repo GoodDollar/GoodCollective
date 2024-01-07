@@ -57,6 +57,11 @@ function App(): JSX.Element {
       const client = new ApolloClient({
         uri: 'https://api.thegraph.com/subgraphs/name/gooddollar/goodcollective',
         cache,
+        defaultOptions: {
+          watchQuery: {
+            fetchPolicy: 'cache-and-network',
+          },
+        },
       });
       setApolloClient(client);
     }
