@@ -45,9 +45,9 @@ export function useApproveSwapTokenCallback(
       toggleApproveSwapModalVisible(true);
       const result = await writeAsync().catch((_) => {
         // user rejected the transaction
-        toggleApproveSwapModalVisible(false);
         return undefined;
       });
+      toggleApproveSwapModalVisible(false);
       return result?.hash;
     };
   }, [writeAsync, toggleApproveSwapModalVisible]);

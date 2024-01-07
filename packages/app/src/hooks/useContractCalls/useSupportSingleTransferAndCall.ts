@@ -43,8 +43,8 @@ export function useSupportSingleTransferAndCall(
 
     try {
       const sdk = new GoodCollectiveSDK(chainIdString, signer.provider, { network });
-      const tx = await sdk.supportSingleTransferAndCall(signer, collective, donationAmount);
       toggleCompleteDonationModal(true);
+      const tx = await sdk.supportSingleTransferAndCall(signer, collective, donationAmount);
       await tx.wait();
       navigate(`/profile/${address}`);
       return;

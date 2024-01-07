@@ -45,6 +45,7 @@ function WalletCards({
         stewardIpfsCollectives.length > 0 &&
         steward.collectives?.map((collective, i) => (
           <StewardCollectiveCard
+            key={collective.collective}
             collective={collective}
             ipfsCollective={stewardIpfsCollectives[i]}
             ensName={ensName ?? undefined}
@@ -56,6 +57,7 @@ function WalletCards({
         donorIpfsCollectives.length > 0 &&
         donor.collectives?.map((collective, i) => (
           <DonorCollectiveCard
+            key={collective.collective}
             collective={collective}
             ipfsCollective={donorIpfsCollectives[i]}
             ensName={ensName ?? undefined}

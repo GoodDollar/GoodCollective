@@ -4549,8 +4549,9 @@ __metadata:
     "@types/react-dom": ^18.2.5
     "@types/react-native": ^0.72.2
     "@types/react-test-renderer": ^18.0.0
+    "@uniswap/router-sdk": ^1.7.1
     "@uniswap/sdk-core": ^4.0.7
-    "@uniswap/smart-order-router": ^3.16.23
+    "@uniswap/smart-order-router": ^3.20.0
     "@uniswap/v3-sdk": ^3.10.0
     "@usedapp/core": ^1.2.10
     "@vitejs/plugin-react": ^4.1.1
@@ -4572,7 +4573,6 @@ __metadata:
     fast-text-encoding: ^1.0.6
     graphql: ^16.6.0
     jest: ^29.2.1
-    jsbi: 3.1.4
     lodash: ^4.17.21
     metro-react-native-babel-preset: 0.73.9
     mixpanel-react-native: ^2.3.1
@@ -11603,7 +11603,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uniswap/router-sdk@npm:^1.6.0":
+"@uniswap/router-sdk@npm:^1.6.0, @uniswap/router-sdk@npm:^1.7.1":
   version: 1.7.1
   resolution: "@uniswap/router-sdk@npm:1.7.1"
   dependencies:
@@ -11665,9 +11665,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uniswap/smart-order-router@npm:^3.16.23":
-  version: 3.17.2
-  resolution: "@uniswap/smart-order-router@npm:3.17.2"
+"@uniswap/smart-order-router@npm:^3.20.0":
+  version: 3.20.0
+  resolution: "@uniswap/smart-order-router@npm:3.20.0"
   dependencies:
     "@uniswap/default-token-list": ^11.2.0
     "@uniswap/permit2-sdk": ^1.2.0
@@ -11693,7 +11693,7 @@ __metadata:
     stats-lite: ^2.2.0
   peerDependencies:
     jsbi: ^3.2.0
-  checksum: 892fe402328337a5857caae15a1d6a3b63527424b00efe836bfada417cf7ea078c87dd1194d0f336f99fa6fcff643d4f089b13c6bfb642a502aa00afe6e29cfa
+  checksum: 714082c5ac4f6ffe17e7a6255cf89692e229d875e3db91ad461e3f6d137200710afc27e464ff7f7e98ff398f79ba05a08f6b165340489f12460f043a06bccd98
   languageName: node
   linkType: hard
 
@@ -27242,13 +27242,6 @@ __metadata:
   bin:
     js-yaml: bin/js-yaml.js
   checksum: c7830dfd456c3ef2c6e355cc5a92e6700ceafa1d14bba54497b34a99f0376cecbb3e9ac14d3e5849b426d5a5140709a66237a8c991c675431271c4ce5504151a
-  languageName: node
-  linkType: hard
-
-"jsbi@npm:3.1.4":
-  version: 3.1.4
-  resolution: "jsbi@npm:3.1.4"
-  checksum: 8dad8122b5060642d5763405f3c210c385747d5b5e95639e8bddbb2bb5d06fc55a25c6d7d7dec7cbc071d4db58a9525578d29a58d1357976c03d75b3712f83a4
   languageName: node
   linkType: hard
 

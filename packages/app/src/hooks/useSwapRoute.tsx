@@ -8,6 +8,7 @@ import Decimal from 'decimal.js';
 import { useEffect, useState } from 'react';
 import { encodeRouteToPath } from '@uniswap/v3-sdk';
 import { useToken } from './useTokenList';
+import { Protocol } from '@uniswap/router-sdk';
 
 export enum SwapRouteState {
   LOADING,
@@ -19,12 +20,12 @@ export function useSwapRoute(
   currencyIn: string,
   decimalAmountIn: number,
   duration: number,
-  slippageTolerance: Percent = new Percent(1, 100)
+  slippageTolerance: Percent = new Percent(50, 10_000)
 ): {
   path?: string;
   quote?: Decimal;
   rawMinimumAmountOut?: string;
-  priceImpact?: Decimal;
+  priceImpact?: number;
   status: SwapRouteState;
 } {
   const { address } = useAccount();
@@ -40,6 +41,7 @@ export function useSwapRoute(
       setRoute(undefined);
       return;
     }
+
     const router = new AlphaRouter({
       chainId: chain.id,
       provider: signer.provider,
@@ -47,28 +49,39 @@ export function useSwapRoute(
 
     const rawAmountIn = calculateRawTotalDonation(decimalAmountIn, duration, tokenIn.decimals);
     const inputAmount = CurrencyAmount.fromRawAmount(tokenIn, rawAmountIn.toFixed(0, Decimal.ROUND_DOWN));
+
     router
-      .route(inputAmount, GDToken, TradeType.EXACT_INPUT, {
-        type: SwapType.SWAP_ROUTER_02,
-        recipient: address,
-        slippageTolerance: slippageTolerance,
-        deadline: Math.floor(Date.now() / 1000 + 1800),
-      })
+      .route(
+        inputAmount,
+        GDToken,
+        TradeType.EXACT_INPUT,
+        {
+          type: SwapType.SWAP_ROUTER_02,
+          recipient: address,
+          slippageTolerance: slippageTolerance,
+          deadline: Math.floor(Date.now() / 1000 + 1800),
+        },
+        {
+          protocols: [Protocol.V3],
+        }
+      )
       .then((swapRoute) => {
         setRoute(swapRoute ?? undefined);
+      })
+      .catch((e) => {
+        console.error(e);
+        setRoute(undefined);
       });
   }, [address, chain?.id, signer?.provider, tokenIn, decimalAmountIn, duration, slippageTolerance]);
 
-  if (!route) {
-    return { status: SwapRouteState.LOADING };
-  } else if (!route.methodParameters) {
+  if (!route || !route.methodParameters) {
     return { status: SwapRouteState.NO_ROUTE };
   } else {
     // This typecast is safe because Uniswap v2 is not deployed on Celo
     const path = encodeRouteToPath(route.route[0].route as V3Route, false);
     const quote = new Decimal(route.quote.toFixed(18));
     const rawMinimumAmountOut = route.trade.minimumAmountOut(slippageTolerance).numerator.toString();
-    const priceImpact = new Decimal(route.trade.priceImpact.toFixed(4));
+    const priceImpact = parseFloat(route.trade.priceImpact.toFixed(4));
     return { path, quote, rawMinimumAmountOut, priceImpact, status: SwapRouteState.READY };
   }
 }
