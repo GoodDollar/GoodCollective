@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { DonorCollective } from '../../models/models';
 import { DonorsListItem } from './DonorsListItem';
 import { useMemo } from 'react';
-import { ethers } from 'ethers';
+import Decimal from 'decimal.js';
 
 interface DonorsListProps {
   donors: DonorCollective[];
@@ -13,8 +13,10 @@ interface DonorsListProps {
 
 function DonorsList({ donors, listStyle }: DonorsListProps) {
   const sortedDonors: DonorCollective[] = useMemo(() => {
-    return donors.sort((donor) => {
-      return parseFloat(ethers.utils.formatEther(donor.contribution ?? 0));
+    return donors.sort((a, b) => {
+      const aDecimal = new Decimal(a.contribution ?? 0);
+      const bDecimal = new Decimal(b.contribution ?? 0);
+      return bDecimal.cmp(aDecimal);
     });
   }, [donors]);
 
