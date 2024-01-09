@@ -1,5 +1,8 @@
 import { Token } from '@uniswap/sdk-core';
 
+// 5%
+export const acceptablePriceImpact = 5;
+
 export enum SupportedNetwork {
   celo = 42220,
 }

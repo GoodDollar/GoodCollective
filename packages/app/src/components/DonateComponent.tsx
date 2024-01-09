@@ -16,7 +16,7 @@ import { useContractCalls, useGetTokenPrice } from '../hooks';
 import { useAccount, useNetwork } from 'wagmi';
 import { IpfsCollective } from '../models/models';
 import { useGetDecimalBalance } from '../hooks/useGetDecimalBalance';
-import { Frequency, frequencyOptions, SupportedNetwork } from '../models/constants';
+import { acceptablePriceImpact, Frequency, frequencyOptions, SupportedNetwork } from '../models/constants';
 import { InfoIconOrange } from '../assets';
 import { useLocation } from 'react-router-native';
 import Decimal from 'decimal.js';
@@ -145,8 +145,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
 
   const isInsufficientBalance = donorCurrencyBalance ? totalDecimalDonation > donorCurrencyBalance : true;
   const isInsufficientLiquidity = currency !== 'G$' && swapRouteStatus !== SwapRouteState.READY;
-  // TODO: what is an acceptable price impact?
-  const isUnacceptablePriceImpact = currency !== 'G$' && priceImpact ? priceImpact > 10 : false;
+  const isUnacceptablePriceImpact = currency !== 'G$' && priceImpact ? priceImpact > acceptablePriceImpact : false;
 
   const { price } = useGetTokenPrice(currency);
   const usdValue = price ? formatFiatCurrency(decimalDonationAmount * price) : undefined;
