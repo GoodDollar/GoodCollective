@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BigNumberish, ethers } from 'ethers';
-import { calculateAmounts, CalculatedAmounts } from '../lib/calculateAmounts';
 import { DonorCollective } from '../models/models';
+import { calculateGoodDollarAmounts, CalculatedAmounts } from '../lib/calculateGoodDollarAmounts';
 
 // based on https://github.com/superfluid-finance/superfluid-console/blob/master/src/components/FlowingBalance.tsx
 
@@ -99,5 +99,5 @@ export function useSumOfFlowingBalances(
     };
   }, [balance, balanceTimestampsMs, flowRateBigNumbers]);
 
-  return calculateAmounts(weiValue.toString(), tokenPrice);
+  return calculateGoodDollarAmounts(weiValue.toString(), tokenPrice);
 }

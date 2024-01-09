@@ -1,11 +1,10 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { InterRegular } from '../../utils/webFonts';
-import { formatAmount } from '../../lib/formatAmount';
-import displayAddress from '../../lib/displayAddress';
+import { formatAddress } from '../../lib/formatAddress';
 import { useEnsName, useNetwork } from 'wagmi';
 import { Colors } from '../../utils/colors';
 import { PlaceholderAvatar } from '../../assets';
-import { useGetBalance } from '../../hooks/useGetBalance';
+import { useGetDecimalBalance } from '../../hooks/useGetDecimalBalance';
 
 interface ConnectedAccountDisplayProps {
   isDesktopResolution: boolean;
@@ -18,7 +17,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
   const { chain } = useNetwork();
   const chainName = chain?.name.replace(/\d+|\s/g, '');
 
-  const tokenBalance = useGetBalance('G$', address, chain?.id);
+  const tokenBalance = useGetDecimalBalance('G$', address, chain?.id);
   const { data: ensName } = useEnsName({ address });
 
   return (
@@ -40,13 +39,13 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
                 width: 240,
                 justifyContent: 'space-between',
               }}>
-              <Text style={styles.amountText}>{formatAmount(tokenBalance as any)}</Text>
+              <Text style={styles.amountText}>{tokenBalance}</Text>
               <View style={styles.walletConnected}>
                 <Image source={PlaceholderAvatar} resizeMode="contain" style={{ width: 25, height: 25 }} />
                 {ensName ? (
                   <Text style={styles.walletConnectedText}>{ensName}</Text>
                 ) : (
-                  <Text style={styles.walletConnectedText}>{displayAddress(address)}</Text>
+                  <Text style={styles.walletConnectedText}>{formatAddress(address)}</Text>
                 )}
               </View>
             </View>
@@ -69,13 +68,13 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
               flex: 1,
               justifyContent: 'space-between',
             }}>
-            <Text style={styles.amountText}>{formatAmount(tokenBalance as any)}</Text>
+            <Text style={styles.amountText}>{tokenBalance}</Text>
             <View style={styles.walletConnected}>
               <Image source={PlaceholderAvatar} resizeMode="contain" style={{ width: 25, height: 25 }} />
               {ensName ? (
                 <Text style={styles.walletConnectedText}>{ensName}</Text>
               ) : (
-                <Text style={styles.walletConnectedText}>{displayAddress(address)}</Text>
+                <Text style={styles.walletConnectedText}>{formatAddress(address)}</Text>
               )}
             </View>
           </View>

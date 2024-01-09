@@ -30,8 +30,8 @@ import {
   TwitterIcon,
   WebIcon,
 } from '../assets/';
-import { calculateAmounts } from '../lib/calculateAmounts';
 import { useDonorCollectivesFlowingBalances } from '../hooks/useFlowingBalance';
+import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 
 interface ViewCollectiveProps {
   collective: Collective;
@@ -80,11 +80,14 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
     tokenPrice
   );
 
-  const { formatted: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateAmounts(
+  const { formatted: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateGoodDollarAmounts(
     totalRewards,
     tokenPrice
   );
-  const { formatted: formattedCurrentPool, usdValue: currentPoolUsdValue } = calculateAmounts(currentPool, tokenPrice);
+  const { formatted: formattedCurrentPool, usdValue: currentPoolUsdValue } = calculateGoodDollarAmounts(
+    currentPool,
+    tokenPrice
+  );
 
   const renderDonorsButton = () => (
     <RoundedButton

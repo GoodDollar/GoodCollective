@@ -22,7 +22,6 @@ const CompleteDonationModal = ({ openModal, setOpenModal }: CompleteDonationModa
                 style={modalStyles.modalCloseIcon}
                 onPress={() => {
                   setOpenModal(false);
-                  console.log(openModal);
                 }}>
                 <Image source={CloseIcon} style={styles.closeIcon} />
               </TouchableOpacity>

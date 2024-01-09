@@ -3,6 +3,7 @@ import { Colors } from '../../utils/colors';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { StewardCollective } from '../../models/models';
 import { VerifiedIcon } from '../../assets';
+import { formatAddress } from '../../lib/formatAddress';
 
 interface StewardListItemProps {
   steward: StewardCollective;
@@ -14,7 +15,7 @@ interface StewardListItemProps {
 export const StewardsListItem = (props: StewardListItemProps) => {
   const { showActions, steward, profileImage, isVerified } = props;
 
-  const formattedAddress = steward.steward.slice(0, 6) + '...' + steward.steward.slice(-4);
+  const formattedAddress = formatAddress(steward.steward, 5);
 
   return (
     <View style={styles.row}>

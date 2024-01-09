@@ -3,7 +3,7 @@ import { Donor, Steward } from '../../models/models';
 import { styles } from './styles';
 import { formatTime } from '../../lib/formatTime';
 import { countUniqueValuesInTwoArrays } from '../../lib/countUniqueValuesInTwoArrays';
-import { calculateAmounts } from '../../lib/calculateAmounts';
+import { calculateGoodDollarAmounts } from '../../lib/calculateGoodDollarAmounts';
 import { useDonorCollectivesFlowingBalances } from '../../hooks/useFlowingBalance';
 
 interface BothWalletDetailsProps {
@@ -18,7 +18,10 @@ function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProp
     tokenPrice
   );
 
-  const { formatted: formattedRewards, usdValue: rewardsUsdValue } = calculateAmounts(steward.totalEarned, tokenPrice);
+  const { formatted: formattedRewards, usdValue: rewardsUsdValue } = calculateGoodDollarAmounts(
+    steward.totalEarned,
+    tokenPrice
+  );
 
   // TODO: how to calculate people supported?
   const peopleSupported = 0;

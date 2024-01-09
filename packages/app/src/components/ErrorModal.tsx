@@ -1,16 +1,15 @@
 import { Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
-// import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
 import { CloseIcon, ThankYouImg } from '../assets';
 
 interface ErrorModalProps {
   openModal: boolean;
   setOpenModal: any;
+  message: string;
 }
 
-const ErrorModal = ({ openModal, setOpenModal }: ErrorModalProps) => {
-  // const { navigate } = useCrossNavigate();
+const ErrorModal = ({ openModal, setOpenModal, message }: ErrorModalProps) => {
   return (
     <View style={styles.centeredView}>
       <Modal animationType="slide" transparent={true} visible={openModal}>
@@ -23,8 +22,8 @@ const ErrorModal = ({ openModal, setOpenModal }: ErrorModalProps) => {
             </View>
 
             <Text style={styles.title}>SOMETHING WENT WRONG</Text>
-            <Text style={styles.paragraph}>Please try againd later.</Text>
-            <Text style={styles.paragraph}>Reason: {'Error Code'}</Text>
+            <Text style={styles.paragraph}>Please try again later.</Text>
+            <Text style={styles.paragraph}>Reason: {message}</Text>
             <Image source={ThankYouImg} alt="woman" style={styles.image} />
             <TouchableOpacity style={styles.button} onPress={() => setOpenModal(false)}>
               <Text style={styles.buttonText}>OK</Text>
