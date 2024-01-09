@@ -37,20 +37,18 @@ export function useApproveSwapTokenCallback(
 
   const { isLoading, isSuccess, isError, writeAsync } = useContractWrite(config);
 
-  const handleApproveToken = useMemo(() => {
-    if (!writeAsync) {
-      return undefined;
-    }
-    return async () => {
-      toggleApproveSwapModalVisible(true);
-      const result = await writeAsync().catch((_) => {
-        // user rejected the transaction
-        return undefined;
-      });
-      toggleApproveSwapModalVisible(false);
-      return result?.hash;
-    };
-  }, [writeAsync, toggleApproveSwapModalVisible]);
+  const handleApproveToken =
+    writeAsync === undefined
+      ? undefined
+      : async () => {
+          toggleApproveSwapModalVisible(true);
+          const result = await writeAsync().catch((_) => {
+            // user rejected the transaction
+            return undefined;
+          });
+          toggleApproveSwapModalVisible(false);
+          return result?.hash;
+        };
 
   return {
     isLoading,

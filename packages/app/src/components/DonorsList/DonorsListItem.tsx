@@ -5,6 +5,7 @@ import { DonorCollective } from '../../models/models';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import Decimal from 'decimal.js';
 import { formatAddress } from '../../lib/formatAddress';
+import { ethers } from 'ethers';
 
 interface DonorsListItemProps {
   donor: DonorCollective;
@@ -15,7 +16,7 @@ export const DonorsListItem = (props: DonorsListItemProps) => {
   const { donor, rank } = props;
   const { navigate } = useCrossNavigate();
 
-  const formattedDonations: string = new Decimal(donor.contribution ?? 0).toFixed(3);
+  const formattedDonations: string = new Decimal(ethers.utils.formatEther(donor.contribution) ?? 0).toFixed(3);
   const formattedAddress = formatAddress(donor.donor, 5);
 
   const circleBackgroundColor = rank === 1 ? Colors.yellow[100] : rank === 2 ? Colors.gray[700] : Colors.orange[400];
