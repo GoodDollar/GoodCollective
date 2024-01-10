@@ -13,7 +13,7 @@ import { Link, useMediaQuery } from 'native-base';
 import { formatTime } from '../lib/formatTime';
 import { Collective } from '../models/models';
 import { useGetTokenPrice, useIsDonorOfCollective } from '../hooks';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import {
   AtIcon,
   CalendarIcon,
@@ -32,6 +32,7 @@ import {
 } from '../assets/';
 import { useDonorCollectivesFlowingBalances } from '../hooks/useFlowingBalance';
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
+import { SupportedNetwork } from '../models/constants';
 
 interface ViewCollectiveProps {
   collective: Collective;
@@ -42,8 +43,6 @@ interface ViewCollectiveProps {
 function ViewCollective({ collective }: ViewCollectiveProps) {
   // TODO: fetch recent transactions
   const recentTransactions = {};
-  // TODO: what is current pool?
-  const currentPool = '0';
   // TODO: how do i get the action label?
   const actionLabel = "Stewards get G$ 800 each time they log a tree's status.";
 
@@ -61,6 +60,12 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const headerImg = { uri: ipfs.headerImage } ?? Ocean;
 
   const stewardsPaid = stewardCollectives.length;
+
+  const { data: currentPoolResult } = useBalance({
+    address: collective.address as `0x${string}`,
+    chainId: SupportedNetwork.celo,
+  });
+  const currentPool = currentPoolResult?.value?.toString() ?? '0';
 
   const { address } = useAccount();
   const isDonating = useIsDonorOfCollective(address ?? '', poolAddress);
