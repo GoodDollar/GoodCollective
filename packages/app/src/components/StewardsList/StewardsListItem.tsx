@@ -4,16 +4,18 @@ import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { StewardCollective } from '../../models/models';
 import { VerifiedIcon } from '../../assets';
 import { formatAddress } from '../../lib/formatAddress';
+import { useIsStewardVerified } from '../../hooks';
 
 interface StewardListItemProps {
   steward: StewardCollective;
   showActions: boolean;
   profileImage: string;
-  isVerified?: boolean;
 }
 
 export const StewardsListItem = (props: StewardListItemProps) => {
-  const { showActions, steward, profileImage, isVerified } = props;
+  const { showActions, steward, profileImage } = props;
+
+  const isVerified = useIsStewardVerified(steward.steward);
 
   const formattedAddress = formatAddress(steward.steward, 5);
 
