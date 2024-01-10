@@ -3,6 +3,7 @@ import { Donor } from '../../models/models';
 import { styles } from './styles';
 import { formatTime } from '../../lib/formatTime';
 import { useDonorCollectivesFlowingBalances } from '../../hooks/useFlowingBalance';
+import { useCountPeopleSupported } from '../../hooks/useCountPeopleSupported';
 
 interface DonorWalletDetailsProps {
   firstName: string;
@@ -13,8 +14,7 @@ interface DonorWalletDetailsProps {
 function DonorWalletDetails({ firstName, donor, tokenPrice }: DonorWalletDetailsProps) {
   const { formatted: formattedDonations, usdValue } = useDonorCollectivesFlowingBalances(donor.collectives, tokenPrice);
 
-  // TODO: how to calculate people supported?
-  const peopleSupported = 0;
+  const peopleSupported = useCountPeopleSupported(donor.collectives) ?? 0;
 
   return (
     <View style={styles.walletDetailsContainer}>

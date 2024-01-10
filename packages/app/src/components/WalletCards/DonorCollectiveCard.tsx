@@ -5,9 +5,10 @@ import { DonorCollective, IpfsCollective } from '../../models/models';
 import { styles } from './styles';
 import { DonorGreenIcon, InfoIcon } from '../../assets';
 import { useFlowingBalance } from '../../hooks/useFlowingBalance';
+import { useCountPeopleSupported } from '../../hooks/useCountPeopleSupported';
 
 interface DonorCollectiveCardProps {
-  collective: DonorCollective;
+  donorCollective: DonorCollective;
   ipfsCollective: IpfsCollective;
   ensName?: string;
   tokenPrice?: number;
@@ -16,7 +17,7 @@ interface DonorCollectiveCardProps {
 
 function DonorCollectiveCard({
   ipfsCollective,
-  collective,
+  donorCollective,
   ensName,
   tokenPrice,
   isDesktopResolution,
@@ -24,13 +25,12 @@ function DonorCollectiveCard({
   const { navigate } = useCrossNavigate();
   const userName = ensName ?? 'This wallet';
 
-  // TODO: how to calculate people supported?
-  const peopleSupported = 0;
+  const peopleSupported = useCountPeopleSupported([donorCollective]) ?? 0;
 
   const { formatted: donationsFormatted, usdValue: donationsUsdValue } = useFlowingBalance(
-    collective.contribution,
-    collective.timestamp, // Timestamp in Subgraph's UTC.
-    collective.flowRate,
+    donorCollective.contribution,
+    donorCollective.timestamp, // Timestamp in Subgraph's UTC.
+    donorCollective.flowRate,
     tokenPrice
   );
 
@@ -73,7 +73,7 @@ function DonorCollectiveCard({
         fontSize={16}
         seeType={false}
         onPress={() => {
-          navigate(`/collective/${collective.collective}`);
+          navigate(`/collective/${donorCollective.collective}`);
         }}
       />
     </View>

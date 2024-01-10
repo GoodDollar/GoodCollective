@@ -1,16 +1,20 @@
 import { Collective, IpfsCollective } from '../models/models';
-import { useSubgraphCollective, useSubgraphIpfsCollectives, useSubgraphIpfsCollectivesById } from '../subgraph';
+import { useSubgraphCollectivesById, useSubgraphIpfsCollectives, useSubgraphIpfsCollectivesById } from '../subgraph';
 import { ipfsSubgraphCollectiveToModel, subgraphCollectiveToModel } from '../models/transforms';
 import { useMemo } from 'react';
 
 export function useCollectiveById(id: string): Collective | undefined {
-  const subgraphCollective = useSubgraphCollective(id);
+  return useCollectivesById([id])?.[0];
+}
+
+export function useCollectivesById(ids: string[]): Collective[] | undefined {
+  const subgraphCollectives = useSubgraphCollectivesById(ids);
   return useMemo(() => {
-    if (subgraphCollective === undefined) {
+    if (subgraphCollectives === undefined) {
       return undefined;
     }
-    return subgraphCollectiveToModel(subgraphCollective);
-  }, [subgraphCollective]);
+    return subgraphCollectives.map(subgraphCollectiveToModel);
+  }, [subgraphCollectives]);
 }
 
 export function useCollectivesMetadata(): IpfsCollective[] {
