@@ -20,9 +20,12 @@ import { publicProvider } from 'wagmi/providers/public';
 import { infuraProvider } from 'wagmi/providers/infura';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import { ApolloClient, ApolloProvider, InMemoryCache, NormalizedCacheObject } from '@apollo/client';
 
 import { Colors } from './utils/colors';
+import { AsyncStorageWrapper, persistCache } from 'apollo3-cache-persist';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
 
 function App(): JSX.Element {
   const { publicClient, webSocketPublicClient } = configureChains(
@@ -42,10 +45,29 @@ function App(): JSX.Element {
     }),
   ];
 
-  const apolloClient = new ApolloClient({
-    uri: 'https://api.thegraph.com/subgraphs/name/gooddollar/goodcollective',
-    cache: new InMemoryCache(),
-  });
+  const [apolloClient, setApolloClient] = useState<ApolloClient<NormalizedCacheObject> | undefined>();
+
+  useEffect(() => {
+    async function initApollo() {
+      const cache = new InMemoryCache();
+      await persistCache({
+        cache,
+        storage: new AsyncStorageWrapper(AsyncStorage),
+      });
+      const client = new ApolloClient({
+        uri: 'https://api.thegraph.com/subgraphs/name/gooddollar/goodcollective',
+        cache,
+        defaultOptions: {
+          watchQuery: {
+            fetchPolicy: 'cache-and-network',
+          },
+        },
+      });
+      setApolloClient(client);
+    }
+
+    initApollo().catch(console.error);
+  }, []);
 
   const wagmiConfig = createConfig({
     autoConnect: true,
@@ -53,6 +75,11 @@ function App(): JSX.Element {
     publicClient,
     webSocketPublicClient,
   });
+
+  if (!apolloClient) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <Providers>
       <WagmiConfig config={wagmiConfig}>
