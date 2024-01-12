@@ -15,11 +15,14 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
   const { isDesktopResolution, address } = props;
 
   const { chain } = useNetwork();
-  const chainName = chain?.name.replace(/\d+|\s/g, '');
+  let chainName = chain?.name.replace(/\d+|\s/g, '');
+  if (chainName !== 'Celo') {
+    chainName = 'None';
+  }
 
   const tokenBalance = useGetTokenBalance('G$', address, chain?.id, true);
   const formattedTokenBalance = parseFloat(tokenBalance).toFixed(4);
-  const { data: ensName } = useEnsName({ address });
+  const { data: ensName } = useEnsName({ address, chainId: 1 });
 
   return (
     <View style={styles.walletConnectContainer}>

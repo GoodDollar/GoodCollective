@@ -25,7 +25,7 @@ function WalletProfile({ address, firstName, lastName, donor, steward }: WalletP
     minWidth: 612,
   });
 
-  const { data: ensName } = useEnsName({ address });
+  const { data: ensName } = useEnsName({ address, chainId: 1 });
   const profileType = ensName ? ProfileTypes.nameAndDomain : ProfileTypes.claimDomain;
 
   const { price: tokenPrice } = useGetTokenPrice('G$');

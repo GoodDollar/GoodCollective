@@ -5,6 +5,7 @@ import { StewardCollective } from '../../models/models';
 import { VerifiedIcon } from '../../assets';
 import { formatAddress } from '../../lib/formatAddress';
 import { useIsStewardVerified } from '../../hooks';
+import { useEnsName } from 'wagmi';
 
 interface StewardListItemProps {
   steward: StewardCollective;
@@ -17,13 +18,14 @@ export const StewardsListItem = (props: StewardListItemProps) => {
 
   const isVerified = useIsStewardVerified(steward.steward);
 
-  const formattedAddress = formatAddress(steward.steward, 5);
+  const { data: ensName } = useEnsName({ address: steward.steward as `0x${string}`, chainId: 1 });
+  const userIdentifier = ensName ? ensName : formatAddress(steward.steward, 5);
 
   return (
     <View style={styles.row}>
       <Image source={{ uri: profileImage }} style={styles.rowImg} />
       <Text style={styles.title}>
-        {formattedAddress} {isVerified && <Image source={VerifiedIcon} style={styles.verifiedIcon} />}
+        {userIdentifier} {isVerified && <Image source={VerifiedIcon} style={styles.verifiedIcon} />}
       </Text>
       {showActions && <Text style={styles.totalActions}>{steward.actions ?? 0} actions</Text>}
     </View>

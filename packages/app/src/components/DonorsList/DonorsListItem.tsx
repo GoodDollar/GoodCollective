@@ -6,6 +6,7 @@ import useCrossNavigate from '../../routes/useCrossNavigate';
 import Decimal from 'decimal.js';
 import { formatAddress } from '../../lib/formatAddress';
 import { ethers } from 'ethers';
+import { useEnsName } from 'wagmi';
 
 interface DonorsListItemProps {
   donor: DonorCollective;
@@ -17,7 +18,9 @@ export const DonorsListItem = (props: DonorsListItemProps) => {
   const { navigate } = useCrossNavigate();
 
   const formattedDonations: string = new Decimal(ethers.utils.formatEther(donor.contribution) ?? 0).toFixed(3);
-  const formattedAddress = formatAddress(donor.donor, 5);
+
+  const { data: ensName } = useEnsName({ address: donor.donor as `0x${string}`, chainId: 1 });
+  const userIdentifier = ensName ? ensName : formatAddress(donor.donor, 5);
 
   const circleBackgroundColor = rank === 1 ? Colors.yellow[100] : rank === 2 ? Colors.gray[700] : Colors.orange[400];
   const circleTextColor = rank === 1 ? Colors.yellow[200] : rank === 2 ? Colors.blue[200] : Colors.brown[100];
@@ -29,7 +32,7 @@ export const DonorsListItem = (props: DonorsListItemProps) => {
           <View style={[styles.circle, { backgroundColor: circleBackgroundColor }]}>
             <Text style={[styles.circleText, { color: circleTextColor }]}>{rank}</Text>
           </View>
-          <Text style={[styles.title, { color: circleTextColor }]}>{formattedAddress}</Text>
+          <Text style={[styles.title, { color: circleTextColor }]}>{userIdentifier}</Text>
         </View>
         <Text style={styles.totalDonated}>
           <Text style={styles.currency}>G$</Text> {formattedDonations}
@@ -42,7 +45,7 @@ export const DonorsListItem = (props: DonorsListItemProps) => {
     <TouchableOpacity style={styles.rowBetween} onPress={() => navigate(`/profile/${donor.donor}`)}>
       <View style={styles.rowTogether}>
         <Text style={styles.rowNumber}>{rank}</Text>
-        <Text style={[styles.title, { color: Colors.black }]}>{formattedAddress}</Text>
+        <Text style={[styles.title, { color: Colors.black }]}>{userIdentifier}</Text>
       </View>
       <Text style={styles.totalDonated}>
         <Text style={styles.currency}>G$</Text> {formattedDonations}
