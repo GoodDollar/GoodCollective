@@ -5,4 +5,5 @@ export * from './useStewardById';
 export * from './useContractCalls';
 export * from './useGetTokenPrice';
 export * from './useIsStewardVerified';
+export * from './useFetchFullName';
 export * from './wagmiF';

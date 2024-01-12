@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from '../components/Layout';
-import { useDonorById, useStewardById } from '../hooks';
+import { useDonorById, useStewardById, useFetchFullName } from '../hooks';
 import { useLocation } from 'react-router-native';
 import Breadcrumb from '../components/Breadcrumb';
 import { useMediaQuery } from 'native-base';
@@ -21,8 +21,9 @@ function WalletProfilePage() {
     : undefined;
 
   // TODO: how to get first name and last name of users?
-  const firstName = profileAddress ? 'Wonderful' : 'Not';
-  const lastName = profileAddress ? 'Person' : 'Connected';
+  const fullName = useFetchFullName(address);
+
+  const [firstName, lastName] = fullName?.split(' ') ?? ['Not', 'Connected'];
 
   return (
     <Layout>
