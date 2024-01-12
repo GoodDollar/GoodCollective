@@ -19,7 +19,7 @@ function HomePage() {
       <View style={styles.body}>
         <View style={[styles.sectionContainer, isDesktopResolution ? styles.sectionContainerDesktop : {}]}>
           {!collectives ? (
-            <p>Loading...</p>
+            <Text>Loading...</Text>
           ) : (
             collectives?.map((ipfsCollective: IpfsCollective) => (
               <CollectiveHomeCard

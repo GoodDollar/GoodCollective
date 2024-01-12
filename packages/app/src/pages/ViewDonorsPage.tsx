@@ -23,7 +23,7 @@ function ViewDonorsPage() {
       <Layout>
         <Breadcrumb currentPage={`collective / ${collectiveId} / donors`} />
         {!collective ? (
-          <p>Loading...</p>
+          <Text>Loading...</Text>
         ) : (
           <View style={styles.desktopContainer}>
             <View style={styles.desktopTopRow}>
@@ -46,7 +46,7 @@ function ViewDonorsPage() {
   return (
     <Layout>
       {!collective ? (
-        <p>Loading...</p>
+        <Text>Loading...</Text>
       ) : (
         <>
           <Image source={headerImage} style={styles.image} />

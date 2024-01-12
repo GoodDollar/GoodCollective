@@ -42,7 +42,7 @@ export const DonorsListItem = (props: DonorsListItemProps) => {
     <TouchableOpacity style={styles.rowBetween} onPress={() => navigate(`/profile/${donor.donor}`)}>
       <View style={styles.rowTogether}>
         <Text style={styles.rowNumber}>{rank}</Text>
-        <Text style={[styles.title, { color: Colors.black }]}>{donor.donor}</Text>
+        <Text style={[styles.title, { color: Colors.black }]}>{formattedAddress}</Text>
       </View>
       <Text style={styles.totalDonated}>
         <Text style={styles.currency}>G$</Text> {formattedDonations}

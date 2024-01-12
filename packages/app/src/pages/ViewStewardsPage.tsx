@@ -24,7 +24,7 @@ function ViewStewardsPage() {
       <Layout>
         <Breadcrumb currentPage={`collective / ${collectiveId} / stewards`} />
         {!collective ? (
-          <p>Loading...</p>
+          <Text>Loading...</Text>
         ) : (
           <View style={styles.desktopContainer}>
             <View style={styles.desktopTopRow}>
@@ -47,7 +47,7 @@ function ViewStewardsPage() {
   return (
     <Layout>
       {!collective ? (
-        <p>Loading...</p>
+        <Text>Loading...</Text>
       ) : (
         <>
           <Image source={headerImage} style={styles.image} />

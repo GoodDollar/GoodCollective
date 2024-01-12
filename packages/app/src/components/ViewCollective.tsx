@@ -13,7 +13,7 @@ import { Link, useMediaQuery } from 'native-base';
 import { formatTime } from '../lib/formatTime';
 import { Collective } from '../models/models';
 import { useGetTokenPrice, useIsDonorOfCollective } from '../hooks';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount } from 'wagmi';
 import {
   AtIcon,
   CalendarIcon,
@@ -33,6 +33,7 @@ import {
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 import { SupportedNetwork } from '../models/constants';
 import FlowingDonationsRowItem from './FlowingDonationsRowItem';
+import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
 
 interface ViewCollectiveProps {
   collective: Collective;
@@ -61,11 +62,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   const stewardsPaid = stewardCollectives.length;
 
-  const { data: currentPoolResult } = useBalance({
-    address: collective.address as `0x${string}`,
-    chainId: SupportedNetwork.celo,
-  });
-  const currentPool = currentPoolResult?.value?.toString() ?? '0';
+  const currentPool = useGetTokenBalance('G$', collective.address as `0x${string}`, SupportedNetwork.celo);
 
   const { address } = useAccount();
   const isDonating = useIsDonorOfCollective(address ?? '', poolAddress);

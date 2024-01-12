@@ -1,4 +1,4 @@
-import { Platform, SafeAreaView, StyleSheet } from 'react-native';
+import { Platform, SafeAreaView, StyleSheet, Text } from 'react-native';
 
 import AboutPage from './pages/AboutPage';
 import HomePage from './pages/HomePage';
@@ -77,7 +77,7 @@ function App(): JSX.Element {
   });
 
   if (!apolloClient) {
-    return <p>Loading...</p>;
+    return <Text>Loading...</Text>;
   }
 
   return (

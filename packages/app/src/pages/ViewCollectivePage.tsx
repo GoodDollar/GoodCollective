@@ -5,6 +5,7 @@ import Breadcrumb from '../components/Breadcrumb';
 import { useMediaQuery } from 'native-base';
 import { useCollectiveById } from '../hooks';
 import { useLocation } from 'react-router-native';
+import { Text } from 'react-native';
 
 function ViewCollectivePage() {
   const location = useLocation();
@@ -17,7 +18,7 @@ function ViewCollectivePage() {
   return (
     <Layout>
       {isDesktopResolution && <Breadcrumb currentPage={`collective / ${collective?.address ?? ''}`} />}
-      {!collective ? <p>Loading...</p> : <ViewCollective collective={collective} />}
+      {!collective ? <Text>Loading...</Text> : <ViewCollective collective={collective} />}
     </Layout>
   );
 }

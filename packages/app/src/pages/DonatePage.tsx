@@ -5,6 +5,7 @@ import Breadcrumb from '../components/Breadcrumb';
 import { useMediaQuery } from 'native-base';
 import { useCollectivesMetadataById } from '../hooks';
 import { useLocation } from 'react-router-native';
+import { Text } from 'react-native';
 
 function DonatePage() {
   const location = useLocation();
@@ -19,7 +20,7 @@ function DonatePage() {
   return (
     <Layout>
       {isDesktopResolution && <Breadcrumb previousPage={`collective / ${collectiveId}`} currentPage={`donate`} />}
-      {!ipfsCollective ? <p>Loading...</p> : <DonateComponent collective={ipfsCollective} />}
+      {!ipfsCollective ? <Text>Loading...</Text> : <DonateComponent collective={ipfsCollective} />}
     </Layout>
   );
 }

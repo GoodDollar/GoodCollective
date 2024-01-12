@@ -15,7 +15,7 @@ export const Colors = {
   },
   blue: {
     100: '#CBDAFF',
-    200: '#B29706',
+    200: '#3B7587',
   },
   yellow: {
     100: '#FFDD28',
