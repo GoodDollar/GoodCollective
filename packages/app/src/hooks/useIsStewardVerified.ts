@@ -1,8 +1,9 @@
-import { ClaimSDK, useReadOnlySDK } from '@gooddollar/web3sdk-v2';
+import { ClaimSDK, useSDK } from '@gooddollar/web3sdk-v2';
 import { useEffect, useState } from 'react';
+import { SupportedNetwork } from '../models/constants';
 
 export const useIsStewardVerified = (address: string): boolean => {
-  const sdk = useReadOnlySDK('claim') as ClaimSDK;
+  const sdk = useSDK(false, 'claim', SupportedNetwork.celo) as ClaimSDK;
   const [isVerified, setIsVerified] = useState<boolean>(false);
 
   useEffect(() => {
