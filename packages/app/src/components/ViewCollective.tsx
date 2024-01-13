@@ -111,25 +111,31 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 <Text style={[styles.title, styles.titleMobile]}>{ipfs.name}</Text>
                 <Text style={styles.description}>{ipfs.description}</Text>
                 <View style={[styles.icons, { position: 'absolute', bottom: 0, left: 25 }]}>
-                  <Link href={'/'}>
-                    <Image source={WebIcon} style={styles.rowIcon} />
-                  </Link>
-
-                  <Link href={'#'}>
-                    <Image source={TwitterIcon} style={styles.rowIcon} />
-                  </Link>
-
-                  <Link href={'#'}>
-                    <Image source={InstagramIcon} style={styles.rowIcon} />
-                  </Link>
-
-                  <Link href={'#'}>
-                    <Image source={AtIcon} style={styles.rowIcon} />
-                  </Link>
-
-                  <Link href={'#'}>
-                    <Image source={LastRowIcon} style={styles.rowIcon} />
-                  </Link>
+                  {collective.ipfs.website && (
+                    <Link href={collective.ipfs.website}>
+                      <Image source={WebIcon} style={styles.rowIcon} />
+                    </Link>
+                  )}
+                  {collective.ipfs.twitter && (
+                    <Link href={collective.ipfs.twitter}>
+                      <Image source={TwitterIcon} style={styles.rowIcon} />
+                    </Link>
+                  )}
+                  {collective.ipfs.instagram && (
+                    <Link href={collective.ipfs.instagram}>
+                      <Image source={InstagramIcon} style={styles.rowIcon} />
+                    </Link>
+                  )}
+                  {collective.ipfs.threads && (
+                    <Link href={collective.ipfs.threads}>
+                      <Image source={AtIcon} style={styles.rowIcon} />
+                    </Link>
+                  )}
+                  {collective.ipfs.email && (
+                    <Link href={collective.ipfs.email}>
+                      <Image source={LastRowIcon} style={styles.rowIcon} />
+                    </Link>
+                  )}
                 </View>
               </View>
 
@@ -251,25 +257,31 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
           <Text style={styles.title}>{ipfs.name}</Text>
           <Text style={styles.description}>{ipfs.description}</Text>
           <View style={styles.icons}>
-            <Link href={'/'}>
-              <Image source={WebIcon} style={styles.rowIcon} />
-            </Link>
-
-            <Link href={'#'}>
-              <Image source={TwitterIcon} style={styles.rowIcon} />
-            </Link>
-
-            <Link href={'#'}>
-              <Image source={InstagramIcon} style={styles.rowIcon} />
-            </Link>
-
-            <Link href={'#'}>
-              <Image source={AtIcon} style={styles.rowIcon} />
-            </Link>
-
-            <Link href={'#'}>
-              <Image source={LastRowIcon} style={styles.rowIcon} />
-            </Link>
+            {collective.ipfs.website && (
+              <Link href={collective.ipfs.website}>
+                <Image source={WebIcon} style={styles.rowIcon} />
+              </Link>
+            )}
+            {collective.ipfs.twitter && (
+              <Link href={collective.ipfs.twitter}>
+                <Image source={TwitterIcon} style={styles.rowIcon} />
+              </Link>
+            )}
+            {collective.ipfs.instagram && (
+              <Link href={collective.ipfs.instagram}>
+                <Image source={InstagramIcon} style={styles.rowIcon} />
+              </Link>
+            )}
+            {collective.ipfs.threads && (
+              <Link href={collective.ipfs.threads}>
+                <Image source={AtIcon} style={styles.rowIcon} />
+              </Link>
+            )}
+            {collective.ipfs.email && (
+              <Link href={collective.ipfs.email}>
+                <Image source={LastRowIcon} style={styles.rowIcon} />
+              </Link>
+            )}
           </View>
           <View style={styles.collectiveInformation}>
             <Image source={InfoIcon} style={styles.infoIcon} />
