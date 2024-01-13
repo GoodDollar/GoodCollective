@@ -28,7 +28,7 @@ function Breadcrumb({ path }: BreadcrumbProps) {
           key={index}
           style={index === path.length - 1 ? styles.activePage : styles.previousPage}
           onPress={() => navigate(entry.route)}>
-          / {entry.text}
+          {` / ${entry.text}`}
         </Text>
       ))}
     </TouchableOpacity>
