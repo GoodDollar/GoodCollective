@@ -16,7 +16,7 @@ const ErrorModal = ({ openModal, setOpenModal, message }: ErrorModalProps) => {
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <View style={styles.modalCloseIconWrapper}>
-              <TouchableOpacity style={styles.modalCloseIcon}>
+              <TouchableOpacity style={styles.modalCloseIcon} onPress={() => setOpenModal(false)}>
                 <Image source={CloseIcon} style={styles.closeIcon} />
               </TouchableOpacity>
             </View>
@@ -43,6 +43,9 @@ const styles = StyleSheet.create({
     marginTop: 22,
   },
   modalView: {
+    maxWidth: '90%',
+    maxHeight: '90%',
+    overflowY: 'scroll',
     margin: 20,
     backgroundColor: Colors.blue[100],
     borderRadius: 20,

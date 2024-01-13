@@ -50,7 +50,10 @@ export function useSupportSingleTransferAndCall(
       return;
     } catch (error) {
       toggleCompleteDonationModal(false);
-      onError(`An unexpected error occurred: ${error}`);
+      console.error(error);
+      const errObj = error as Record<string, any>;
+      const message = errObj.reason ?? errObj.code ?? errObj.message ?? 'unknown reason';
+      onError(message);
     }
   }, [
     address,
