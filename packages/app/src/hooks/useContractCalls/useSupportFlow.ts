@@ -3,7 +3,7 @@ import { Frequency, SupportedNetwork, SupportedNetworkNames } from '../../models
 import { calculateFlowRate } from '../../lib/calculateFlowRate';
 import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
 import { useAccount, useNetwork } from 'wagmi';
-import { useEthersSigner } from '../wagmiF';
+import { useEthersSigner } from '../useEthersSigner';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 
 export function useSupportFlow(

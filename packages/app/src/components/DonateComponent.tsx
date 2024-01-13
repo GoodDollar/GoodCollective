@@ -296,7 +296,9 @@ function DonateComponent({ collective }: DonateComponentProps) {
                 <Text style={styles.title}>Review Your Donation</Text>
                 <Text style={styles.reviewDesc}>
                   Your donation will be made in GoodDollars, the currency in use by this GoodCollective. {'\n'}
-                  Your donation will be streamed using Superfluid. {'\n'}
+                  {Frequency.OneTime
+                    ? 'Pressing “Confirm” will trigger your donation.\n'
+                    : 'Your donation will be streamed using Superfluid.\n'}
                   <Text style={styles.italic}>
                     <Link
                       style={styles.reviewDesc}

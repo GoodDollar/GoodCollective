@@ -4,7 +4,7 @@ import { calculateRawTotalDonation } from '../../lib/calculateRawTotalDonation';
 import Decimal from 'decimal.js';
 import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
 import { useAccount, useNetwork } from 'wagmi';
-import { useEthersSigner } from '../wagmiF';
+import { useEthersSigner } from '../useEthersSigner';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 
 export function useSupportSingleTransferAndCall(

@@ -2,7 +2,7 @@ import { AlphaRouter, SwapRoute, SwapType, V3Route } from '@uniswap/smart-order-
 import { CurrencyAmount, Percent, TradeType } from '@uniswap/sdk-core';
 import { useAccount, useNetwork } from 'wagmi';
 import { GDToken } from '../models/constants';
-import { useEthersSigner } from './wagmiF';
+import { useEthersSigner } from './useEthersSigner';
 import { calculateRawTotalDonation } from '../lib/calculateRawTotalDonation';
 import Decimal from 'decimal.js';
 import { useEffect, useState } from 'react';
