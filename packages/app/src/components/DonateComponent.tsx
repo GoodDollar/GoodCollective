@@ -92,6 +92,8 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const handleDonate = useCallback(async () => {
     if (frequency === Frequency.OneTime) {
       return await supportSingleTransferAndCall();
+    } else if (currency === 'G$') {
+      return await supportFlow();
     }
     while (handleApproveTokenIsLoading) {
       await new Promise((r) => setTimeout(r, 50));
@@ -118,11 +120,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
       );
     }
     if (txReceipt?.status === 'success') {
-      if (currency === 'G$') {
-        await supportFlow();
-      } else {
-        await supportFlowWithSwap();
-      }
+      await supportFlowWithSwap();
     }
   }, [
     chain?.id,
