@@ -3,12 +3,16 @@ import { Colors } from '../utils/colors';
 import { useNavigate } from 'react-router-dom';
 import { chevronRight } from '../assets';
 
-interface BreadcrumbProps {
-  previousPage?: string;
-  currentPage: string;
+export interface BreadcrumbPathEntry {
+  text: string;
+  route: string;
 }
 
-function Breadcrumb({ currentPage, previousPage }: BreadcrumbProps) {
+interface BreadcrumbProps {
+  path: BreadcrumbPathEntry[];
+}
+
+function Breadcrumb({ path }: BreadcrumbProps) {
   const navigate = useNavigate();
 
   return (
@@ -16,8 +20,17 @@ function Breadcrumb({ currentPage, previousPage }: BreadcrumbProps) {
       <TouchableOpacity onPress={() => navigate(-1)}>
         <Image source={chevronRight} style={styles.backIcon} />
       </TouchableOpacity>
-      <Text style={styles.previousPage}>{previousPage ? previousPage : 'GoodCollective Home'}</Text>
-      <Text style={styles.activePage}> / {currentPage}</Text>
+      <Text style={path.length === 0 ? styles.activePage : styles.previousPage} onPress={() => navigate('/')}>
+        GoodCollective Home
+      </Text>
+      {path.map((entry, index) => (
+        <Text
+          key={index}
+          style={index === path.length - 1 ? styles.activePage : styles.previousPage}
+          onPress={() => navigate(entry.route)}>
+          / {entry.text}
+        </Text>
+      ))}
     </TouchableOpacity>
   );
 }

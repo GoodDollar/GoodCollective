@@ -6,27 +6,34 @@ import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import ProfileView from './ProfileView';
 import WalletDetails from './WalletDetails/WalletDetails';
 import { useMediaQuery } from 'native-base';
-import { useEnsName } from 'wagmi';
 import { Donor, Steward } from '../models/models';
 import { useCollectivesMetadataById, useGetTokenPrice } from '../hooks';
 import { LightningIcon } from '../assets';
 import WalletCards from './WalletCards/WalletCards';
+import { formatAddress } from '../lib/formatAddress';
 
 interface WalletProfileProps {
   address?: `0x${string}`;
-  firstName: string;
-  lastName: string;
+  ensName?: string;
+  firstName?: string;
+  lastName?: string;
   donor?: Donor;
   steward?: Steward;
 }
 
-function WalletProfile({ address, firstName, lastName, donor, steward }: WalletProfileProps) {
+function WalletProfile({ address, ensName, firstName, lastName, donor, steward }: WalletProfileProps) {
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
   });
 
-  const { data: ensName } = useEnsName({ address, chainId: 1 });
   const profileType = ensName ? ProfileTypes.nameAndDomain : ProfileTypes.claimDomain;
+  const userIdentifier = firstName
+    ? `${firstName} ${lastName}`
+    : ensName
+    ? ensName
+    : address
+    ? formatAddress(address)
+    : '0x';
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
 
@@ -55,7 +62,7 @@ function WalletProfile({ address, firstName, lastName, donor, steward }: WalletP
               <Text style={styles.title}>Impact Profile</Text>
             </View>
           </View>
-          <WalletDetails donor={donor} steward={steward} tokenPrice={tokenPrice} firstName={firstName} />
+          <WalletDetails donor={donor} steward={steward} tokenPrice={tokenPrice} firstName={userIdentifier} />
         </View>
         <WalletCards
           donor={donor}
@@ -85,7 +92,7 @@ function WalletProfile({ address, firstName, lastName, donor, steward }: WalletP
             <Text style={styles.title}>Impact Profile</Text>
           </View>
         </View>
-        <WalletDetails donor={donor} steward={steward} tokenPrice={tokenPrice} firstName={firstName} />
+        <WalletDetails donor={donor} steward={steward} tokenPrice={tokenPrice} firstName={userIdentifier} />
       </View>
       <WalletCards
         donor={donor}

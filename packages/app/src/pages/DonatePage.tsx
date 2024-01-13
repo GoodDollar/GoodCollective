@@ -20,7 +20,12 @@ function DonatePage() {
   return (
     <Layout>
       {isDesktopResolution && (
-        <Breadcrumb previousPage={`${ipfsCollective?.name ?? collectiveId}`} currentPage={`donate`} />
+        <Breadcrumb
+          path={[
+            { text: ipfsCollective?.name ?? collectiveId, route: `/collective/${collectiveId}` },
+            { text: 'Donate', route: `/donate/${collectiveId}` },
+          ]}
+        />
       )}
       {!ipfsCollective ? <Text>Loading...</Text> : <DonateComponent collective={ipfsCollective} />}
     </Layout>
