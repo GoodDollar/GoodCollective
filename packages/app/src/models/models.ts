@@ -49,6 +49,7 @@ export type IpfsCollective = {
   twitter?: string;
   instagram?: string;
   threads?: string;
+  infoLabel?: string;
   headerImage: string;
   logo: string;
   images?: string[];

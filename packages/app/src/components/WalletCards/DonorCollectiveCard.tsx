@@ -24,6 +24,7 @@ function DonorCollectiveCard({
 }: DonorCollectiveCardProps) {
   const { navigate } = useCrossNavigate();
   const userName = ensName ?? 'This wallet';
+  const infoLabel = ipfsCollective.infoLabel ?? 'Stewards get G$ each time they complete an action.';
 
   const peopleSupported = useCountPeopleSupported([donorCollective]) ?? 0;
 
@@ -44,7 +45,7 @@ function DonorCollectiveCard({
         <Text style={styles.title}>{ipfsCollective.name}</Text>
         <View style={styles.cardDescription}>
           <Image source={InfoIcon} style={styles.infoIcon} />
-          <Text style={styles.description}>{`Stewards get G$ 800 each time they log a tree's status`}</Text>
+          <Text style={styles.description}>{infoLabel}</Text>
         </View>
 
         <View style={styles.actionsContent}>

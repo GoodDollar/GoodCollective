@@ -11,6 +11,12 @@ export const collective = gql`
         name
         description
         headerImage
+        email
+        website
+        twitter
+        instagram
+        threads
+        infoLabel
       }
       stewards {
         id

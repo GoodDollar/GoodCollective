@@ -44,8 +44,6 @@ interface ViewCollectiveProps {
 function ViewCollective({ collective }: ViewCollectiveProps) {
   // TODO: fetch recent transactions
   const recentTransactions = {};
-  // TODO: how do i get the action label?
-  const actionLabel = "Stewards get G$ 800 each time they log a tree's status.";
 
   const {
     address: poolAddress,
@@ -61,6 +59,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const headerImg = { uri: ipfs.headerImage } ?? Ocean;
 
   const stewardsPaid = stewardCollectives.length;
+  const infoLabel = collective.ipfs.infoLabel ?? 'Stewards get G$ each time they complete an action.';
 
   const currentPool = useGetTokenBalance('G$', collective.address as `0x${string}`, SupportedNetwork.celo);
 
@@ -142,7 +141,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               <View style={styles.collectiveDescription}>
                 <View style={styles.collectiveDetailsMobile}>
                   <Image source={InfoIcon} style={styles.infoIcon} />
-                  <Text style={styles.informationLabel}>Stewards get G$ 800 each time they log a tree's status.</Text>
+                  <Text style={styles.informationLabel}>{infoLabel}</Text>
                 </View>
 
                 {isDonating ? (
@@ -285,7 +284,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
           </View>
           <View style={styles.collectiveInformation}>
             <Image source={InfoIcon} style={styles.infoIcon} />
-            <Text style={styles.informationLabel}>{actionLabel}</Text>
+            <Text style={styles.informationLabel}>{infoLabel}</Text>
           </View>
 
           <View style={styles.rowContainer}>
