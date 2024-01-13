@@ -26,7 +26,7 @@ function WalletProfilePage() {
 
   return (
     <Layout>
-      {isDesktopResolution && <Breadcrumb currentPage={`profile / ${address ?? ''}`} />}
+      {isDesktopResolution && <Breadcrumb currentPage={`profile / ${address ?? '0x'}`} />}
       <WalletProfile address={address} firstName={firstName} lastName={lastName} donor={donor} steward={steward} />
     </Layout>
   );

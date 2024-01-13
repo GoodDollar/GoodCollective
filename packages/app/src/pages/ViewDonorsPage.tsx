@@ -21,7 +21,7 @@ function ViewDonorsPage() {
   if (isDesktopResolution) {
     return (
       <Layout>
-        <Breadcrumb currentPage={`collective / ${collectiveId} / donors`} />
+        <Breadcrumb currentPage={`${collective?.ipfs.name ?? collectiveId} / donors`} />
         {!collective ? (
           <Text>Loading...</Text>
         ) : (

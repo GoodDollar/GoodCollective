@@ -10,11 +10,14 @@ interface BreadcrumbProps {
 
 function Breadcrumb({ currentPage, previousPage }: BreadcrumbProps) {
   const navigate = useNavigate();
+
   return (
-    <TouchableOpacity style={styles.container} onPress={() => navigate(-1)}>
-      <Image source={chevronRight} style={styles.backIcon} />
-      <Text style={styles.activePage}>{previousPage ?? 'GoodCollective Home'}</Text>
-      <Text style={styles.nextPage}> / {currentPage}</Text>
+    <TouchableOpacity style={styles.container}>
+      <TouchableOpacity onPress={() => navigate(-1)}>
+        <Image source={chevronRight} style={styles.backIcon} />
+      </TouchableOpacity>
+      <Text style={styles.previousPage}>{previousPage ? previousPage : 'GoodCollective Home'}</Text>
+      <Text style={styles.activePage}> / {currentPage}</Text>
     </TouchableOpacity>
   );
 }
@@ -26,8 +29,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: 12,
   },
-  activePage: { color: Colors.purple[200] },
-  nextPage: { color: Colors.gray[200] },
+  previousPage: { color: Colors.purple[200] },
+  activePage: { color: Colors.gray[200] },
   backIcon: {
     width: 20,
     height: 20,

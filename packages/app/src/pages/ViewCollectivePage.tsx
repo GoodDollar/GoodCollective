@@ -17,7 +17,7 @@ function ViewCollectivePage() {
 
   return (
     <Layout>
-      {isDesktopResolution && <Breadcrumb currentPage={`collective / ${collective?.address ?? ''}`} />}
+      {isDesktopResolution && <Breadcrumb currentPage={`${collective?.ipfs.name ?? collectiveId}`} />}
       {!collective ? <Text>Loading...</Text> : <ViewCollective collective={collective} />}
     </Layout>
   );

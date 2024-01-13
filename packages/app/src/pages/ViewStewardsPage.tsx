@@ -22,7 +22,7 @@ function ViewStewardsPage() {
   if (isDesktopResolution) {
     return (
       <Layout>
-        <Breadcrumb currentPage={`collective / ${collectiveId} / stewards`} />
+        <Breadcrumb currentPage={`${collective?.ipfs.name ?? collectiveId} / stewards`} />
         {!collective ? (
           <Text>Loading...</Text>
         ) : (
