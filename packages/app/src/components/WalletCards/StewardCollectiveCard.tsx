@@ -2,7 +2,6 @@ import { Text, View, Image } from 'react-native';
 import RoundedButton from '../RoundedButton';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { IpfsCollective, StewardCollective } from '../../models/models';
-import { ethers } from 'ethers';
 import { styles } from './styles';
 import { InfoIcon, StewardOrange } from '../../assets';
 import { calculateGoodDollarAmounts } from '../../lib/calculateGoodDollarAmounts';
@@ -48,7 +47,7 @@ function StewardCollectiveCard({
           <View style={{ gap: 2 }}>
             <Text style={styles.info}>{userName} has performed</Text>
             <View style={styles.row}>
-              <Text style={[styles.bold, { textDecorationLine: 'underline' }]}>{collective.actions}</Text>
+              <Text style={styles.bold}>{collective.actions}</Text>
               <Text style={styles.performedActions}> actions</Text>
             </View>
           </View>
