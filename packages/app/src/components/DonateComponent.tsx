@@ -90,6 +90,9 @@ function DonateComponent({ collective }: DonateComponentProps) {
   );
 
   const handleDonate = useCallback(async () => {
+    if (frequency === Frequency.OneTime) {
+      return await supportSingleTransferAndCall();
+    }
     while (handleApproveTokenIsLoading) {
       await new Promise((r) => setTimeout(r, 50));
     }
@@ -115,9 +118,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
       );
     }
     if (txReceipt?.status === 'success') {
-      if (frequency === Frequency.OneTime) {
-        await supportSingleTransferAndCall();
-      } else if (currency === 'G$') {
+      if (currency === 'G$') {
         await supportFlow();
       } else {
         await supportFlowWithSwap();
