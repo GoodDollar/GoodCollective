@@ -144,9 +144,12 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const totalDecimalDonation = new Decimal(duration * decimalDonationAmount);
   const totalDonationFormatted = totalDecimalDonation.toDecimalPlaces(currencyDecimals, Decimal.ROUND_DOWN).toString();
 
-  const isInsufficientBalance = donorCurrencyBalance ? totalDecimalDonation.gt(donorCurrencyBalance) : true;
-  const isInsufficientLiquidity = currency !== 'G$' && swapRouteStatus !== SwapRouteState.READY;
-  const isUnacceptablePriceImpact = currency !== 'G$' && priceImpact ? priceImpact > acceptablePriceImpact : false;
+  const isNonZeroDonation = totalDecimalDonation.gt(0);
+  const isInsufficientBalance =
+    isNonZeroDonation && (donorCurrencyBalance ? totalDecimalDonation.gt(donorCurrencyBalance) : true);
+  const isInsufficientLiquidity = isNonZeroDonation && currency !== 'G$' && swapRouteStatus !== SwapRouteState.READY;
+  const isUnacceptablePriceImpact =
+    isNonZeroDonation && currency !== 'G$' && priceImpact ? priceImpact > acceptablePriceImpact : false;
 
   const { price } = useGetTokenPrice(currency);
   const donationAmountUsdValue = price ? formatFiatCurrency(decimalDonationAmount * price) : undefined;
