@@ -234,8 +234,14 @@ function DonateComponent({ collective }: DonateComponentProps) {
             </View>
             <Dropdown
               value={frequency}
-              onSelect={(value: string) => setFrequency(value as Frequency)}
-              options={currency === 'G$' ? frequencyOptions : frequencyOptions.slice(1)}
+              onSelect={(value: string) => {
+                if (currency !== 'G$' && value === Frequency.OneTime) {
+                  setCurrency('G$');
+                  setDecimalDonationAmount(0);
+                }
+                setFrequency(value as Frequency);
+              }}
+              options={frequencyOptions}
             />
           </View>
           <View>
@@ -267,8 +273,14 @@ function DonateComponent({ collective }: DonateComponentProps) {
             <>
               <Dropdown
                 value={frequency}
-                onSelect={(value: string) => setFrequency(value as Frequency)}
-                options={currency === 'G$' ? frequencyOptions : frequencyOptions.slice(1)}
+                onSelect={(value: string) => {
+                  if (currency !== 'G$' && value === Frequency.OneTime) {
+                    setCurrency('G$');
+                    setDecimalDonationAmount(0);
+                  }
+                  setFrequency(value as Frequency);
+                }}
+                options={frequencyOptions}
               />
               {frequency !== 'One-Time' && (
                 <View style={[styles.row, styles.actionBox, { alignItems: 'center', marginTop: 19, marginBottom: 12 }]}>
