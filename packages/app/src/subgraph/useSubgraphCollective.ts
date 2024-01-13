@@ -98,7 +98,6 @@ export function useSubgraphCollective(id: string): SubgraphCollective | undefine
   });
   const data = (response as CollectivesSubgraphResponse).collectives;
   if (!data || data.length === 0) {
-    console.error(`[useSubgraphCollective]: Loading, or no Collective found for id ${id}`);
     return undefined;
   }
   return data[0];
@@ -112,7 +111,6 @@ export function useSubgraphCollectivesById(ids: string[]): SubgraphCollective[] 
   });
   const data = (response as CollectivesSubgraphResponse).collectives;
   if (!data || data.length === 0) {
-    console.error(`[useSubgraphCollective]: Loading, or no Collective found for id list ${ids}`);
     return undefined;
   }
   return data;

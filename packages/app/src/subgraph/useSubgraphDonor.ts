@@ -33,7 +33,6 @@ export function useSubgraphDonor(donorAddress: string, pollInterval?: number): S
   });
   const data = (response as DonorsSubgraphResponse).donors;
   if (!data || data.length === 0) {
-    console.error(`[useSubgraphDonor]: Loading, or no Donor found for id ${donorAddress}`);
     return undefined;
   }
   return data[0];
