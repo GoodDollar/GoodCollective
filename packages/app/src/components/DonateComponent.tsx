@@ -44,15 +44,6 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const { address, isConnected } = useAccount();
   const { chain } = useNetwork();
 
-  const tokenList = useTokenList();
-
-  const currencyOptions: { value: string; label: string }[] = useMemo(() => {
-    return Object.keys(tokenList).map((key) => ({
-      value: key,
-      label: key,
-    }));
-  }, [tokenList]);
-
   const [completeDonationModalVisible, setCompleteDonationModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [approveSwapModalVisible, setApproveSwapModalVisible] = useState(false);
@@ -61,6 +52,19 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const [frequency, setFrequency] = useState<Frequency>(Frequency.OneTime);
   const [duration, setDuration] = useState(1);
   const [decimalDonationAmount, setDecimalDonationAmount] = useState(0);
+
+  const tokenList = useTokenList();
+  const isOneTime = frequency === Frequency.OneTime;
+  const currencyOptions: { value: string; label: string }[] = useMemo(() => {
+    let options = Object.keys(tokenList).map((key) => ({
+      value: key,
+      label: key,
+    }));
+    if (isOneTime) {
+      options = [options.find((option) => option.value === 'G$')!];
+    }
+    return options;
+  }, [tokenList, isOneTime]);
 
   const {
     path: swapPath,
@@ -231,7 +235,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
             <Dropdown
               value={frequency}
               onSelect={(value: string) => setFrequency(value as Frequency)}
-              options={frequencyOptions}
+              options={currency === 'G$' ? frequencyOptions : frequencyOptions.slice(1)}
             />
           </View>
           <View>
@@ -264,7 +268,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
               <Dropdown
                 value={frequency}
                 onSelect={(value: string) => setFrequency(value as Frequency)}
-                options={frequencyOptions}
+                options={currency === 'G$' ? frequencyOptions : frequencyOptions.slice(1)}
               />
               {frequency !== 'One-Time' && (
                 <View style={[styles.row, styles.actionBox, { alignItems: 'center', marginTop: 19, marginBottom: 12 }]}>
