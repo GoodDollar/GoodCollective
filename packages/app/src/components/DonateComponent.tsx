@@ -149,7 +149,8 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const isUnacceptablePriceImpact = currency !== 'G$' && priceImpact ? priceImpact > acceptablePriceImpact : false;
 
   const { price } = useGetTokenPrice(currency);
-  const usdValue = price ? formatFiatCurrency(decimalDonationAmount * price) : undefined;
+  const donationAmountUsdValue = price ? formatFiatCurrency(decimalDonationAmount * price) : undefined;
+  const totalDonationUsdValue = price ? formatFiatCurrency(totalDecimalDonation.mul(price).toNumber()) : undefined;
 
   return (
     <View style={[styles.body, isDesktopResolution && styles.bodyDesktop]}>
@@ -189,7 +190,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
                   />
                 </View>
                 <View style={styles.divider} />
-                <Text style={styles.lowerText}>{usdValue} USD</Text>
+                <Text style={styles.lowerText}>{donationAmountUsdValue} USD</Text>
               </View>
             </View>
           </View>
@@ -219,7 +220,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
                     />
                   </View>
                   <View style={styles.divider} />
-                  <Text style={styles.lowerText}>{usdValue} USD</Text>
+                  <Text style={styles.lowerText}>{donationAmountUsdValue} USD</Text>
                 </View>
               </View>
             </View>
@@ -330,7 +331,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
                   <Text style={[styles.subHeading, { textAlign: 'right' }]}>
                     {currency} <Text style={styles.headerLabel}>{decimalDonationAmount}</Text>
                   </Text>
-                  <Text style={styles.descriptionLabel}>{usdValue} USD</Text>
+                  <Text style={styles.descriptionLabel}>{donationAmountUsdValue} USD</Text>
                 </View>
               </View>
 
@@ -351,7 +352,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
                     <Text style={[styles.subHeading, { textAlign: 'right' }]}>
                       {currency} <Text style={styles.headerLabel}>{totalDonationFormatted}</Text>
                     </Text>
-                    <Text style={styles.descriptionLabel}>{usdValue} USD</Text>
+                    <Text style={styles.descriptionLabel}>{totalDonationUsdValue} USD</Text>
                   </View>
                 </View>
               )}
