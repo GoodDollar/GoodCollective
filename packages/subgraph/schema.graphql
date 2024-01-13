@@ -73,6 +73,7 @@ type IpfsCollective @entity {
   twitter: String
   instagram: String
   threads: String
+  infoButton: String
   headerImage: String!
   logo: String!
   images: [String!]

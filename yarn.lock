@@ -4800,9 +4800,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-cli@npm:^0.62.0":
-  version: 0.62.0
-  resolution: "@graphprotocol/graph-cli@npm:0.62.0"
+"@graphprotocol/graph-cli@npm:^0.65.0":
+  version: 0.65.0
+  resolution: "@graphprotocol/graph-cli@npm:0.65.0"
   dependencies:
     "@float-capital/float-subgraph-uncrashable": ^0.0.0-alpha.4
     "@oclif/core": 2.8.6
@@ -4824,7 +4824,7 @@ __metadata:
     ipfs-http-client: 55.0.0
     jayson: 4.0.0
     js-yaml: 3.14.1
-    prettier: 1.19.1
+    prettier: 3.0.3
     request: 2.88.2
     semver: 7.4.0
     sync-request: 6.1.0
@@ -4834,16 +4834,16 @@ __metadata:
     yaml: 1.10.2
   bin:
     graph: bin/run
-  checksum: 5f017f2337f360fa7489f3698cafd5327f6cf568e759922e8bd9a04969731bd3b3abb674bb20db367956e50be9131f6f4204886e900f6c859f4da51c40462b02
+  checksum: d152d94a192f347299f2b1043e03390070253c297d74412da8f342ff4daae57335f30930f0a706eae0ab195e6f80db39e04966dce61fc48393bb1e27824e198f
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-ts@npm:^0.31.0":
-  version: 0.31.0
-  resolution: "@graphprotocol/graph-ts@npm:0.31.0"
+"@graphprotocol/graph-ts@npm:^0.32.0":
+  version: 0.32.0
+  resolution: "@graphprotocol/graph-ts@npm:0.32.0"
   dependencies:
     assemblyscript: 0.19.10
-  checksum: 20394b17d3241a662f0b2efebdc02f44e4e0814fdbb09b4cac0c84b84a173798325840bc1daf1d11ebaf27b1b3e13ff6e2766567c755cb77c1321ba1462fbecc
+  checksum: 9376ad625d3e439c9026c6aac15c82b43bb704c99469649e758bd27e68c3de3dcf36381a01ca76fea073f9e4ec507bccfa9ee4bb2b82bf67404419855efc735f
   languageName: node
   linkType: hard
 
@@ -8888,8 +8888,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@scaffold-eth/subgraph@workspace:packages/subgraph"
   dependencies:
-    "@graphprotocol/graph-cli": ^0.62.0
-    "@graphprotocol/graph-ts": ^0.31.0
+    "@graphprotocol/graph-cli": ^0.65.0
+    "@graphprotocol/graph-ts": ^0.32.0
     mustache: ^4.2.0
   languageName: unknown
   linkType: soft
@@ -33067,12 +33067,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:1.19.1":
-  version: 1.19.1
-  resolution: "prettier@npm:1.19.1"
+"prettier@npm:3.0.3":
+  version: 3.0.3
+  resolution: "prettier@npm:3.0.3"
   bin:
-    prettier: ./bin-prettier.js
-  checksum: bc78219e0f8173a808f4c6c8e0a137dd8ebd4fbe013e63fe1a37a82b48612f17b8ae8e18a992adf802ee2cf7428f14f084e7c2846ca5759cf4013c6e54810e1f
+    prettier: bin/prettier.cjs
+  checksum: e10b9af02b281f6c617362ebd2571b1d7fc9fb8a3bd17e371754428cda992e5e8d8b7a046e8f7d3e2da1dcd21aa001e2e3c797402ebb6111b5cd19609dd228e0
   languageName: node
   linkType: hard
 
