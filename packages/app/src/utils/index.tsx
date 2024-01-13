@@ -6,9 +6,18 @@ export function getDonateButtonBackgroundColor(
   isValidChainId: boolean,
   insufficientLiquidity: boolean,
   priceImpact: boolean,
-  insufficientBalance: boolean
+  insufficientBalance: boolean,
+  approvalNotReady: boolean,
+  isZeroDonation: boolean
 ) {
-  if (!hasAddress || !isValidChainId || insufficientLiquidity || insufficientBalance) {
+  if (
+    !hasAddress ||
+    !isValidChainId ||
+    insufficientLiquidity ||
+    insufficientBalance ||
+    approvalNotReady ||
+    isZeroDonation
+  ) {
     return Colors.gray[1000];
   } else if (priceImpact) {
     return Colors.orange[100];
@@ -22,7 +31,9 @@ export function getDonateButtonText(
   isValidChainId: boolean,
   insufficientLiquidity: boolean,
   priceImpact: boolean,
-  insufficientBalance: boolean
+  insufficientBalance: boolean,
+  approvalNotReady: boolean,
+  isZeroDonation: boolean
 ) {
   if (!hasAddress) {
     return 'Please connect wallet';
@@ -34,6 +45,10 @@ export function getDonateButtonText(
     return 'Confirm & Swap Anyway';
   } else if (insufficientBalance) {
     return 'Confirm & Swap Anyway';
+  } else if (approvalNotReady) {
+    return 'Swap Not Ready';
+  } else if (isZeroDonation) {
+    return 'Donation amount is zero';
   } else {
     return 'Confirm';
   }
@@ -43,7 +58,9 @@ export function getDonateButtonTextColor(
   isValidChainId: boolean,
   insufficientLiquidity: boolean,
   priceImpact: boolean,
-  insufficientBalance: boolean
+  insufficientBalance: boolean,
+  approvalNotReady: boolean,
+  isZeroDonation: boolean
 ) {
   if (
     !hasAddress ||
@@ -51,7 +68,9 @@ export function getDonateButtonTextColor(
     insufficientLiquidity ||
     insufficientBalance ||
     insufficientLiquidity ||
-    insufficientBalance
+    insufficientBalance ||
+    approvalNotReady ||
+    isZeroDonation
   ) {
     return Colors.gray[300];
   } else if (priceImpact) {

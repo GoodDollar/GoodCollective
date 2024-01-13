@@ -73,13 +73,13 @@ function DonateComponent({ collective }: DonateComponentProps) {
     status: swapRouteStatus,
   } = useSwapRoute(currency, decimalDonationAmount, duration);
 
-  const {
-    handleApproveToken,
-    isLoading: handleApproveTokenIsLoading,
-    isError: handleApproveTokenIsError,
-  } = useApproveSwapTokenCallback(currency, decimalDonationAmount, duration, (value: boolean) =>
-    setApproveSwapModalVisible(value)
+  const { handleApproveToken } = useApproveSwapTokenCallback(
+    currency,
+    decimalDonationAmount,
+    duration,
+    (value: boolean) => setApproveSwapModalVisible(value)
   );
+  const approvalNotReady = handleApproveToken === undefined && currency !== 'G$';
 
   const { supportFlowWithSwap, supportFlow, supportSingleTransferAndCall } = useContractCalls(
     collectiveId,
@@ -99,14 +99,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
     } else if (currency === 'G$') {
       return await supportFlow();
     }
-    while (handleApproveTokenIsLoading) {
-      await new Promise((r) => setTimeout(r, 50));
-    }
-    if (handleApproveTokenIsError || handleApproveToken === undefined) {
-      setErrorMessage('An error occurred while generating a transaction to approve the token.');
-      return;
-    }
-    const txHash = await handleApproveToken();
+    const txHash = await handleApproveToken?.();
     if (txHash === undefined) {
       return;
     }
@@ -131,8 +124,6 @@ function DonateComponent({ collective }: DonateComponentProps) {
     currency,
     frequency,
     handleApproveToken,
-    handleApproveTokenIsError,
-    handleApproveTokenIsLoading,
     supportFlow,
     supportFlowWithSwap,
     supportSingleTransferAndCall,
@@ -464,26 +455,38 @@ function DonateComponent({ collective }: DonateComponentProps) {
             !!(chain?.id && chain.id in SupportedNetwork),
             isInsufficientLiquidity,
             isUnacceptablePriceImpact,
-            isInsufficientBalance
+            isInsufficientBalance,
+            approvalNotReady,
+            !isNonZeroDonation
           )}
           backgroundColor={getDonateButtonBackgroundColor(
             !!address,
             !!(chain?.id && chain.id in SupportedNetwork),
             isInsufficientLiquidity,
             isUnacceptablePriceImpact,
-            isInsufficientBalance
+            isInsufficientBalance,
+            approvalNotReady,
+            !isNonZeroDonation
           )}
           color={getDonateButtonTextColor(
             !!address,
             !!(chain?.id && chain.id in SupportedNetwork),
             isInsufficientLiquidity,
             isUnacceptablePriceImpact,
-            isInsufficientBalance
+            isInsufficientBalance,
+            approvalNotReady,
+            !isNonZeroDonation
           )}
           fontSize={18}
           seeType={false}
           onPress={handleDonate}
-          disabled={address === undefined || chain?.id === undefined || !(chain.id in SupportedNetwork)}
+          disabled={
+            address === undefined ||
+            chain?.id === undefined ||
+            !(chain.id in SupportedNetwork) ||
+            approvalNotReady ||
+            !isNonZeroDonation
+          }
         />
       </View>
       <ErrorModal
