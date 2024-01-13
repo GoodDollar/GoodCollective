@@ -1,5 +1,4 @@
-import { LazyQueryHookOptions, OperationVariables, TypedDocumentNode, useLazyQuery } from '@apollo/client';
-import { useEffect, useMemo } from 'react';
+import { LazyQueryHookOptions, OperationVariables, TypedDocumentNode, useQuery } from '@apollo/client';
 import { DocumentNode } from 'graphql/language';
 import {
   SubgraphCollective,
@@ -24,25 +23,13 @@ export function useSubgraphData<T>(
   | StewardsSubgraphResponse
   | DonorCollectiveSubgraphResponse
   | IpfsCollectivesSubgraphResponse {
-  const [getData, { data, error, refetch }] = useLazyQuery<any>(query, options);
+  const { data, error } = useQuery<any>(query, options);
 
-  useEffect(() => {
-    if (!data) {
-      if (refetch) {
-        refetch();
-      } else {
-        getData();
-      }
-    }
-  }, [refetch, data, getData]);
-
-  return useMemo(() => {
-    if (error) {
-      console.error(error);
-    }
-    if (data) {
-      return data;
-    }
-    return {};
-  }, [error, data]);
+  if (error) {
+    console.error(error);
+  }
+  if (data) {
+    return data;
+  }
+  return {};
 }

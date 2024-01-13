@@ -52,7 +52,7 @@ export function useSupportSingleBatch(
       toggleCompleteDonationModal(false);
       console.error(error);
       const errObj = error as Record<string, any>;
-      const message = errObj.reason ?? errObj.code ?? errObj.message ?? 'unknown reason';
+      const message = `${errObj.reason} (${errObj.code})` ?? errObj.message ?? 'unknown reason';
       onError(message);
     }
   }, [
