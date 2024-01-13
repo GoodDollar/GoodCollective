@@ -20,7 +20,7 @@ export function useSwapRoute(
   currencyIn: string,
   decimalAmountIn: number,
   duration: number,
-  slippageTolerance: Percent = new Percent(50, 10_000)
+  slippageTolerance: Percent = new Percent(100, 10_000)
 ): {
   path?: string;
   quote?: Decimal;
