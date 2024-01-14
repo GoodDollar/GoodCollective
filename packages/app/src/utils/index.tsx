@@ -68,19 +68,22 @@ export function getDonateStyles(state: ButtonState): DonateStylesResult {
     buttonTextColor: stylesType['text-color'].default,
   };
 
-  (Object.keys(state) as Array<keyof ButtonState>).forEach((key) => {
+  const keys = Object.keys(state) as Array<keyof ButtonState>;
+
+  for (const key of keys) {
     if (state[key]) {
-      if (stylesType.copy[key]) {
+      if (stylesType.copy && stylesType.copy[key]) {
         styledResult.buttonCopy = stylesType.copy[key];
       }
-      if (stylesType['text-color'][key]) {
+      if (stylesType['text-color'] && stylesType['text-color'][key]) {
         styledResult.buttonTextColor = stylesType['text-color'][key];
       }
-      if (stylesType['bg-color'][key]) {
+      if (stylesType['bg-color'] && stylesType['bg-color'][key]) {
         styledResult.buttonBgColor = stylesType['bg-color'][key];
       }
+      break;
     }
-  });
+  }
 
   return styledResult;
 }

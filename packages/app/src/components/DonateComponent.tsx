@@ -135,8 +135,8 @@ function DonateComponent({ collective }: DonateComponentProps) {
 
   const donateStyles = useMemo(() => {
     return getDonateStyles({
-      noAddress: !!address,
-      invalidChain: !!(chain?.id && chain.id in SupportedNetwork),
+      noAddress: !address,
+      invalidChain: !(chain?.id && chain.id in SupportedNetwork),
       insufficientLiquidity: isInsufficientLiquidity,
       priceImpact: isUnacceptablePriceImpact,
       insufficientBalance: isInsufficientBalance,
