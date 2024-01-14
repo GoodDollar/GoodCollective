@@ -22,7 +22,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
   }
 
   const tokenBalance = useGetTokenBalance('G$', address, chain?.id, true);
-  const formattedTokenBalance = new Decimal(new Decimal(tokenBalance).toFixed(4)).toString();
+  const formattedTokenBalance = new Decimal(new Decimal(tokenBalance).toFixed(0)).toString();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
 
   return (
@@ -73,7 +73,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
               flex: 1,
               justifyContent: 'space-between',
             }}>
-            <Text style={styles.amountText}>{formattedTokenBalance}</Text>
+            <Text style={styles.amountText}>{formattedTokenBalance} G$</Text>
             <View style={styles.walletConnected}>
               <Image source={PlaceholderAvatar} resizeMode="contain" style={{ width: 25, height: 25 }} />
               {ensName ? (
