@@ -65,7 +65,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const stewardsPaid = stewardCollectives.length;
   const infoLabel = collective.ipfs.infoLabel ?? 'Stewards get G$ each time they complete an action.';
 
-  const currentPool = useGetTokenBalance('G$', collective.address as `0x${string}`, SupportedNetwork.celo);
+  const currentPool = useGetTokenBalance('G$', collective.address as `0x${string}`, SupportedNetwork.CELO);
 
   const { address } = useAccount();
   const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress);

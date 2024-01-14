@@ -12,7 +12,7 @@ export function useTokenList(): Record<string, Token> {
     const tokenList: Record<string, Token> = {};
     const sortedList = CeloTokenList.tokens.sort((a, b) => a.symbol.localeCompare(b.symbol));
     sortedList.forEach((token) => {
-      if (token.chainId !== SupportedNetwork.celo) {
+      if (token.chainId !== SupportedNetwork.CELO) {
         return;
       }
       tokenList[token.symbol] = new Token(token.chainId, token.address, token.decimals, token.symbol);

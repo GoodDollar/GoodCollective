@@ -6,7 +6,7 @@ import { useToken } from './useTokenList';
 export const useGetTokenBalance = (
   currencySymbol: string,
   accountAddress: `0x${string}` | undefined,
-  chainId: number = SupportedNetwork.celo,
+  chainId: number = SupportedNetwork.CELO,
   formatted?: boolean
 ): string => {
   const [tokenBalance, setTokenBalance] = useState<string>('0');
@@ -14,7 +14,7 @@ export const useGetTokenBalance = (
   const token = useToken(currencySymbol);
 
   useEffect(() => {
-    if (!accountAddress || chainId !== SupportedNetwork.celo) return;
+    if (!accountAddress || chainId !== SupportedNetwork.CELO) return;
     fetchBalance({
       address: accountAddress,
       chainId: chainId,
