@@ -22,7 +22,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
   }
 
   const tokenBalance = useGetTokenBalance('G$', address, chain?.id, true);
-  const formattedTokenBalance = new Decimal(new Decimal(tokenBalance).toFixed(0)).toString();
+  const formattedTokenBalance = new Decimal(new Decimal(tokenBalance).toFixed(0, Decimal.ROUND_DOWN)).toString();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
 
   return (
