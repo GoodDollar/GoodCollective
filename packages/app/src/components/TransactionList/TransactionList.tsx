@@ -6,6 +6,7 @@ import { useMediaQuery } from 'native-base';
 import { chevronDown, TransactionIcon } from '../../assets';
 import { Transaction } from '../../models/models';
 import useCrossNavigate from '../../routes/useCrossNavigate';
+import { useRecentTransactions } from '../../hooks/useRecentTransactions';
 
 interface TransactionListProps {
   collective: `0x${string}`;
@@ -17,14 +18,7 @@ function TransactionList({ collective }: TransactionListProps) {
   });
   const { navigate } = useCrossNavigate();
 
-  const placeholderTransactions: Transaction[] = Array(10).fill({
-    hash: '0x123',
-    rawAmount: '500000000000000000',
-    from: '0x123',
-    to: collective,
-    fee: '4000000000000000',
-    timestamp: 1,
-  });
+  const transactions: Transaction[] = useRecentTransactions(collective, 6);
 
   return (
     <View style={styles.txContainer}>
@@ -34,11 +28,11 @@ function TransactionList({ collective }: TransactionListProps) {
       </View>
       {isDesktopResolution && <View style={styles.horizontalDivider} />}
       <View style={styles.list}>
-        {placeholderTransactions.slice(0, 5).map((transaction) => (
+        {transactions.slice(0, 5).map((transaction) => (
           <TransactionListItem key={transaction.hash} collective={collective} transaction={transaction} />
         ))}
       </View>
-      {isDesktopResolution && placeholderTransactions.length > 5 && (
+      {isDesktopResolution && transactions.length > 5 && (
         <TouchableOpacity onPress={() => navigate('/profile/abc123/activity')} style={styles.showMoreButton}>
           <Text style={styles.showMoreText}>Show more</Text>
           <Image source={chevronDown} style={styles.showMoreIcon} />
