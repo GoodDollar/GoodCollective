@@ -97,151 +97,144 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   if (isDesktopResolution) {
     return (
-      <>
-        <View style={{ gap: 24 }}>
-          <View style={styles.collectiveDesktopBox}>
-            <View style={styles.collectiveDetails}>
-              <Image source={headerImg} style={styles.imageMobile} />
+      <View style={{ gap: 24 }}>
+        <View style={styles.collectiveDesktopBox}>
+          <View style={styles.collectiveDetailsDesktop}>
+            <Image source={headerImg} style={styles.imageDesktop} />
 
-              <View style={styles.collectiveDesktopData}>
-                <Text style={[styles.title, styles.titleMobile]}>{ipfs.name}</Text>
-                <Text style={styles.description}>{ipfs.description}</Text>
-                <View style={[styles.icons, { position: 'absolute', bottom: 0, left: 25 }]}>
-                  {collective.ipfs.website && (
-                    <Link href={collective.ipfs.website}>
-                      <Image source={WebIcon} style={styles.rowIcon} />
-                    </Link>
-                  )}
-                  {collective.ipfs.twitter && (
-                    <Link href={collective.ipfs.twitter}>
-                      <Image source={TwitterIcon} style={styles.rowIcon} />
-                    </Link>
-                  )}
-                  {collective.ipfs.instagram && (
-                    <Link href={collective.ipfs.instagram}>
-                      <Image source={InstagramIcon} style={styles.rowIcon} />
-                    </Link>
-                  )}
-                  {collective.ipfs.threads && (
-                    <Link href={collective.ipfs.threads}>
-                      <Image source={AtIcon} style={styles.rowIcon} />
-                    </Link>
-                  )}
-                  {collective.ipfs.email && (
-                    <Link href={collective.ipfs.email}>
-                      <Image source={LastRowIcon} style={styles.rowIcon} />
-                    </Link>
-                  )}
-                </View>
-              </View>
-
-              <View style={styles.collectiveDescription}>
-                <View style={styles.collectiveDetailsMobile}>
-                  <Image source={InfoIcon} style={styles.infoIcon} />
-                  <Text style={styles.informationLabel}>{infoLabel}</Text>
-                </View>
-
-                {isDonating ? (
-                  <View style={styles.collectiveDonateBox}>
-                    {!isDesktopResolution && (
-                      <>
-                        <Image source={SupportImage} style={styles.supportImg} />
-                        <Text style={styles.supportText}>You Support this GoodCollective!!</Text>
-                      </>
-                    )}
-                    <View style={{ gap: 16 }}>
-                      <RoundedButton
-                        title="Stop your donation"
-                        backgroundColor={Colors.orange[100]}
-                        color={Colors.orange[200]}
-                        fontSize={18}
-                        seeType={false}
-                        onPress={() => {
-                          setStopDonationModal(true);
-                        }}
-                      />
-                      {renderDonorsButton()}
-                    </View>
-                  </View>
-                ) : (
-                  <View style={styles.collectiveDonateBox}>
-                    <RoundedButton
-                      title="Donate"
-                      backgroundColor={Colors.green[100]}
-                      color={Colors.green[200]}
-                      fontSize={18}
-                      seeType={false}
-                      onPress={() => {
-                        navigate(`/donate/${poolAddress}`);
-                      }}
-                    />
-                    {renderDonorsButton()}
-                  </View>
+            <View style={styles.collectiveDesktopData}>
+              <Text style={[styles.title, styles.titleMobile]}>{ipfs.name}</Text>
+              <Text style={styles.description}>{ipfs.description}</Text>
+              <View style={[styles.icons, { position: 'absolute', bottom: 0, left: 25 }]}>
+                {collective.ipfs.website && (
+                  <Link href={collective.ipfs.website}>
+                    <Image source={WebIcon} style={styles.rowIcon} />
+                  </Link>
+                )}
+                {collective.ipfs.twitter && (
+                  <Link href={collective.ipfs.twitter}>
+                    <Image source={TwitterIcon} style={styles.rowIcon} />
+                  </Link>
+                )}
+                {collective.ipfs.instagram && (
+                  <Link href={collective.ipfs.instagram}>
+                    <Image source={InstagramIcon} style={styles.rowIcon} />
+                  </Link>
+                )}
+                {collective.ipfs.threads && (
+                  <Link href={collective.ipfs.threads}>
+                    <Image source={AtIcon} style={styles.rowIcon} />
+                  </Link>
+                )}
+                {collective.ipfs.email && (
+                  <Link href={collective.ipfs.email}>
+                    <Image source={LastRowIcon} style={styles.rowIcon} />
+                  </Link>
                 )}
               </View>
             </View>
 
-            <View style={styles.collectiveDesktopTimeline}>
-              <View style={{ flex: 1, gap: 16 }}>
-                <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
-                <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
-                <RowItem
-                  imageUrl={ListGreenIcon}
-                  rowInfo="# of Payments Made"
-                  rowData={paymentsMade ?? 0}
-                  currency=""
-                />
+            <View style={styles.collectiveDescription}>
+              <View style={styles.infoLabelDesktop}>
+                <Image source={InfoIcon} style={styles.infoIcon} />
+                <Text style={styles.informationLabel}>{infoLabel}</Text>
               </View>
-              <View style={{ flex: 1, gap: 16 }}>
-                <FlowingDonationsRowItem
-                  imageUrl={ReceiveLightIcon}
-                  rowInfo="Total Donations Received"
-                  donorCollectives={donorCollectives}
-                  tokenPrice={tokenPrice}
-                  currency="G$"
-                />
-                <RowItem
-                  imageUrl={SendIcon}
-                  rowInfo="Total Paid Out"
-                  rowData={formattedTotalRewards ?? '0'}
-                  currency="G$"
-                  balance={totalRewardsUsdValue ?? 0}
-                />
-                <RowItem
-                  imageUrl={SquaresIcon}
-                  rowInfo="Current Pool"
-                  rowData={formattedCurrentPool ?? '0'}
-                  currency="G$"
-                  balance={currentPoolUsdValue ?? 0}
-                />
-              </View>
+
+              {isDonating ? (
+                <View style={styles.collectiveDonateBox}>
+                  {!isDesktopResolution && (
+                    <>
+                      <Image source={SupportImage} style={styles.supportImg} />
+                      <Text style={styles.supportText}>You Support this GoodCollective!!</Text>
+                    </>
+                  )}
+                  <View style={{ gap: 16 }}>
+                    <RoundedButton
+                      title="Stop your donation"
+                      backgroundColor={Colors.orange[100]}
+                      color={Colors.orange[200]}
+                      fontSize={18}
+                      seeType={false}
+                      onPress={() => {
+                        setStopDonationModal(true);
+                      }}
+                    />
+                    {renderDonorsButton()}
+                  </View>
+                </View>
+              ) : (
+                <View style={styles.collectiveDonateBox}>
+                  <RoundedButton
+                    title="Donate"
+                    backgroundColor={Colors.green[100]}
+                    color={Colors.green[200]}
+                    fontSize={18}
+                    seeType={false}
+                    onPress={() => {
+                      navigate(`/donate/${poolAddress}`);
+                    }}
+                  />
+                  {renderDonorsButton()}
+                </View>
+              )}
             </View>
           </View>
 
-          <View style={styles.collectiveDesktopActions}>
-            <View style={[styles.container, styles.desktopContainer]}>
-              <StewardList stewards={stewardCollectives.slice(0, 6)} listType="viewCollective" />
-              <RoundedButton
-                title="See all stewards"
-                backgroundColor={Colors.purple[100]}
-                color={Colors.purple[200]}
-                fontSize={18}
-                seeType={true}
-                onPress={() => navigate(`/collective/${poolAddress}/stewards`)}
+          <View style={styles.collectiveDesktopTimeline}>
+            <View style={{ flex: 1, gap: 16 }}>
+              <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
+              <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
+              <RowItem imageUrl={ListGreenIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
+            </View>
+            <View style={{ flex: 1, gap: 16 }}>
+              <FlowingDonationsRowItem
+                imageUrl={ReceiveLightIcon}
+                rowInfo="Total Donations Received"
+                donorCollectives={donorCollectives}
+                tokenPrice={tokenPrice}
+                currency="G$"
+              />
+              <RowItem
+                imageUrl={SendIcon}
+                rowInfo="Total Paid Out"
+                rowData={formattedTotalRewards ?? '0'}
+                currency="G$"
+                balance={totalRewardsUsdValue ?? 0}
+              />
+              <RowItem
+                imageUrl={SquaresIcon}
+                rowInfo="Current Pool"
+                rowData={formattedCurrentPool ?? '0'}
+                currency="G$"
+                balance={currentPoolUsdValue ?? 0}
               />
             </View>
-            <View style={[styles.container, styles.desktopContainer]}>
-              <TransactionList collective={collective.address as `0x${string}`} />
-            </View>
           </View>
-          <StopDonationModal openModal={stopDonationModal} setOpenModal={setStopDonationModal} />
         </View>
-      </>
+
+        <View style={styles.collectiveDesktopActions}>
+          <View style={[styles.container, styles.desktopContainer]}>
+            <StewardList stewards={stewardCollectives.slice(0, 6)} listType="viewCollective" />
+            <RoundedButton
+              title="See all stewards"
+              backgroundColor={Colors.purple[100]}
+              color={Colors.purple[200]}
+              fontSize={18}
+              seeType={true}
+              onPress={() => navigate(`/collective/${poolAddress}/stewards`)}
+            />
+          </View>
+          <View style={[styles.container, styles.desktopContainer]}>
+            <TransactionList collective={collective.address as `0x${string}`} />
+          </View>
+        </View>
+        <StopDonationModal openModal={stopDonationModal} setOpenModal={setStopDonationModal} />
+      </View>
     );
   }
 
   return (
-    <>
+    <View>
       <Image source={headerImg} style={styles.image} />
       <View style={{ gap: 24 }}>
         <View style={[styles.container]}>
@@ -367,7 +360,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
         <StopDonationModal openModal={stopDonationModal} setOpenModal={setStopDonationModal} />
         <ThankYouModal openModal={donateModal} setOpenModal={setDonateModal} />
       </View>
-    </>
+    </View>
   );
 }
 
@@ -386,24 +379,34 @@ const styles = StyleSheet.create({
     shadowRadius: 30,
     elevation: 15,
   },
-  collectiveDetails: { width: '100%', flexDirection: 'row' },
-  collectiveDetailsMobile: { flexDirection: 'row', gap: 8 },
-  collectiveDescription: {
-    flexDirection: 'column',
-    flexGrow: 1,
-    flex: 1,
-    width: '100%',
-  },
+  collectiveDetailsDesktop: { width: '100%', flexDirection: 'row', gap: 32 },
   image: {
     width: '100%',
     height: 192,
   },
-  imageMobile: {
+  infoLabelDesktop: { flexDirection: 'row', gap: 8 },
+  imageDesktop: {
     width: '100%',
     maxWidth: 512,
     height: 290,
     borderRadius: 20,
-    flexGrow: 1,
+    flex: 1,
+  },
+  collectiveDesktopData: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    height: 290,
+    width: '100%',
+    minWidth: 150,
+    maxWidth: 352,
+    flex: 1,
+  },
+  collectiveDescription: {
+    flexDirection: 'column',
+    flex: 1,
+    width: '100%',
+    maxWidth: 352,
   },
   title: {
     ...InterSemiBold,
@@ -467,16 +470,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     padding: 16,
     borderRadius: 16,
-  },
-  collectiveDesktopData: {
-    flexGrow: 1,
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-    height: 290,
-    width: 250,
-    paddingHorizontal: 25,
-    position: 'relative',
   },
   collectiveDesktopTimeline: {
     flexDirection: 'row',
