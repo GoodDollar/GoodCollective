@@ -1,25 +1,29 @@
-import { useState } from 'react';
 import { Image, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
-import { InterRegular, InterSemiBold } from '../utils/webFonts';
+import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import TransactionListItem from './TransactionListItem';
-import { Colors } from '../utils/colors';
+import { Colors } from '../../utils/colors';
 import { useMediaQuery } from 'native-base';
-import { chevronDown, TransactionIcon } from '../assets';
-
-const placeholderTransactions = [true, false, true, true, false, true, false, true, true, false, true, false];
+import { chevronDown, TransactionIcon } from '../../assets';
+import { Transaction } from '../../models/models';
+import useCrossNavigate from '../../routes/useCrossNavigate';
 
 interface TransactionListProps {
-  username: string;
-  currency: string;
-  amount: number;
-  transactionId: string;
-  transactions?: any[];
+  collective: `0x${string}`;
 }
 
-function TransactionList({ username, currency, amount, transactionId, transactions }: TransactionListProps) {
-  const [showAll, setShowAll] = useState<boolean>(false);
+function TransactionList({ collective }: TransactionListProps) {
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 612,
+  });
+  const { navigate } = useCrossNavigate();
+
+  const placeholderTransactions: Transaction[] = Array(10).fill({
+    hash: '0x123',
+    rawAmount: '500000000000000000',
+    from: '0x123',
+    to: collective,
+    fee: '4000000000000000',
+    timestamp: 1,
   });
 
   return (
@@ -28,24 +32,16 @@ function TransactionList({ username, currency, amount, transactionId, transactio
         <Image source={{ uri: TransactionIcon }} style={styles.firstIcon} />
         <Text style={styles.rowText}>Recent Transactions</Text>
       </View>
+      {isDesktopResolution && <View style={styles.horizontalDivider} />}
       <View style={styles.list}>
-        {/* {(showAll ? placeholderTransactions : placeholderTransactions.slice(0, 5)).map((item) => (
-          <TransactionListItem
-            username={username}
-            currency={currency}
-            amount={amount}
-            id={transactionId}
-            receive={item}
-          />
-        ))} */}
+        {placeholderTransactions.slice(0, 5).map((transaction) => (
+          <TransactionListItem key={transaction.hash} collective={collective} transaction={transaction} />
+        ))}
       </View>
-      {isDesktopResolution && (
-        <TouchableOpacity onPress={() => setShowAll(!showAll)} style={styles.showMoreButton}>
-          <Text style={styles.showMoreText}>Show {showAll ? 'less' : 'more'}</Text>
-          <Image
-            source={chevronDown}
-            style={[styles.showMoreIcon, { transform: [{ rotate: !showAll ? '0deg' : '180deg' }] }]}
-          />
+      {isDesktopResolution && placeholderTransactions.length > 5 && (
+        <TouchableOpacity onPress={() => navigate('/profile/abc123/activity')} style={styles.showMoreButton}>
+          <Text style={styles.showMoreText}>Show more</Text>
+          <Image source={chevronDown} style={styles.showMoreIcon} />
         </TouchableOpacity>
       )}
     </View>
@@ -91,7 +87,6 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 8,
   },
-
   amount: {
     ...InterRegular,
     fontSize: 14,
@@ -119,22 +114,32 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   list: {
-    maxHeight: 400,
+    maxHeight: 389,
     overflow: 'scroll',
+    gap: 16,
   },
   showMoreButton: {
-    marginTop: 20,
+    marginTop: 16,
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   showMoreText: {
+    ...InterRegular,
     fontWeight: 'bold',
+    lineHeight: 24,
+    size: 16,
     color: Colors.gray[100],
   },
   showMoreIcon: {
     width: 20,
     height: 20,
+  },
+  horizontalDivider: {
+    width: '100%',
+    height: 1,
+    marginBottom: 21,
+    backgroundColor: Colors.gray[600],
   },
 });
 

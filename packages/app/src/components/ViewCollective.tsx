@@ -3,7 +3,7 @@ import { useState } from 'react';
 import RowItem from './RowItem';
 import RoundedButton from './RoundedButton';
 import StewardList from './StewardsList/StewardsList';
-import TransactionList from './TransactionList';
+import TransactionList from './TransactionList/TransactionList';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
 import StopDonationModal from './StopDonationModal';
@@ -42,9 +42,6 @@ interface ViewCollectiveProps {
 // TODO: "See all Stewards" button doesn't work for me and I can't figure out why
 
 function ViewCollective({ collective }: ViewCollectiveProps) {
-  // TODO: fetch recent transactions
-  const recentTransactions = {};
-
   const {
     address: poolAddress,
     ipfs,
@@ -222,7 +219,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
           </View>
 
           <View style={styles.collectiveDesktopActions}>
-            <View style={[styles.container, styles.mobileContainer]}>
+            <View style={[styles.container, styles.desktopContainer]}>
               <StewardList stewards={stewardCollectives.slice(0, 6)} listType="viewCollective" />
               <RoundedButton
                 title="See all stewards"
@@ -233,13 +230,8 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 onPress={() => navigate(`/collective/${poolAddress}/stewards`)}
               />
             </View>
-            <View style={[styles.container, styles.mobileContainer]}>
-              <TransactionList
-                username="username123"
-                currency="G$"
-                amount={2400}
-                transactionId="18347cg786hfc6f29837r6hd23"
-              />
+            <View style={[styles.container, styles.desktopContainer]}>
+              <TransactionList collective={collective.address as `0x${string}`} />
             </View>
           </View>
           <StopDonationModal openModal={stopDonationModal} setOpenModal={setStopDonationModal} />
@@ -362,12 +354,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
           />
         </View>
         <View style={styles.container}>
-          <TransactionList
-            username="username123"
-            currency="G$"
-            amount={2400}
-            transactionId="18347cg786hfc6f29837r6hd23"
-          />
+          <TransactionList collective={collective.address as `0x${string}`} />
           <RoundedButton
             title="See all Transactions"
             backgroundColor={Colors.purple[100]}
@@ -500,7 +487,7 @@ const styles = StyleSheet.create({
   },
   collectiveDonateBox: { gap: 24, height: 230 },
   collectiveInformation: { flex: 1, flexDirection: 'row', gap: 8 },
-  mobileContainer: {
+  desktopContainer: {
     maxWidth: '50%',
     height: 540,
     borderRadius: 16,
