@@ -12,7 +12,7 @@ import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import { formatTime } from '../lib/formatTime';
 import { Collective } from '../models/models';
-import { useGetTokenPrice, useIsDonorOfCollective } from '../hooks';
+import { useDonorCollectiveByAddresses, useGetTokenPrice } from '../hooks';
 import { useAccount } from 'wagmi';
 import {
   AtIcon,
@@ -34,6 +34,8 @@ import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 import { SupportedNetwork } from '../models/constants';
 import FlowingDonationsRowItem from './FlowingDonationsRowItem';
 import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
+import { useDeleteFlow } from '../hooks/useContractCalls/useDeleteFlow';
+import ErrorModal from './ErrorModal';
 
 interface ViewCollectiveProps {
   collective: Collective;
@@ -42,6 +44,11 @@ interface ViewCollectiveProps {
 // TODO: "See all Stewards" button doesn't work for me and I can't figure out why
 
 function ViewCollective({ collective }: ViewCollectiveProps) {
+  const { navigate } = useCrossNavigate();
+  const [isDesktopResolution] = useMediaQuery({
+    minWidth: 612,
+  });
+
   const {
     address: poolAddress,
     ipfs,
@@ -61,15 +68,19 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const currentPool = useGetTokenBalance('G$', collective.address as `0x${string}`, SupportedNetwork.celo);
 
   const { address } = useAccount();
-  const isDonating = useIsDonorOfCollective(address ?? '', poolAddress);
+  const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress);
+  const isDonating = maybeDonorCollective && maybeDonorCollective.flowRate !== '0';
 
-  const [stopDonationModal, setStopDonationModal] = useState(false);
-  const [donateModal, setDonateModal] = useState(false);
+  const [stopDonationModalVisible, setStopDonationModalVisible] = useState(false);
+  const [donationModalVisible, setDonationModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
 
-  const { navigate } = useCrossNavigate();
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
-  });
+  const handleStopDonation = useDeleteFlow(
+    collective.address,
+    maybeDonorCollective?.flowRate,
+    (error) => setErrorMessage(error),
+    (value: boolean) => setStopDonationModalVisible(value)
+  );
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
 
@@ -155,9 +166,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                       color={Colors.orange[200]}
                       fontSize={18}
                       seeType={false}
-                      onPress={() => {
-                        setStopDonationModal(true);
-                      }}
+                      onPress={handleStopDonation}
                     />
                     {renderDonorsButton()}
                   </View>
@@ -228,7 +237,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             <TransactionList collective={collective.address as `0x${string}`} />
           </View>
         </View>
-        <StopDonationModal openModal={stopDonationModal} setOpenModal={setStopDonationModal} />
+        <StopDonationModal openModal={stopDonationModalVisible} setOpenModal={setStopDonationModalVisible} />
       </View>
     );
   }
@@ -311,9 +320,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                   color={Colors.orange[200]}
                   fontSize={18}
                   seeType={false}
-                  onPress={() => {
-                    setStopDonationModal(true);
-                  }}
+                  onPress={handleStopDonation}
                 />
                 {renderDonorsButton()}
               </View>
@@ -357,8 +364,13 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             onPress={() => navigate('/profile/abc123/activity')}
           />
         </View>
-        <StopDonationModal openModal={stopDonationModal} setOpenModal={setStopDonationModal} />
-        <ThankYouModal openModal={donateModal} setOpenModal={setDonateModal} />
+        <ErrorModal
+          openModal={!!errorMessage}
+          setOpenModal={() => setErrorMessage(undefined)}
+          message={errorMessage ?? ''}
+        />
+        <StopDonationModal openModal={stopDonationModalVisible} setOpenModal={setStopDonationModalVisible} />
+        <ThankYouModal openModal={donationModalVisible} setOpenModal={setDonationModalVisible} />
       </View>
     </View>
   );
