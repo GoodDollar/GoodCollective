@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { BigNumberish, ethers } from 'ethers';
 import { DonorCollective } from '../models/models';
 import { calculateGoodDollarAmounts, CalculatedAmounts } from '../lib/calculateGoodDollarAmounts';
+import Decimal from 'decimal.js';
 
 // based on https://github.com/superfluid-finance/superfluid-console/blob/master/src/components/FlowingBalance.tsx
 
@@ -42,6 +43,33 @@ export function useDonorCollectivesFlowingBalances(
     donationInputs.flowRates,
     tokenPrice
   );
+}
+
+export function useDonorCollectivesFlowingBalancesWithAltStaticBalance(
+  staticRawAmount: string,
+  donorCollectives: DonorCollective[],
+  tokenPrice: number | undefined
+): CalculatedAmounts {
+  const donationInputs = useMemo(() => {
+    const aggregation: { timestamps: number[]; flowRates: string[] } = {
+      timestamps: [],
+      flowRates: [],
+    };
+    donorCollectives.forEach((donorCollective) => {
+      aggregation.timestamps.push(donorCollective.timestamp);
+      aggregation.flowRates.push(donorCollective.flowRate);
+    });
+    return aggregation;
+  }, [donorCollectives]);
+
+  const baseAmounts: string[] = useMemo(() => {
+    const baseAmountPerEntity = new Decimal(staticRawAmount)
+      .div(donorCollectives.length)
+      .toFixed(0, Decimal.ROUND_DOWN);
+    return Array(donorCollectives.length).fill(baseAmountPerEntity);
+  }, [staticRawAmount, donorCollectives.length]);
+
+  return useSumOfFlowingBalances(baseAmounts, donationInputs.timestamps, donationInputs.flowRates, tokenPrice);
 }
 
 export function useSumOfFlowingBalances(

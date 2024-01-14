@@ -31,11 +31,10 @@ import {
   WebIcon,
 } from '../assets/';
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
-import { SupportedNetwork } from '../models/constants';
 import FlowingDonationsRowItem from './FlowingDonationsRowItem';
-import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
 import { useDeleteFlow } from '../hooks/useContractCalls/useDeleteFlow';
 import ErrorModal from './ErrorModal';
+import FlowingCurrentPoolRowItem from './FlowingCurrentPoolRowItem';
 
 interface ViewCollectiveProps {
   collective: Collective;
@@ -65,8 +64,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const stewardsPaid = stewardCollectives.length;
   const infoLabel = collective.ipfs.infoLabel ?? 'Stewards get G$ each time they complete an action.';
 
-  const currentPool = useGetTokenBalance('G$', collective.address as `0x${string}`, SupportedNetwork.CELO);
-
   const { address } = useAccount();
   const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress);
   const isDonating = maybeDonorCollective && maybeDonorCollective.flowRate !== '0';
@@ -86,10 +83,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   const { formatted: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateGoodDollarAmounts(
     totalRewards,
-    tokenPrice
-  );
-  const { formatted: formattedCurrentPool, usdValue: currentPoolUsdValue } = calculateGoodDollarAmounts(
-    currentPool,
     tokenPrice
   );
 
@@ -210,12 +203,13 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 currency="G$"
                 balance={totalRewardsUsdValue ?? 0}
               />
-              <RowItem
+              <FlowingCurrentPoolRowItem
                 imageUrl={SquaresIcon}
                 rowInfo="Current Pool"
-                rowData={formattedCurrentPool ?? '0'}
+                collective={collective.address as `0x${string}`}
+                donorCollectives={donorCollectives}
+                tokenPrice={tokenPrice}
                 currency="G$"
-                balance={currentPoolUsdValue ?? 0}
               />
             </View>
           </View>
@@ -299,12 +293,13 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               currency="G$"
               balance={totalRewardsUsdValue ?? 0}
             />
-            <RowItem
+            <FlowingCurrentPoolRowItem
               imageUrl={SquaresIcon}
               rowInfo="Current Pool"
-              rowData={formattedCurrentPool ?? '0'}
+              collective={collective.address as `0x${string}`}
+              donorCollectives={donorCollectives}
+              tokenPrice={tokenPrice}
               currency="G$"
-              balance={currentPoolUsdValue ?? 0}
             />
           </View>
 
