@@ -6,12 +6,7 @@ import CompleteDonationModal from './CompleteDonationModal';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import Dropdown from './Dropdown';
-import {
-  getDonateButtonBackgroundColor,
-  getDonateButtonText,
-  getDonateButtonTextColor,
-  getFrequencyPlural,
-} from '../utils';
+import { getDonateStyles, getFrequencyPlural } from '../utils';
 import { useContractCalls, useGetTokenPrice } from '../hooks';
 import { useAccount, useNetwork } from 'wagmi';
 import { IpfsCollective } from '../models/models';
@@ -137,6 +132,29 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const { price } = useGetTokenPrice(currency);
   const donationAmountUsdValue = price ? formatFiatCurrency(decimalDonationAmount * price) : undefined;
   const totalDonationUsdValue = price ? formatFiatCurrency(totalDecimalDonation.mul(price).toNumber()) : undefined;
+
+  const donateStyles = useMemo(() => {
+    return getDonateStyles({
+      noAddress: !!address,
+      invalidChain: !!(chain?.id && chain.id in SupportedNetwork),
+      insufficientLiquidity: isInsufficientLiquidity,
+      priceImpact: isUnacceptablePriceImpact,
+      insufficientBalance: isInsufficientBalance,
+      approvalNotReady: approvalNotReady,
+      isZeroDonation: !isNonZeroDonation,
+      default: true,
+    });
+  }, [
+    address,
+    chain,
+    isInsufficientLiquidity,
+    isUnacceptablePriceImpact,
+    isInsufficientBalance,
+    approvalNotReady,
+    isNonZeroDonation,
+  ]);
+
+  const { buttonCopy, buttonBgColor, buttonTextColor } = donateStyles;
 
   return (
     <View style={[styles.body, isDesktopResolution && styles.bodyDesktop]}>
@@ -442,33 +460,9 @@ function DonateComponent({ collective }: DonateComponentProps) {
 
         <RoundedButton
           maxWidth={isDesktopResolution ? 343 : undefined}
-          title={getDonateButtonText(
-            !!address,
-            !!(chain?.id && chain.id in SupportedNetwork),
-            isInsufficientLiquidity,
-            isUnacceptablePriceImpact,
-            isInsufficientBalance,
-            approvalNotReady,
-            !isNonZeroDonation
-          )}
-          backgroundColor={getDonateButtonBackgroundColor(
-            !!address,
-            !!(chain?.id && chain.id in SupportedNetwork),
-            isInsufficientLiquidity,
-            isUnacceptablePriceImpact,
-            isInsufficientBalance,
-            approvalNotReady,
-            !isNonZeroDonation
-          )}
-          color={getDonateButtonTextColor(
-            !!address,
-            !!(chain?.id && chain.id in SupportedNetwork),
-            isInsufficientLiquidity,
-            isUnacceptablePriceImpact,
-            isInsufficientBalance,
-            approvalNotReady,
-            !isNonZeroDonation
-          )}
+          title={buttonCopy}
+          backgroundColor={buttonBgColor}
+          color={buttonTextColor}
           fontSize={18}
           seeType={false}
           onPress={handleDonate}
