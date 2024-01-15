@@ -1,7 +1,7 @@
 {
   "name": "@gooddollar/goodcollective-sdk",
   "license": "MIT",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "main": "./dist/sdk.js",
   "module": "./dist/sdk.mjs",
   "types": "./types/index.d.ts",
