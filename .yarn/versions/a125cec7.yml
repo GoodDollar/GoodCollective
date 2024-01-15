@@ -1,0 +1,5 @@
+undecided:
+  - "@gooddollar/goodcollective"
+  - "@gooddollar/goodcollective-app"
+  - "@gooddollar/goodcollective-contracts"
+  - "@scaffold-eth/subgraph"
