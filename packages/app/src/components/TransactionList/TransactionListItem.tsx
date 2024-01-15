@@ -11,25 +11,17 @@ import { ethers } from 'ethers';
 interface TransactionListItemProps {
   collective: `0x${string}`;
   transaction: Transaction;
+  userFullName?: string;
 }
 
-function TransactionListItem({ collective, transaction }: TransactionListItemProps) {
+function TransactionListItem({ collective, transaction, userFullName }: TransactionListItemProps) {
   const { hash, rawAmount, from, to, fee } = transaction;
 
   const donation = to === collective;
 
   const userAddress: `0x${string}` = (donation ? from : to) as `0x${string}`;
   const { data: ensName } = useEnsName({ address: userAddress, chainId: 1 });
-  // TODO: how to get first name and last name of users?
-  const firstName = 'Wonderful';
-  const lastName = 'Person';
-  const userIdentifier = firstName
-    ? `${firstName} ${lastName}`
-    : ensName
-    ? ensName
-    : userAddress
-    ? formatAddress(userAddress)
-    : '0x';
+  const userIdentifier = userFullName ?? ensName ?? formatAddress(userAddress);
 
   const formattedAmount: string = new Decimal(ethers.utils.formatEther(rawAmount) ?? 0).toString();
   const formattedFee: string = new Decimal(ethers.utils.formatEther(fee) ?? 0).toString();

@@ -7,6 +7,8 @@ import { chevronDown, TransactionIcon } from '../../assets';
 import { Transaction } from '../../models/models';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { useRecentTransactions } from '../../hooks/useRecentTransactions';
+import { useFetchFullNames } from '../../hooks/useFetchFullName';
+import { useMemo } from 'react';
 
 interface TransactionListProps {
   collective: `0x${string}`;
@@ -20,6 +22,15 @@ function TransactionList({ collective }: TransactionListProps) {
 
   const transactions: Transaction[] = useRecentTransactions(collective, 6);
 
+  const userAddresses = useMemo(() => {
+    return transactions.map((t) => {
+      const donation = t.to === collective;
+      return (donation ? t.from : t.to) as `0x${string}`;
+    });
+  }, [collective, transactions]);
+
+  const userFullNames = useFetchFullNames(userAddresses);
+
   const onClickShowMore = () => navigate('/profile/abc123/activity');
 
   return (
@@ -30,8 +41,13 @@ function TransactionList({ collective }: TransactionListProps) {
       </View>
       {isDesktopResolution && <View style={styles.horizontalDivider} />}
       <View style={styles.list}>
-        {transactions.slice(0, 5).map((transaction) => (
-          <TransactionListItem key={transaction.hash} collective={collective} transaction={transaction} />
+        {transactions.slice(0, 5).map((transaction, i) => (
+          <TransactionListItem
+            key={transaction.hash}
+            collective={collective}
+            transaction={transaction}
+            userFullName={userFullNames[i]}
+          />
         ))}
       </View>
       {isDesktopResolution && transactions.length > 5 && (
