@@ -1,43 +1,54 @@
-import { Collection, MongoClient } from 'mongodb';
+import * as Realm from 'realm-web';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 
-const mongoDbCredentials = 'mongodb+srv://goodcollective:5HYmfmGWppGneqlP@cluster0.i4pbp.mongodb.net/wallet_prod';
+const realmAppId = 'wallet_prod-obclo';
+const dataSourceName = 'mongodb-atlas';
+const databaseName = 'wallet_prod';
+const collectionName = 'user_profiles';
+
+interface NameView {
+  _id: string;
+  walletAddress: { hash: string };
+  fullName: { display: string };
+}
 
 export function useFetchFullName(address?: string): string | undefined {
-  const [mongoClient, setMongoClient] = useState<MongoClient | undefined>();
-  const [nameView, setNameView] = useState<Collection | undefined>();
+  const [realm, setRealm] = useState<Realm.User | undefined>();
+  const [nameView, setNameView] = useState<globalThis.Realm.Services.MongoDB.MongoDBCollection<NameView> | undefined>();
   const [name, setName] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const connect = async () => {
-      const client = new MongoClient(mongoDbCredentials);
-      setMongoClient(client);
-      await client.connect();
-      const db = client.db();
-      const collection = db.collection('nameView');
+      const app = new Realm.App({ id: realmAppId });
+      const credentials = Realm.Credentials.anonymous();
+      const newRealm = await app.logIn(credentials);
+      setRealm(newRealm);
+      const mongo = newRealm.mongoClient(dataSourceName);
+      const collection = mongo.db(databaseName).collection(collectionName);
       setNameView(collection);
     };
     connect();
+
+    return () => {
+      realm?.logOut();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (!nameView || !address) return;
     const fetchName = async () => {
       const walletHash = ethers.utils.keccak256(address);
-      const result = await nameView.findOne(
+      const result: NameView | null = await nameView.findOne(
         { 'index.walletAddress.hash': walletHash },
-        { projection: { 'fullName.display': true } }
+        { projection: { 'fullName.display': 1 } }
       );
 
       setName(result?.fullName?.display ?? undefined);
     };
     fetchName();
-
-    return () => {
-      mongoClient?.close();
-    };
-  }, [address, mongoClient, nameView]);
+  }, [address, nameView, realm]);
 
   return name;
 }
