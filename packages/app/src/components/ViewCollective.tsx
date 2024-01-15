@@ -130,11 +130,9 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                     <Image source={AtIcon} style={styles.rowIcon} />
                   </Link>
                 )}
-                {collective.ipfs.email && (
-                  <Link href={collective.ipfs.email}>
-                    <Image source={LastRowIcon} style={styles.rowIcon} />
-                  </Link>
-                )}
+                <Link href={`https://explorer.celo.org/mainnet/address/${poolAddress}`}>
+                  <Image source={LastRowIcon} style={styles.rowIcon} />
+                </Link>
               </View>
             </View>
 
@@ -264,11 +262,9 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 <Image source={AtIcon} style={styles.rowIcon} />
               </Link>
             )}
-            {collective.ipfs.email && (
-              <Link href={collective.ipfs.email}>
-                <Image source={LastRowIcon} style={styles.rowIcon} />
-              </Link>
-            )}
+            <Link href={`https://explorer.celo.org/mainnet/address/${poolAddress}`}>
+              <Image source={LastRowIcon} style={styles.rowIcon} />
+            </Link>
           </View>
           <View style={styles.collectiveInformation}>
             <Image source={InfoIcon} style={styles.infoIcon} />
