@@ -14,9 +14,15 @@ interface NameView {
 }
 
 export function useFetchFullName(address?: string): string | undefined {
+  const names = useFetchFullNames(address ? [address] : []);
+  if (names.length === 0) return undefined;
+  return names[0];
+}
+
+export function useFetchFullNames(addresses: string[]): (string | undefined)[] {
   const [realm, setRealm] = useState<Realm.User | undefined>();
   const [nameView, setNameView] = useState<globalThis.Realm.Services.MongoDB.MongoDBCollection<NameView> | undefined>();
-  const [name, setName] = useState<string | undefined>(undefined);
+  const [names, setNames] = useState<(string | undefined)[]>([]);
 
   useEffect(() => {
     const connect = async () => {
@@ -37,18 +43,24 @@ export function useFetchFullName(address?: string): string | undefined {
   }, []);
 
   useEffect(() => {
-    if (!nameView || !address) return;
-    const fetchName = async () => {
+    if (!nameView || addresses.length === 0) return;
+    const fetchName = async (address: string): Promise<NameView | null> => {
       const walletHash = ethers.utils.keccak256(address);
-      const result: NameView | null = await nameView.findOne(
+      return await nameView.findOne(
         { 'index.walletAddress.hash': walletHash },
         { projection: { 'fullName.display': 1 } }
       );
-
-      setName(result?.fullName?.display ?? undefined);
     };
-    fetchName();
-  }, [address, nameView, realm]);
 
-  return name;
+    const promises = addresses.map((address) => fetchName(address));
+    Promise.all(promises).then((responses) => {
+      const fullNames = responses.map((nameViewResponse) => {
+        if (!nameViewResponse) return undefined;
+        return nameViewResponse.fullName.display;
+      });
+      setNames(fullNames);
+    });
+  }, [addresses, nameView, realm]);
+
+  return names;
 }

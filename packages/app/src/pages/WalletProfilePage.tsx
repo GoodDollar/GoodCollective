@@ -20,9 +20,7 @@ function WalletProfilePage() {
     ? (profileAddress as `0x${string}`)
     : undefined;
 
-  // TODO: how to get first name and last name of users?
   const fullName = useFetchFullName(address);
-
   const [firstName, lastName] = fullName?.split(' ') ?? ['Not', 'Connected'];
 
   return (
