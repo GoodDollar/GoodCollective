@@ -6,6 +6,7 @@ import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
 import { useAccount, useNetwork } from 'wagmi';
 import { useEthersSigner } from '../useEthersSigner';
 import useCrossNavigate from '../../routes/useCrossNavigate';
+import { printAndParseSupportError, validateConnection } from './util';
 
 export function useSupportSingleBatch(
   collective: string,
@@ -14,27 +15,21 @@ export function useSupportSingleBatch(
   onError: (error: string) => void,
   toggleCompleteDonationModal: (value: boolean) => void
 ) {
-  const { address } = useAccount();
+  const { address: maybeAddress } = useAccount();
   const { chain } = useNetwork();
-  const signer = useEthersSigner({ chainId: chain?.id });
+  const maybeSigner = useEthersSigner({ chainId: chain?.id });
   const { navigate } = useCrossNavigate();
 
   return useCallback(async () => {
-    if (!address) {
-      onError('No address found. Please connect your wallet.');
+    const validation = validateConnection(maybeAddress, chain?.id, maybeSigner);
+    if (typeof validation === 'string') {
+      onError(validation);
       return;
     }
-    if (!chain?.id || !(chain?.id in SupportedNetwork)) {
-      onError('Unsupported network. Please connect to Celo Mainnet or Celo Alfajores.');
-      return;
-    }
-    if (!signer) {
-      onError('Failed to get signer.');
-      return;
-    }
+    const { address, chainId, signer } = validation;
 
-    const chainIdString = chain.id.toString() as `${SupportedNetwork}`;
-    const network = SupportedNetworkNames[chain.id as SupportedNetwork];
+    const chainIdString = chainId.toString() as `${SupportedNetwork}`;
+    const network = SupportedNetworkNames[chainId as SupportedNetwork];
 
     const donationAmount = calculateRawTotalDonation(decimalAmountIn, 1, currencyDecimals).toFixed(
       0,
@@ -50,21 +45,18 @@ export function useSupportSingleBatch(
       return;
     } catch (error) {
       toggleCompleteDonationModal(false);
-      console.error(error);
-      const errObj = error as Record<string, any>;
-      const message =
-        errObj.reason || errObj.code ? `${errObj.reason} (Code: ${errObj.code})` : errObj.message ?? 'unknown reason';
+      const message = printAndParseSupportError(error);
       onError(message);
     }
   }, [
-    address,
+    maybeAddress,
     chain?.id,
     collective,
     currencyDecimals,
     decimalAmountIn,
     navigate,
     onError,
-    signer,
+    maybeSigner,
     toggleCompleteDonationModal,
   ]);
 }

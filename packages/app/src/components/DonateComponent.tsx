@@ -124,7 +124,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
 
   const isNonZeroDonation = totalDecimalDonation.gt(0);
   const isInsufficientBalance =
-    isNonZeroDonation && (donorCurrencyBalance ? totalDecimalDonation.gt(donorCurrencyBalance) : true);
+    isNonZeroDonation && (!donorCurrencyBalance || totalDecimalDonation.gt(donorCurrencyBalance));
   const isInsufficientLiquidity = isNonZeroDonation && currency !== 'G$' && swapRouteStatus !== SwapRouteState.READY;
   const isUnacceptablePriceImpact =
     isNonZeroDonation && currency !== 'G$' && priceImpact ? priceImpact > acceptablePriceImpact : false;
@@ -156,6 +156,18 @@ function DonateComponent({ collective }: DonateComponentProps) {
 
   const { buttonCopy, buttonBgColor, buttonTextColor } = donateStyles;
 
+  const onChangeCurrency = (value: string) => setCurrency(value);
+  const onChangeAmount = (value: string) => setDecimalDonationAmount(formatDecimalStringInput(value));
+  const onChangeFrequency = (value: string) => {
+    if (currency !== 'G$' && value === Frequency.OneTime) {
+      setCurrency('G$');
+      setDecimalDonationAmount(0);
+    }
+    setFrequency(value as Frequency);
+  };
+  const onChangeDuration = (value: string) => setDuration(Number(value));
+  const onCloseErrorModal = () => setErrorMessage(undefined);
+
   return (
     <View style={[styles.body, isDesktopResolution && styles.bodyDesktop]}>
       <View>
@@ -180,7 +192,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
           </View>
           <View>
             <View style={styles.row}>
-              <Dropdown value={currency} onSelect={(value: string) => setCurrency(value)} options={currencyOptions} />
+              <Dropdown value={currency} onSelect={onChangeCurrency} options={currencyOptions} />
               <View style={styles.form}>
                 <View style={styles.upperForm}>
                   <Text style={styles.headerLabel}>{currency}</Text>
@@ -190,7 +202,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
                     placeholder={'0.00'}
                     style={styles.subHeading}
                     maxLength={7}
-                    onChangeText={(value: string) => setDecimalDonationAmount(formatDecimalStringInput(value))}
+                    onChangeText={onChangeAmount}
                   />
                 </View>
                 <View style={styles.divider} />
@@ -210,7 +222,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
             </View>
             <View>
               <View style={styles.row}>
-                <Dropdown value={currency} onSelect={(value: string) => setCurrency(value)} options={currencyOptions} />
+                <Dropdown value={currency} onSelect={onChangeCurrency} options={currencyOptions} />
                 <View style={styles.form}>
                   <View style={styles.upperForm}>
                     <Text style={styles.headerLabel}>{currency}</Text>
@@ -220,7 +232,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
                       placeholder={'0.00'}
                       style={styles.subHeading}
                       maxLength={7}
-                      onChangeText={(value: string) => setDecimalDonationAmount(formatDecimalStringInput(value))}
+                      onChangeText={onChangeAmount}
                     />
                   </View>
                   <View style={styles.divider} />
@@ -237,17 +249,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
                 How often do you want to donate this {!isDesktopResolution && <br />} amount?
               </Text>
             </View>
-            <Dropdown
-              value={frequency}
-              onSelect={(value: string) => {
-                if (currency !== 'G$' && value === Frequency.OneTime) {
-                  setCurrency('G$');
-                  setDecimalDonationAmount(0);
-                }
-                setFrequency(value as Frequency);
-              }}
-              options={frequencyOptions}
-            />
+            <Dropdown value={frequency} onSelect={onChangeFrequency} options={frequencyOptions} />
           </View>
           <View>
             {frequency !== 'One-Time' && (
@@ -261,7 +263,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
                     value={duration.toString()}
                     style={styles.durationInput}
                     maxLength={2}
-                    onChangeText={(value: string) => setDuration(Number(value))}
+                    onChangeText={onChangeDuration}
                   />
 
                   <Text style={[styles.durationLabel]}>{getFrequencyPlural(frequency as Frequency)}</Text>
@@ -276,17 +278,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
         <>
           {!isDesktopResolution && (
             <>
-              <Dropdown
-                value={frequency}
-                onSelect={(value: string) => {
-                  if (currency !== 'G$' && value === Frequency.OneTime) {
-                    setCurrency('G$');
-                    setDecimalDonationAmount(0);
-                  }
-                  setFrequency(value as Frequency);
-                }}
-                options={frequencyOptions}
-              />
+              <Dropdown value={frequency} onSelect={onChangeFrequency} options={frequencyOptions} />
               {frequency !== 'One-Time' && (
                 <View style={[styles.row, styles.actionBox, { alignItems: 'center', marginTop: 19, marginBottom: 12 }]}>
                   <Text style={[styles.title, { marginBottom: 0 }]}>For How Long: </Text>
@@ -298,7 +290,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
                       value={duration.toString()}
                       style={styles.durationInput}
                       maxLength={2}
-                      onChangeText={(value: any) => setDuration(value)}
+                      onChangeText={onChangeDuration}
                     />
 
                     <Text style={[styles.durationLabel]}>{getFrequencyPlural(frequency)}</Text>
@@ -475,11 +467,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
           }
         />
       </View>
-      <ErrorModal
-        openModal={!!errorMessage}
-        setOpenModal={() => setErrorMessage(undefined)}
-        message={errorMessage ?? ''}
-      />
+      <ErrorModal openModal={!!errorMessage} setOpenModal={onCloseErrorModal} message={errorMessage ?? ''} />
       <ApproveSwapModal openModal={approveSwapModalVisible} setOpenModal={setApproveSwapModalVisible} />
       <CompleteDonationModal openModal={completeDonationModalVisible} setOpenModal={setCompleteDonationModalVisible} />
     </View>

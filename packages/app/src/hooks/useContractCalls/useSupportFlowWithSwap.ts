@@ -8,6 +8,7 @@ import { useAccount, useNetwork } from 'wagmi';
 import { useEthersSigner } from '../useEthersSigner';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { Token } from '@uniswap/sdk-core';
+import { printAndParseSupportError, validateConnection } from './util';
 
 export function useSupportFlowWithSwap(
   collective: string,
@@ -20,24 +21,18 @@ export function useSupportFlowWithSwap(
   minReturnFromSwap?: string,
   swapPath?: string
 ) {
-  const { address } = useAccount();
+  const { address: maybeAddress } = useAccount();
   const { chain } = useNetwork();
-  const signer = useEthersSigner({ chainId: chain?.id });
+  const maybeSigner = useEthersSigner({ chainId: chain?.id });
   const { navigate } = useCrossNavigate();
 
   return useCallback(async () => {
-    if (!address) {
-      onError('No address found. Please connect your wallet.');
+    const validation = validateConnection(maybeAddress, chain?.id, maybeSigner);
+    if (typeof validation === 'string') {
+      onError(validation);
       return;
     }
-    if (!chain?.id || !(chain?.id in SupportedNetwork)) {
-      onError('Unsupported network. Please connect to Celo Mainnet or Celo Alfajores.');
-      return;
-    }
-    if (!signer) {
-      onError('Failed to get signer.');
-      return;
-    }
+    const { address, chainId, signer } = validation;
 
     if (!minReturnFromSwap || !swapPath) {
       onError('Swap route not ready.');
@@ -50,8 +45,8 @@ export function useSupportFlowWithSwap(
       return;
     }
 
-    const chainIdString = chain.id.toString() as `${SupportedNetwork}`;
-    const network = SupportedNetworkNames[chain.id as SupportedNetwork];
+    const chainIdString = chainId.toString() as `${SupportedNetwork}`;
+    const network = SupportedNetworkNames[chainId as SupportedNetwork];
 
     // swap values
     const amountIn = calculateRawTotalDonation(decimalAmountIn, duration, tokenIn.decimals).toFixed(
@@ -74,14 +69,11 @@ export function useSupportFlowWithSwap(
       return;
     } catch (error) {
       toggleCompleteDonationModal(false);
-      console.error(error);
-      const errObj = error as Record<string, any>;
-      const message =
-        errObj.reason || errObj.code ? `${errObj.reason} (Code: ${errObj.code})` : errObj.message ?? 'unknown reason';
+      const message = printAndParseSupportError(error);
       onError(message);
     }
   }, [
-    address,
+    maybeAddress,
     chain?.id,
     collective,
     tokenIn,
@@ -90,7 +82,7 @@ export function useSupportFlowWithSwap(
     frequency,
     navigate,
     onError,
-    signer,
+    maybeSigner,
     minReturnFromSwap,
     swapPath,
     toggleCompleteDonationModal,

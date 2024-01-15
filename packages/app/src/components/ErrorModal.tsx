@@ -10,13 +10,14 @@ interface ErrorModalProps {
 }
 
 const ErrorModal = ({ openModal, setOpenModal, message }: ErrorModalProps) => {
+  const onCloseClicked = () => setOpenModal(false);
   return (
     <View style={styles.centeredView}>
       <Modal animationType="slide" transparent={true} visible={openModal}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <View style={styles.modalCloseIconWrapper}>
-              <TouchableOpacity style={styles.modalCloseIcon} onPress={() => setOpenModal(false)}>
+              <TouchableOpacity style={styles.modalCloseIcon} onPress={onCloseClicked}>
                 <Image source={CloseIcon} style={styles.closeIcon} />
               </TouchableOpacity>
             </View>
@@ -25,7 +26,7 @@ const ErrorModal = ({ openModal, setOpenModal, message }: ErrorModalProps) => {
             <Text style={styles.paragraph}>Please try again later.</Text>
             <Text style={styles.paragraph}>Reason: {message}</Text>
             <Image source={ThankYouImg} alt="woman" style={styles.image} />
-            <TouchableOpacity style={styles.button} onPress={() => setOpenModal(false)}>
+            <TouchableOpacity style={styles.button} onPress={onCloseClicked}>
               <Text style={styles.buttonText}>OK</Text>
             </TouchableOpacity>
           </View>

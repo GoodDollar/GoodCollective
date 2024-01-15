@@ -23,8 +23,10 @@ export const StewardsListItem = (props: StewardListItemProps) => {
   const { data: ensName } = useEnsName({ address: steward.steward as `0x${string}`, chainId: 1 });
   const userIdentifier = ensName ? ensName : formatAddress(steward.steward, 5);
 
+  const onClickSteward = () => navigate(`/profile/${steward.steward}`);
+
   return (
-    <TouchableOpacity style={styles.row} onPress={() => navigate(`/profile/${steward.steward}`)}>
+    <TouchableOpacity style={styles.row} onPress={onClickSteward}>
       <Image source={{ uri: profileImage }} style={styles.rowImg} />
       <Text style={styles.title}>
         {userIdentifier} {isVerified && <Image source={VerifiedIcon} style={styles.verifiedIcon} />}

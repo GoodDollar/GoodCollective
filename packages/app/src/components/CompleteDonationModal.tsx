@@ -11,21 +11,22 @@ interface CompleteDonationModalProps {
 }
 
 const CompleteDonationModal = ({ openModal, setOpenModal }: CompleteDonationModalProps) => {
-  // const { navigate } = useCrossNavigate();
+  const onClickClose = () => setOpenModal(false);
+
   return (
     <View style={styles.centeredView}>
       <Modal animationType="slide" transparent={true} visible={openModal}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <View style={modalStyles.modalCloseIconWrapper}>
-              <TouchableOpacity style={modalStyles.modalCloseIcon} onPress={() => setOpenModal(false)}>
+              <TouchableOpacity style={modalStyles.modalCloseIcon} onPress={onClickClose}>
                 <Image source={CloseIcon} style={styles.closeIcon} />
               </TouchableOpacity>
             </View>
             <Text style={styles.title}>COMPLETE YOUR DONATION</Text>
             <Text style={styles.paragraph}>To complete your donation, sign with your wallet.</Text>
             <Image source={PhoneImg} alt="woman" style={styles.image} />
-            <TouchableOpacity style={styles.button} onPress={() => setOpenModal(false)}>
+            <TouchableOpacity style={styles.button} onPress={onClickClose}>
               <Text style={styles.buttonText}>OK</Text>
             </TouchableOpacity>
           </View>

@@ -14,13 +14,15 @@ interface BreadcrumbProps {
 
 function Breadcrumb({ path }: BreadcrumbProps) {
   const navigate = useNavigate();
+  const onClickBack = () => navigate(-1);
+  const onClickHome = () => navigate('/');
 
   return (
     <TouchableOpacity style={styles.container}>
-      <TouchableOpacity onPress={() => navigate(-1)}>
+      <TouchableOpacity onPress={onClickBack}>
         <Image source={chevronRight} style={styles.backIcon} />
       </TouchableOpacity>
-      <Text style={path.length === 0 ? styles.activePage : styles.previousPage} onPress={() => navigate('/')}>
+      <Text style={path.length === 0 ? styles.activePage : styles.previousPage} onPress={onClickHome}>
         GoodCollective Home
       </Text>
       {path.map((entry, index) => (

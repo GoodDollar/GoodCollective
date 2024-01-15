@@ -20,6 +20,8 @@ function TransactionList({ collective }: TransactionListProps) {
 
   const transactions: Transaction[] = useRecentTransactions(collective, 6);
 
+  const onClickShowMore = () => navigate('/profile/abc123/activity');
+
   return (
     <View style={styles.txContainer}>
       <View style={[styles.row, { marginBottom: 24 }]}>
@@ -33,7 +35,7 @@ function TransactionList({ collective }: TransactionListProps) {
         ))}
       </View>
       {isDesktopResolution && transactions.length > 5 && (
-        <TouchableOpacity onPress={() => navigate('/profile/abc123/activity')} style={styles.showMoreButton}>
+        <TouchableOpacity onPress={onClickShowMore} style={styles.showMoreButton}>
           <Text style={styles.showMoreText}>Show more</Text>
           <Image source={chevronDown} style={styles.showMoreIcon} />
         </TouchableOpacity>
