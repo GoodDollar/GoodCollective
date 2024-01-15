@@ -5,6 +5,7 @@ import { formatTime } from '../../lib/formatTime';
 import { countUniqueValuesInTwoArrays } from '../../lib/countUniqueValuesInTwoArrays';
 import { calculateGoodDollarAmounts } from '../../lib/calculateGoodDollarAmounts';
 import { useDonorCollectivesFlowingBalances } from '../../hooks/useFlowingBalance';
+import { useCountPeopleSupported } from '../../hooks/useCountPeopleSupported';
 
 interface BothWalletDetailsProps {
   donor: Donor;
@@ -23,8 +24,7 @@ function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProp
     tokenPrice
   );
 
-  // TODO: how to calculate people supported?
-  const peopleSupported = 0;
+  const peopleSupported = useCountPeopleSupported(donor.collectives) ?? 0;
 
   const nCollectives = countUniqueValuesInTwoArrays(
     steward.collectives.map((c) => c.collective),

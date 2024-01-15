@@ -4,7 +4,7 @@ import { formatAddress } from '../../lib/formatAddress';
 import { useEnsName, useNetwork } from 'wagmi';
 import { Colors } from '../../utils/colors';
 import { PlaceholderAvatar } from '../../assets';
-import { useGetDecimalBalance } from '../../hooks/useGetDecimalBalance';
+import { useGetTokenBalance } from '../../hooks/useGetTokenBalance';
 
 interface ConnectedAccountDisplayProps {
   isDesktopResolution: boolean;
@@ -15,10 +15,14 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
   const { isDesktopResolution, address } = props;
 
   const { chain } = useNetwork();
-  const chainName = chain?.name.replace(/\d+|\s/g, '');
+  let chainName = chain?.name.replace(/\d+|\s/g, '');
+  if (chainName !== 'Celo') {
+    chainName = 'None';
+  }
 
-  const tokenBalance = useGetDecimalBalance('G$', address, chain?.id);
-  const { data: ensName } = useEnsName({ address });
+  const tokenBalance = useGetTokenBalance('G$', address, chain?.id, true);
+  const formattedTokenBalance = parseFloat(tokenBalance).toFixed(4);
+  const { data: ensName } = useEnsName({ address, chainId: 1 });
 
   return (
     <View style={styles.walletConnectContainer}>
@@ -39,7 +43,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
                 width: 240,
                 justifyContent: 'space-between',
               }}>
-              <Text style={styles.amountText}>{tokenBalance}</Text>
+              <Text style={styles.amountText}>{formattedTokenBalance}</Text>
               <View style={styles.walletConnected}>
                 <Image source={PlaceholderAvatar} resizeMode="contain" style={{ width: 25, height: 25 }} />
                 {ensName ? (
@@ -68,7 +72,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
               flex: 1,
               justifyContent: 'space-between',
             }}>
-            <Text style={styles.amountText}>{tokenBalance}</Text>
+            <Text style={styles.amountText}>{formattedTokenBalance}</Text>
             <View style={styles.walletConnected}>
               <Image source={PlaceholderAvatar} resizeMode="contain" style={{ width: 25, height: 25 }} />
               {ensName ? (

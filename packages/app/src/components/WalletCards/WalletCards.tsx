@@ -58,7 +58,7 @@ function WalletCards({
         donor.collectives?.map((collective, i) => (
           <DonorCollectiveCard
             key={collective.collective}
-            collective={collective}
+            donorCollective={collective}
             ipfsCollective={donorIpfsCollectives[i]}
             ensName={ensName ?? undefined}
             tokenPrice={tokenPrice}

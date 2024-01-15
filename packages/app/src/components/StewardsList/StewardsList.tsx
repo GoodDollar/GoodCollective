@@ -22,9 +22,6 @@ function StewardList({ listType, stewards, titleStyle, listStyle }: StewardListP
     return profilePictures.sort(() => Math.random());
   }, []);
 
-  // TODO: determine if stewards are verified
-  const isVerified: boolean[] = [true, false, true, false, true, false];
-
   return (
     <View style={styles.stewardsListContainer}>
       <View style={[styles.row, { marginBottom: 24, ...(titleStyle ?? {}) }]}>
@@ -38,7 +35,6 @@ function StewardList({ listType, stewards, titleStyle, listStyle }: StewardListP
             showActions={listType === 'viewStewards'}
             key={steward.steward}
             profileImage={profileImages[index % profileImages.length]}
-            isVerified={isVerified[index]}
           />
         ))}
       </View>

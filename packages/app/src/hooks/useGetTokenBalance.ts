@@ -3,11 +3,12 @@ import { useEffect, useState } from 'react';
 import { fetchBalance } from 'wagmi/actions';
 import { useToken } from './useTokenList';
 
-export const useGetDecimalBalance = (
+export const useGetTokenBalance = (
   currencySymbol: string,
   accountAddress: `0x${string}` | undefined,
-  chainId: number = SupportedNetwork.celo
-): number => {
+  chainId: number = SupportedNetwork.celo,
+  formatted?: boolean
+): string => {
   const [tokenBalance, setTokenBalance] = useState<string>('0');
 
   const token = useToken(currencySymbol);
@@ -19,9 +20,10 @@ export const useGetDecimalBalance = (
       chainId: chainId,
       token: token.address as `0x${string}`,
     }).then((res) => {
-      setTokenBalance(res.formatted);
+      const balance = formatted ? res.formatted : res.value.toString();
+      setTokenBalance(balance);
     });
-  }, [currencySymbol, token.address, accountAddress, chainId]);
+  }, [currencySymbol, token.address, accountAddress, chainId, formatted]);
 
-  return parseFloat(tokenBalance);
+  return tokenBalance;
 };

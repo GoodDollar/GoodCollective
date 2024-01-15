@@ -15,7 +15,7 @@ import {
 import { useContractCalls, useGetTokenPrice } from '../hooks';
 import { useAccount, useNetwork } from 'wagmi';
 import { IpfsCollective } from '../models/models';
-import { useGetDecimalBalance } from '../hooks/useGetDecimalBalance';
+import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
 import { acceptablePriceImpact, Frequency, frequencyOptions, SupportedNetwork } from '../models/constants';
 import { InfoIconOrange } from '../assets';
 import { useLocation } from 'react-router-native';
@@ -136,14 +136,12 @@ function DonateComponent({ collective }: DonateComponentProps) {
   ]);
 
   const currencyDecimals = useToken(currency).decimals;
-  const donorCurrencyBalance = useGetDecimalBalance(currency, address, chain?.id);
+  const donorCurrencyBalance = useGetTokenBalance(currency, address, chain?.id, true);
 
-  const totalDecimalDonation = duration * decimalDonationAmount;
-  const totalDonationFormatted = new Decimal(totalDecimalDonation)
-    .toDecimalPlaces(currencyDecimals, Decimal.ROUND_DOWN)
-    .toString();
+  const totalDecimalDonation = new Decimal(duration * decimalDonationAmount);
+  const totalDonationFormatted = totalDecimalDonation.toDecimalPlaces(currencyDecimals, Decimal.ROUND_DOWN).toString();
 
-  const isInsufficientBalance = donorCurrencyBalance ? totalDecimalDonation > donorCurrencyBalance : true;
+  const isInsufficientBalance = donorCurrencyBalance ? totalDecimalDonation.gt(donorCurrencyBalance) : true;
   const isInsufficientLiquidity = currency !== 'G$' && swapRouteStatus !== SwapRouteState.READY;
   const isUnacceptablePriceImpact = currency !== 'G$' && priceImpact ? priceImpact > acceptablePriceImpact : false;
 

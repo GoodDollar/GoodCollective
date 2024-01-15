@@ -30,8 +30,10 @@ import {
   TwitterIcon,
   WebIcon,
 } from '../assets/';
-import { useDonorCollectivesFlowingBalances } from '../hooks/useFlowingBalance';
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
+import { SupportedNetwork } from '../models/constants';
+import FlowingDonationsRowItem from './FlowingDonationsRowItem';
+import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
 
 interface ViewCollectiveProps {
   collective: Collective;
@@ -42,8 +44,6 @@ interface ViewCollectiveProps {
 function ViewCollective({ collective }: ViewCollectiveProps) {
   // TODO: fetch recent transactions
   const recentTransactions = {};
-  // TODO: what is current pool?
-  const currentPool = '0';
   // TODO: how do i get the action label?
   const actionLabel = "Stewards get G$ 800 each time they log a tree's status.";
 
@@ -62,6 +62,8 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   const stewardsPaid = stewardCollectives.length;
 
+  const currentPool = useGetTokenBalance('G$', collective.address as `0x${string}`, SupportedNetwork.celo);
+
   const { address } = useAccount();
   const isDonating = useIsDonorOfCollective(address ?? '', poolAddress);
 
@@ -74,11 +76,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   });
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
-
-  const { formatted: formattedDonations, usdValue: donationsUsdValue } = useDonorCollectivesFlowingBalances(
-    donorCollectives,
-    tokenPrice
-  );
 
   const { formatted: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateGoodDollarAmounts(
     totalRewards,
@@ -194,12 +191,12 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 />
               </View>
               <View style={{ flex: 1, gap: 16 }}>
-                <RowItem
+                <FlowingDonationsRowItem
                   imageUrl={ReceiveLightIcon}
                   rowInfo="Total Donations Received"
-                  rowData={formattedDonations ?? '0'}
+                  donorCollectives={donorCollectives}
+                  tokenPrice={tokenPrice}
                   currency="G$"
-                  balance={donationsUsdValue ?? 0}
                 />
                 <RowItem
                   imageUrl={SendIcon}
@@ -283,12 +280,12 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
             <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
             <RowItem imageUrl={ListGreenIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
-            <RowItem
+            <FlowingDonationsRowItem
               imageUrl={ReceiveLightIcon}
               rowInfo="Total Donations Received"
-              rowData={formattedDonations ?? '0'}
+              donorCollectives={donorCollectives}
+              tokenPrice={tokenPrice}
               currency="G$"
-              balance={donationsUsdValue ?? 0}
             />
             <RowItem
               imageUrl={SendIcon}

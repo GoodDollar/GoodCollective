@@ -1,4 +1,4 @@
-import { Platform, SafeAreaView, StyleSheet } from 'react-native';
+import { Platform, SafeAreaView, StyleSheet, Text } from 'react-native';
 
 import AboutPage from './pages/AboutPage';
 import HomePage from './pages/HomePage';
@@ -15,7 +15,7 @@ import { Providers } from './Providers';
 import DonatePage from './pages/DonatePage';
 import ModalTestPage from './pages/ModalTestPage';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import { celo } from 'wagmi/chains';
+import { celo, mainnet } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import { infuraProvider } from 'wagmi/providers/infura';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
@@ -29,7 +29,7 @@ import { useEffect, useState } from 'react';
 
 function App(): JSX.Element {
   const { publicClient, webSocketPublicClient } = configureChains(
-    [celo],
+    [celo, mainnet],
     [infuraProvider({ apiKey: '88284fbbacd3472ca3361d1317a48fa5' }), publicProvider()]
   );
 
@@ -77,7 +77,7 @@ function App(): JSX.Element {
   });
 
   if (!apolloClient) {
-    return <p>Loading...</p>;
+    return <Text>Loading...</Text>;
   }
 
   return (
