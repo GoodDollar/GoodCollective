@@ -158,13 +158,16 @@ function DonateComponent({ collective }: DonateComponentProps) {
 
   const onChangeCurrency = (value: string) => setCurrency(value);
   const onChangeAmount = (value: string) => setDecimalDonationAmount(formatDecimalStringInput(value));
-  const onChangeFrequency = (value: string) => {
-    if (currency !== 'G$' && value === Frequency.OneTime) {
-      setCurrency('G$');
-      setDecimalDonationAmount(0);
-    }
-    setFrequency(value as Frequency);
-  };
+  const onChangeFrequency = useCallback(
+    (value: string) => {
+      if (currency !== 'G$' && value === Frequency.OneTime) {
+        setCurrency('G$');
+        setDecimalDonationAmount(0);
+      }
+      setFrequency(value as Frequency);
+    },
+    [currency]
+  );
   const onChangeDuration = (value: string) => setDuration(Number(value));
   const onCloseErrorModal = () => setErrorMessage(undefined);
 
