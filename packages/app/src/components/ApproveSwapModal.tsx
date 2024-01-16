@@ -16,11 +16,7 @@ const ApproveSwapModal = ({ openModal, setOpenModal }: AproveSwapModalProps) => 
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <View style={modalStyles.modalCloseIconWrapper}>
-              <TouchableOpacity
-                style={modalStyles.modalCloseIcon}
-                onPress={() => {
-                  setOpenModal(false);
-                }}>
+              <TouchableOpacity style={modalStyles.modalCloseIcon} onPress={() => setOpenModal(false)}>
                 <Image source={CloseIcon} style={styles.closeIcon} />
               </TouchableOpacity>
             </View>
@@ -45,6 +41,9 @@ const styles = StyleSheet.create({
     marginTop: 22,
   },
   modalView: {
+    maxWidth: '90%',
+    maxHeight: '90%',
+    overflowY: 'scroll',
     margin: 20,
     backgroundColor: Colors.blue[100],
     borderRadius: 20,

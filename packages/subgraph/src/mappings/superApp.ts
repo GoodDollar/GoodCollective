@@ -1,5 +1,5 @@
 import { BigInt, log } from '@graphprotocol/graph-ts';
-import { SupporterUpdated } from '../../generated/DirectPaymentsPool/DirectPaymentsPool';
+import { SupporterUpdated } from '../../generated/templates/DirectPaymentsPool/DirectPaymentsPool';
 import { Collective, Donor, DonorCollective } from '../../generated/schema';
 
 export function handleSupport(event: SupporterUpdated): void {

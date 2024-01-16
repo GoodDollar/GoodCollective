@@ -25,8 +25,8 @@ export function useSubgraphDonorCollective(
 ): SubgraphDonorCollective | undefined {
   const response = useSubgraphData(donorCollectiveByEntities, {
     variables: {
-      donor: donorAddress,
-      collective: collectiveAddress,
+      donor: donorAddress.toLowerCase(),
+      collective: collectiveAddress.toLowerCase(),
     },
   });
   const data = (response as DonorCollectiveSubgraphResponse).donorCollectives;

@@ -3,18 +3,36 @@ import { Colors } from '../utils/colors';
 import { useNavigate } from 'react-router-dom';
 import { chevronRight } from '../assets';
 
-interface BreadcrumbProps {
-  previousPage?: string;
-  currentPage: string;
+export interface BreadcrumbPathEntry {
+  text: string;
+  route: string;
 }
 
-function Breadcrumb({ currentPage, previousPage }: BreadcrumbProps) {
+interface BreadcrumbProps {
+  path: BreadcrumbPathEntry[];
+}
+
+function Breadcrumb({ path }: BreadcrumbProps) {
   const navigate = useNavigate();
+  const onClickBack = () => navigate(-1);
+  const onClickHome = () => navigate('/');
+
   return (
-    <TouchableOpacity style={styles.container} onPress={() => navigate(-1)}>
-      <Image source={chevronRight} style={styles.backIcon} />
-      <Text style={styles.activePage}>{previousPage ?? 'GoodCollective Home'}</Text>
-      <Text style={styles.nextPage}> / {currentPage}</Text>
+    <TouchableOpacity style={styles.container}>
+      <TouchableOpacity onPress={onClickBack}>
+        <Image source={chevronRight} style={styles.backIcon} />
+      </TouchableOpacity>
+      <Text style={path.length === 0 ? styles.activePage : styles.previousPage} onPress={onClickHome}>
+        GoodCollective Home
+      </Text>
+      {path.map((entry, index) => (
+        <Text
+          key={index}
+          style={index === path.length - 1 ? styles.activePage : styles.previousPage}
+          onPress={() => navigate(entry.route)}>
+          {` / ${entry.text}`}
+        </Text>
+      ))}
     </TouchableOpacity>
   );
 }
@@ -26,8 +44,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: 12,
   },
-  activePage: { color: Colors.purple[200] },
-  nextPage: { color: Colors.gray[200] },
+  previousPage: { color: Colors.purple[200] },
+  activePage: { color: Colors.gray[200] },
   backIcon: {
     width: 20,
     height: 20,

@@ -4,7 +4,7 @@ import {
   NFTClaimed,
   PoolLimitsChanged,
   PoolSettingsChanged,
-} from '../../generated/DirectPaymentsPool/DirectPaymentsPool';
+} from '../../generated/templates/DirectPaymentsPool/DirectPaymentsPool';
 import {
   Claim,
   Collective,

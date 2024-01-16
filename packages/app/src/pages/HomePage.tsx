@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'flex-start',
+    gap: 24,
   },
   buttonContainer: {
     flex: 1,

@@ -5,6 +5,7 @@ import { useEnsName, useNetwork } from 'wagmi';
 import { Colors } from '../../utils/colors';
 import { PlaceholderAvatar } from '../../assets';
 import { useGetTokenBalance } from '../../hooks/useGetTokenBalance';
+import Decimal from 'decimal.js';
 
 interface ConnectedAccountDisplayProps {
   isDesktopResolution: boolean;
@@ -21,7 +22,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
   }
 
   const tokenBalance = useGetTokenBalance('G$', address, chain?.id, true);
-  const formattedTokenBalance = parseFloat(tokenBalance).toFixed(4);
+  const formattedTokenBalance = new Decimal(new Decimal(tokenBalance).toFixed(0, Decimal.ROUND_DOWN)).toString();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
 
   return (
@@ -43,7 +44,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
                 width: 240,
                 justifyContent: 'space-between',
               }}>
-              <Text style={styles.amountText}>{formattedTokenBalance}</Text>
+              <Text style={styles.amountText}>{formattedTokenBalance} G$</Text>
               <View style={styles.walletConnected}>
                 <Image source={PlaceholderAvatar} resizeMode="contain" style={{ width: 25, height: 25 }} />
                 {ensName ? (
@@ -72,7 +73,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
               flex: 1,
               justifyContent: 'space-between',
             }}>
-            <Text style={styles.amountText}>{formattedTokenBalance}</Text>
+            <Text style={styles.amountText}>{formattedTokenBalance} G$</Text>
             <View style={styles.walletConnected}>
               <Image source={PlaceholderAvatar} resizeMode="contain" style={{ width: 25, height: 25 }} />
               {ensName ? (

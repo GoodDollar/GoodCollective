@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Colors } from '../../utils/colors';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { StewardCollective } from '../../models/models';
@@ -6,6 +6,7 @@ import { VerifiedIcon } from '../../assets';
 import { formatAddress } from '../../lib/formatAddress';
 import { useIsStewardVerified } from '../../hooks';
 import { useEnsName } from 'wagmi';
+import useCrossNavigate from '../../routes/useCrossNavigate';
 
 interface StewardListItemProps {
   steward: StewardCollective;
@@ -15,20 +16,23 @@ interface StewardListItemProps {
 
 export const StewardsListItem = (props: StewardListItemProps) => {
   const { showActions, steward, profileImage } = props;
+  const { navigate } = useCrossNavigate();
 
   const isVerified = useIsStewardVerified(steward.steward);
 
   const { data: ensName } = useEnsName({ address: steward.steward as `0x${string}`, chainId: 1 });
   const userIdentifier = ensName ? ensName : formatAddress(steward.steward, 5);
 
+  const onClickSteward = () => navigate(`/profile/${steward.steward}`);
+
   return (
-    <View style={styles.row}>
+    <TouchableOpacity style={styles.row} onPress={onClickSteward}>
       <Image source={{ uri: profileImage }} style={styles.rowImg} />
       <Text style={styles.title}>
         {userIdentifier} {isVerified && <Image source={VerifiedIcon} style={styles.verifiedIcon} />}
       </Text>
       {showActions && <Text style={styles.totalActions}>{steward.actions ?? 0} actions</Text>}
-    </View>
+    </TouchableOpacity>
   );
 };
 

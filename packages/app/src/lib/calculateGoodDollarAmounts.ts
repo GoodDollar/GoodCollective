@@ -13,7 +13,7 @@ export function calculateGoodDollarAmounts(onChainAmount?: string, tokenPrice?: 
     };
   }
   const decimalAmount = new Decimal(ethers.utils.formatEther(onChainAmount));
-  const formattedAmount: string = decimalAmount.toFixed(3);
+  const formattedAmount: string = new Decimal(decimalAmount.toFixed(4, Decimal.ROUND_DOWN)).toString();
   const usdValue = tokenPrice ? parseFloat(decimalAmount.mul(tokenPrice).toFixed(2)) : undefined;
   return {
     decimal: decimalAmount,

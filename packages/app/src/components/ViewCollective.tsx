@@ -3,7 +3,7 @@ import { useState } from 'react';
 import RowItem from './RowItem';
 import RoundedButton from './RoundedButton';
 import StewardList from './StewardsList/StewardsList';
-import TransactionList from './TransactionList';
+import TransactionList from './TransactionList/TransactionList';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
 import StopDonationModal from './StopDonationModal';
@@ -12,7 +12,7 @@ import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import { formatTime } from '../lib/formatTime';
 import { Collective } from '../models/models';
-import { useGetTokenPrice, useIsDonorOfCollective } from '../hooks';
+import { useDonorCollectiveByAddresses, useGetTokenPrice } from '../hooks';
 import { useAccount } from 'wagmi';
 import {
   AtIcon,
@@ -31,9 +31,10 @@ import {
   WebIcon,
 } from '../assets/';
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
-import { SupportedNetwork } from '../models/constants';
 import FlowingDonationsRowItem from './FlowingDonationsRowItem';
-import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
+import { useDeleteFlow } from '../hooks/useContractCalls/useDeleteFlow';
+import ErrorModal from './ErrorModal';
+import FlowingCurrentPoolRowItem from './FlowingCurrentPoolRowItem';
 
 interface ViewCollectiveProps {
   collective: Collective;
@@ -42,10 +43,10 @@ interface ViewCollectiveProps {
 // TODO: "See all Stewards" button doesn't work for me and I can't figure out why
 
 function ViewCollective({ collective }: ViewCollectiveProps) {
-  // TODO: fetch recent transactions
-  const recentTransactions = {};
-  // TODO: how do i get the action label?
-  const actionLabel = "Stewards get G$ 800 each time they log a tree's status.";
+  const { navigate } = useCrossNavigate();
+  const [isDesktopResolution] = useMediaQuery({
+    minWidth: 612,
+  });
 
   const {
     address: poolAddress,
@@ -61,28 +62,27 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const headerImg = { uri: ipfs.headerImage } ?? Ocean;
 
   const stewardsPaid = stewardCollectives.length;
-
-  const currentPool = useGetTokenBalance('G$', collective.address as `0x${string}`, SupportedNetwork.celo);
+  const infoLabel = collective.ipfs.infoLabel ?? 'Stewards get G$ each time they complete an action.';
 
   const { address } = useAccount();
-  const isDonating = useIsDonorOfCollective(address ?? '', poolAddress);
+  const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress);
+  const isDonating = maybeDonorCollective && maybeDonorCollective.flowRate !== '0';
 
-  const [stopDonationModal, setStopDonationModal] = useState(false);
-  const [donateModal, setDonateModal] = useState(false);
+  const [stopDonationModalVisible, setStopDonationModalVisible] = useState(false);
+  const [donationModalVisible, setDonationModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
 
-  const { navigate } = useCrossNavigate();
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
-  });
+  const handleStopDonation = useDeleteFlow(
+    collective.address,
+    maybeDonorCollective?.flowRate,
+    (error) => setErrorMessage(error),
+    (value: boolean) => setStopDonationModalVisible(value)
+  );
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
 
   const { formatted: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateGoodDollarAmounts(
     totalRewards,
-    tokenPrice
-  );
-  const { formatted: formattedCurrentPool, usdValue: currentPoolUsdValue } = calculateGoodDollarAmounts(
-    currentPool,
     tokenPrice
   );
 
@@ -101,179 +101,174 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   if (isDesktopResolution) {
     return (
-      <>
-        <View style={{ gap: 24 }}>
-          <View style={styles.collectiveDesktopBox}>
-            <View style={styles.collectiveDetails}>
-              <Image source={headerImg} style={styles.imageMobile} />
+      <View style={{ gap: 24 }}>
+        <View style={styles.collectiveDesktopBox}>
+          <View style={styles.collectiveDetailsDesktop}>
+            <Image source={headerImg} style={styles.imageDesktop} />
 
-              <View style={styles.collectiveDesktopData}>
-                <Text style={[styles.title, styles.titleMobile]}>{ipfs.name}</Text>
-                <Text style={styles.description}>{ipfs.description}</Text>
-                <View style={[styles.icons, { position: 'absolute', bottom: 0, left: 25 }]}>
-                  <Link href={'/'}>
+            <View style={styles.collectiveDesktopData}>
+              <Text style={[styles.title, styles.titleMobile]}>{ipfs.name}</Text>
+              <Text style={styles.description}>{ipfs.description}</Text>
+              <View style={[styles.icons, { position: 'absolute', bottom: 0, left: 25 }]}>
+                {collective.ipfs.website && (
+                  <Link href={collective.ipfs.website}>
                     <Image source={WebIcon} style={styles.rowIcon} />
                   </Link>
-
-                  <Link href={'#'}>
+                )}
+                {collective.ipfs.twitter && (
+                  <Link href={collective.ipfs.twitter}>
                     <Image source={TwitterIcon} style={styles.rowIcon} />
                   </Link>
-
-                  <Link href={'#'}>
+                )}
+                {collective.ipfs.instagram && (
+                  <Link href={collective.ipfs.instagram}>
                     <Image source={InstagramIcon} style={styles.rowIcon} />
                   </Link>
-
-                  <Link href={'#'}>
+                )}
+                {collective.ipfs.threads && (
+                  <Link href={collective.ipfs.threads}>
                     <Image source={AtIcon} style={styles.rowIcon} />
                   </Link>
+                )}
+                <Link href={`https://explorer.celo.org/mainnet/address/${poolAddress}`}>
+                  <Image source={LastRowIcon} style={styles.rowIcon} />
+                </Link>
+              </View>
+            </View>
 
-                  <Link href={'#'}>
-                    <Image source={LastRowIcon} style={styles.rowIcon} />
-                  </Link>
-                </View>
+            <View style={styles.collectiveDescription}>
+              <View style={styles.infoLabelDesktop}>
+                <Image source={InfoIcon} style={styles.infoIcon} />
+                <Text style={styles.informationLabel}>{infoLabel}</Text>
               </View>
 
-              <View style={styles.collectiveDescription}>
-                <View style={styles.collectiveDetailsMobile}>
-                  <Image source={InfoIcon} style={styles.infoIcon} />
-                  <Text style={styles.informationLabel}>Stewards get G$ 800 each time they log a tree's status.</Text>
-                </View>
-
-                {isDonating ? (
-                  <View style={styles.collectiveDonateBox}>
-                    {!isDesktopResolution && (
-                      <>
-                        <Image source={SupportImage} style={styles.supportImg} />
-                        <Text style={styles.supportText}>You Support this GoodCollective!!</Text>
-                      </>
-                    )}
-                    <View style={{ gap: 16 }}>
-                      <RoundedButton
-                        title="Stop your donation"
-                        backgroundColor={Colors.orange[100]}
-                        color={Colors.orange[200]}
-                        fontSize={18}
-                        seeType={false}
-                        onPress={() => {
-                          setStopDonationModal(true);
-                        }}
-                      />
-                      {renderDonorsButton()}
-                    </View>
-                  </View>
-                ) : (
-                  <View style={styles.collectiveDonateBox}>
+              {isDonating ? (
+                <View style={styles.collectiveDonateBox}>
+                  {!isDesktopResolution && (
+                    <>
+                      <Image source={SupportImage} style={styles.supportImg} />
+                      <Text style={styles.supportText}>You Support this GoodCollective!!</Text>
+                    </>
+                  )}
+                  <View style={{ gap: 16 }}>
                     <RoundedButton
-                      title="Donate"
-                      backgroundColor={Colors.green[100]}
-                      color={Colors.green[200]}
+                      title="Stop your donation"
+                      backgroundColor={Colors.orange[100]}
+                      color={Colors.orange[200]}
                       fontSize={18}
                       seeType={false}
-                      onPress={() => {
-                        navigate(`/donate/${poolAddress}`);
-                      }}
+                      onPress={handleStopDonation}
                     />
                     {renderDonorsButton()}
                   </View>
-                )}
-              </View>
-            </View>
-
-            <View style={styles.collectiveDesktopTimeline}>
-              <View style={{ flex: 1, gap: 16 }}>
-                <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
-                <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
-                <RowItem
-                  imageUrl={ListGreenIcon}
-                  rowInfo="# of Payments Made"
-                  rowData={paymentsMade ?? 0}
-                  currency=""
-                />
-              </View>
-              <View style={{ flex: 1, gap: 16 }}>
-                <FlowingDonationsRowItem
-                  imageUrl={ReceiveLightIcon}
-                  rowInfo="Total Donations Received"
-                  donorCollectives={donorCollectives}
-                  tokenPrice={tokenPrice}
-                  currency="G$"
-                />
-                <RowItem
-                  imageUrl={SendIcon}
-                  rowInfo="Total Paid Out"
-                  rowData={formattedTotalRewards ?? '0'}
-                  currency="G$"
-                  balance={totalRewardsUsdValue ?? 0}
-                />
-                <RowItem
-                  imageUrl={SquaresIcon}
-                  rowInfo="Current Pool"
-                  rowData={formattedCurrentPool ?? '0'}
-                  currency="G$"
-                  balance={currentPoolUsdValue ?? 0}
-                />
-              </View>
+                </View>
+              ) : (
+                <View style={styles.collectiveDonateBox}>
+                  <RoundedButton
+                    title="Donate"
+                    backgroundColor={Colors.green[100]}
+                    color={Colors.green[200]}
+                    fontSize={18}
+                    seeType={false}
+                    onPress={() => {
+                      navigate(`/donate/${poolAddress}`);
+                    }}
+                  />
+                  {renderDonorsButton()}
+                </View>
+              )}
             </View>
           </View>
 
-          <View style={styles.collectiveDesktopActions}>
-            <View style={[styles.container, styles.mobileContainer]}>
-              <StewardList stewards={stewardCollectives.slice(0, 6)} listType="viewCollective" />
-              <RoundedButton
-                title="See all stewards"
-                backgroundColor={Colors.purple[100]}
-                color={Colors.purple[200]}
-                fontSize={18}
-                seeType={true}
-                onPress={() => navigate(`/collective/${poolAddress}/stewards`)}
-              />
+          <View style={styles.collectiveDesktopTimeline}>
+            <View style={{ flex: 1, gap: 16 }}>
+              <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
+              <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
+              <RowItem imageUrl={ListGreenIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
             </View>
-            <View style={[styles.container, styles.mobileContainer]}>
-              <TransactionList
-                username="username123"
+            <View style={{ flex: 1, gap: 16 }}>
+              <FlowingDonationsRowItem
+                imageUrl={ReceiveLightIcon}
+                rowInfo="Total Donations Received"
+                donorCollectives={donorCollectives}
+                tokenPrice={tokenPrice}
                 currency="G$"
-                amount={2400}
-                transactionId="18347cg786hfc6f29837r6hd23"
+              />
+              <RowItem
+                imageUrl={SendIcon}
+                rowInfo="Total Paid Out"
+                rowData={formattedTotalRewards ?? '0'}
+                currency="G$"
+                balance={totalRewardsUsdValue ?? 0}
+              />
+              <FlowingCurrentPoolRowItem
+                imageUrl={SquaresIcon}
+                rowInfo="Current Pool"
+                collective={collective.address as `0x${string}`}
+                donorCollectives={donorCollectives}
+                tokenPrice={tokenPrice}
+                currency="G$"
               />
             </View>
           </View>
-          <StopDonationModal openModal={stopDonationModal} setOpenModal={setStopDonationModal} />
         </View>
-      </>
+
+        <View style={styles.collectiveDesktopActions}>
+          <View style={[styles.container, styles.desktopContainer]}>
+            <StewardList stewards={stewardCollectives.slice(0, 6)} listType="viewCollective" />
+            <RoundedButton
+              title="See all stewards"
+              backgroundColor={Colors.purple[100]}
+              color={Colors.purple[200]}
+              fontSize={18}
+              seeType={true}
+              onPress={() => navigate(`/collective/${poolAddress}/stewards`)}
+            />
+          </View>
+          <View style={[styles.container, styles.desktopContainer]}>
+            <TransactionList collective={collective.address as `0x${string}`} />
+          </View>
+        </View>
+        <StopDonationModal openModal={stopDonationModalVisible} setOpenModal={setStopDonationModalVisible} />
+      </View>
     );
   }
 
   return (
-    <>
+    <View>
       <Image source={headerImg} style={styles.image} />
       <View style={{ gap: 24 }}>
         <View style={[styles.container]}>
           <Text style={styles.title}>{ipfs.name}</Text>
           <Text style={styles.description}>{ipfs.description}</Text>
           <View style={styles.icons}>
-            <Link href={'/'}>
-              <Image source={WebIcon} style={styles.rowIcon} />
-            </Link>
-
-            <Link href={'#'}>
-              <Image source={TwitterIcon} style={styles.rowIcon} />
-            </Link>
-
-            <Link href={'#'}>
-              <Image source={InstagramIcon} style={styles.rowIcon} />
-            </Link>
-
-            <Link href={'#'}>
-              <Image source={AtIcon} style={styles.rowIcon} />
-            </Link>
-
-            <Link href={'#'}>
+            {collective.ipfs.website && (
+              <Link href={collective.ipfs.website}>
+                <Image source={WebIcon} style={styles.rowIcon} />
+              </Link>
+            )}
+            {collective.ipfs.twitter && (
+              <Link href={collective.ipfs.twitter}>
+                <Image source={TwitterIcon} style={styles.rowIcon} />
+              </Link>
+            )}
+            {collective.ipfs.instagram && (
+              <Link href={collective.ipfs.instagram}>
+                <Image source={InstagramIcon} style={styles.rowIcon} />
+              </Link>
+            )}
+            {collective.ipfs.threads && (
+              <Link href={collective.ipfs.threads}>
+                <Image source={AtIcon} style={styles.rowIcon} />
+              </Link>
+            )}
+            <Link href={`https://explorer.celo.org/mainnet/address/${poolAddress}`}>
               <Image source={LastRowIcon} style={styles.rowIcon} />
             </Link>
           </View>
           <View style={styles.collectiveInformation}>
             <Image source={InfoIcon} style={styles.infoIcon} />
-            <Text style={styles.informationLabel}>{actionLabel}</Text>
+            <Text style={styles.informationLabel}>{infoLabel}</Text>
           </View>
 
           <View style={styles.rowContainer}>
@@ -294,12 +289,13 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               currency="G$"
               balance={totalRewardsUsdValue ?? 0}
             />
-            <RowItem
+            <FlowingCurrentPoolRowItem
               imageUrl={SquaresIcon}
               rowInfo="Current Pool"
-              rowData={formattedCurrentPool ?? '0'}
+              collective={collective.address as `0x${string}`}
+              donorCollectives={donorCollectives}
+              tokenPrice={tokenPrice}
               currency="G$"
-              balance={currentPoolUsdValue ?? 0}
             />
           </View>
 
@@ -315,9 +311,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                   color={Colors.orange[200]}
                   fontSize={18}
                   seeType={false}
-                  onPress={() => {
-                    setStopDonationModal(true);
-                  }}
+                  onPress={handleStopDonation}
                 />
                 {renderDonorsButton()}
               </View>
@@ -351,12 +345,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
           />
         </View>
         <View style={styles.container}>
-          <TransactionList
-            username="username123"
-            currency="G$"
-            amount={2400}
-            transactionId="18347cg786hfc6f29837r6hd23"
-          />
+          <TransactionList collective={collective.address as `0x${string}`} />
           <RoundedButton
             title="See all Transactions"
             backgroundColor={Colors.purple[100]}
@@ -366,10 +355,15 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             onPress={() => navigate('/profile/abc123/activity')}
           />
         </View>
-        <StopDonationModal openModal={stopDonationModal} setOpenModal={setStopDonationModal} />
-        <ThankYouModal openModal={donateModal} setOpenModal={setDonateModal} />
+        <ErrorModal
+          openModal={!!errorMessage}
+          setOpenModal={() => setErrorMessage(undefined)}
+          message={errorMessage ?? ''}
+        />
+        <StopDonationModal openModal={stopDonationModalVisible} setOpenModal={setStopDonationModalVisible} />
+        <ThankYouModal openModal={donationModalVisible} setOpenModal={setDonationModalVisible} />
       </View>
-    </>
+    </View>
   );
 }
 
@@ -388,24 +382,34 @@ const styles = StyleSheet.create({
     shadowRadius: 30,
     elevation: 15,
   },
-  collectiveDetails: { width: '100%', flexDirection: 'row' },
-  collectiveDetailsMobile: { flexDirection: 'row', gap: 8 },
-  collectiveDescription: {
-    flexDirection: 'column',
-    flexGrow: 1,
-    flex: 1,
-    width: '100%',
-  },
+  collectiveDetailsDesktop: { width: '100%', flexDirection: 'row', gap: 32 },
   image: {
     width: '100%',
     height: 192,
   },
-  imageMobile: {
+  infoLabelDesktop: { flexDirection: 'row', gap: 8 },
+  imageDesktop: {
     width: '100%',
     maxWidth: 512,
     height: 290,
     borderRadius: 20,
-    flexGrow: 1,
+    flex: 1,
+  },
+  collectiveDesktopData: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    height: 290,
+    width: '100%',
+    minWidth: 150,
+    maxWidth: 352,
+    flex: 1,
+  },
+  collectiveDescription: {
+    flexDirection: 'column',
+    flex: 1,
+    width: '100%',
+    maxWidth: 352,
   },
   title: {
     ...InterSemiBold,
@@ -470,16 +474,6 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
   },
-  collectiveDesktopData: {
-    flexGrow: 1,
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-    height: 290,
-    width: 250,
-    paddingHorizontal: 25,
-    position: 'relative',
-  },
   collectiveDesktopTimeline: {
     flexDirection: 'row',
     width: '100%',
@@ -489,7 +483,7 @@ const styles = StyleSheet.create({
   },
   collectiveDonateBox: { gap: 24, height: 230 },
   collectiveInformation: { flex: 1, flexDirection: 'row', gap: 8 },
-  mobileContainer: {
+  desktopContainer: {
     maxWidth: '50%',
     height: 540,
     borderRadius: 16,

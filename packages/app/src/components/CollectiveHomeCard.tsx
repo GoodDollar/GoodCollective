@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   cardContainerDesktop: {
     width: 360,
     height: 330,
-    margin: 32,
+    marginBottom: 0,
   },
   cardTitle: {
     fontSize: 20,

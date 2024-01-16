@@ -73,6 +73,7 @@ export function ipfsSubgraphCollectiveToModel(subgraphCollective: {
     twitter: subgraphCollective.ipfs?.twitter,
     instagram: subgraphCollective.ipfs?.instagram,
     website: subgraphCollective.ipfs?.website,
+    infoLabel: subgraphCollective.ipfs?.infoLabel,
     headerImage: subgraphCollective.ipfs.headerImage,
     logo: subgraphCollective.ipfs.logo,
     threads: subgraphCollective.ipfs?.threads,

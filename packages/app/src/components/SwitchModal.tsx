@@ -44,6 +44,9 @@ const styles = StyleSheet.create({
     marginTop: 22,
   },
   modalView: {
+    maxWidth: '90%',
+    maxHeight: '90%',
+    overflowY: 'scroll',
     margin: 20,
     backgroundColor: Colors.blue[100],
     borderRadius: 20,

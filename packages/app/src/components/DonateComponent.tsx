@@ -6,12 +6,7 @@ import CompleteDonationModal from './CompleteDonationModal';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import Dropdown from './Dropdown';
-import {
-  getDonateButtonBackgroundColor,
-  getDonateButtonText,
-  getDonateButtonTextColor,
-  getFrequencyPlural,
-} from '../utils';
+import { getDonateStyles, getFrequencyPlural } from '../utils';
 import { useContractCalls, useGetTokenPrice } from '../hooks';
 import { useAccount, useNetwork } from 'wagmi';
 import { IpfsCollective } from '../models/models';
@@ -44,15 +39,6 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const { address, isConnected } = useAccount();
   const { chain } = useNetwork();
 
-  const tokenList = useTokenList();
-
-  const currencyOptions: { value: string; label: string }[] = useMemo(() => {
-    return Object.keys(tokenList).map((key) => ({
-      value: key,
-      label: key,
-    }));
-  }, [tokenList]);
-
   const [completeDonationModalVisible, setCompleteDonationModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [approveSwapModalVisible, setApproveSwapModalVisible] = useState(false);
@@ -62,6 +48,19 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const [duration, setDuration] = useState(1);
   const [decimalDonationAmount, setDecimalDonationAmount] = useState(0);
 
+  const tokenList = useTokenList();
+  const isOneTime = frequency === Frequency.OneTime;
+  const currencyOptions: { value: string; label: string }[] = useMemo(() => {
+    let options = Object.keys(tokenList).map((key) => ({
+      value: key,
+      label: key,
+    }));
+    if (isOneTime) {
+      options = [options.find((option) => option.value === 'G$')!];
+    }
+    return options;
+  }, [tokenList, isOneTime]);
+
   const {
     path: swapPath,
     rawMinimumAmountOut,
@@ -69,15 +68,15 @@ function DonateComponent({ collective }: DonateComponentProps) {
     status: swapRouteStatus,
   } = useSwapRoute(currency, decimalDonationAmount, duration);
 
-  const {
-    handleApproveToken,
-    isLoading: handleApproveTokenIsLoading,
-    isError: handleApproveTokenIsError,
-  } = useApproveSwapTokenCallback(currency, decimalDonationAmount, duration, (value: boolean) =>
-    setApproveSwapModalVisible(value)
+  const { handleApproveToken } = useApproveSwapTokenCallback(
+    currency,
+    decimalDonationAmount,
+    duration,
+    (value: boolean) => setApproveSwapModalVisible(value)
   );
+  const approvalNotReady = handleApproveToken === undefined && currency !== 'G$';
 
-  const { supportFlowWithSwap, supportFlow, supportSingleTransferAndCall } = useContractCalls(
+  const { supportFlowWithSwap, supportFlow, supportSingleBatch } = useContractCalls(
     collectiveId,
     currency,
     decimalDonationAmount,
@@ -90,14 +89,12 @@ function DonateComponent({ collective }: DonateComponentProps) {
   );
 
   const handleDonate = useCallback(async () => {
-    while (handleApproveTokenIsLoading) {
-      await new Promise((r) => setTimeout(r, 50));
+    if (frequency === Frequency.OneTime) {
+      return await supportSingleBatch();
+    } else if (currency === 'G$') {
+      return await supportFlow();
     }
-    if (handleApproveTokenIsError || handleApproveToken === undefined) {
-      setErrorMessage('An error occurred while generating a transaction to approve the token.');
-      return;
-    }
-    const txHash = await handleApproveToken();
+    const txHash = await handleApproveToken?.();
     if (txHash === undefined) {
       return;
     }
@@ -115,25 +112,9 @@ function DonateComponent({ collective }: DonateComponentProps) {
       );
     }
     if (txReceipt?.status === 'success') {
-      if (frequency === Frequency.OneTime) {
-        await supportSingleTransferAndCall();
-      } else if (currency === 'G$') {
-        await supportFlow();
-      } else {
-        await supportFlowWithSwap();
-      }
+      await supportFlowWithSwap();
     }
-  }, [
-    chain?.id,
-    currency,
-    frequency,
-    handleApproveToken,
-    handleApproveTokenIsError,
-    handleApproveTokenIsLoading,
-    supportFlow,
-    supportFlowWithSwap,
-    supportSingleTransferAndCall,
-  ]);
+  }, [chain?.id, currency, frequency, handleApproveToken, supportFlow, supportFlowWithSwap, supportSingleBatch]);
 
   const currencyDecimals = useToken(currency).decimals;
   const donorCurrencyBalance = useGetTokenBalance(currency, address, chain?.id, true);
@@ -141,12 +122,54 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const totalDecimalDonation = new Decimal(duration * decimalDonationAmount);
   const totalDonationFormatted = totalDecimalDonation.toDecimalPlaces(currencyDecimals, Decimal.ROUND_DOWN).toString();
 
-  const isInsufficientBalance = donorCurrencyBalance ? totalDecimalDonation.gt(donorCurrencyBalance) : true;
-  const isInsufficientLiquidity = currency !== 'G$' && swapRouteStatus !== SwapRouteState.READY;
-  const isUnacceptablePriceImpact = currency !== 'G$' && priceImpact ? priceImpact > acceptablePriceImpact : false;
+  const isNonZeroDonation = totalDecimalDonation.gt(0);
+  const isInsufficientBalance =
+    isNonZeroDonation && (!donorCurrencyBalance || totalDecimalDonation.gt(donorCurrencyBalance));
+  const isInsufficientLiquidity = isNonZeroDonation && currency !== 'G$' && swapRouteStatus !== SwapRouteState.READY;
+  const isUnacceptablePriceImpact =
+    isNonZeroDonation && currency !== 'G$' && priceImpact ? priceImpact > acceptablePriceImpact : false;
 
   const { price } = useGetTokenPrice(currency);
-  const usdValue = price ? formatFiatCurrency(decimalDonationAmount * price) : undefined;
+  const donationAmountUsdValue = price ? formatFiatCurrency(decimalDonationAmount * price) : undefined;
+  const totalDonationUsdValue = price ? formatFiatCurrency(totalDecimalDonation.mul(price).toNumber()) : undefined;
+
+  const donateStyles = useMemo(() => {
+    return getDonateStyles({
+      noAddress: !address,
+      invalidChain: !(chain?.id && chain.id in SupportedNetwork),
+      insufficientLiquidity: isInsufficientLiquidity,
+      priceImpact: isUnacceptablePriceImpact,
+      insufficientBalance: isInsufficientBalance,
+      approvalNotReady: approvalNotReady,
+      isZeroDonation: !isNonZeroDonation,
+      default: true,
+    });
+  }, [
+    address,
+    chain,
+    isInsufficientLiquidity,
+    isUnacceptablePriceImpact,
+    isInsufficientBalance,
+    approvalNotReady,
+    isNonZeroDonation,
+  ]);
+
+  const { buttonCopy, buttonBgColor, buttonTextColor } = donateStyles;
+
+  const onChangeCurrency = (value: string) => setCurrency(value);
+  const onChangeAmount = (value: string) => setDecimalDonationAmount(formatDecimalStringInput(value));
+  const onChangeFrequency = useCallback(
+    (value: string) => {
+      if (currency !== 'G$' && value === Frequency.OneTime) {
+        setCurrency('G$');
+        setDecimalDonationAmount(0);
+      }
+      setFrequency(value as Frequency);
+    },
+    [currency]
+  );
+  const onChangeDuration = (value: string) => setDuration(Number(value));
+  const onCloseErrorModal = () => setErrorMessage(undefined);
 
   return (
     <View style={[styles.body, isDesktopResolution && styles.bodyDesktop]}>
@@ -172,7 +195,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
           </View>
           <View>
             <View style={styles.row}>
-              <Dropdown value={currency} onSelect={(value: string) => setCurrency(value)} options={currencyOptions} />
+              <Dropdown value={currency} onSelect={onChangeCurrency} options={currencyOptions} />
               <View style={styles.form}>
                 <View style={styles.upperForm}>
                   <Text style={styles.headerLabel}>{currency}</Text>
@@ -182,11 +205,11 @@ function DonateComponent({ collective }: DonateComponentProps) {
                     placeholder={'0.00'}
                     style={styles.subHeading}
                     maxLength={7}
-                    onChangeText={(value: string) => setDecimalDonationAmount(formatDecimalStringInput(value))}
+                    onChangeText={onChangeAmount}
                   />
                 </View>
                 <View style={styles.divider} />
-                <Text style={styles.lowerText}>{usdValue} USD</Text>
+                <Text style={styles.lowerText}>{donationAmountUsdValue} USD</Text>
               </View>
             </View>
           </View>
@@ -202,7 +225,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
             </View>
             <View>
               <View style={styles.row}>
-                <Dropdown value={currency} onSelect={(value: string) => setCurrency(value)} options={currencyOptions} />
+                <Dropdown value={currency} onSelect={onChangeCurrency} options={currencyOptions} />
                 <View style={styles.form}>
                   <View style={styles.upperForm}>
                     <Text style={styles.headerLabel}>{currency}</Text>
@@ -212,11 +235,11 @@ function DonateComponent({ collective }: DonateComponentProps) {
                       placeholder={'0.00'}
                       style={styles.subHeading}
                       maxLength={7}
-                      onChangeText={(value: string) => setDecimalDonationAmount(formatDecimalStringInput(value))}
+                      onChangeText={onChangeAmount}
                     />
                   </View>
                   <View style={styles.divider} />
-                  <Text style={styles.lowerText}>{usdValue} USD</Text>
+                  <Text style={styles.lowerText}>{donationAmountUsdValue} USD</Text>
                 </View>
               </View>
             </View>
@@ -229,11 +252,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
                 How often do you want to donate this {!isDesktopResolution && <br />} amount?
               </Text>
             </View>
-            <Dropdown
-              value={frequency}
-              onSelect={(value: string) => setFrequency(value as Frequency)}
-              options={frequencyOptions}
-            />
+            <Dropdown value={frequency} onSelect={onChangeFrequency} options={frequencyOptions} />
           </View>
           <View>
             {frequency !== 'One-Time' && (
@@ -247,7 +266,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
                     value={duration.toString()}
                     style={styles.durationInput}
                     maxLength={2}
-                    onChangeText={(value: string) => setDuration(Number(value))}
+                    onChangeText={onChangeDuration}
                   />
 
                   <Text style={[styles.durationLabel]}>{getFrequencyPlural(frequency as Frequency)}</Text>
@@ -262,11 +281,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
         <>
           {!isDesktopResolution && (
             <>
-              <Dropdown
-                value={frequency}
-                onSelect={(value: string) => setFrequency(value as Frequency)}
-                options={frequencyOptions}
-              />
+              <Dropdown value={frequency} onSelect={onChangeFrequency} options={frequencyOptions} />
               {frequency !== 'One-Time' && (
                 <View style={[styles.row, styles.actionBox, { alignItems: 'center', marginTop: 19, marginBottom: 12 }]}>
                   <Text style={[styles.title, { marginBottom: 0 }]}>For How Long: </Text>
@@ -278,7 +293,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
                       value={duration.toString()}
                       style={styles.durationInput}
                       maxLength={2}
-                      onChangeText={(value: any) => setDuration(value)}
+                      onChangeText={onChangeDuration}
                     />
 
                     <Text style={[styles.durationLabel]}>{getFrequencyPlural(frequency)}</Text>
@@ -296,7 +311,9 @@ function DonateComponent({ collective }: DonateComponentProps) {
                 <Text style={styles.title}>Review Your Donation</Text>
                 <Text style={styles.reviewDesc}>
                   Your donation will be made in GoodDollars, the currency in use by this GoodCollective. {'\n'}
-                  Your donation will be streamed using Superfluid. {'\n'}
+                  {Frequency.OneTime
+                    ? 'Pressing “Confirm” will trigger your donation.\n'
+                    : 'Your donation will be streamed using Superfluid.\n'}
                   <Text style={styles.italic}>
                     <Link
                       style={styles.reviewDesc}
@@ -313,7 +330,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
                   <Text style={[styles.subHeading, { textAlign: 'right' }]}>
                     {currency} <Text style={styles.headerLabel}>{decimalDonationAmount}</Text>
                   </Text>
-                  <Text style={styles.descriptionLabel}>{usdValue} USD</Text>
+                  <Text style={styles.descriptionLabel}>{donationAmountUsdValue} USD</Text>
                 </View>
               </View>
 
@@ -334,7 +351,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
                     <Text style={[styles.subHeading, { textAlign: 'right' }]}>
                       {currency} <Text style={styles.headerLabel}>{totalDonationFormatted}</Text>
                     </Text>
-                    <Text style={styles.descriptionLabel}>{usdValue} USD</Text>
+                    <Text style={styles.descriptionLabel}>{totalDonationUsdValue} USD</Text>
                   </View>
                 </View>
               )}
@@ -438,38 +455,22 @@ function DonateComponent({ collective }: DonateComponentProps) {
 
         <RoundedButton
           maxWidth={isDesktopResolution ? 343 : undefined}
-          title={getDonateButtonText(
-            !!address,
-            !!(chain?.id && chain.id in SupportedNetwork),
-            isInsufficientLiquidity,
-            isUnacceptablePriceImpact,
-            isInsufficientBalance
-          )}
-          backgroundColor={getDonateButtonBackgroundColor(
-            !!address,
-            !!(chain?.id && chain.id in SupportedNetwork),
-            isInsufficientLiquidity,
-            isUnacceptablePriceImpact,
-            isInsufficientBalance
-          )}
-          color={getDonateButtonTextColor(
-            !!address,
-            !!(chain?.id && chain.id in SupportedNetwork),
-            isInsufficientLiquidity,
-            isUnacceptablePriceImpact,
-            isInsufficientBalance
-          )}
+          title={buttonCopy}
+          backgroundColor={buttonBgColor}
+          color={buttonTextColor}
           fontSize={18}
           seeType={false}
           onPress={handleDonate}
-          disabled={address === undefined || chain?.id === undefined || !(chain.id in SupportedNetwork)}
+          disabled={
+            address === undefined ||
+            chain?.id === undefined ||
+            !(chain.id in SupportedNetwork) ||
+            approvalNotReady ||
+            !isNonZeroDonation
+          }
         />
       </View>
-      <ErrorModal
-        openModal={!!errorMessage}
-        setOpenModal={() => setErrorMessage(undefined)}
-        message={errorMessage ?? ''}
-      />
+      <ErrorModal openModal={!!errorMessage} setOpenModal={onCloseErrorModal} message={errorMessage ?? ''} />
       <ApproveSwapModal openModal={approveSwapModalVisible} setOpenModal={setApproveSwapModalVisible} />
       <CompleteDonationModal openModal={completeDonationModalVisible} setOpenModal={setCompleteDonationModalVisible} />
     </View>

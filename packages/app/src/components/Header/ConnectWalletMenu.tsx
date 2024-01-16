@@ -15,6 +15,15 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
 
   const [openDropdown, setOpenDropdown] = useState<boolean>(false);
 
+  connectors.sort((a, b) => {
+    if (a.name === 'WalletConnect') {
+      return -1;
+    } else if (b.name === 'WalletConnect') {
+      return 1;
+    }
+    return a.name.localeCompare(b.name);
+  });
+
   function connectorLogo(name: string) {
     switch (name) {
       case 'MetaMask':

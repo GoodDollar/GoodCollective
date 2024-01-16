@@ -1,9 +1,9 @@
-export type StewardCollective = {
+export interface StewardCollective {
   steward: string;
   collective: string;
   actions: number;
   totalEarned: string;
-};
+}
 
 export interface Steward {
   address: string;
@@ -13,20 +13,20 @@ export interface Steward {
   collectives: StewardCollective[];
 }
 
-export type DonorCollective = {
+export interface DonorCollective {
   donor: string;
   collective: string;
   contribution: string;
   flowRate: string;
   timestamp: number;
-};
+}
 
-export type Donor = {
+export interface Donor {
   address: string;
   joined: number;
   totalDonated: string;
   collectives: DonorCollective[];
-};
+}
 
 export interface Collective {
   address: string;
@@ -39,7 +39,7 @@ export interface Collective {
   totalRewards: string;
 }
 
-export type IpfsCollective = {
+export interface IpfsCollective {
   id: string; // ipfs hash
   collective: string; // collective address
   name: string;
@@ -49,13 +49,23 @@ export type IpfsCollective = {
   twitter?: string;
   instagram?: string;
   threads?: string;
+  infoLabel?: string;
   headerImage: string;
   logo: string;
   images?: string[];
-};
+}
 
 // export type ProvableNFT = {
 //   owner: string;
 //   hash: string;
 //   collective: Collective | string;
 // };
+
+export interface Transaction {
+  hash: string;
+  rawAmount: string;
+  from: string;
+  to: string;
+  fee: string;
+  timestamp: number;
+}

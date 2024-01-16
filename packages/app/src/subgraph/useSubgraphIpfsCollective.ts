@@ -11,6 +11,12 @@ const allIpfsCollectives = gql`
         name
         description
         headerImage
+        email
+        website
+        twitter
+        instagram
+        threads
+        infoLabel
       }
     }
   }
@@ -25,6 +31,12 @@ const ipfsCollectivesById = gql`
         name
         description
         headerImage
+        email
+        website
+        twitter
+        instagram
+        threads
+        infoLabel
       }
     }
   }

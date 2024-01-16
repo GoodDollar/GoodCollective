@@ -27,6 +27,7 @@ export function handleCreateIpfsCollective(data: Bytes): void {
   ipfsCollective.twitter = jsonObject.isSet('twitter') ? jsonObject.get('twitter')!!.toString() : null;
   ipfsCollective.instagram = jsonObject.isSet('instagram') ? jsonObject.get('instagram')!!.toString() : null;
   ipfsCollective.threads = jsonObject.isSet('threads') ? jsonObject.get('threads')!!.toString() : null;
+  ipfsCollective.infoLabel = jsonObject.isSet('infoLabel') ? jsonObject.get('infoLabel')!!.toString() : null;
   ipfsCollective.headerImage = jsonObject.isSet('headerImage') ? jsonObject.get('headerImage')!!.toString() : '';
   ipfsCollective.logo = jsonObject.isSet('logo') ? jsonObject.get('logo')!!.toString() : '';
   ipfsCollective.images = jsonObject.isSet('images')

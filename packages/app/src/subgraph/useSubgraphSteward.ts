@@ -31,7 +31,6 @@ export function useSubgraphSteward(id: string): SubgraphSteward | undefined {
   });
   const data = (response as StewardsSubgraphResponse).stewards;
   if (!data || data.length === 0) {
-    console.error(`[useSubgraphSteward]: Loading, or no Steward found for id ${id}`);
     return undefined;
   }
   return data[0];
