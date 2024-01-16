@@ -13,6 +13,8 @@ interface NameView {
   fullName: { display: string };
 }
 
+const inMemoryFullNameCache: Map<string, string> = new Map();
+
 export function useFetchFullName(address?: string): string | undefined {
   const names = useFetchFullNames(address ? [address] : []);
   if (names.length === 0) return undefined;
@@ -34,30 +36,39 @@ export function useFetchFullNames(addresses: string[]): (string | undefined)[] {
       const collection = mongo.db(databaseName).collection(collectionName);
       setNameView(collection);
     };
-    connect();
+    if (!nameView) {
+      connect();
+    }
 
     return () => {
       realm?.logOut();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [realm, nameView]);
 
   useEffect(() => {
     if (!nameView || addresses.length === 0) return;
-    const fetchName = async (address: string): Promise<NameView | null> => {
+    const fetchName = async (address: string): Promise<string | undefined> => {
+      const lowerCaseAddress = address.toLowerCase();
+      // check cache
+      const cachedName = inMemoryFullNameCache.get(lowerCaseAddress);
+      if (cachedName) {
+        return cachedName;
+      }
+      // fetch from database
       const walletHash = ethers.utils.keccak256(address);
-      return await nameView.findOne(
+      const response = await nameView.findOne(
         { 'index.walletAddress.hash': walletHash },
         { projection: { 'fullName.display': 1 } }
       );
+      if (!response) return undefined;
+      // cache and return
+      const fullName = response.fullName.display;
+      inMemoryFullNameCache.set(lowerCaseAddress, fullName);
+      return fullName;
     };
 
-    const promises = addresses.map((address) => fetchName(address));
-    Promise.all(promises).then((responses) => {
-      const fullNames = responses.map((nameViewResponse) => {
-        if (!nameViewResponse) return undefined;
-        return nameViewResponse.fullName.display;
-      });
+    const promises = addresses.map((address) => fetchName(address).catch((_) => undefined));
+    Promise.all(promises).then((fullNames) => {
       setNames(fullNames);
     });
   }, [addresses, nameView, realm]);
