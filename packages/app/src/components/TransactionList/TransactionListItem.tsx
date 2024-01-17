@@ -4,7 +4,6 @@ import { Colors } from '../../utils/colors';
 import { ReceiveIcon, SendIcon } from '../../assets';
 import Decimal from 'decimal.js';
 import { ethers } from 'ethers';
-import { formatAddress } from '../../lib/formatAddress';
 
 interface TransactionListItemProps {
   userIdentifier: string;
@@ -25,7 +24,7 @@ function TransactionListItem({
 }: TransactionListItemProps) {
   const formattedAmount: string = amountIsFormatted ? amount : new Decimal(ethers.utils.formatEther(amount)).toString();
   const formattedFee: string = new Decimal(ethers.utils.formatEther(rawNetworkFee ?? 0)).toString();
-  const formattedHash = formatAddress(txHash, 20);
+  const formattedHash = txHash.slice(0, 40) + '...';
 
   return (
     <View style={styles.row}>
