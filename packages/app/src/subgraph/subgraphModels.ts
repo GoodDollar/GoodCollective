@@ -34,8 +34,8 @@ export type SubgraphStewardCollective = {
 export type SubgraphCollective = {
   id: string;
   ipfs: SubgraphIpfsCollective;
-  settings?: PoolSettings;
-  limits?: SafetyLimits;
+  settings?: SubgraphPoolSettings;
+  limits?: SubgraphSafetyLimits;
   donors?: SubgraphDonorCollective[];
   stewards?: SubgraphStewardCollective[];
   projectId?: string;
@@ -45,7 +45,7 @@ export type SubgraphCollective = {
   paymentsMade: number;
   totalDonations: string;
   totalRewards: string;
-  claims?: Claim[];
+  claims?: SubgraphClaim[];
 };
 
 export type SubgraphIpfsCollective = {
@@ -63,7 +63,7 @@ export type SubgraphIpfsCollective = {
   images?: string[];
 };
 
-export type PoolSettings = {
+export type SubgraphPoolSettings = {
   id: string;
   nftType: string;
   manager: string;
@@ -72,7 +72,7 @@ export type PoolSettings = {
   rewardToken: string;
 };
 
-export type SafetyLimits = {
+export type SubgraphSafetyLimits = {
   id: string;
   maxTotalPerMonth: string;
   maxMemberPerMonth: string;
@@ -87,7 +87,7 @@ export type SubgraphProvableNFT = {
   collective: SubgraphCollective | string;
 };
 
-export type ClaimEvent = {
+export type SubgraphClaimEvent = {
   id: string; // event uri
   eventType: number;
   timestamp: string;
@@ -95,16 +95,17 @@ export type ClaimEvent = {
   rewardPerContributor: string;
   contributors: SubgraphSteward[] | { id: string }[];
   nft: SubgraphProvableNFT | { id: string };
-  claim: Claim | { id: string };
+  claim: SubgraphClaim | { id: string };
 };
 
-export type Claim = {
+export type SubgraphClaim = {
   id: string;
   collective: SubgraphCollective | { id: string };
   txHash: string;
   networkFee?: string;
   totalRewards: string;
-  events?: ClaimEvent[];
+  events?: SubgraphClaimEvent[];
+  timestamp: string;
 };
 
 export type SubgraphSupportEvent = {

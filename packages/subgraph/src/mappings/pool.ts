@@ -99,6 +99,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     claim.totalRewards = BigInt.fromI32(0);
     claim.collective = pool.id;
     claim.txHash = event.transaction.hash.toHexString();
+    claim.timestamp = event.block.timestamp;
   }
   if (claim.networkFee === null && event.receipt !== null) {
     claim.networkFee = event.receipt!!.gasUsed.times(event.transaction.gasPrice);

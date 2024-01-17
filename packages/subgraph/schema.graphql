@@ -137,4 +137,5 @@ type Claim @entity {
   networkFee: BigInt # gas price * gas used
   totalRewards: BigInt!
   events: [ClaimEvent!]! @derivedFrom(field: "claim")
+  timestamp: BigInt!
 }
