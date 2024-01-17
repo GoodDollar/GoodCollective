@@ -37,10 +37,8 @@ export function handleSupport(event: SupporterUpdated): void {
   }
   // This value is updated in _updateSupporter at line 260 of GoodCollectiveSuperApp.sol before the event is emitted
   donorCollective.contribution = event.params.contribution;
-  if (event.params.isFlowUpdate) {
-    donorCollective.flowRate = event.params.flowRate;
-    donorCollective.timestamp = timestamp;
-  }
+  donorCollective.flowRate = event.params.flowRate;
+  donorCollective.timestamp = timestamp;
   donorCollective.donor = donor.id;
   donorCollective.collective = pool.id;
 

@@ -44,6 +44,7 @@ export type SubgraphCollective = {
   paymentsMade: number;
   totalDonations: string;
   totalRewards: string;
+  claims?: Claim[];
 };
 
 export type SubgraphIpfsCollective = {
@@ -85,7 +86,7 @@ export type SubgraphProvableNFT = {
   collective: SubgraphCollective | string;
 };
 
-export type EventData = {
+export type ClaimEvent = {
   id: string;
   eventType: number;
   timestamp: string;
@@ -94,11 +95,25 @@ export type EventData = {
   rewardPerContributor: string;
   contributors: SubgraphSteward[] | { id: string }[];
   nft: SubgraphProvableNFT | { id: string };
-  claim: Claim;
+  claim: Claim | { id: string };
 };
 
 export type Claim = {
   id: string;
+  collective: SubgraphCollective | { id: string };
   totalRewards: string;
-  event: EventData | { id: string };
+  event: ClaimEvent | { id: string };
+};
+
+export type SubgraphSupportEvent = {
+  id: string;
+  donor: SubgraphDonor | { id: string };
+  collective: SubgraphCollective | { id: string };
+  donorCollective: SubgraphDonorCollective | { id: string };
+  contribution: string;
+  previousContribution: string;
+  isFlowUpdate: boolean;
+  flowRate: string;
+  previousFlowRate: string;
+  timestamp: string;
 };
