@@ -2,13 +2,20 @@ import { gql } from '@apollo/client';
 import { SubgraphSupportEvent } from './subgraphModels';
 import { SupportEventsSubgraphResponse, useSubgraphData } from './useSubgraphData';
 
-const claimsByCollective = gql`
-  query SUPPORT_EVENTS_BY_COLLECTIVE($collective: String!, $n: Int!) {
-    supportEvents(where: { collective: $collective }, orderBy: timestamp_DESC, first: $n) {
+const supportEventsByCollective = gql`
+  query SUPPORT_EVENTS_BY_COLLECTIVE($collective: String, $n: Int!) {
+    supportEvents(where: { collective: $collective }, orderBy: timestamp, orderDirection: desc, first: $n) {
       id
       networkFee
-      donor
-      collective
+      donor {
+        id
+      }
+      collective {
+        id
+      }
+      donorCollective {
+        id
+      }
       contribution
       previousContribution
       isFlowUpdate
@@ -24,7 +31,7 @@ export function useSubgraphSupportEventsByCollectiveId(
   n: number,
   pollInterval?: number
 ): SubgraphSupportEvent[] | undefined {
-  const response = useSubgraphData(claimsByCollective, {
+  const response = useSubgraphData(supportEventsByCollective, {
     variables: {
       collective: collectiveAddress,
       n,

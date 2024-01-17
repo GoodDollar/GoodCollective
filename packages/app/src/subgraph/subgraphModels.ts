@@ -102,7 +102,7 @@ export type SubgraphClaim = {
   id: string;
   collective: SubgraphCollective | { id: string };
   txHash: string;
-  networkFee?: string;
+  networkFee: string;
   totalRewards: string;
   events: SubgraphClaimEvent[];
   timestamp: number;
@@ -110,7 +110,7 @@ export type SubgraphClaim = {
 
 export type SubgraphSupportEvent = {
   id: string; // tx hash
-  networkFee?: string;
+  networkFee: string;
   donor: SubgraphDonor | { id: string };
   collective: SubgraphCollective | { id: string };
   donorCollective: SubgraphDonorCollective | { id: string };

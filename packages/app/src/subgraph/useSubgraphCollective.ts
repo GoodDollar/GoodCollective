@@ -3,7 +3,7 @@ import { CollectivesSubgraphResponse, useSubgraphData } from './useSubgraphData'
 import { SubgraphCollective } from './subgraphModels';
 
 export const collective = gql`
-  query COLLECTIVE($id: String!) {
+  query COLLECTIVE($id: String) {
     collectives(where: { id: $id }) {
       id
       ipfs {
@@ -50,7 +50,7 @@ export const collective = gql`
 `;
 
 export const collectivesById = gql`
-  query COLLECTIVES_BY_ID($ids: [String!]!) {
+  query COLLECTIVES_BY_ID($ids: [String!]) {
     collectives(where: { id_in: $ids }) {
       id
       ipfs {

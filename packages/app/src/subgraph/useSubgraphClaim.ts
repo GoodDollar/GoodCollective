@@ -3,10 +3,12 @@ import { SubgraphClaim } from './subgraphModels';
 import { ClaimsSubgraphResponse, useSubgraphData } from './useSubgraphData';
 
 const claimsByCollective = gql`
-  query CLAIMS_BY_COLLECTIVE($collective: String!, $n: Int!) {
-    claims(where: { collective: $collective }, orderBy: timestamp_DESC, first: $n) {
+  query CLAIMS_BY_COLLECTIVE($collective: String, $n: Int!) {
+    claims(where: { collective: $collective }, orderBy: timestamp, orderDirection: desc, first: $n) {
       id
-      collective
+      collective {
+        id
+      }
       txHash
       networkFee
       totalRewards

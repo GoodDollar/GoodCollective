@@ -63,7 +63,7 @@ export interface IpfsCollective {
 
 export interface Transaction {
   hash: string;
-  networkFee?: string;
+  networkFee: string;
   collective: string;
   timestamp: number;
 }
