@@ -46,6 +46,8 @@ export function handleSupport(event: SupporterUpdated): void {
 
   // create event
   let supportEvent = new SupportEvent(event.transaction.hash.toHexString());
+  supportEvent.donor = donor.id;
+  supportEvent.collective = pool.id;
   supportEvent.donorCollective = donorCollective.id;
   supportEvent.contribution = event.params.contribution;
   supportEvent.previousContribution = event.params.previousContribution;

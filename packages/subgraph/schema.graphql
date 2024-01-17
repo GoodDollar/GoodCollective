@@ -20,6 +20,8 @@ type DonorCollective @entity {
 
 type SupportEvent @entity {
   id: String! # txHash
+  donor: Donor!
+  collective: Collective!
   donorCollective: DonorCollective!
   contribution: BigInt!
   previousContribution: BigInt!
