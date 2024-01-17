@@ -74,6 +74,7 @@ type Collective @entity {
   paymentsMade: Int!
   totalDonations: BigInt!
   totalRewards: BigInt!
+  claims: [Claim!]! @derivedFrom(field: "collective")
 }
 
 type IpfsCollective @entity {
@@ -128,6 +129,7 @@ type ClaimEvent @entity {
 
 type Claim @entity {
   id: String!
+  collective: Collective!
   totalRewards: BigInt!
   events: [ClaimEvent!]! @derivedFrom(field: "claim")
 }

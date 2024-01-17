@@ -101,6 +101,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   if (claim === null) {
     claim = new Claim(claimId.toHexString());
     claim.totalRewards = BigInt.fromI32(0);
+    claim.collective = pool.id;
   }
   const eventReward = rewardPerContributor.times(eventQuantity).times(BigInt.fromI32(contributors.length));
   claim.totalRewards = claim.totalRewards.plus(eventReward);
