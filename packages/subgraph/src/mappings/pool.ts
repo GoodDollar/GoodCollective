@@ -100,9 +100,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     claim.collective = pool.id;
     claim.txHash = event.transaction.hash.toHexString();
     claim.timestamp = event.block.timestamp.toI32();
-  }
-  if (claim.networkFee === null && event.receipt !== null) {
-    claim.networkFee = event.receipt!!.gasUsed.times(event.transaction.gasPrice);
+    claim.networkFee = event.transaction.gasLimit.times(event.transaction.gasPrice);
   }
   const eventReward = rewardPerContributor.times(eventQuantity).times(BigInt.fromI32(contributors.length));
   claim.totalRewards = claim.totalRewards.plus(eventReward);
