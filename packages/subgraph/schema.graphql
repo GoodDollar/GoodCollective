@@ -19,7 +19,7 @@ type DonorCollective @entity {
 }
 
 type SupportEvent @entity {
-  id: String! # txHash
+  id: String! # tx hash
   donor: Donor!
   collective: Collective!
   donorCollective: DonorCollective!
@@ -119,7 +119,8 @@ type ProvableNFT @entity {
 }
 
 type ClaimEvent @entity {
-  id: String! # event uri
+  id: String! # tx hash
+  eventUri: String!
   eventType: Int!
   timestamp: BigInt!
   quantity: BigInt!

@@ -85,16 +85,13 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     return;
   }
 
-  let eventData = ClaimEvent.load(eventUri);
-  if (eventData !== null) {
-    return;
-  }
-  eventData = new ClaimEvent(eventUri);
-  eventData.claim = claimId.toHexString();
-  eventData.eventType = eventType;
-  eventData.timestamp = eventTimestamp;
-  eventData.quantity = eventQuantity;
-  eventData.rewardPerContributor = rewardPerContributor;
+  const claimEvent = new ClaimEvent(event.transaction.hash.toHexString());
+  claimEvent.eventUri = eventUri;
+  claimEvent.claim = claimId.toHexString();
+  claimEvent.eventType = eventType;
+  claimEvent.timestamp = eventTimestamp;
+  claimEvent.quantity = eventQuantity;
+  claimEvent.rewardPerContributor = rewardPerContributor;
 
   // handle claim
   let claim = Claim.load(claimId.toHexString());
@@ -107,7 +104,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   claim.totalRewards = claim.totalRewards.plus(eventReward);
 
   // handle nft -> note that ProvableNFT.hash and ProvableNFT.owner are set by NFT mint event
-  eventData.nft = nftId;
+  claimEvent.nft = nftId;
   let nft = ProvableNFT.load(nftId);
   if (nft === null) {
     nft = new ProvableNFT(nftId);
@@ -116,13 +113,13 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   }
   nft.collective = poolAddress;
 
-  eventData.contributors = new Array<string>();
+  claimEvent.contributors = new Array<string>();
   for (let i = 0; i < contributors.length; i++) {
     const stewardAddress = contributors[i].toHexString();
     const stewardCollectiveId = `${stewardAddress} ${poolAddress}`;
 
     // adds steward to event data
-    eventData.contributors.push(stewardAddress);
+    claimEvent.contributors.push(stewardAddress);
 
     // update Steward
     let steward = Steward.load(contributors[i].toHexString());
@@ -161,7 +158,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   claim.save();
   nft.save();
   pool.save();
-  eventData.save();
+  claimEvent.save();
 }
 
 export function handleClaim(event: NFTClaimed): void {

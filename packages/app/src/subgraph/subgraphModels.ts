@@ -12,6 +12,7 @@ export type SubgraphDonorCollective = {
   contribution: string;
   flowRate: string;
   timestamp: string;
+  events?: SubgraphSupportEvent[];
 };
 
 export type SubgraphSteward = {
@@ -102,7 +103,7 @@ export type Claim = {
   id: string;
   collective: SubgraphCollective | { id: string };
   totalRewards: string;
-  event: ClaimEvent | { id: string };
+  events: ClaimEvent[];
 };
 
 export type SubgraphSupportEvent = {
