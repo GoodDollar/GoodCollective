@@ -83,16 +83,15 @@ export type SubgraphProvableNFT = {
   id: string;
   owner: string;
   hash: string;
-  steward: SubgraphSteward[] | string[];
+  steward: SubgraphSteward[] | { id: string }[];
   collective: SubgraphCollective | string;
 };
 
 export type ClaimEvent = {
-  id: string;
+  id: string; // event uri
   eventType: number;
   timestamp: string;
   quantity: string;
-  uri: string;
   rewardPerContributor: string;
   contributors: SubgraphSteward[] | { id: string }[];
   nft: SubgraphProvableNFT | { id: string };
@@ -102,12 +101,15 @@ export type ClaimEvent = {
 export type Claim = {
   id: string;
   collective: SubgraphCollective | { id: string };
+  txHash: string;
+  networkFee?: string;
   totalRewards: string;
-  events: ClaimEvent[];
+  events?: ClaimEvent[];
 };
 
 export type SubgraphSupportEvent = {
-  id: string;
+  id: string; // tx hash
+  networkFee?: string;
   donor: SubgraphDonor | { id: string };
   collective: SubgraphCollective | { id: string };
   donorCollective: SubgraphDonorCollective | { id: string };

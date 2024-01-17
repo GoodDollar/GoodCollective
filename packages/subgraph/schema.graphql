@@ -20,6 +20,7 @@ type DonorCollective @entity {
 
 type SupportEvent @entity {
   id: String! # tx hash
+  networkFee: BigInt # gas price * gas used
   donor: Donor!
   collective: Collective!
   donorCollective: DonorCollective!
@@ -133,6 +134,7 @@ type Claim @entity {
   id: String!
   collective: Collective!
   txHash: String!
+  networkFee: BigInt # gas price * gas used
   totalRewards: BigInt!
   events: [ClaimEvent!]! @derivedFrom(field: "claim")
 }

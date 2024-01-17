@@ -44,6 +44,9 @@ export function handleSupport(event: SupporterUpdated): void {
 
   // create event
   let supportEvent = new SupportEvent(event.transaction.hash.toHexString());
+  if (supportEvent.networkFee === null && event.receipt !== null) {
+    supportEvent.networkFee = event.receipt!!.gasUsed.times(event.transaction.gasPrice);
+  }
   supportEvent.donor = donor.id;
   supportEvent.collective = pool.id;
   supportEvent.donorCollective = donorCollective.id;
