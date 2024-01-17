@@ -3,10 +3,10 @@ import { DonorsSubgraphResponse, useSubgraphData } from './useSubgraphData';
 import { SubgraphDonor } from './subgraphModels';
 
 const donor = gql`
-  query DONOR($id: String) {
+  query DONOR($id: String!) {
     donors(where: { id: $id }) {
       id
-      joined
+      timestamp
       totalDonated
       collectives {
         id

@@ -1,6 +1,6 @@
 export type SubgraphDonor = {
   id: string;
-  joined: string;
+  timestamp: number;
   totalDonated: string;
   collectives: SubgraphDonorCollective[];
 };
@@ -11,7 +11,7 @@ export type SubgraphDonorCollective = {
   collective: SubgraphCollective | { id: string };
   contribution: string;
   flowRate: string;
-  timestamp: string;
+  timestamp: number;
   events?: SubgraphSupportEvent[];
 };
 
@@ -90,7 +90,7 @@ export type SubgraphProvableNFT = {
 export type SubgraphClaimEvent = {
   id: string; // event uri
   eventType: number;
-  timestamp: string;
+  timestamp: number;
   quantity: string;
   rewardPerContributor: string;
   contributors: SubgraphSteward[] | { id: string }[];
@@ -104,8 +104,8 @@ export type SubgraphClaim = {
   txHash: string;
   networkFee?: string;
   totalRewards: string;
-  events?: SubgraphClaimEvent[];
-  timestamp: string;
+  events: SubgraphClaimEvent[];
+  timestamp: number;
 };
 
 export type SubgraphSupportEvent = {
@@ -119,5 +119,5 @@ export type SubgraphSupportEvent = {
   isFlowUpdate: boolean;
   flowRate: string;
   previousFlowRate: string;
-  timestamp: string;
+  timestamp: number;
 };

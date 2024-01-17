@@ -1,12 +1,14 @@
 import { Image, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
-import TransactionListItem from './TransactionListItem';
 import { Colors } from '../../utils/colors';
 import { useMediaQuery } from 'native-base';
 import { chevronDown, TransactionIcon } from '../../assets';
-import { Transaction } from '../../models/models';
+import { ClaimTx, Transaction } from '../../models/models';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { useRecentTransactions } from '../../hooks/useRecentTransactions';
+import { isSupportTx } from '../../models/typeUtil';
+import { ClaimTransactionListItem } from './ClaimTransactionListItem';
+import { SupportTransactionListItem } from './SupportTransactionListItem';
 
 interface TransactionListProps {
   collective: `0x${string}`;
@@ -30,9 +32,15 @@ function TransactionList({ collective }: TransactionListProps) {
       </View>
       {isDesktopResolution && <View style={styles.horizontalDivider} />}
       <View style={styles.list}>
-        {transactions.slice(0, 5).map((transaction) => (
-          <TransactionListItem key={transaction.hash} collective={collective} transaction={transaction} />
-        ))}
+        {transactions
+          .slice(0, 5)
+          .map((transaction) =>
+            isSupportTx(transaction) ? (
+              <SupportTransactionListItem key={transaction.hash} transaction={transaction} />
+            ) : (
+              <ClaimTransactionListItem key={transaction.hash} transaction={transaction as ClaimTx} />
+            )
+          )}
       </View>
       {isDesktopResolution && transactions.length > 5 && (
         <TouchableOpacity onPress={onClickShowMore} style={styles.showMoreButton}>

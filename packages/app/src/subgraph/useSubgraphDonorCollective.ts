@@ -3,7 +3,7 @@ import { DonorCollectiveSubgraphResponse, useSubgraphData } from './useSubgraphD
 import { SubgraphDonorCollective } from './subgraphModels';
 
 const donorCollectiveByEntities = gql`
-  query DONOR_COLLECTIVE_BY_ENTITIES($donor: String, $collective: String) {
+  query DONOR_COLLECTIVE_BY_ENTITIES($donor: String!, $collective: String!) {
     donorCollectives(where: { donor: $donor, collective: $collective }) {
       id
       donor {

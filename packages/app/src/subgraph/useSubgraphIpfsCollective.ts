@@ -23,7 +23,7 @@ const allIpfsCollectives = gql`
 `;
 
 const ipfsCollectivesById = gql`
-  query IPFS_COLLECTIVES_BY_ID($ids: [String]) {
+  query IPFS_COLLECTIVES_BY_ID($ids: [String!]!) {
     collectives(where: { id_in: $ids }) {
       id
       ipfs {

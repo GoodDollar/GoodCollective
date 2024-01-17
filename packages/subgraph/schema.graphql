@@ -1,6 +1,6 @@
 type Donor @entity {
   id: String! # The address of the donor
-  joined: BigInt!
+  timestamp: Int!
   totalDonated: BigInt!
   collectives: [DonorCollective!]! @derivedFrom(field: "donor")
 }
@@ -14,7 +14,7 @@ type DonorCollective @entity {
   collective: Collective!
   contribution: BigInt! # total contribution of the donor to the collective
   flowRate: BigInt!
-  timestamp: BigInt! # timestamp of the last flow update
+  timestamp: Int!
   events: [SupportEvent!]! @derivedFrom(field: "donorCollective")
 }
 
@@ -29,7 +29,7 @@ type SupportEvent @entity {
   isFlowUpdate: Boolean!
   flowRate: BigInt!
   previousFlowRate: BigInt!
-  timestamp: BigInt!
+  timestamp: Int!
 }
 
 type Steward @entity {
@@ -73,7 +73,7 @@ type Collective @entity {
   projectId: String!
   isVerified: Boolean!
   poolFactory: String! # pool factory (event source)
-  timestamp: BigInt!
+  timestamp: Int!
   paymentsMade: Int!
   totalDonations: BigInt!
   totalRewards: BigInt!
@@ -122,7 +122,7 @@ type ProvableNFT @entity {
 type ClaimEvent @entity {
   id: String! # event uri
   eventType: Int!
-  timestamp: BigInt!
+  timestamp: Int!
   quantity: BigInt!
   rewardPerContributor: BigInt!
   contributors: [Steward!]!
@@ -137,5 +137,5 @@ type Claim @entity {
   networkFee: BigInt # gas price * gas used
   totalRewards: BigInt!
   events: [ClaimEvent!]! @derivedFrom(field: "claim")
-  timestamp: BigInt!
+  timestamp: Int!
 }

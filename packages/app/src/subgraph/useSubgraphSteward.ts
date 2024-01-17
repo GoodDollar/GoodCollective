@@ -3,7 +3,7 @@ import { StewardsSubgraphResponse, useSubgraphData } from './useSubgraphData';
 import { SubgraphSteward } from './subgraphModels';
 
 const steward = gql`
-  query STEWARD($id: String) {
+  query STEWARD($id: String!) {
     stewards(where: { id: $id }) {
       id
       actions
