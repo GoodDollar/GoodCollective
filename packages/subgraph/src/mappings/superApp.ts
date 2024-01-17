@@ -1,6 +1,6 @@
 import { BigInt, log } from '@graphprotocol/graph-ts';
 import { SupporterUpdated } from '../../generated/templates/DirectPaymentsPool/DirectPaymentsPool';
-import { Collective, Donor, DonorCollective } from '../../generated/schema';
+import { Collective, Donor, DonorCollective, SupportEvent } from '../../generated/schema';
 
 export function handleSupport(event: SupporterUpdated): void {
   const donorAddress = event.params.supporter.toHexString();
@@ -37,12 +37,25 @@ export function handleSupport(event: SupporterUpdated): void {
   }
   // This value is updated in _updateSupporter at line 260 of GoodCollectiveSuperApp.sol before the event is emitted
   donorCollective.contribution = event.params.contribution;
-  donorCollective.flowRate = event.params.flowRate;
-  donorCollective.timestamp = timestamp;
+  if (event.params.isFlowUpdate) {
+    donorCollective.flowRate = event.params.flowRate;
+    donorCollective.timestamp = timestamp;
+  }
   donorCollective.donor = donor.id;
   donorCollective.collective = pool.id;
 
+  // create event
+  let supportEvent = new SupportEvent(event.transaction.hash.toHexString());
+  supportEvent.donorCollective = donorCollective.id;
+  supportEvent.contribution = event.params.contribution;
+  supportEvent.previousContribution = event.params.previousContribution;
+  supportEvent.isFlowUpdate = event.params.isFlowUpdate;
+  supportEvent.flowRate = event.params.flowRate;
+  supportEvent.previousFlowRate = event.params.previousFlowRate;
+  supportEvent.timestamp = timestamp;
+
   donor.save();
   donorCollective.save();
+  supportEvent.save();
   pool.save();
 }

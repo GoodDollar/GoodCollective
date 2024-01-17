@@ -8,7 +8,7 @@ import {
 import {
   Claim,
   Collective,
-  EventData,
+  ClaimEvent,
   PoolSettings,
   ProvableNFT,
   SafetyLimits,
@@ -85,11 +85,11 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     return;
   }
 
-  let eventData = EventData.load(eventUri);
+  let eventData = ClaimEvent.load(eventUri);
   if (eventData !== null) {
     return;
   }
-  eventData = new EventData(eventUri);
+  eventData = new ClaimEvent(eventUri);
   eventData.claim = claimId.toHexString();
   eventData.eventType = eventType;
   eventData.timestamp = eventTimestamp;
