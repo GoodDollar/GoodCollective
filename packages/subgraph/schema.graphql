@@ -119,8 +119,7 @@ type ProvableNFT @entity {
 }
 
 type ClaimEvent @entity {
-  id: String! # tx hash
-  eventUri: String!
+  id: String! # event uri
   eventType: Int!
   timestamp: BigInt!
   quantity: BigInt!
@@ -133,6 +132,7 @@ type ClaimEvent @entity {
 type Claim @entity {
   id: String!
   collective: Collective!
+  txHash: String!
   totalRewards: BigInt!
   events: [ClaimEvent!]! @derivedFrom(field: "claim")
 }

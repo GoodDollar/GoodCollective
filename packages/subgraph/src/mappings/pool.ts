@@ -85,8 +85,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     return;
   }
 
-  const claimEvent = new ClaimEvent(event.transaction.hash.toHexString());
-  claimEvent.eventUri = eventUri;
+  const claimEvent = new ClaimEvent(eventUri);
   claimEvent.claim = claimId.toHexString();
   claimEvent.eventType = eventType;
   claimEvent.timestamp = eventTimestamp;
@@ -99,6 +98,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     claim = new Claim(claimId.toHexString());
     claim.totalRewards = BigInt.fromI32(0);
     claim.collective = pool.id;
+    claim.txHash = event.transaction.hash.toHexString();
   }
   const eventReward = rewardPerContributor.times(eventQuantity).times(BigInt.fromI32(contributors.length));
   claim.totalRewards = claim.totalRewards.plus(eventReward);
