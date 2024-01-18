@@ -4532,6 +4532,7 @@ __metadata:
     "@gooddollar/good-design": ^0.1.31
     "@gooddollar/goodcollective-sdk": ^1.0.15
     "@gooddollar/web3sdk-v2": ^0.2.2
+    "@nerdwallet/apollo-cache-policies": ^3.2.0
     "@react-native-aria/interactions": 0.2.3
     "@react-native-async-storage/async-storage": ^1.18.2
     "@react-native-community/eslint-config": ^3.2.0
@@ -5749,6 +5750,20 @@ __metadata:
     multiformats: ^9.5.4
     murmurhash3js-revisited: ^3.0.0
   checksum: e3b07547da4a75348e2e103c6750db33b0caecd33b30751496cc2ca89cb7c654408c17300ca8f9fea79792f900f577b25aba49852feffe52894c79c177e40152
+  languageName: node
+  linkType: hard
+
+"@nerdwallet/apollo-cache-policies@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "@nerdwallet/apollo-cache-policies@npm:3.2.0"
+  dependencies:
+    graphql: ^15.5.0
+    lodash: ^4.17.21
+    uuid: ^7.0.3
+  peerDependencies:
+    "@apollo/client": ^3.8.1
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: 22eb609bf4e9fff59e147dbf165ab05e5ff419450b77ec65126837c674cc942e36ee117c119cca58b860de21ff13e6c5f747f40e2f32b2e351fd4111420e9a23
   languageName: node
   linkType: hard
 

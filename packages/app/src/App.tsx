@@ -20,12 +20,11 @@ import { publicProvider } from 'wagmi/providers/public';
 import { infuraProvider } from 'wagmi/providers/infura';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
-import { ApolloClient, ApolloProvider, InMemoryCache, NormalizedCacheObject } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client';
 
 import { Colors } from './utils/colors';
-import { AsyncStorageWrapper, persistCache } from 'apollo3-cache-persist';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import { useCreateSubgraphApolloClient, useCreateMongoDbApolloClient } from './hooks/apollo';
+import { MongoDbApolloProvider } from './components/providers/MongoDbApolloProvider';
 
 function App(): JSX.Element {
   const { publicClient, webSocketPublicClient } = configureChains(
@@ -45,30 +44,6 @@ function App(): JSX.Element {
     }),
   ];
 
-  const [apolloClient, setApolloClient] = useState<ApolloClient<NormalizedCacheObject> | undefined>();
-
-  useEffect(() => {
-    async function initApollo() {
-      const cache = new InMemoryCache();
-      await persistCache({
-        cache,
-        storage: new AsyncStorageWrapper(AsyncStorage),
-      });
-      const client = new ApolloClient({
-        uri: 'https://api.thegraph.com/subgraphs/name/gooddollar/goodcollective',
-        cache,
-        defaultOptions: {
-          watchQuery: {
-            fetchPolicy: 'cache-and-network',
-          },
-        },
-      });
-      setApolloClient(client);
-    }
-
-    initApollo().catch(console.error);
-  }, []);
-
   const wagmiConfig = createConfig({
     autoConnect: true,
     connectors,
@@ -76,48 +51,53 @@ function App(): JSX.Element {
     webSocketPublicClient,
   });
 
-  if (!apolloClient) {
+  const subgraphApolloClient = useCreateSubgraphApolloClient();
+  const mongoDbApolloClient = useCreateMongoDbApolloClient();
+
+  if (!subgraphApolloClient || !mongoDbApolloClient) {
     return <Text>Loading...</Text>;
   }
 
   return (
     <Providers>
       <WagmiConfig config={wagmiConfig}>
-        <ApolloProvider client={apolloClient}>
-          <SafeAreaView style={styles.body}>
-            {Platform.OS !== 'web' && (
-              <MobileRoute.Router>
-                <MobileRoute.Routes>
-                  <MobileRoute.Route path="/" element={<HomePage />} />
-                  <MobileRoute.Route path="/about" element={<AboutPage />} />
-                  <MobileRoute.Route path="/collective/:id" element={<ViewCollectivePage />} />
-                  <MobileRoute.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
-                  <MobileRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
-                  <MobileRoute.Route path="/profile/:id" element={<WalletProfilePage />} />
-                  <MobileRoute.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
-                  <MobileRoute.Route path="/modalTest" element={<ModalTestPage />} />
-                  <MobileRoute.Route path="/donate" element={<DonatePage />} />
-                </MobileRoute.Routes>
-              </MobileRoute.Router>
-            )}
+        <ApolloProvider client={subgraphApolloClient}>
+          <MongoDbApolloProvider client={mongoDbApolloClient}>
+            <SafeAreaView style={styles.body}>
+              {Platform.OS !== 'web' && (
+                <MobileRoute.Router>
+                  <MobileRoute.Routes>
+                    <MobileRoute.Route path="/" element={<HomePage />} />
+                    <MobileRoute.Route path="/about" element={<AboutPage />} />
+                    <MobileRoute.Route path="/collective/:id" element={<ViewCollectivePage />} />
+                    <MobileRoute.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
+                    <MobileRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
+                    <MobileRoute.Route path="/profile/:id" element={<WalletProfilePage />} />
+                    <MobileRoute.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
+                    <MobileRoute.Route path="/modalTest" element={<ModalTestPage />} />
+                    <MobileRoute.Route path="/donate" element={<DonatePage />} />
+                  </MobileRoute.Routes>
+                </MobileRoute.Router>
+              )}
 
-            {Platform.OS === 'web' && (
-              <WebRoute.Router>
-                <WebRoute.Routes>
-                  <WebRoute.Route path="/" element={<HomePage />} />
-                  <WebRoute.Route path="/about" element={<AboutPage />} />
-                  <WebRoute.Route path="/collective/:id" element={<ViewCollectivePage />} />
-                  <WebRoute.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
-                  <WebRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
-                  <WebRoute.Route path="/profile/:id" element={<WalletProfilePage />} />
-                  <WebRoute.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
-                  <WebRoute.Route path="/profile/" element={<WalletProfilePage />} />
-                  <WebRoute.Route path="/donate/:id" element={<DonatePage />} />
-                  <WebRoute.Route path="/modalTest" element={<ModalTestPage />} />
-                </WebRoute.Routes>
-              </WebRoute.Router>
-            )}
-          </SafeAreaView>
+              {Platform.OS === 'web' && (
+                <WebRoute.Router>
+                  <WebRoute.Routes>
+                    <WebRoute.Route path="/" element={<HomePage />} />
+                    <WebRoute.Route path="/about" element={<AboutPage />} />
+                    <WebRoute.Route path="/collective/:id" element={<ViewCollectivePage />} />
+                    <WebRoute.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
+                    <WebRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
+                    <WebRoute.Route path="/profile/:id" element={<WalletProfilePage />} />
+                    <WebRoute.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
+                    <WebRoute.Route path="/profile/" element={<WalletProfilePage />} />
+                    <WebRoute.Route path="/donate/:id" element={<DonatePage />} />
+                    <WebRoute.Route path="/modalTest" element={<ModalTestPage />} />
+                  </WebRoute.Routes>
+                </WebRoute.Router>
+              )}
+            </SafeAreaView>
+          </MongoDbApolloProvider>
         </ApolloProvider>
       </WagmiConfig>
     </Providers>

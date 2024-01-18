@@ -1,4 +1,4 @@
-import { LazyQueryHookOptions, OperationVariables, TypedDocumentNode, useQuery } from '@apollo/client';
+import { OperationVariables, QueryHookOptions, TypedDocumentNode, useQuery } from '@apollo/client';
 import { DocumentNode } from 'graphql/language';
 import {
   SubgraphCollective,
@@ -16,7 +16,7 @@ export type DonorCollectiveSubgraphResponse = { donorCollectives?: SubgraphDonor
 
 export function useSubgraphData<T>(
   query: DocumentNode | TypedDocumentNode<any, OperationVariables>,
-  options?: LazyQueryHookOptions<T>
+  options?: QueryHookOptions<T>
 ):
   | CollectivesSubgraphResponse
   | DonorsSubgraphResponse

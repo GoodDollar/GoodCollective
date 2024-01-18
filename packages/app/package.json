@@ -22,6 +22,7 @@
     "@gooddollar/good-design": "^0.1.31",
     "@gooddollar/goodcollective-sdk": "^1.0.15",
     "@gooddollar/web3sdk-v2": "^0.2.2",
+    "@nerdwallet/apollo-cache-policies": "^3.2.0",
     "@react-native-aria/interactions": "0.2.3",
     "@react-native-async-storage/async-storage": "^1.18.2",
     "@react-native-firebase/analytics": "16.7.0",
