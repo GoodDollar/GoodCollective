@@ -18,6 +18,9 @@ This is the repo for the GoodCollective protocol and dapp, use it to:
 - install dependencies
   `yarn install`
 
+- build all packages locally
+  `yarn build`
+
 ### Deploying contracts for local development
 
 To start a local node with the deployed contracts:

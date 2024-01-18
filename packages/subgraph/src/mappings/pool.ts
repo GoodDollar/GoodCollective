@@ -1,84 +1,20 @@
-import { Address, log } from '@graphprotocol/graph-ts';
-import {
-  PoolCreated,
-  PoolDetailsChanged,
-  PoolVerifiedChanged,
-} from '../../generated/DirectPaymentsFactory/DirectPaymentsFactory';
+import { BigInt, log } from '@graphprotocol/graph-ts';
 import {
   EventRewardClaimed,
   NFTClaimed,
   PoolLimitsChanged,
   PoolSettingsChanged,
-} from '../../generated/DirectPaymentsPools/DirectPaymentsPool';
-
-import { Claim, DirectPaymentPool, PoolSettings, SafetyLimits, EventData } from '../../generated/schema';
-
-export function handlePoolCreated(event: PoolCreated): void {
-  const poolAddress = event.params.pool;
-  const projectID = event.params.projectId;
-  const ipfsHash = event.params.ipfs;
-  const nftType = event.params.nftType;
-  const poolSettings = event.params.poolSettings;
-  const poolLimits = event.params.poolLimits;
-
-  let directPaymentPool = DirectPaymentPool.load(event.address.toHexString());
-  let directPaymentPoolSettings = PoolSettings.load(event.address.toHexString());
-  let directPaymentPoolLimits = SafetyLimits.load(event.address.toHexString());
-  if (directPaymentPool === null) {
-    directPaymentPool = new DirectPaymentPool(event.address.toHexString());
-    directPaymentPoolSettings = new PoolSettings(event.address.toHexString());
-    directPaymentPoolLimits = new SafetyLimits(event.address.toHexString());
-
-    // Pool
-    directPaymentPool.id = event.address.toHexString();
-    directPaymentPool.ipfs = ipfsHash;
-    directPaymentPool.poolAddress = poolAddress.toHexString();
-    directPaymentPool.isVerified = false;
-    directPaymentPool.projectId = projectID.toHexString();
-    directPaymentPool.save();
-
-    // Pool Settings
-    directPaymentPoolSettings.id = poolAddress.toHexString();
-    directPaymentPoolSettings.nftType = nftType;
-    directPaymentPoolSettings.manager = poolSettings.manager;
-    directPaymentPoolSettings.membersValidator = poolSettings.membersValidator;
-    directPaymentPoolSettings.uniquenessValidator = poolSettings.uniquenessValidator;
-    directPaymentPoolSettings.rewardToken = poolSettings.rewardToken;
-    directPaymentPoolSettings.save();
-
-    //  Pool Limits
-    directPaymentPoolLimits.id = poolAddress.toHexString();
-    directPaymentPoolLimits.maxTotalPerMonth = poolLimits.maxTotalPerMonth;
-    directPaymentPoolLimits.maxMemberPerDay = poolLimits.maxMemberPerDay;
-    directPaymentPoolLimits.save();
-  }
-}
-
-export function handlePoolDetailsChanged(event: PoolDetailsChanged): void {
-  const poolAddress = event.params.pool;
-  const ipfsHash = event.params.ipfs;
-
-  let directPaymentPool = DirectPaymentPool.load(poolAddress.toHexString());
-  if (directPaymentPool === null) {
-    log.error('Missing Payment Pool {}', [event.address.toHex()]);
-    return;
-  }
-  directPaymentPool.ipfs = ipfsHash;
-  directPaymentPool.save();
-}
-
-export function handlePoolVerifiedChange(event: PoolVerifiedChanged): void {
-  const poolAddress = event.params.pool;
-  const verified = event.params.isVerified;
-
-  let directPaymentPool = DirectPaymentPool.load(poolAddress.toHexString());
-  if (directPaymentPool === null) {
-    log.error('Missing Payment Pool {}', [event.address.toHex()]);
-    return;
-  }
-  directPaymentPool.isVerified = verified;
-  directPaymentPool.save();
-}
+} from '../../generated/templates/DirectPaymentsPool/DirectPaymentsPool';
+import {
+  Claim,
+  Collective,
+  EventData,
+  PoolSettings,
+  ProvableNFT,
+  SafetyLimits,
+  Steward,
+  StewardCollective,
+} from '../../generated/schema';
 
 export function handlePoolSettingsChange(event: PoolSettingsChanged): void {
   const poolSettings = event.params.settings;
@@ -89,10 +25,6 @@ export function handlePoolSettingsChange(event: PoolSettingsChanged): void {
   }
   if (!poolSettings.nftType) {
     directPaymentPoolSettings.nftType = poolSettings.nftType;
-    directPaymentPoolSettings.save();
-  }
-  if (poolSettings.validEvents != null) {
-    directPaymentPoolSettings.validEvents = poolSettings.validEvents;
     directPaymentPoolSettings.save();
   }
   if (!poolSettings.manager) {
@@ -141,28 +73,95 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   const eventTimestamp = event.params.eventTimestamp;
   const eventQuantity = event.params.eventQuantity;
   const eventUri = event.params.eventUri;
-  const contributers = event.params.contributers;
-  const rewardPerContributer = event.params.rewardPerContributer;
+  const contributors = event.params.contributers;
+  const rewardPerContributor = event.params.rewardPerContributer;
 
-  let eventData = EventData.load(claimId.toHexString());
-  if (eventData === null) {
-    eventData = new EventData(claimId.toHexString());
-    eventData.eventType = eventType;
-    eventData.eventTimestamp = eventTimestamp;
-    eventData.eventQuantity = eventQuantity;
-    eventData.eventUri = eventUri;
+  const nftId = claimId.toHexString();
+  const poolAddress = event.address.toHexString();
 
-    for (let i = 0; i < contributers.length; i++) {
-      eventData.contributors.push(contributers[i]);
-      eventData.save();
-    }
-
-    eventData.rewardPerContributer = rewardPerContributer;
-    eventData.save();
+  let pool = Collective.load(poolAddress);
+  if (pool === null) {
+    log.error('Missing Payment Pool {}', [event.address.toHex()]);
+    return;
   }
-}
 
-// event NFTClaimed(uint256 indexed tokenId, uint256 totalRewards);
+  let eventData = EventData.load(eventUri);
+  if (eventData !== null) {
+    return;
+  }
+  eventData = new EventData(eventUri);
+  eventData.claim = claimId.toHexString();
+  eventData.eventType = eventType;
+  eventData.timestamp = eventTimestamp;
+  eventData.quantity = eventQuantity;
+  eventData.rewardPerContributor = rewardPerContributor;
+
+  // handle claim
+  let claim = Claim.load(claimId.toHexString());
+  if (claim === null) {
+    claim = new Claim(claimId.toHexString());
+    claim.totalRewards = BigInt.fromI32(0);
+  }
+  const eventReward = rewardPerContributor.times(eventQuantity).times(BigInt.fromI32(contributors.length));
+  claim.totalRewards = claim.totalRewards.plus(eventReward);
+
+  // handle nft -> note that ProvableNFT.hash and ProvableNFT.owner are set by NFT mint event
+  eventData.nft = nftId;
+  let nft = ProvableNFT.load(nftId);
+  if (nft === null) {
+    nft = new ProvableNFT(nftId);
+    nft.hash = '';
+    nft.owner = '';
+  }
+  nft.collective = poolAddress;
+
+  eventData.contributors = new Array<string>();
+  for (let i = 0; i < contributors.length; i++) {
+    const stewardAddress = contributors[i].toHexString();
+    const stewardCollectiveId = `${stewardAddress} ${poolAddress}`;
+
+    // adds steward to event data
+    eventData.contributors.push(stewardAddress);
+
+    // update Steward
+    let steward = Steward.load(contributors[i].toHexString());
+    if (steward === null) {
+      steward = new Steward(contributors[i].toHexString());
+      steward.actions = 0;
+      steward.totalEarned = BigInt.fromI32(0);
+      steward.nfts = new Array<string>();
+    }
+    steward.nfts.push(nftId);
+    steward.actions = steward.actions + 1;
+    const totalReward = rewardPerContributor.times(eventQuantity);
+    steward.totalEarned = steward.totalEarned.plus(totalReward);
+
+    // update StewardCollective
+    let stewardCollective = StewardCollective.load(stewardCollectiveId);
+    if (stewardCollective === null) {
+      stewardCollective = new StewardCollective(stewardCollectiveId);
+      stewardCollective.actions = 0;
+      stewardCollective.totalEarned = BigInt.fromI32(0);
+    }
+    stewardCollective.actions = stewardCollective.actions + 1;
+    stewardCollective.totalEarned = stewardCollective.totalEarned.plus(totalReward);
+    stewardCollective.steward = steward.id;
+    stewardCollective.collective = pool.id;
+
+    steward.save();
+    stewardCollective.save();
+  }
+
+  // update pool
+  const totalRewards = rewardPerContributor.times(BigInt.fromI32(contributors.length));
+  pool.totalRewards = pool.totalRewards.plus(totalRewards);
+  pool.paymentsMade = pool.paymentsMade + contributors.length;
+
+  claim.save();
+  nft.save();
+  pool.save();
+  eventData.save();
+}
 
 export function handleClaim(event: NFTClaimed): void {
   const claimId = event.params.tokenId;

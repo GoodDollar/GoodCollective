@@ -20,10 +20,20 @@ describe('ProvableNFT', function () {
           timestamp: 1,
           eventUri: 'uri2',
           contributers: ['0xdA030751FF448Cf127911f0518a2B9b012f72424'],
+          rewardOverride: 0,
         },
       ],
     };
   };
+
+  const nftHash = ethers.utils.keccak256(
+    ethers.utils.defaultAbiCoder.encode(
+      [
+        'tuple(uint32 nftType,uint16 version,string nftUri,tuple(uint16 subtype,uint32 timestamp,uint256 quantity,string eventUri,address[] contributers,uint256 rewardOverride)[] events)',
+      ],
+      [sampleData1()]
+    )
+  );
 
   const fixture = async () => {
     const factory = await ethers.getContractFactory('ProvableNFT');
@@ -40,18 +50,11 @@ describe('ProvableNFT', function () {
 
   it('should mint the NFT with correct URI and owner', async function () {
     const sample = sampleData1();
-    const dh = ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(
-        [
-          'tuple(uint32 nftType,uint16 version,string nftUri,tuple(uint16 subtype,uint32 timestamp,uint256 quantity,string eventUri,address[] contributers)[] events)',
-        ],
-        [sample]
-      )
-    );
-    await nft.mint(signer.address, 'ipfs://1243', dh);
 
-    expect(await nft.tokenURI(dh)).to.equal('ipfs://1243');
-    expect(await nft.ownerOf(dh)).to.equal(signer.address);
+    await nft.mint(signer.address, 'ipfs://1243', nftHash);
+
+    expect(await nft.tokenURI(nftHash)).to.equal('ipfs://1243');
+    expect(await nft.ownerOf(nftHash)).to.equal(signer.address);
   });
 
   it('should fail to prove NFT data with invalid digest', async function () {
@@ -67,17 +70,10 @@ describe('ProvableNFT', function () {
 
   it('should prove NFT data with valid digest', async function () {
     const sample = sampleData1();
-    const dh = ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(
-        [
-          'tuple(uint32 nftType,uint16 version,string nftUri,tuple(uint16 subtype,uint32 timestamp,uint256 quantity,string eventUri,address[] contributers)[] events)',
-        ],
-        [sample]
-      )
-    );
-    const tx = await (await nft.mint(signer.address, '', dh)).wait();
+
+    const tx = await (await nft.mint(signer.address, '', nftHash)).wait();
     const event = tx.events?.find((_) => _.event === 'Transfer');
-    const data = await nft.proveNFTData(dh, sample);
+    const data = await nft.proveNFTData(nftHash, sample);
 
     expect(data.nftUri).to.equal('uri');
     expect(data.nftType).to.equal(2);

@@ -33,11 +33,11 @@ type Contracts = (typeof GoodCollectiveContracts)[keyof typeof GoodCollectiveCon
 
 const SF_RESOLVERS: { [key: string]: string } = {
   44787: '0x6e9CaBE4172344Db81a1E1D735a6AD763700064A',
-  31337: '0x41549B6C39A529EA574f35b745b00f716869D2a0',
+  31337: '0x02330b5Be8EBD0D4d354813a7BB535140A77C881',
 };
 const CHAIN_OVERRIDES: { [key: string]: object } = {
-  44787: { gasPrice: 5e9 },
-  42220: { gasPrice: 5e9 },
+  44787: { gasPrice: 5e9, gasLimit: 1200000 },
+  42220: { gasPrice: 5e9, gasLimit: 1200000 },
 };
 
 export class GoodCollectiveSDK {
@@ -193,6 +193,56 @@ export class GoodCollectiveSDK {
     const signerAddress = await signer.getAddress();
 
     const flowAction = st.createFlow({
+      receiver: poolAddress,
+      sender: signerAddress,
+      flowRate: flowRate,
+      overrides: { ...CHAIN_OVERRIDES[this.chainId] },
+    });
+    const op = flowAction;
+
+    return op.exec(signer);
+  }
+
+  /**
+   * Updates an existing flow using Superfluid's core-sdk createFlow method.
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} poolAddress - The address of the pool contract.
+   * @param {string} flowRate - The flow rate for the new flow.
+   * @returns {Promise<ethers.ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
+   */
+  async updateFlow(signer: ethers.Signer, poolAddress: string, flowRate: string) {
+    // call the superfluid core-sdk to start a flow using createflow
+    const sdk = await this.superfluidSDK;
+    const token = (await this.pool.attach(poolAddress).settings()).rewardToken;
+    const st = await sdk.loadSuperToken(token);
+    const signerAddress = await signer.getAddress();
+
+    const flowAction = st.updateFlow({
+      receiver: poolAddress,
+      sender: signerAddress,
+      flowRate: flowRate,
+      overrides: { ...CHAIN_OVERRIDES[this.chainId] },
+    });
+    const op = flowAction;
+
+    return op.exec(signer);
+  }
+
+  /**
+   * Updates an existing flow using Superfluid's core-sdk createFlow method.
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} poolAddress - The address of the pool contract.
+   * @param {string} flowRate - The flow rate for the new flow.
+   * @returns {Promise<ethers.ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
+   */
+  async deleteFlow(signer: ethers.Signer, poolAddress: string, flowRate: string) {
+    // call the superfluid core-sdk to start a flow using createflow
+    const sdk = await this.superfluidSDK;
+    const token = (await this.pool.attach(poolAddress).settings()).rewardToken;
+    const st = await sdk.loadSuperToken(token);
+    const signerAddress = await signer.getAddress();
+
+    const flowAction = st.deleteFlow({
       receiver: poolAddress,
       sender: signerAddress,
       flowRate: flowRate,

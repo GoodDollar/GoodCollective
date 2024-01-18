@@ -12,7 +12,9 @@
   ],
   "private": true,
   "scripts": {
-    "publish": "yarn workspaces foreach --include '{@gooddollar/goodcollective-contracts,@gooddollar/goodcollective-sdk}' run publish",
+    "postinstall": "husky install",
+    "publish": "yarn workspaces foreach -t --include '{@gooddollar/goodcollective-contracts,@gooddollar/goodcollective-sdk}' run publish",
+    "build": "yarn workspaces foreach -tp --include '{@gooddollar/goodcollective-contracts,@gooddollar/goodcollective-sdk,@gooddollar/goodcollective-app}' run build",
     "build:contracts": "yarn workspace @gooddollar/goodcollective-contracts compile",
     "build:sdk": "yarn workspace @gooddollar/goodcollective-sdk build",
     "deploy:contracts": "yarn workspace @gooddollar/goodcollective-contracts deploy",
@@ -22,11 +24,6 @@
   },
   "workspaces": {
     "packages": [
-      "packages/app",
-      "packages/contracts",
-      "packages/sdk-js",
-      "packages/subgraph",
-      "packages/services/*",
       "packages/*"
     ]
   },

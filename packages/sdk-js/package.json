@@ -1,16 +1,10 @@
 {
   "name": "@gooddollar/goodcollective-sdk",
   "license": "MIT",
-  "version": "1.0.6",
-  "main": "./dist/sdk.umd.cjs",
-  "module": "./dist/sdk.js",
+  "version": "1.0.15",
+  "main": "./dist/sdk.js",
+  "module": "./dist/sdk.mjs",
   "types": "./types/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/sdk.js",
-      "require": "./dist/sdk.umd.cjs"
-    }
-  },
   "scripts": {
     "build": "rm -fr dist types && tsc && vite build",
     "test:setup": "yarn exec ./scripts/deployContracts.sh",
@@ -46,7 +40,7 @@
   },
   "dependencies": {
     "@gooddollar/goodcollective-contracts": "^1.0.4",
-    "@superfluid-finance/sdk-core": "^0.6.6",
+    "@superfluid-finance/sdk-core": "^0.6.12",
     "graphql": "^16.7.1",
     "nft.storage": "^7.1.1"
   },

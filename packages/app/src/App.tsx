@@ -1,141 +1,133 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import { Platform, SafeAreaView, StyleSheet, Text } from 'react-native';
 
-import React, { useEffect, useState } from 'react';
-import type { PropsWithChildren } from 'react';
-import { Linking, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
-import { ConnectWallet } from './components/ConnectWallet';
-import { useEthers } from '@usedapp/core';
-import { useNativeBalance, ClaimSDK } from '@gooddollar/web3sdk-v2';
-import * as ethers from 'ethers';
-import { Button } from 'native-base';
-import { CeloWallet, CeloProvider } from '@celo-tools/celo-ethers-wrapper';
+import AboutPage from './pages/AboutPage';
+import HomePage from './pages/HomePage';
+import ViewCollectivePage from './pages/ViewCollectivePage';
+import ViewDonorsPage from './pages/ViewDonorsPage';
+import ViewStewardsPage from './pages/ViewStewardsPage';
+import WalletProfilePage from './pages/WalletProfilePage';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+import * as MobileRoute from './routes/routing.native';
+import * as WebRoute from './routes/routing.web';
 
-function Section({ children, title }: SectionProps): JSX.Element {
-  return (
-    <View style={styles.sectionContainer}>
-      <Text style={[styles.sectionTitle]}>{title}</Text>
-      <Text style={[styles.sectionDescription]}>{children}</Text>
-    </View>
-  );
-}
+import ActivityLogPage from './pages/ActivityLogPage';
+import { Providers } from './Providers';
+import DonatePage from './pages/DonatePage';
+import ModalTestPage from './pages/ModalTestPage';
+import { configureChains, createConfig, WagmiConfig } from 'wagmi';
+import { celo, mainnet } from 'wagmi/chains';
+import { publicProvider } from 'wagmi/providers/public';
+import { infuraProvider } from 'wagmi/providers/infura';
+import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
+import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
+import { ApolloClient, ApolloProvider, InMemoryCache, NormalizedCacheObject } from '@apollo/client';
 
-let sdk = new ClaimSDK(new ethers.providers.JsonRpcProvider('https://forno.celo.org'), 'development-celo');
+import { Colors } from './utils/colors';
+import { AsyncStorageWrapper, persistCache } from 'apollo3-cache-persist';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+
 function App(): JSX.Element {
-  const [status, setStatus] = useState<boolean>();
-  const [faucet, setFaucet] = useState<boolean>();
-  const [claim, setClaim] = useState<string>();
+  const { publicClient, webSocketPublicClient } = configureChains(
+    [celo, mainnet],
+    [infuraProvider({ apiKey: '88284fbbacd3472ca3361d1317a48fa5' }), publicProvider()]
+  );
 
-  const isDarkMode = useColorScheme() === 'dark';
-  const { account, library } = useEthers();
-  const backgroundStyle = {};
-  const balance = useNativeBalance();
+  const connectors = [
+    new MetaMaskConnector({
+      chains: [celo],
+    }),
+    new WalletConnectConnector({
+      chains: [celo],
+      options: {
+        projectId: 'f147afbc9ad50465eaedd3f56ad2ae87',
+      },
+    }),
+  ];
 
-  const startFV = async () => {
-    const fvlink = await sdk.generateFVLink('Hadar', window.location.href, false);
-    console.log({ fvlink });
-    Linking.openURL(fvlink);
-  };
-
-  const startFaucet = async () => {
-    if (account) await sdk.getContract('Faucet').topWallet(account);
-  };
-
-  const startClaim = async () => {
-    await sdk.getContract('UBIScheme').claim();
-  };
-
-  const startGasDemo = async () => {
-    if (!account) return;
-    const abi = ['function drip()'];
-    const p = new CeloProvider('https://alfajores-forno.celo-testnet.org');
-    const w = new CeloWallet('0xa276992c491e8ca1f41263c0b8a6867daa74b24dd2ec492cb77d6ecf4cc001bc').connect(p);
-    const gdfaucet = new ethers.Contract('0x8986F9C6b3D0b9A8b92ef7f1eF7EB9e767D414e1', abi, w);
-    try {
-      await gdfaucet.drip();
-    } catch (e) {}
-    console.log('drip done...');
-
-    const encoded = sdk
-      .getContract('GoodDollar')
-      .interface.encodeFunctionData('transfer', [account, ethers.constants.WeiPerEther]);
-    const tx = await w.sendTransaction({
-      to: '0x03d3daB843e6c03b3d271eff9178e6A96c28D25f',
-      data: encoded,
-      gasPrice: ethers.utils.parseEther('0.00005'),
-      gasLimit: 200000,
-      feeCurrency: '0x03d3daB843e6c03b3d271eff9178e6A96c28D25f',
-    });
-    console.log(tx);
-  };
+  const [apolloClient, setApolloClient] = useState<ApolloClient<NormalizedCacheObject> | undefined>();
 
   useEffect(() => {
-    if (account) {
-      sdk = new ClaimSDK(library as any, 'development-celo');
-      console.log(sdk.contracts);
-      sdk.isAddressVerified(account).then((_) => setStatus(_));
-      sdk.checkEntitlement().then((_) => setClaim(ethers.utils.formatEther(_)));
-
-      sdk
-        .getContract('Faucet')
-        .canTop(account)
-        .then((_) => setFaucet(_));
+    async function initApollo() {
+      const cache = new InMemoryCache();
+      await persistCache({
+        cache,
+        storage: new AsyncStorageWrapper(AsyncStorage),
+      });
+      const client = new ApolloClient({
+        uri: 'https://api.thegraph.com/subgraphs/name/gooddollar/goodcollective',
+        cache,
+        defaultOptions: {
+          watchQuery: {
+            fetchPolicy: 'cache-and-network',
+          },
+        },
+      });
+      setApolloClient(client);
     }
-  }, [account, library]);
+
+    initApollo().catch(console.error);
+  }, []);
+
+  const wagmiConfig = createConfig({
+    autoConnect: true,
+    connectors,
+    publicClient,
+    webSocketPublicClient,
+  });
+
+  if (!apolloClient) {
+    return <Text>Loading...</Text>;
+  }
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView contentInsetAdjustmentBehavior="automatic" style={backgroundStyle}>
-        <View>
-          <ConnectWallet />
+    <Providers>
+      <WagmiConfig config={wagmiConfig}>
+        <ApolloProvider client={apolloClient}>
+          <SafeAreaView style={styles.body}>
+            {Platform.OS !== 'web' && (
+              <MobileRoute.Router>
+                <MobileRoute.Routes>
+                  <MobileRoute.Route path="/" element={<HomePage />} />
+                  <MobileRoute.Route path="/about" element={<AboutPage />} />
+                  <MobileRoute.Route path="/collective/:id" element={<ViewCollectivePage />} />
+                  <MobileRoute.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
+                  <MobileRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
+                  <MobileRoute.Route path="/profile/:id" element={<WalletProfilePage />} />
+                  <MobileRoute.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
+                  <MobileRoute.Route path="/modalTest" element={<ModalTestPage />} />
+                  <MobileRoute.Route path="/donate" element={<DonatePage />} />
+                </MobileRoute.Routes>
+              </MobileRoute.Router>
+            )}
 
-          <Section title="Wallet">{account}</Section>
-          <Section title="Balance">{balance?.toString()}</Section>
-          <Section title="Whitelisted">{String(status)}</Section>
-          <Section title="Get Whitelisted">
-            <Button onPress={startFV}>Start Verification</Button>
-          </Section>
-          <Section title="Can top gas">{String(faucet)}</Section>
-          <Section title="Get gas">
-            <Button onPress={startFaucet}>Top Wallet</Button>
-          </Section>
-          <Section title="Claim">
-            <Button onPress={startClaim}>{Number(claim).toFixed(2)} G$</Button>
-          </Section>
-          <Section title="Gas Token Demo">
-            <Button onPress={startGasDemo}>Demo</Button>
-          </Section>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+            {Platform.OS === 'web' && (
+              <WebRoute.Router>
+                <WebRoute.Routes>
+                  <WebRoute.Route path="/" element={<HomePage />} />
+                  <WebRoute.Route path="/about" element={<AboutPage />} />
+                  <WebRoute.Route path="/collective/:id" element={<ViewCollectivePage />} />
+                  <WebRoute.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
+                  <WebRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
+                  <WebRoute.Route path="/profile/:id" element={<WalletProfilePage />} />
+                  <WebRoute.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
+                  <WebRoute.Route path="/profile/" element={<WalletProfilePage />} />
+                  <WebRoute.Route path="/donate/:id" element={<DonatePage />} />
+                  <WebRoute.Route path="/modalTest" element={<ModalTestPage />} />
+                </WebRoute.Routes>
+              </WebRoute.Router>
+            )}
+          </SafeAreaView>
+        </ApolloProvider>
+      </WagmiConfig>
+    </Providers>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+  body: {
+    backgroundColor: Colors.gray[400],
+    minHeight: '100vh',
   },
 });
 
