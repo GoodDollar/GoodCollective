@@ -59,10 +59,10 @@ export const useCreateMongoDbApolloClient = (): ApolloClient<any> | undefined =>
         }),
         defaultOptions: {
           watchQuery: {
-            fetchPolicy: 'no-cache',
+            fetchPolicy: 'cache-and-network',
           },
           query: {
-            fetchPolicy: 'no-cache',
+            fetchPolicy: 'cache-first',
           },
         },
       });
