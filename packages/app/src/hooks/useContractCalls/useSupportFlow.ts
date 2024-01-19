@@ -14,7 +14,8 @@ export function useSupportFlow(
   duration: number,
   frequency: Frequency,
   onError: (error: string) => void,
-  toggleCompleteDonationModal: (value: boolean) => void
+  toggleCompleteDonationModal: (value: boolean) => void,
+  toggleThankYouModal: (value: boolean) => void
 ) {
   const { address: maybeAddress } = useAccount();
   const { chain } = useNetwork();
@@ -42,25 +43,29 @@ export function useSupportFlow(
       const sdk = new GoodCollectiveSDK(chainIdString, signer.provider, { network });
       toggleCompleteDonationModal(true);
       const tx = await sdk.supportFlow(signer, collective, flowRate);
+      toggleCompleteDonationModal(false);
+      toggleThankYouModal(true);
       await tx.wait();
       navigate(`/profile/${address}`);
       return;
     } catch (error) {
       toggleCompleteDonationModal(false);
+      toggleThankYouModal(false);
       const message = printAndParseSupportError(error);
       onError(message);
     }
   }, [
     maybeAddress,
     chain?.id,
-    collective,
-    currencyDecimals,
+    maybeSigner,
     decimalAmountIn,
     duration,
     frequency,
-    navigate,
+    currencyDecimals,
     onError,
-    maybeSigner,
     toggleCompleteDonationModal,
+    collective,
+    toggleThankYouModal,
+    navigate,
   ]);
 }

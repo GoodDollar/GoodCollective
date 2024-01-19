@@ -1,6 +1,6 @@
 type Donor @entity {
   id: String! # The address of the donor
-  joined: BigInt!
+  timestamp: Int!
   totalDonated: BigInt!
   collectives: [DonorCollective!]! @derivedFrom(field: "donor")
 }
@@ -12,9 +12,24 @@ type DonorCollective @entity {
   id: String! # donorAddress + " " + collectiveAddress
   donor: Donor!
   collective: Collective!
-  contribution: BigInt! # This is the total contribution of the donor to the collective
+  contribution: BigInt! # total contribution of the donor to the collective
   flowRate: BigInt!
-  timestamp: BigInt!
+  timestamp: Int!
+  events: [SupportEvent!]! @derivedFrom(field: "donorCollective")
+}
+
+type SupportEvent @entity {
+  id: String! # tx hash
+  networkFee: BigInt! # gas price * gas limit
+  donor: Donor!
+  collective: Collective!
+  donorCollective: DonorCollective!
+  contribution: BigInt!
+  previousContribution: BigInt!
+  isFlowUpdate: Boolean!
+  flowRate: BigInt!
+  previousFlowRate: BigInt!
+  timestamp: Int!
 }
 
 type Steward @entity {
@@ -58,10 +73,11 @@ type Collective @entity {
   projectId: String!
   isVerified: Boolean!
   poolFactory: String! # pool factory (event source)
-  timestamp: BigInt!
+  timestamp: Int!
   paymentsMade: Int!
   totalDonations: BigInt!
   totalRewards: BigInt!
+  claims: [Claim!]! @derivedFrom(field: "collective")
 }
 
 type IpfsCollective @entity {
@@ -103,10 +119,10 @@ type ProvableNFT @entity {
   collective: Collective # This is always populated, but not by the same handler that creates the ProvableNFT
 }
 
-type EventData @entity {
+type ClaimEvent @entity {
   id: String! # event uri
   eventType: Int!
-  timestamp: BigInt!
+  timestamp: Int!
   quantity: BigInt!
   rewardPerContributor: BigInt!
   contributors: [Steward!]!
@@ -116,6 +132,10 @@ type EventData @entity {
 
 type Claim @entity {
   id: String!
+  collective: Collective!
+  txHash: String!
+  networkFee: BigInt! # gas price * gas limit
   totalRewards: BigInt!
-  events: [EventData!]! @derivedFrom(field: "claim")
+  events: [ClaimEvent!]! @derivedFrom(field: "claim")
+  timestamp: Int!
 }

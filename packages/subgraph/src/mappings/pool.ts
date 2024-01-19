@@ -8,7 +8,7 @@ import {
 import {
   Claim,
   Collective,
-  EventData,
+  ClaimEvent,
   PoolSettings,
   ProvableNFT,
   SafetyLimits,
@@ -85,28 +85,28 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     return;
   }
 
-  let eventData = EventData.load(eventUri);
-  if (eventData !== null) {
-    return;
-  }
-  eventData = new EventData(eventUri);
-  eventData.claim = claimId.toHexString();
-  eventData.eventType = eventType;
-  eventData.timestamp = eventTimestamp;
-  eventData.quantity = eventQuantity;
-  eventData.rewardPerContributor = rewardPerContributor;
+  const claimEvent = new ClaimEvent(eventUri);
+  claimEvent.claim = claimId.toHexString();
+  claimEvent.eventType = eventType;
+  claimEvent.timestamp = eventTimestamp.toI32();
+  claimEvent.quantity = eventQuantity;
+  claimEvent.rewardPerContributor = rewardPerContributor;
 
   // handle claim
   let claim = Claim.load(claimId.toHexString());
   if (claim === null) {
     claim = new Claim(claimId.toHexString());
     claim.totalRewards = BigInt.fromI32(0);
+    claim.collective = pool.id;
+    claim.txHash = event.transaction.hash.toHexString();
+    claim.timestamp = event.block.timestamp.toI32();
+    claim.networkFee = event.transaction.gasLimit.times(event.transaction.gasPrice);
   }
   const eventReward = rewardPerContributor.times(eventQuantity).times(BigInt.fromI32(contributors.length));
   claim.totalRewards = claim.totalRewards.plus(eventReward);
 
   // handle nft -> note that ProvableNFT.hash and ProvableNFT.owner are set by NFT mint event
-  eventData.nft = nftId;
+  claimEvent.nft = nftId;
   let nft = ProvableNFT.load(nftId);
   if (nft === null) {
     nft = new ProvableNFT(nftId);
@@ -115,13 +115,13 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   }
   nft.collective = poolAddress;
 
-  eventData.contributors = new Array<string>();
+  claimEvent.contributors = new Array<string>();
   for (let i = 0; i < contributors.length; i++) {
     const stewardAddress = contributors[i].toHexString();
     const stewardCollectiveId = `${stewardAddress} ${poolAddress}`;
 
     // adds steward to event data
-    eventData.contributors.push(stewardAddress);
+    claimEvent.contributors.push(stewardAddress);
 
     // update Steward
     let steward = Steward.load(contributors[i].toHexString());
@@ -160,7 +160,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   claim.save();
   nft.save();
   pool.save();
-  eventData.save();
+  claimEvent.save();
 }
 
 export function handleClaim(event: NFTClaimed): void {

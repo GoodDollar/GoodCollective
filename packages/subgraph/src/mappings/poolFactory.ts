@@ -53,7 +53,7 @@ export function handlePoolCreated(event: PoolCreated): void {
     directPaymentPool.projectId = projectID;
     directPaymentPool.isVerified = false;
     directPaymentPool.poolFactory = event.address.toHexString();
-    directPaymentPool.timestamp = event.block.timestamp;
+    directPaymentPool.timestamp = event.block.timestamp.toI32();
     directPaymentPool.paymentsMade = 0;
     directPaymentPool.totalDonations = new BigInt(0);
     directPaymentPool.totalRewards = new BigInt(0);

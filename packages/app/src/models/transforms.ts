@@ -1,11 +1,22 @@
-import { Collective, Donor, Steward, IpfsCollective, StewardCollective, DonorCollective } from './models';
 import {
+  Collective,
+  Donor,
+  Steward,
+  IpfsCollective,
+  StewardCollective,
+  DonorCollective,
+  ClaimTx,
+  SupportTx,
+} from './models';
+import {
+  SubgraphClaim,
   SubgraphCollective,
   SubgraphDonor,
   SubgraphDonorCollective,
   SubgraphIpfsCollective,
   SubgraphSteward,
   SubgraphStewardCollective,
+  SubgraphSupportEvent,
 } from '../subgraph';
 
 export function subgraphStewardCollectiveToModel(
@@ -34,14 +45,14 @@ export function subgraphDonorCollectiveToModel(subgraphDonorCollective: Subgraph
     collective: subgraphDonorCollective.collective.id,
     contribution: subgraphDonorCollective.contribution,
     flowRate: subgraphDonorCollective.flowRate,
-    timestamp: parseInt(subgraphDonorCollective.timestamp, 10),
+    timestamp: subgraphDonorCollective.timestamp,
   };
 }
 
 export function subgraphDonorToModel(subgraphDonor: SubgraphDonor): Donor {
   return {
     address: subgraphDonor.id,
-    joined: parseInt(subgraphDonor.joined, 10),
+    joined: subgraphDonor.timestamp,
     totalDonated: subgraphDonor.totalDonated,
     collectives: subgraphDonor.collectives.map(subgraphDonorCollectiveToModel),
   };
@@ -78,5 +89,32 @@ export function ipfsSubgraphCollectiveToModel(subgraphCollective: {
     logo: subgraphCollective.ipfs.logo,
     threads: subgraphCollective.ipfs?.threads,
     images: subgraphCollective.ipfs?.images,
+  };
+}
+
+export function subgraphClaimToModel(subgraphClaim: SubgraphClaim): ClaimTx {
+  const stewards = subgraphClaim.events.flatMap((event) => event.contributors.map((contributor) => contributor.id));
+  return {
+    hash: subgraphClaim.txHash,
+    networkFee: subgraphClaim.networkFee,
+    collective: subgraphClaim.collective.id,
+    timestamp: subgraphClaim.timestamp,
+    stewards: stewards,
+    totalRewards: subgraphClaim.totalRewards,
+  };
+}
+
+export function subgraphSupportEventToModel(subgraphSupportEvent: SubgraphSupportEvent): SupportTx {
+  return {
+    hash: subgraphSupportEvent.id,
+    networkFee: subgraphSupportEvent.networkFee,
+    collective: subgraphSupportEvent.collective.id,
+    timestamp: subgraphSupportEvent.timestamp,
+    donor: subgraphSupportEvent.donor.id,
+    contribution: subgraphSupportEvent.contribution,
+    previousContribution: subgraphSupportEvent.previousContribution,
+    isFlowUpdate: subgraphSupportEvent.isFlowUpdate,
+    flowRate: subgraphSupportEvent.flowRate,
+    previousFlowRate: subgraphSupportEvent.previousFlowRate,
   };
 }

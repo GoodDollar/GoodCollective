@@ -63,9 +63,21 @@ export interface IpfsCollective {
 
 export interface Transaction {
   hash: string;
-  rawAmount: string;
-  from: string;
-  to: string;
-  fee: string;
+  networkFee: string;
+  collective: string;
   timestamp: number;
+}
+
+export interface ClaimTx extends Transaction {
+  stewards: string[];
+  totalRewards: string;
+}
+
+export interface SupportTx extends Transaction {
+  donor: string;
+  contribution: string;
+  previousContribution: string;
+  isFlowUpdate: boolean;
+  flowRate: string;
+  previousFlowRate: string;
 }

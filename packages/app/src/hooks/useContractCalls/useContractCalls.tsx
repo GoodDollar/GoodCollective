@@ -20,6 +20,7 @@ export const useContractCalls = (
   frequency: Frequency,
   onError: (error: string) => void,
   toggleCompleteDonationModal: (value: boolean) => void,
+  toggleThankYouModal: (value: boolean) => void,
   minReturnFromSwap?: string,
   swapPath?: string
 ): ContractCalls => {
@@ -32,7 +33,8 @@ export const useContractCalls = (
     duration,
     frequency,
     onError,
-    toggleCompleteDonationModal
+    toggleCompleteDonationModal,
+    toggleThankYouModal
   );
   const supportFlowWithSwap = useSupportFlowWithSwap(
     collective,
@@ -42,6 +44,7 @@ export const useContractCalls = (
     frequency,
     onError,
     toggleCompleteDonationModal,
+    toggleThankYouModal,
     minReturnFromSwap,
     swapPath
   );
@@ -50,14 +53,16 @@ export const useContractCalls = (
     tokenIn.decimals,
     decimalAmountIn,
     onError,
-    toggleCompleteDonationModal
+    toggleCompleteDonationModal,
+    toggleThankYouModal
   );
   const supportSingleBatch = useSupportSingleBatch(
     collective,
     tokenIn.decimals,
     decimalAmountIn,
     onError,
-    toggleCompleteDonationModal
+    toggleCompleteDonationModal,
+    toggleThankYouModal
   );
 
   return {

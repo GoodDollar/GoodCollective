@@ -1,38 +1,33 @@
 import { Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-import { InterRegular, InterSemiBold } from '../utils/webFonts';
-// import useCrossNavigate from '../routes/useCrossNavigate';
-import { Colors } from '../utils/colors';
-import { modalStyles } from './shared';
-import { CloseIcon, PhoneImg } from '../assets';
+import { InterRegular, InterSemiBold } from '../../utils/webFonts';
+import { Colors } from '../../utils/colors';
+import { modalStyles } from '../shared';
+import { CloseIcon, ApproveTokenImg } from '../../assets';
 
-interface CompleteDonationModalProps {
+interface AproveSwapModalProps {
   openModal: boolean;
   setOpenModal: any;
 }
 
-const CompleteDonationModal = ({ openModal, setOpenModal }: CompleteDonationModalProps) => {
-  const onClickClose = () => setOpenModal(false);
-
+const ApproveSwapModal = ({ openModal, setOpenModal }: AproveSwapModalProps) => {
   return (
-    <View style={styles.centeredView}>
-      <Modal animationType="slide" transparent={true} visible={openModal}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <View style={modalStyles.modalCloseIconWrapper}>
-              <TouchableOpacity style={modalStyles.modalCloseIcon} onPress={onClickClose}>
-                <Image source={CloseIcon} style={styles.closeIcon} />
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.title}>COMPLETE YOUR DONATION</Text>
-            <Text style={styles.paragraph}>To complete your donation, sign with your wallet.</Text>
-            <Image source={PhoneImg} alt="woman" style={styles.image} />
-            <TouchableOpacity style={styles.button} onPress={onClickClose}>
-              <Text style={styles.buttonText}>OK</Text>
+    <Modal style={styles.centeredView} animationType="slide" transparent={true} visible={openModal}>
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <View style={modalStyles.modalCloseIconWrapper}>
+            <TouchableOpacity style={modalStyles.modalCloseIcon} onPress={() => setOpenModal(false)}>
+              <Image source={CloseIcon} style={styles.closeIcon} />
             </TouchableOpacity>
           </View>
+          <Text style={styles.title}>APPROVE TOKEN SWAP</Text>
+          <Text style={styles.paragraph}>
+            To approve the exchange from your donation currency to this GoodCollective's currency, sign with your
+            wallet.
+          </Text>
+          <Image source={ApproveTokenImg} alt="woman" style={styles.image} />
         </View>
-      </Modal>
-    </View>
+      </View>
+    </Modal>
   );
 };
 
@@ -79,7 +74,7 @@ const styles = StyleSheet.create({
   },
   image: {
     alignSelf: 'center',
-    width: 190,
+    width: 295,
     height: 224,
   },
   closeIcon: {
@@ -118,4 +113,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CompleteDonationModal;
+export default ApproveSwapModal;

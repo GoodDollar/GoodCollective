@@ -50,7 +50,7 @@ export const collective = gql`
 `;
 
 export const collectivesById = gql`
-  query COLLECTIVES_BY_ID($ids: [String]) {
+  query COLLECTIVES_BY_ID($ids: [String!]) {
     collectives(where: { id_in: $ids }) {
       id
       ipfs {

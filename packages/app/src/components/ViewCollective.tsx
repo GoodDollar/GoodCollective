@@ -6,8 +6,7 @@ import StewardList from './StewardsList/StewardsList';
 import TransactionList from './TransactionList/TransactionList';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
-import StopDonationModal from './StopDonationModal';
-import ThankYouModal from './ThankYouModal';
+import StopDonationModal from './modals/StopDonationModal';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import { formatTime } from '../lib/formatTime';
@@ -33,7 +32,7 @@ import {
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 import FlowingDonationsRowItem from './FlowingDonationsRowItem';
 import { useDeleteFlow } from '../hooks/useContractCalls/useDeleteFlow';
-import ErrorModal from './ErrorModal';
+import ErrorModal from './modals/ErrorModal';
 import FlowingCurrentPoolRowItem from './FlowingCurrentPoolRowItem';
 
 interface ViewCollectiveProps {
@@ -69,7 +68,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const isDonating = maybeDonorCollective && maybeDonorCollective.flowRate !== '0';
 
   const [stopDonationModalVisible, setStopDonationModalVisible] = useState(false);
-  const [donationModalVisible, setDonationModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
 
   const handleStopDonation = useDeleteFlow(
@@ -229,6 +227,11 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             <TransactionList collective={collective.address as `0x${string}`} />
           </View>
         </View>
+        <ErrorModal
+          openModal={!!errorMessage}
+          setOpenModal={() => setErrorMessage(undefined)}
+          message={errorMessage ?? ''}
+        />
         <StopDonationModal openModal={stopDonationModalVisible} setOpenModal={setStopDonationModalVisible} />
       </View>
     );
@@ -361,7 +364,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
           message={errorMessage ?? ''}
         />
         <StopDonationModal openModal={stopDonationModalVisible} setOpenModal={setStopDonationModalVisible} />
-        <ThankYouModal openModal={donationModalVisible} setOpenModal={setDonationModalVisible} />
       </View>
     </View>
   );
