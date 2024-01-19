@@ -20,7 +20,7 @@ function TransactionList({ collective }: TransactionListProps) {
   });
   const { navigate } = useCrossNavigate();
 
-  const transactions: Transaction[] = useRecentTransactions(collective, 6);
+  const transactions: Transaction[] = useRecentTransactions(collective, 6, 1000);
 
   const onClickShowMore = () => navigate('/profile/abc123/activity');
 

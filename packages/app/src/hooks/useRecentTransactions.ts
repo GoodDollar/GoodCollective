@@ -22,10 +22,11 @@ export function useRecentDonations(
 export const useRecentTransactions = (
   collective: `0x${string}`,
   maxN: number,
-  pollInterval?: number
+  donationsPollInterval?: number,
+  claimsPollInterval?: number
 ): Transaction[] => {
-  const claims: Transaction[] | undefined = useRecentClaims(collective, maxN, pollInterval);
-  const donations: Transaction[] | undefined = useRecentDonations(collective, maxN, pollInterval);
+  const claims: Transaction[] | undefined = useRecentClaims(collective, maxN, claimsPollInterval);
+  const donations: Transaction[] | undefined = useRecentDonations(collective, maxN, donationsPollInterval);
   return useMemo(() => {
     const transactions: Transaction[] = [...(claims ?? []), ...(donations ?? [])];
     transactions.sort((a, b) => {
