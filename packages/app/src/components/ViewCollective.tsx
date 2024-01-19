@@ -229,6 +229,12 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             <TransactionList collective={collective.address as `0x${string}`} />
           </View>
         </View>
+        <ErrorModal
+          openModal={!!errorMessage}
+          setOpenModal={() => setErrorMessage(undefined)}
+          message={errorMessage ?? ''}
+        />
+        <ThankYouModal openModal={donationModalVisible} setOpenModal={setDonationModalVisible} />
         <StopDonationModal openModal={stopDonationModalVisible} setOpenModal={setStopDonationModalVisible} />
       </View>
     );
