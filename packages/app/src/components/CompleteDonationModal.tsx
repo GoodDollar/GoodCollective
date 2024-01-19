@@ -26,9 +26,6 @@ const CompleteDonationModal = ({ openModal, setOpenModal }: CompleteDonationModa
             <Text style={styles.title}>COMPLETE YOUR DONATION</Text>
             <Text style={styles.paragraph}>To complete your donation, sign with your wallet.</Text>
             <Image source={PhoneImg} alt="woman" style={styles.image} />
-            <TouchableOpacity style={styles.button} onPress={onClickClose}>
-              <Text style={styles.buttonText}>OK</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </Modal>
