@@ -1,38 +1,32 @@
 import { Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-import { InterRegular, InterSemiBold } from '../utils/webFonts';
-import { Colors } from '../utils/colors';
-import { CloseIcon, ThankYouImg } from '../assets';
+import { InterRegular, InterSemiBold } from '../../utils/webFonts';
+import { Colors } from '../../utils/colors';
+import { modalStyles } from '../shared';
+import { CloseIcon, PhoneImg } from '../../assets';
 
-interface ErrorModalProps {
+interface CompleteDonationModalProps {
   openModal: boolean;
   setOpenModal: any;
-  message: string;
 }
 
-const ErrorModal = ({ openModal, setOpenModal, message }: ErrorModalProps) => {
-  const onCloseClicked = () => setOpenModal(false);
-  return (
-    <View style={styles.centeredView}>
-      <Modal animationType="slide" transparent={true} visible={openModal}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <View style={styles.modalCloseIconWrapper}>
-              <TouchableOpacity style={styles.modalCloseIcon} onPress={onCloseClicked}>
-                <Image source={CloseIcon} style={styles.closeIcon} />
-              </TouchableOpacity>
-            </View>
+const CompleteDonationModal = ({ openModal, setOpenModal }: CompleteDonationModalProps) => {
+  const onClickClose = () => setOpenModal(false);
 
-            <Text style={styles.title}>SOMETHING WENT WRONG</Text>
-            <Text style={styles.paragraph}>Please try again later.</Text>
-            <Text style={styles.paragraph}>Reason: {message}</Text>
-            <Image source={ThankYouImg} alt="woman" style={styles.image} />
-            <TouchableOpacity style={styles.button} onPress={onCloseClicked}>
-              <Text style={styles.buttonText}>OK</Text>
+  return (
+    <Modal style={styles.centeredView} animationType="slide" transparent={true} visible={openModal}>
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <View style={modalStyles.modalCloseIconWrapper}>
+            <TouchableOpacity style={modalStyles.modalCloseIcon} onPress={onClickClose}>
+              <Image source={CloseIcon} style={styles.closeIcon} />
             </TouchableOpacity>
           </View>
+          <Text style={styles.title}>COMPLETE YOUR DONATION</Text>
+          <Text style={styles.paragraph}>To complete your donation, sign with your wallet.</Text>
+          <Image source={PhoneImg} alt="woman" style={styles.image} />
         </View>
-      </Modal>
-    </View>
+      </View>
+    </Modal>
   );
 };
 
@@ -90,7 +84,7 @@ const styles = StyleSheet.create({
 
   button: {
     backgroundColor: Colors.orange[100],
-    width: '80%',
+    width: '100%',
     borderRadius: 30,
     paddingTop: 12,
     paddingRight: 22,
@@ -116,8 +110,6 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: 'center',
   },
-  modalCloseIconWrapper: { width: '100%', alignContent: 'flex-end' },
-  modalCloseIcon: { width: 24, height: 24, alignSelf: 'flex-end' },
 });
 
-export default ErrorModal;
+export default CompleteDonationModal;

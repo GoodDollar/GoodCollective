@@ -6,7 +6,7 @@ const donor = gql`
   query DONOR($id: String) {
     donors(where: { id: $id }) {
       id
-      joined
+      timestamp
       totalDonated
       collectives {
         id

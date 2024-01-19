@@ -11,7 +11,7 @@ import { useFetchFullName } from '../hooks/useFetchFullName';
 function WalletProfilePage() {
   const location = useLocation();
   const profileAddress = location.pathname.slice('/profile/'.length).toLocaleLowerCase();
-  const donor = useDonorById(profileAddress, 500);
+  const donor = useDonorById(profileAddress, 1000);
   const steward = useStewardById(profileAddress);
 
   const [isDesktopResolution] = useMediaQuery({

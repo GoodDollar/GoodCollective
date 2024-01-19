@@ -2,38 +2,42 @@ import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { Colors } from '../../utils/colors';
 import { ReceiveIcon, SendIcon } from '../../assets';
-import { Transaction } from '../../models/models';
-import { formatAddress } from '../../lib/formatAddress';
-import { useEnsName } from 'wagmi';
 import Decimal from 'decimal.js';
 import { ethers } from 'ethers';
 
 interface TransactionListItemProps {
-  collective: `0x${string}`;
-  transaction: Transaction;
-  userFullName?: string;
+  userIdentifier: string;
+  isDonation?: boolean;
+  amount: string;
+  amountIsFormatted?: boolean;
+  txHash: string;
+  rawNetworkFee: string;
 }
 
-function TransactionListItem({ collective, transaction, userFullName }: TransactionListItemProps) {
-  const { hash, rawAmount, from, to, fee } = transaction;
-
-  const donation = to === collective;
+function TransactionListItem({
+  userIdentifier,
+  isDonation,
+  amount,
+  amountIsFormatted,
+  txHash,
+  rawNetworkFee,
+}: TransactionListItemProps) {
+  const formattedAmount: string = amountIsFormatted ? amount : new Decimal(ethers.utils.formatEther(amount)).toString();
+  const formattedFee: string = new Decimal(ethers.utils.formatEther(rawNetworkFee ?? 0)).toString();
+  const formattedHash = txHash.slice(0, 40) + '...';
 
   const userAddress: `0x${string}` = (donation ? from : to) as `0x${string}`;
   const { data: ensName } = useEnsName({ address: userAddress, chainId: 1 });
   const userIdentifier = userFullName ?? ensName ?? formatAddress(userAddress);
 
-  const formattedAmount: string = new Decimal(ethers.utils.formatEther(rawAmount) ?? 0).toString();
-  const formattedFee: string = new Decimal(ethers.utils.formatEther(fee) ?? 0).toString();
-
   return (
     <View style={styles.row}>
-      {donation ? (
+      {isDonation ? (
         <View style={[styles.bar, { backgroundColor: Colors.green[100] }]} />
       ) : (
         <View style={[styles.bar, { backgroundColor: Colors.orange[100] }]} />
       )}
-      {donation ? (
+      {isDonation ? (
         <Image source={{ uri: ReceiveIcon }} style={styles.rowIcon} />
       ) : (
         <Image source={{ uri: SendIcon }} style={styles.rowIcon} />
@@ -47,7 +51,7 @@ function TransactionListItem({ collective, transaction, userFullName }: Transact
           </View>
         </View>
         <View>
-          <Text style={styles.hash}>{hash}</Text>
+          <Text style={styles.hash}>{formattedHash}</Text>
         </View>
         <View>
           <View style={styles.txDetails}>

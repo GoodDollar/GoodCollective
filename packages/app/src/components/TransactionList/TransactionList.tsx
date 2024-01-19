@@ -1,12 +1,14 @@
 import { Image, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
-import TransactionListItem from './TransactionListItem';
 import { Colors } from '../../utils/colors';
 import { useMediaQuery } from 'native-base';
 import { chevronDown, TransactionIcon } from '../../assets';
-import { Transaction } from '../../models/models';
+import { ClaimTx, Transaction } from '../../models/models';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { useRecentTransactions } from '../../hooks/useRecentTransactions';
+import { isSupportTx } from '../../models/typeUtil';
+import { ClaimTransactionListItem } from './ClaimTransactionListItem';
+import { SupportTransactionListItem } from './SupportTransactionListItem';
 import { useFetchFullNames } from '../../hooks/useFetchFullName';
 import { useMemo } from 'react';
 
@@ -20,7 +22,7 @@ function TransactionList({ collective }: TransactionListProps) {
   });
   const { navigate } = useCrossNavigate();
 
-  const transactions: Transaction[] = useRecentTransactions(collective, 6);
+  const transactions: Transaction[] = useRecentTransactions(collective, 6, 1000);
 
   const userAddresses = useMemo(() => {
     return transactions.map((t) => {
@@ -41,14 +43,15 @@ function TransactionList({ collective }: TransactionListProps) {
       </View>
       {isDesktopResolution && <View style={styles.horizontalDivider} />}
       <View style={styles.list}>
-        {transactions.slice(0, 5).map((transaction, i) => (
-          <TransactionListItem
-            key={transaction.hash}
-            collective={collective}
-            transaction={transaction}
-            userFullName={userFullNames[i]}
-          />
-        ))}
+        {transactions
+          .slice(0, 5)
+          .map((transaction) =>
+            isSupportTx(transaction) ? (
+              <SupportTransactionListItem key={transaction.hash} transaction={transaction} />
+            ) : (
+              <ClaimTransactionListItem key={transaction.hash} transaction={transaction as ClaimTx} />
+            )
+          )}
       </View>
       {isDesktopResolution && transactions.length > 5 && (
         <TouchableOpacity onPress={onClickShowMore} style={styles.showMoreButton}>

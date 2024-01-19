@@ -13,7 +13,8 @@ export function useSupportSingleBatch(
   currencyDecimals: number,
   decimalAmountIn: number,
   onError: (error: string) => void,
-  toggleCompleteDonationModal: (value: boolean) => void
+  toggleCompleteDonationModal: (value: boolean) => void,
+  toggleThankYouModal: (value: boolean) => void
 ) {
   const { address: maybeAddress } = useAccount();
   const { chain } = useNetwork();
@@ -40,23 +41,27 @@ export function useSupportSingleBatch(
       const sdk = new GoodCollectiveSDK(chainIdString, signer.provider, { network });
       toggleCompleteDonationModal(true);
       const tx = await sdk.supportSingleBatch(signer, collective, donationAmount);
+      toggleCompleteDonationModal(false);
+      toggleThankYouModal(true);
       await tx.wait();
       navigate(`/profile/${address}`);
       return;
     } catch (error) {
       toggleCompleteDonationModal(false);
+      toggleThankYouModal(false);
       const message = printAndParseSupportError(error);
       onError(message);
     }
   }, [
     maybeAddress,
     chain?.id,
-    collective,
-    currencyDecimals,
-    decimalAmountIn,
-    navigate,
-    onError,
     maybeSigner,
+    decimalAmountIn,
+    currencyDecimals,
+    onError,
     toggleCompleteDonationModal,
+    collective,
+    toggleThankYouModal,
+    navigate,
   ]);
 }

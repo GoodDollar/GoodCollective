@@ -1,6 +1,6 @@
 export type SubgraphDonor = {
   id: string;
-  joined: string;
+  timestamp: number;
   totalDonated: string;
   collectives: SubgraphDonorCollective[];
 };
@@ -11,7 +11,8 @@ export type SubgraphDonorCollective = {
   collective: SubgraphCollective | { id: string };
   contribution: string;
   flowRate: string;
-  timestamp: string;
+  timestamp: number;
+  events?: SubgraphSupportEvent[];
 };
 
 export type SubgraphSteward = {
@@ -33,8 +34,8 @@ export type SubgraphStewardCollective = {
 export type SubgraphCollective = {
   id: string;
   ipfs: SubgraphIpfsCollective;
-  settings?: PoolSettings;
-  limits?: SafetyLimits;
+  settings?: SubgraphPoolSettings;
+  limits?: SubgraphSafetyLimits;
   donors?: SubgraphDonorCollective[];
   stewards?: SubgraphStewardCollective[];
   projectId?: string;
@@ -44,6 +45,7 @@ export type SubgraphCollective = {
   paymentsMade: number;
   totalDonations: string;
   totalRewards: string;
+  claims?: SubgraphClaim[];
 };
 
 export type SubgraphIpfsCollective = {
@@ -61,7 +63,7 @@ export type SubgraphIpfsCollective = {
   images?: string[];
 };
 
-export type PoolSettings = {
+export type SubgraphPoolSettings = {
   id: string;
   nftType: string;
   manager: string;
@@ -70,7 +72,7 @@ export type PoolSettings = {
   rewardToken: string;
 };
 
-export type SafetyLimits = {
+export type SubgraphSafetyLimits = {
   id: string;
   maxTotalPerMonth: string;
   maxMemberPerMonth: string;
@@ -81,24 +83,41 @@ export type SubgraphProvableNFT = {
   id: string;
   owner: string;
   hash: string;
-  steward: SubgraphSteward[] | string[];
+  steward: SubgraphSteward[] | { id: string }[];
   collective: SubgraphCollective | string;
 };
 
-export type EventData = {
-  id: string;
+export type SubgraphClaimEvent = {
+  id: string; // event uri
   eventType: number;
-  timestamp: string;
+  timestamp: number;
   quantity: string;
-  uri: string;
   rewardPerContributor: string;
   contributors: SubgraphSteward[] | { id: string }[];
   nft: SubgraphProvableNFT | { id: string };
-  claim: Claim;
+  claim: SubgraphClaim | { id: string };
 };
 
-export type Claim = {
+export type SubgraphClaim = {
   id: string;
+  collective: SubgraphCollective | { id: string };
+  txHash: string;
+  networkFee: string;
   totalRewards: string;
-  event: EventData | { id: string };
+  events: SubgraphClaimEvent[];
+  timestamp: number;
+};
+
+export type SubgraphSupportEvent = {
+  id: string; // tx hash
+  networkFee: string;
+  donor: SubgraphDonor | { id: string };
+  collective: SubgraphCollective | { id: string };
+  donorCollective: SubgraphDonorCollective | { id: string };
+  contribution: string;
+  previousContribution: string;
+  isFlowUpdate: boolean;
+  flowRate: string;
+  previousFlowRate: string;
+  timestamp: number;
 };

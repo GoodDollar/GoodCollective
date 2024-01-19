@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     ...InterSmall,
   },
   image: {
-    height: 169,
+    height: 154,
     width: 230,
     alignSelf: 'center',
   },
