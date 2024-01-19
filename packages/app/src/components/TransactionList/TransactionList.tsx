@@ -9,8 +9,6 @@ import { useRecentTransactions } from '../../hooks/useRecentTransactions';
 import { isSupportTx } from '../../models/typeUtil';
 import { ClaimTransactionListItem } from './ClaimTransactionListItem';
 import { SupportTransactionListItem } from './SupportTransactionListItem';
-import { useFetchFullNames } from '../../hooks/useFetchFullName';
-import { useMemo } from 'react';
 
 interface TransactionListProps {
   collective: `0x${string}`;
@@ -23,15 +21,6 @@ function TransactionList({ collective }: TransactionListProps) {
   const { navigate } = useCrossNavigate();
 
   const transactions: Transaction[] = useRecentTransactions(collective, 6, 1000);
-
-  const userAddresses = useMemo(() => {
-    return transactions.map((t) => {
-      const donation = t.to === collective;
-      return (donation ? t.from : t.to) as `0x${string}`;
-    });
-  }, [collective, transactions]);
-
-  const userFullNames = useFetchFullNames(userAddresses);
 
   const onClickShowMore = () => navigate('/profile/abc123/activity');
 

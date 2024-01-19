@@ -2,6 +2,7 @@ import { ClaimTx } from '../../models/models';
 import { formatAddress } from '../../lib/formatAddress';
 import { useEnsName } from 'wagmi';
 import TransactionListItem from './TransactionListItem';
+import { useFetchFullName } from '../../hooks/useFetchFullName';
 
 interface ClaimTransactionListItemProps {
   transaction: ClaimTx;
@@ -20,8 +21,9 @@ export function ClaimTransactionListItem({ transaction }: ClaimTransactionListIt
   }
 
   const { data: ensName } = useEnsName({ address: userAddress, chainId: 1 });
-  // TODO: how to get first name and last name of users?
-  const userIdentifier = multipleStewardsText ?? ensName ?? (userAddress ? formatAddress(userAddress) : 'Unknown');
+  const userFullName = useFetchFullName(userAddress);
+  const userIdentifier =
+    multipleStewardsText ?? userFullName ?? ensName ?? (userAddress ? formatAddress(userAddress) : 'Unknown');
 
   return (
     <TransactionListItem

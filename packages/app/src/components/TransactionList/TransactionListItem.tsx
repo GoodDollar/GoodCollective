@@ -26,10 +26,6 @@ function TransactionListItem({
   const formattedFee: string = new Decimal(ethers.utils.formatEther(rawNetworkFee ?? 0)).toString();
   const formattedHash = txHash.slice(0, 40) + '...';
 
-  const userAddress: `0x${string}` = (donation ? from : to) as `0x${string}`;
-  const { data: ensName } = useEnsName({ address: userAddress, chainId: 1 });
-  const userIdentifier = userFullName ?? ensName ?? formatAddress(userAddress);
-
   return (
     <View style={styles.row}>
       {isDonation ? (
