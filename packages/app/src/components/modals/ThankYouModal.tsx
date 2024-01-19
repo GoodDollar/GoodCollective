@@ -1,35 +1,34 @@
 import { Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-import { InterRegular, InterSemiBold } from '../utils/webFonts';
-// import useCrossNavigate from '../routes/useCrossNavigate';
-import { Colors } from '../utils/colors';
-import { QuestionImg } from '../assets';
+import { InterRegular, InterSemiBold } from '../../utils/webFonts';
+import { Colors } from '../../utils/colors';
+import { ThankYouImg } from '../../assets';
+import { IpfsCollective } from '../../models/models';
 
-interface StopDonationModalProps {
+interface ThankYouModalProps {
   openModal: boolean;
-  setOpenModal: any;
+  setOpenModal: (openModal: boolean) => void;
+  collective: IpfsCollective;
 }
 
-const StopDonationModal = ({ openModal, setOpenModal }: StopDonationModalProps) => {
-  // const { navigate } = useCrossNavigate();
-  return (
-    <View style={styles.centeredView}>
-      <Modal animationType="slide" transparent={true} visible={openModal}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.title}>ARE YOU SURE YOU WANT TO STOP YOUR DONATION?</Text>
-            <Text style={styles.paragraph}>
-              If so, please sign with your wallet. If not, please click below to return to the GoodCollective you
-              support.
-            </Text>
+const ThankYouModal = ({ openModal, setOpenModal, collective }: ThankYouModalProps) => {
+  const onClick = () => setOpenModal(false);
 
-            <Image source={QuestionImg} alt="woman" style={styles.image} />
-            <TouchableOpacity style={styles.button} onPress={() => setOpenModal(false)}>
-              <Text style={styles.buttonText}>GO BACK</Text>
-            </TouchableOpacity>
-          </View>
+  return (
+    <Modal style={styles.centeredView} animationType="slide" transparent={true} visible={openModal}>
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <Text style={styles.title}>THANK YOU!</Text>
+          <Text style={styles.paragraph}>{`You have just donated to ${collective.name} GoodCollective!`}</Text>
+          <Text style={styles.paragraph}>
+            {`To stop your donation, visit the ${collective.name} GoodCollective page.`}
+          </Text>
+          <Image source={ThankYouImg} alt="woman" style={styles.image} />
+          <TouchableOpacity style={styles.button} onPress={onClick}>
+            <Text style={styles.buttonText}>GO TO PROFILE</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
-    </View>
+      </View>
+    </Modal>
   );
 };
 
@@ -76,8 +75,8 @@ const styles = StyleSheet.create({
   },
   image: {
     alignSelf: 'center',
-    width: 190,
-    height: 224,
+    width: 286,
+    height: 214,
   },
   closeIcon: {
     width: 24,
@@ -90,9 +89,7 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 30,
     paddingTop: 12,
-    paddingRight: 22,
     paddingBottom: 12,
-    paddingLeft: 20,
     gap: 8,
     alignContent: 'center',
   },
@@ -103,7 +100,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     color: Colors.orange[300],
   },
-
   textStyle: {
     color: 'white',
     fontWeight: 'bold',
@@ -115,4 +111,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StopDonationModal;
+export default ThankYouModal;

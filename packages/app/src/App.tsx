@@ -13,7 +13,6 @@ import * as WebRoute from './routes/routing.web';
 import ActivityLogPage from './pages/ActivityLogPage';
 import { Providers } from './Providers';
 import DonatePage from './pages/DonatePage';
-import ModalTestPage from './pages/ModalTestPage';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import { celo, mainnet } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
@@ -95,7 +94,6 @@ function App(): JSX.Element {
                   <MobileRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
                   <MobileRoute.Route path="/profile/:id" element={<WalletProfilePage />} />
                   <MobileRoute.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
-                  <MobileRoute.Route path="/modalTest" element={<ModalTestPage />} />
                   <MobileRoute.Route path="/donate" element={<DonatePage />} />
                 </MobileRoute.Routes>
               </MobileRoute.Router>
@@ -113,7 +111,6 @@ function App(): JSX.Element {
                   <WebRoute.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
                   <WebRoute.Route path="/profile/" element={<WalletProfilePage />} />
                   <WebRoute.Route path="/donate/:id" element={<DonatePage />} />
-                  <WebRoute.Route path="/modalTest" element={<ModalTestPage />} />
                 </WebRoute.Routes>
               </WebRoute.Router>
             )}

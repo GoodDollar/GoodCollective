@@ -18,6 +18,7 @@ export function useSupportFlowWithSwap(
   frequency: Frequency,
   onError: (error: string) => void,
   toggleCompleteDonationModal: (value: boolean) => void,
+  toggleThankYouModal: (value: boolean) => void,
   minReturnFromSwap?: string,
   swapPath?: string
 ) {
@@ -64,27 +65,32 @@ export function useSupportFlowWithSwap(
         swapFrom: tokenIn.address,
         deadline: Math.floor(Date.now() / 1000 + 1800).toString(),
       });
+      toggleCompleteDonationModal(false);
+      toggleThankYouModal(true);
       await tx.wait();
       navigate(`/profile/${address}`);
       return;
     } catch (error) {
       toggleCompleteDonationModal(false);
+      toggleThankYouModal(false);
       const message = printAndParseSupportError(error);
       onError(message);
     }
   }, [
     maybeAddress,
     chain?.id,
-    collective,
-    tokenIn,
-    decimalAmountIn,
-    duration,
-    frequency,
-    navigate,
-    onError,
     maybeSigner,
     minReturnFromSwap,
     swapPath,
+    decimalAmountIn,
+    duration,
+    frequency,
+    tokenIn.decimals,
+    tokenIn.address,
+    onError,
     toggleCompleteDonationModal,
+    collective,
+    toggleThankYouModal,
+    navigate,
   ]);
 }

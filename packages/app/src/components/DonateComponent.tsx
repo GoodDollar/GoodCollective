@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, View } from 'react-native';
 import { InterRegular, InterSemiBold, InterSmall } from '../utils/webFonts';
 import RoundedButton from './RoundedButton';
-import CompleteDonationModal from './CompleteDonationModal';
+import CompleteDonationModal from './modals/CompleteDonationModal';
 import { Colors } from '../utils/colors';
 import { Link, useMediaQuery } from 'native-base';
 import Dropdown from './Dropdown';
@@ -16,14 +16,15 @@ import { InfoIconOrange } from '../assets';
 import { useLocation } from 'react-router-native';
 import Decimal from 'decimal.js';
 import { formatFiatCurrency } from '../lib/formatFiatCurrency';
-import ErrorModal from './ErrorModal';
+import ErrorModal from './modals/ErrorModal';
 import { SwapRouteState, useSwapRoute } from '../hooks/useSwapRoute';
 import { useApproveSwapTokenCallback } from '../hooks/useApproveSwapTokenCallback';
-import ApproveSwapModal from './ApproveSwapModal';
+import ApproveSwapModal from './modals/ApproveSwapModal';
 import { waitForTransaction } from '@wagmi/core';
 import { TransactionReceipt } from 'viem';
 import { useToken, useTokenList } from '../hooks/useTokenList';
 import { formatDecimalStringInput } from '../lib/formatDecimalStringInput';
+import ThankYouModal from './modals/ThankYouModal';
 
 interface DonateComponentProps {
   collective: IpfsCollective;
@@ -42,6 +43,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const [completeDonationModalVisible, setCompleteDonationModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [approveSwapModalVisible, setApproveSwapModalVisible] = useState(false);
+  const [thankYouModalVisible, setThankYouModalVisible] = useState(false);
 
   const [currency, setCurrency] = useState<string>('G$');
   const [frequency, setFrequency] = useState<Frequency>(Frequency.OneTime);
@@ -84,6 +86,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
     frequency,
     (error) => setErrorMessage(error),
     (value: boolean) => setCompleteDonationModalVisible(value),
+    (value: boolean) => setThankYouModalVisible(value),
     rawMinimumAmountOut,
     swapPath
   );
@@ -473,6 +476,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
       <ErrorModal openModal={!!errorMessage} setOpenModal={onCloseErrorModal} message={errorMessage ?? ''} />
       <ApproveSwapModal openModal={approveSwapModalVisible} setOpenModal={setApproveSwapModalVisible} />
       <CompleteDonationModal openModal={completeDonationModalVisible} setOpenModal={setCompleteDonationModalVisible} />
+      <ThankYouModal openModal={thankYouModalVisible} setOpenModal={setThankYouModalVisible} collective={collective} />
     </View>
   );
 }
