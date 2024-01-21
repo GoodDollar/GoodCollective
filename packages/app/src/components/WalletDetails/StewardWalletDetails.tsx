@@ -1,6 +1,5 @@
 import { Text, View } from 'react-native';
 import { Steward } from '../../models/models';
-import { ethers } from 'ethers';
 import { styles } from './styles';
 import { calculateGoodDollarAmounts } from '../../lib/calculateGoodDollarAmounts';
 

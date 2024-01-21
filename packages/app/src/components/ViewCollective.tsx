@@ -39,8 +39,6 @@ interface ViewCollectiveProps {
   collective: Collective;
 }
 
-// TODO: "See all Stewards" button doesn't work for me and I can't figure out why
-
 function ViewCollective({ collective }: ViewCollectiveProps) {
   const { navigate } = useCrossNavigate();
   const [isDesktopResolution] = useMediaQuery({

@@ -4532,6 +4532,7 @@ __metadata:
     "@gooddollar/good-design": ^0.1.31
     "@gooddollar/goodcollective-sdk": ^1.0.15
     "@gooddollar/web3sdk-v2": ^0.2.2
+    "@nerdwallet/apollo-cache-policies": ^3.2.0
     "@react-native-aria/interactions": 0.2.3
     "@react-native-async-storage/async-storage": ^1.18.2
     "@react-native-community/eslint-config": ^3.2.0
@@ -4597,6 +4598,7 @@ __metadata:
     react-router-dom: ^6.14.1
     react-router-native: ^6.14.1
     react-test-renderer: 18.2.0
+    realm-web: ^2.0.0
     typechain: ^8.1.1
     typescript: ^5.1.3
     vercel: latest
@@ -5748,6 +5750,20 @@ __metadata:
     multiformats: ^9.5.4
     murmurhash3js-revisited: ^3.0.0
   checksum: e3b07547da4a75348e2e103c6750db33b0caecd33b30751496cc2ca89cb7c654408c17300ca8f9fea79792f900f577b25aba49852feffe52894c79c177e40152
+  languageName: node
+  linkType: hard
+
+"@nerdwallet/apollo-cache-policies@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "@nerdwallet/apollo-cache-policies@npm:3.2.0"
+  dependencies:
+    graphql: ^15.5.0
+    lodash: ^4.17.21
+    uuid: ^7.0.3
+  peerDependencies:
+    "@apollo/client": ^3.8.1
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: 22eb609bf4e9fff59e147dbf165ab05e5ff419450b77ec65126837c674cc942e36ee117c119cca58b860de21ff13e6c5f747f40e2f32b2e351fd4111420e9a23
   languageName: node
   linkType: hard
 
@@ -8567,6 +8583,13 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   checksum: 0e0c76f5cbddf59b91e70db8c8d1328ea261ec31a65cfe5806906394f04b0f8a6c17b7ac17e94238f29413304bd5614d26b7eae24e7a48d3f3fe1e86d4e7df38
+  languageName: node
+  linkType: hard
+
+"@realm/common@npm:^0.1.4":
+  version: 0.1.4
+  resolution: "@realm/common@npm:0.1.4"
+  checksum: b051dc928e3d9f3677723939379232e2ceba4f76b231bc26e449e5ed728ac82f9e99e391c52fe09823b0539d22fe5552465bbcbff2df95e8c18e5993aabaf983
   languageName: node
   linkType: hard
 
@@ -16716,6 +16739,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bson@npm:^4.5.4":
+  version: 4.7.2
+  resolution: "bson@npm:4.7.2"
+  dependencies:
+    buffer: ^5.6.0
+  checksum: f357d12c5679c8eb029a62e410ad40fb862b7b91f0fc12a3399fb3668e14aecaa63205ffeeee48735a01d393171743607dcd527eb8c058b6f2bd294079ee4125
+  languageName: node
+  linkType: hard
+
 "btoa@npm:^1.2.1":
   version: 1.2.1
   resolution: "btoa@npm:1.2.1"
@@ -19299,7 +19331,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"detect-browser@npm:5.3.0, detect-browser@npm:^5.1.0, detect-browser@npm:^5.3.0":
+"detect-browser@npm:5.3.0, detect-browser@npm:^5.1.0, detect-browser@npm:^5.2.1, detect-browser@npm:^5.3.0":
   version: 5.3.0
   resolution: "detect-browser@npm:5.3.0"
   checksum: dd6e08d55da1d9e0f22510ac79872078ae03d9dfa13c5e66c96baedc1c86567345a88f96949161f6be8f3e0fafa93bf179bdb1cd311b14f5f163112fcc70ab49
@@ -35227,6 +35259,25 @@ __metadata:
   version: 0.1.0
   resolution: "real-require@npm:0.1.0"
   checksum: 96745583ed4f82cd5c6a6af012fd1d3c6fc2f13ae1bcff1a3c4f8094696013a1a07c82c5aa66a403d7d4f84949fc2203bc927c7ad120caad125941ca2d7e5e8e
+  languageName: node
+  linkType: hard
+
+"realm-web@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "realm-web@npm:2.0.0"
+  dependencies:
+    "@realm/common": ^0.1.4
+    abort-controller: ^3.0.0
+    bson: ^4.5.4
+    detect-browser: ^5.2.1
+    js-base64: ^3.7.2
+    node-fetch: ^2.6.0
+  dependenciesMeta:
+    abort-controller:
+      optional: true
+    node-fetch:
+      optional: true
+  checksum: a4266502ad6fc63d068e8a05dac32522aa86b0f3f55474e769a286d2ec018cd557f5db9642d35c039f87ac2eea1aad54d32ecd27b6a59078f78aed58f445fbb3
   languageName: node
   linkType: hard
 

@@ -3,6 +3,7 @@ import { DonorCollective } from '../../models/models';
 import { DonorsListItem } from './DonorsListItem';
 import { useMemo } from 'react';
 import Decimal from 'decimal.js';
+import { useFetchFullNames } from '../../hooks/useFetchFullName';
 
 interface DonorsListProps {
   donors: DonorCollective[];
@@ -20,10 +21,15 @@ function DonorsList({ donors, listStyle }: DonorsListProps) {
     });
   }, [donors]);
 
+  const userAddresses = useMemo(() => {
+    return donors.map((donor) => donor.donor as `0x${string}`);
+  }, [donors]);
+  const userFullNames = useFetchFullNames(userAddresses);
+
   return (
     <View style={[styles.list, { ...(listStyle ?? {}) }]}>
       {sortedDonors.map((donor, index) => (
-        <DonorsListItem donor={donor} rank={index + 1} key={donor.donor} />
+        <DonorsListItem key={donor.donor} donor={donor} rank={index + 1} userFullName={userFullNames[index]} />
       ))}
     </View>
   );

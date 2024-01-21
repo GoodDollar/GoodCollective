@@ -22,6 +22,7 @@
     "@gooddollar/good-design": "^0.1.31",
     "@gooddollar/goodcollective-sdk": "^1.0.15",
     "@gooddollar/web3sdk-v2": "^0.2.2",
+    "@nerdwallet/apollo-cache-policies": "^3.2.0",
     "@react-native-aria/interactions": "0.2.3",
     "@react-native-async-storage/async-storage": "^1.18.2",
     "@react-native-firebase/analytics": "16.7.0",
@@ -67,6 +68,7 @@
     "react-native-web": "0.18.*",
     "react-router-dom": "^6.14.1",
     "react-router-native": "^6.14.1",
+    "realm-web": "^2.0.0",
     "viem": "^1.10.8",
     "wagmi": "^1.4.5"
   },

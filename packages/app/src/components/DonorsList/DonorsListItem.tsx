@@ -11,16 +11,17 @@ import { useEnsName } from 'wagmi';
 interface DonorsListItemProps {
   donor: DonorCollective;
   rank: number;
+  userFullName?: string;
 }
 
 export const DonorsListItem = (props: DonorsListItemProps) => {
-  const { donor, rank } = props;
+  const { donor, rank, userFullName } = props;
   const { navigate } = useCrossNavigate();
 
   const formattedDonations: string = new Decimal(ethers.utils.formatEther(donor.contribution) ?? 0).toString();
 
   const { data: ensName } = useEnsName({ address: donor.donor as `0x${string}`, chainId: 1 });
-  const userIdentifier = ensName ? ensName : formatAddress(donor.donor, 5);
+  const userIdentifier = userFullName ?? ensName ?? formatAddress(donor.donor);
 
   const circleBackgroundColor = rank === 1 ? Colors.yellow[100] : rank === 2 ? Colors.gray[700] : Colors.orange[400];
   const circleTextColor = rank === 1 ? Colors.yellow[200] : rank === 2 ? Colors.blue[200] : Colors.brown[100];

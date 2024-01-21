@@ -12,16 +12,17 @@ interface StewardListItemProps {
   steward: StewardCollective;
   showActions: boolean;
   profileImage: string;
+  userFullName?: string;
 }
 
 export const StewardsListItem = (props: StewardListItemProps) => {
-  const { showActions, steward, profileImage } = props;
+  const { showActions, steward, profileImage, userFullName } = props;
   const { navigate } = useCrossNavigate();
 
   const isVerified = useIsStewardVerified(steward.steward);
 
   const { data: ensName } = useEnsName({ address: steward.steward as `0x${string}`, chainId: 1 });
-  const userIdentifier = ensName ? ensName : formatAddress(steward.steward, 5);
+  const userIdentifier = userFullName ?? ensName ?? formatAddress(steward.steward);
 
   const onClickSteward = () => navigate(`/profile/${steward.steward}`);
 

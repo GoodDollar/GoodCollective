@@ -6,6 +6,7 @@ import Breadcrumb from '../components/Breadcrumb';
 import { useMediaQuery } from 'native-base';
 import WalletProfile from '../components/WalletProfile';
 import { useEnsName } from 'wagmi';
+import { useFetchFullName } from '../hooks/useFetchFullName';
 
 function WalletProfilePage() {
   const location = useLocation();
@@ -23,9 +24,8 @@ function WalletProfilePage() {
 
   const { data: ensName } = useEnsName({ address, chainId: 1 });
 
-  // TODO: how to get first name and last name of users?
-  const firstName = profileAddress ? 'Wonderful' : 'Not';
-  const lastName = profileAddress ? 'Person' : 'Connected';
+  const fullName = useFetchFullName(address);
+  const [firstName, lastName] = fullName?.trim().split(' ') ?? [undefined, undefined];
 
   const userIdentifier = firstName ? `${firstName} ${lastName}` : ensName ?? address ?? '0x';
 
