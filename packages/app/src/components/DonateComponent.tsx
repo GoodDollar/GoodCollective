@@ -313,18 +313,16 @@ function DonateComponent({ collective }: DonateComponentProps) {
               <View>
                 <Text style={styles.title}>Review Your Donation</Text>
                 <Text style={styles.reviewDesc}>
-                  Your donation will be made in GoodDollars, the currency in use by this GoodCollective. {'\n'}
-                  {Frequency.OneTime
-                    ? 'Pressing “Confirm” will trigger your donation.\n'
-                    : 'Your donation will be streamed using Superfluid.\n'}
-                  <Text style={styles.italic}>
-                    <Link
-                      style={styles.reviewDesc}
-                      href={'https://gooddollar.notion.site/How-does-Superfluid-work-ab31eaaef75f4e3db36db615fcb578d1'}
-                      isExternal>
+                  Your donation will be made in GoodDollars, the currency in use by this GoodCollective.{'\n'}
+                  If recurrent, your donation will be streamed using Superfluid.{'\n'}
+                  Pressing “Confirm” will trigger your donation.{'\n'}
+                  <Link
+                    href={'https://gooddollar.notion.site/How-does-Superfluid-work-ab31eaaef75f4e3db36db615fcb578d1'}
+                    isExternal>
+                    <Text style={[styles.reviewDesc, { textDecorationLine: 'underline' }]}>
                       How does Superfluid work?
-                    </Link>
-                  </Text>
+                    </Text>
+                  </Link>
                 </Text>
               </View>
               <View style={styles.reviewRow}>
