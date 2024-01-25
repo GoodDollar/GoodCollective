@@ -1,11 +1,10 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { useMediaQuery } from 'native-base';
 
-import Layout from '../components/Layout';
+import Layout from '../components/Layout/Layout';
 import StewardList from '../components/StewardsList/StewardsList';
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
-import Breadcrumb from '../components/Breadcrumb';
 import { useLocation } from 'react-router-native';
 import { useCollectiveById } from '../hooks';
 import React from 'react';
@@ -21,13 +20,11 @@ function ViewStewardsPage() {
 
   if (isDesktopResolution) {
     return (
-      <Layout>
-        <Breadcrumb
-          path={[
-            { text: collective?.ipfs.name ?? collectiveId, route: `/collective/${collectiveId}` },
-            { text: 'Stewards', route: `/collective/${collectiveId}/stewards` },
-          ]}
-        />
+      <Layout
+        breadcrumbPath={[
+          { text: collective?.ipfs.name ?? collectiveId, route: `/collective/${collectiveId}` },
+          { text: 'Stewards', route: `/collective/${collectiveId}/stewards` },
+        ]}>
         {!collective ? (
           <Text>Loading...</Text>
         ) : (
@@ -75,7 +72,6 @@ const styles = StyleSheet.create({
     height: 'auto',
     borderRadius: 16,
     padding: 16,
-    marginBottom: 32,
   },
   desktopTopRow: {
     flexDirection: 'row',

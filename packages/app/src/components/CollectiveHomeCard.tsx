@@ -16,7 +16,7 @@ interface CollectiveHomeCardProps {
 function CollectiveHomeCard({ name, description, headerImage, route }: CollectiveHomeCardProps) {
   const { navigate } = useCrossNavigate();
   const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
+    minWidth: 920,
   });
 
   const headerImg = { uri: headerImage } ?? Ocean;

@@ -42,7 +42,7 @@ interface ViewCollectiveProps {
 function ViewCollective({ collective }: ViewCollectiveProps) {
   const { navigate } = useCrossNavigate();
   const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
+    minWidth: 920,
   });
 
   const {
@@ -80,19 +80,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const { formatted: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateGoodDollarAmounts(
     totalRewards,
     tokenPrice
-  );
-
-  const renderDonorsButton = () => (
-    <RoundedButton
-      title="See all donors"
-      backgroundColor={Colors.purple[100]}
-      color={Colors.purple[200]}
-      fontSize={18}
-      seeType={true}
-      onPress={() => {
-        navigate(`/collective/${poolAddress}/donors`);
-      }}
-    />
   );
 
   if (isDesktopResolution) {
@@ -151,11 +138,20 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                       title="Stop your donation"
                       backgroundColor={Colors.orange[100]}
                       color={Colors.orange[200]}
-                      fontSize={18}
+                      fontSize={16}
                       seeType={false}
                       onPress={handleStopDonation}
                     />
-                    {renderDonorsButton()}
+                    <RoundedButton
+                      title="See all donors"
+                      backgroundColor={Colors.purple[100]}
+                      color={Colors.purple[200]}
+                      fontSize={16}
+                      seeType={true}
+                      onPress={() => {
+                        navigate(`/collective/${poolAddress}/donors`);
+                      }}
+                    />
                   </View>
                 </View>
               ) : (
@@ -164,13 +160,22 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                     title="Donate"
                     backgroundColor={Colors.green[100]}
                     color={Colors.green[200]}
-                    fontSize={18}
+                    fontSize={16}
                     seeType={false}
                     onPress={() => {
                       navigate(`/donate/${poolAddress}`);
                     }}
                   />
-                  {renderDonorsButton()}
+                  <RoundedButton
+                    title="See all donors"
+                    backgroundColor={Colors.purple[100]}
+                    color={Colors.purple[200]}
+                    fontSize={16}
+                    seeType={true}
+                    onPress={() => {
+                      navigate(`/collective/${poolAddress}/donors`);
+                    }}
+                  />
                 </View>
               )}
             </View>
@@ -314,7 +319,16 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                   seeType={false}
                   onPress={handleStopDonation}
                 />
-                {renderDonorsButton()}
+                <RoundedButton
+                  title="See all donors"
+                  backgroundColor={Colors.purple[100]}
+                  color={Colors.purple[200]}
+                  fontSize={18}
+                  seeType={true}
+                  onPress={() => {
+                    navigate(`/collective/${poolAddress}/donors`);
+                  }}
+                />
               </View>
             </View>
           ) : (
@@ -329,7 +343,16 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                   navigate(`/donate/${poolAddress}`);
                 }}
               />
-              {renderDonorsButton()}
+              <RoundedButton
+                title="See all donors"
+                backgroundColor={Colors.purple[100]}
+                color={Colors.purple[200]}
+                fontSize={18}
+                seeType={true}
+                onPress={() => {
+                  navigate(`/collective/${poolAddress}/donors`);
+                }}
+              />
             </View>
           )}
         </View>
@@ -484,11 +507,13 @@ const styles = StyleSheet.create({
   collectiveDonateBox: { gap: 24, height: 230 },
   collectiveInformation: { flex: 1, flexDirection: 'row', gap: 8 },
   desktopContainer: {
+    flex: 1,
+    justifyContent: 'space-between',
     maxWidth: '50%',
     height: 540,
     borderRadius: 16,
   },
-  collectiveDesktopActions: { flex: 1, flexDirection: 'row', justifyContent: 'center', gap: 32, paddingHorizontal: 16 },
+  collectiveDesktopActions: { flex: 1, flexDirection: 'row', justifyContent: 'center', gap: 32 },
 });
 
 export default ViewCollective;

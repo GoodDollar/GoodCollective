@@ -16,7 +16,7 @@ interface TransactionListProps {
 
 function TransactionList({ collective }: TransactionListProps) {
   const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
+    minWidth: 920,
   });
   const { navigate } = useCrossNavigate();
 

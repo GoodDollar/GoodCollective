@@ -23,7 +23,7 @@ interface WalletProfileProps {
 
 function WalletProfile({ address, ensName, firstName, lastName, donor, steward }: WalletProfileProps) {
   const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
+    minWidth: 920,
   });
 
   const profileType = ensName ? ProfileTypes.nameAndDomain : ProfileTypes.claimDomain;

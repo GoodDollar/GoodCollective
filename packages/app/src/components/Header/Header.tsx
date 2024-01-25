@@ -11,7 +11,7 @@ import { BackIcon, HeaderLogo } from '../../assets';
 function Header(): JSX.Element {
   const { address } = useAccount();
   const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
+    minWidth: 920,
   });
   const { navigate } = useCrossNavigate();
 

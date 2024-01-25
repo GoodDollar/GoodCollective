@@ -32,7 +32,7 @@ interface DonateComponentProps {
 
 function DonateComponent({ collective }: DonateComponentProps) {
   const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
+    minWidth: 920,
   });
   const location = useLocation();
   const collectiveId = location.pathname.slice('/donate/'.length);

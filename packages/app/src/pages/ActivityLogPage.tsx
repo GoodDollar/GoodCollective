@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Image } from 'react-native';
-import Layout from '../components/Layout';
+import Layout from '../components/Layout/Layout';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import ActivityLog from '../components/ActivityLog';
 import { Colors } from '../utils/colors';
@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
   body: {
     gap: 24,
     backgroundColor: Colors.white,
+    maxWidth: 1280,
   },
 
   container: {
