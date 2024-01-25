@@ -78,7 +78,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
   );
   const approvalNotReady = handleApproveToken === undefined && currency !== 'G$';
 
-  const { supportFlowWithSwap, supportFlow, supportSingleBatch } = useContractCalls(
+  const { supportFlowWithSwap, supportFlow, supportSingleTransferAndCall } = useContractCalls(
     collectiveId,
     currency,
     decimalDonationAmount,
@@ -93,7 +93,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
 
   const handleDonate = useCallback(async () => {
     if (frequency === Frequency.OneTime) {
-      return await supportSingleBatch();
+      return await supportSingleTransferAndCall();
     } else if (currency === 'G$') {
       return await supportFlow();
     }
@@ -117,7 +117,15 @@ function DonateComponent({ collective }: DonateComponentProps) {
     if (txReceipt?.status === 'success') {
       await supportFlowWithSwap();
     }
-  }, [chain?.id, currency, frequency, handleApproveToken, supportFlow, supportFlowWithSwap, supportSingleBatch]);
+  }, [
+    chain?.id,
+    currency,
+    frequency,
+    handleApproveToken,
+    supportFlow,
+    supportFlowWithSwap,
+    supportSingleTransferAndCall,
+  ]);
 
   const currencyDecimals = useToken(currency).decimals;
   const donorCurrencyBalance = useGetTokenBalance(currency, address, chain?.id, true);
