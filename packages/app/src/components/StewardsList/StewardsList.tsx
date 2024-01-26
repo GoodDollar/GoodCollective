@@ -34,7 +34,7 @@ function StewardList({ listType, stewards, titleStyle, listStyle }: StewardListP
         <Image source={titleIcon} style={styles.titleIcon} />
         <Text style={styles.title}>Stewards{stewardsCountText}</Text>
       </View>
-      <View style={[styles.list, { ...(listStyle ?? {}) }]}>
+      <View style={[styles.list, overflowStyle.overflow, { ...(listStyle ?? {}) }]}>
         {stewards.map((steward, index) => (
           <StewardsListItem
             steward={steward}
@@ -103,7 +103,14 @@ const styles = StyleSheet.create({
   },
   list: {
     maxHeight: 400,
-    overflow: 'scroll',
   },
 });
+
+const overflowStyle = StyleSheet.create({
+  overflow: {
+    // @ts-ignore
+    overflow: 'auto',
+  },
+});
+
 export default StewardList;

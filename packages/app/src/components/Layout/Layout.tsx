@@ -67,7 +67,8 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 90,
     height: '100vh',
-    overflowY: 'scroll',
+    // @ts-ignore
+    overflowY: 'auto',
   },
 });
 

@@ -40,7 +40,8 @@ const styles = StyleSheet.create({
   list: {
     width: '100%',
     maxHeight: 400,
-    overflow: 'scroll',
+    // @ts-ignore
+    overflow: 'auto',
   },
 });
 

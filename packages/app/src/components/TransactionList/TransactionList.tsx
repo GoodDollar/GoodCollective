@@ -27,11 +27,12 @@ function TransactionList({ collective }: TransactionListProps) {
   return (
     <View style={styles.txContainer}>
       <View style={[styles.row, { marginBottom: 24 }]}>
+        {/* @ts-ignore */}
         <Image source={{ uri: TransactionIcon }} style={styles.firstIcon} />
         <Text style={styles.rowText}>Recent Transactions</Text>
       </View>
       {isDesktopResolution && <View style={styles.horizontalDivider} />}
-      <View style={styles.list}>
+      <View style={[styles.list, overflowStyle.overflow]}>
         {transactions
           .slice(0, 5)
           .map((transaction) =>
@@ -119,7 +120,6 @@ const styles = StyleSheet.create({
   },
   list: {
     maxHeight: 389,
-    overflow: 'scroll',
     gap: 16,
   },
   showMoreButton: {
@@ -144,6 +144,13 @@ const styles = StyleSheet.create({
     height: 1,
     marginBottom: 21,
     backgroundColor: Colors.gray[600],
+  },
+});
+
+const overflowStyle = StyleSheet.create({
+  overflow: {
+    // @ts-ignore
+    overflow: 'auto',
   },
 });
 

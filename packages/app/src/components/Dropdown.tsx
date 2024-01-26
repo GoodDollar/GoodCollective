@@ -112,7 +112,8 @@ const styles = StyleSheet.create({
     width: 'auto',
     height: 'auto',
     maxHeight: 400,
-    overflowY: 'scroll',
+    // @ts-ignore
+    overflowY: 'auto',
     backgroundColor: Colors.white,
     paddingTop: 10,
     paddingBottom: 10,
