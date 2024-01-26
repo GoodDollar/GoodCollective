@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import Header from '../Header/Header';
-import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import ImpactButton from '../ImpactButton';
 import { useLocation } from 'react-router-native';
 import { Colors } from '../../utils/colors';
@@ -68,7 +68,10 @@ const styles = StyleSheet.create({
     paddingBottom: 90,
     height: '100vh',
     // @ts-ignore
-    overflowY: 'auto',
+    overflowY: Platform.select({
+      native: 'scroll',
+      default: 'auto',
+    }),
   },
 });
 

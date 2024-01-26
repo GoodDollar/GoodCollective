@@ -1,4 +1,4 @@
-import { Image, Text, View, StyleSheet } from 'react-native';
+import { Image, Text, View, StyleSheet, Platform } from 'react-native';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { Colors } from '../../utils/colors';
 import { StewardsListItem } from './StewardsListItem';
@@ -109,7 +109,10 @@ const styles = StyleSheet.create({
 const overflowStyle = StyleSheet.create({
   overflow: {
     // @ts-ignore
-    overflow: 'auto',
+    overflow: Platform.select({
+      native: 'scroll',
+      default: 'auto',
+    }),
   },
 });
 

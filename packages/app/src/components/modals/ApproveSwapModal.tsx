@@ -1,4 +1,4 @@
-import { Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { Modal, StyleSheet, Text, View, Image, TouchableOpacity, Platform } from 'react-native';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { Colors } from '../../utils/colors';
 import { modalStyles } from '../shared';
@@ -42,7 +42,10 @@ const styles = StyleSheet.create({
     maxWidth: '90%',
     maxHeight: '90%',
     // @ts-ignore
-    overflowY: 'auto',
+    overflowY: Platform.select({
+      native: 'scroll',
+      default: 'auto',
+    }),
     margin: 20,
     backgroundColor: Colors.blue[100],
     borderRadius: 20,

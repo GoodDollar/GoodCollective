@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { DonorCollective } from '../../models/models';
 import { DonorsListItem } from './DonorsListItem';
 import { useMemo } from 'react';
@@ -41,7 +41,10 @@ const styles = StyleSheet.create({
     width: '100%',
     maxHeight: 400,
     // @ts-ignore
-    overflow: 'auto',
+    overflow: Platform.select({
+      native: 'scroll',
+      default: 'auto',
+    }),
   },
 });
 

@@ -1,4 +1,4 @@
-import { Image, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, Text, View, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { Colors } from '../../utils/colors';
 import { useMediaQuery } from 'native-base';
@@ -150,7 +150,10 @@ const styles = StyleSheet.create({
 const overflowStyle = StyleSheet.create({
   overflow: {
     // @ts-ignore
-    overflow: 'auto',
+    overflow: Platform.select({
+      native: 'scroll',
+      default: 'auto',
+    }),
   },
 });
 
