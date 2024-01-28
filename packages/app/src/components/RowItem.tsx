@@ -14,7 +14,7 @@ interface RowItemProps {
 
 function RowItem({ rowInfo, rowData, balance, currency, imageUrl }: RowItemProps) {
   const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
+    minWidth: 920,
   });
 
   const usdBalance = balance ? formatFiatCurrency(balance) : '0.00';

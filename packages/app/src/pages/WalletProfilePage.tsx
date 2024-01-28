@@ -1,9 +1,7 @@
 import React from 'react';
-import Layout from '../components/Layout';
+import Layout from '../components/Layout/Layout';
 import { useDonorById, useStewardById } from '../hooks';
 import { useLocation } from 'react-router-native';
-import Breadcrumb from '../components/Breadcrumb';
-import { useMediaQuery } from 'native-base';
 import WalletProfile from '../components/WalletProfile';
 import { useEnsName } from 'wagmi';
 import { useFetchFullName } from '../hooks/useFetchFullName';
@@ -13,10 +11,6 @@ function WalletProfilePage() {
   const profileAddress = location.pathname.slice('/profile/'.length).toLocaleLowerCase();
   const donor = useDonorById(profileAddress, 1000);
   const steward = useStewardById(profileAddress);
-
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
-  });
 
   const address: `0x${string}` | undefined = profileAddress.startsWith('0x')
     ? (profileAddress as `0x${string}`)
@@ -30,8 +24,7 @@ function WalletProfilePage() {
   const userIdentifier = firstName ? `${firstName} ${lastName}` : ensName ?? address ?? '0x';
 
   return (
-    <Layout>
-      {isDesktopResolution && <Breadcrumb path={[{ text: userIdentifier, route: `/profile/${address}` }]} />}
+    <Layout breadcrumbPath={[{ text: userIdentifier, route: `/profile/${address}` }]}>
       <WalletProfile
         address={address}
         ensName={ensName ?? undefined}

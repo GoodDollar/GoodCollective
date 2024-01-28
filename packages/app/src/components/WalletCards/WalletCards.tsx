@@ -24,7 +24,7 @@ function WalletCards({
   tokenPrice,
 }: WalletCardsProps) {
   const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
+    minWidth: 920,
   });
 
   const dynamicContainerStyle: Record<string, any> = isDesktopResolution
