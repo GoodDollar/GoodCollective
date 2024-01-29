@@ -4,6 +4,7 @@ import { Colors } from '../../utils/colors';
 import { ReceiveIcon, SendIcon } from '../../assets';
 import Decimal from 'decimal.js';
 import { ethers } from 'ethers';
+import { formatGoodDollarAmount } from '../../lib/calculateGoodDollarAmounts';
 
 interface TransactionListItemProps {
   userIdentifier: string;
@@ -22,9 +23,8 @@ function TransactionListItem({
   txHash,
   rawNetworkFee,
 }: TransactionListItemProps) {
-  const formattedAmount: string = amountIsFormatted
-    ? amount
-    : new Decimal(ethers.utils.formatEther(amount)).toFixed(2, Decimal.ROUND_DOWN);
+  const formattedAmount: string = amountIsFormatted ? amount : formatGoodDollarAmount(amount);
+
   const formattedFee: string = new Decimal(ethers.utils.formatEther(rawNetworkFee ?? 0)).toString();
   const formattedHash = txHash.slice(0, 40) + '...';
 

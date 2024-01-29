@@ -11,3 +11,15 @@ export const formatFiatCurrency = (
     ...options,
   }).format(number);
 };
+
+export const formatNumberWithCommas = (num: string): string => {
+  const number = parseFloat(num);
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+    .format(number)
+    .substring(1);
+};
