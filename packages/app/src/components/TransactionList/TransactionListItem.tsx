@@ -22,7 +22,9 @@ function TransactionListItem({
   txHash,
   rawNetworkFee,
 }: TransactionListItemProps) {
-  const formattedAmount: string = amountIsFormatted ? amount : new Decimal(ethers.utils.formatEther(amount)).toString();
+  const formattedAmount: string = amountIsFormatted
+    ? amount
+    : new Decimal(ethers.utils.formatEther(amount)).toFixed(2, Decimal.ROUND_DOWN);
   const formattedFee: string = new Decimal(ethers.utils.formatEther(rawNetworkFee ?? 0)).toString();
   const formattedHash = txHash.slice(0, 40) + '...';
 

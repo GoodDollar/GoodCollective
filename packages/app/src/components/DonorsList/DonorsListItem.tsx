@@ -18,7 +18,10 @@ export const DonorsListItem = (props: DonorsListItemProps) => {
   const { donor, rank, userFullName } = props;
   const { navigate } = useCrossNavigate();
 
-  const formattedDonations: string = new Decimal(ethers.utils.formatEther(donor.contribution) ?? 0).toString();
+  const formattedDonations: string = new Decimal(ethers.utils.formatEther(donor.contribution) ?? 0).toFixed(
+    2,
+    Decimal.ROUND_DOWN
+  );
 
   const { data: ensName } = useEnsName({ address: donor.donor as `0x${string}`, chainId: 1 });
   const userIdentifier = userFullName ?? ensName ?? formatAddress(donor.donor);
