@@ -21,7 +21,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
     chainName = 'None';
   }
 
-  const tokenBalance = useGetTokenBalance('G$', address, chain?.id, true);
+  const tokenBalance = useGetTokenBalance('G$', address, chain?.id, false);
   const formattedTokenBalance = formatGoodDollarAmount(tokenBalance);
   const { data: ensName } = useEnsName({ address, chainId: 1 });
 
