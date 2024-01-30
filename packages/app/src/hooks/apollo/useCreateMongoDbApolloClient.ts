@@ -11,6 +11,7 @@ const mongoDbUri = `https://realm.mongodb.com/api/client/v2.0/app/${APP_ID}/grap
 export const useCreateMongoDbApolloClient = (): ApolloClient<any> | undefined => {
   const [apolloClient, setApolloClient] = useState<ApolloClient<NormalizedCacheObject> | undefined>();
 
+  //todo-fix: whenever realm is blocked or fails this goes into some infinite loop trying to connect
   useEffect(() => {
     async function initApollo() {
       const app = new Realm.App(APP_ID);
