@@ -53,7 +53,7 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
           )}
           <Text style={styles.walletConnectButtonText}>Connect Wallet</Text>
         </View>
-        <RotatingArrowIcon openDropdown={openDropdown || !isDesktopResolution} />
+        {isDesktopResolution && <RotatingArrowIcon openDropdown={openDropdown} />}
       </TouchableOpacity>
       {openDropdown && (
         <View style={[styles.dropdownContainer, dropdownOffset]}>
@@ -144,5 +144,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    justifyContent: 'center',
+    width: '100%',
   },
 });
