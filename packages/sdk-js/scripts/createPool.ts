@@ -35,7 +35,7 @@ const main = async () => {
     manager: '0xEbB3341cD1511035845f1b37e6A2BFCDcf433Ad7',
     membersValidator: ethers.constants.AddressZero,
     uniquenessValidator: ethers.constants.AddressZero,
-    rewardToken: '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A', //celo dev token
+    rewardToken: '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A', //celo production token
     allowRewardOverride: false,
   };
 

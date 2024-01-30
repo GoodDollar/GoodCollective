@@ -94,26 +94,26 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               <Text style={styles.description}>{ipfs.description}</Text>
               <View style={[styles.icons, { position: 'absolute', bottom: 0, left: 25 }]}>
                 {collective.ipfs.website && (
-                  <Link href={collective.ipfs.website}>
+                  <Link href={collective.ipfs.website} isExternal>
                     <Image source={WebIcon} style={styles.rowIcon} />
                   </Link>
                 )}
                 {collective.ipfs.twitter && (
-                  <Link href={collective.ipfs.twitter}>
+                  <Link href={collective.ipfs.twitter} isExternal>
                     <Image source={TwitterIcon} style={styles.rowIcon} />
                   </Link>
                 )}
                 {collective.ipfs.instagram && (
-                  <Link href={collective.ipfs.instagram}>
+                  <Link href={collective.ipfs.instagram} isExternal>
                     <Image source={InstagramIcon} style={styles.rowIcon} />
                   </Link>
                 )}
                 {collective.ipfs.threads && (
-                  <Link href={collective.ipfs.threads}>
+                  <Link href={collective.ipfs.threads} isExternal>
                     <Image source={AtIcon} style={styles.rowIcon} />
                   </Link>
                 )}
-                <Link href={`https://explorer.celo.org/mainnet/address/${poolAddress}`}>
+                <Link href={`https://explorer.celo.org/mainnet/address/${poolAddress}`} isExternal>
                   <Image source={LastRowIcon} style={styles.rowIcon} />
                 </Link>
               </View>
@@ -249,26 +249,26 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
           <Text style={styles.description}>{ipfs.description}</Text>
           <View style={styles.icons}>
             {collective.ipfs.website && (
-              <Link href={collective.ipfs.website}>
+              <Link href={collective.ipfs.website} isExternal>
                 <Image source={WebIcon} style={styles.rowIcon} />
               </Link>
             )}
             {collective.ipfs.twitter && (
-              <Link href={collective.ipfs.twitter}>
+              <Link href={collective.ipfs.twitter} isExternal>
                 <Image source={TwitterIcon} style={styles.rowIcon} />
               </Link>
             )}
             {collective.ipfs.instagram && (
-              <Link href={collective.ipfs.instagram}>
+              <Link href={collective.ipfs.instagram} isExternal>
                 <Image source={InstagramIcon} style={styles.rowIcon} />
               </Link>
             )}
             {collective.ipfs.threads && (
-              <Link href={collective.ipfs.threads}>
+              <Link href={collective.ipfs.threads} isExternal>
                 <Image source={AtIcon} style={styles.rowIcon} />
               </Link>
             )}
-            <Link href={`https://explorer.celo.org/mainnet/address/${poolAddress}`}>
+            <Link href={`https://explorer.celo.org/mainnet/address/${poolAddress}`} isExternal>
               <Image source={LastRowIcon} style={styles.rowIcon} />
             </Link>
           </View>
