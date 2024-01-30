@@ -1,4 +1,5 @@
 import { Token } from '@uniswap/sdk-core';
+import GdContracts from '@gooddollar/goodprotocol/releases/deployment.json';
 
 // 5%
 export const acceptablePriceImpact = 5;
@@ -14,7 +15,7 @@ export const SupportedNetworkNames: Record<SupportedNetwork, string> = {
 // Uniswap V3 Router on Celo
 export const UNISWAP_V3_ROUTER_ADDRESS = '0x5615CDAb10dc425a742d643d949a7F474C01abc4';
 
-export const GDToken: Token = new Token(SupportedNetwork.CELO, '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A', 18, 'G$');
+export const GDToken: Token = new Token(SupportedNetwork.CELO, GdContracts['production-celo'].GoodDollar, 18, 'G$');
 
 // if a token is not in this list, the address from the Celo Token List is used
 export const coingeckoTokenMapping: Record<string, `0x${string}`> = {
