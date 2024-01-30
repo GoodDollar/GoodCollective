@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Image } from 'react-native';
-import Layout from '../components/Layout';
+import Layout from '../components/Layout/Layout';
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
 import { DonorBlue, Ocean } from '../assets';
@@ -7,7 +7,6 @@ import { useLocation } from 'react-router-native';
 import { useCollectiveById } from '../hooks';
 import React from 'react';
 import { useMediaQuery } from 'native-base';
-import Breadcrumb from '../components/Breadcrumb';
 import DonorList from '../components/DonorsList/DonorsList';
 
 function ViewDonorsPage() {
@@ -20,13 +19,11 @@ function ViewDonorsPage() {
 
   if (isDesktopResolution) {
     return (
-      <Layout>
-        <Breadcrumb
-          path={[
-            { text: collective?.ipfs.name ?? collectiveId, route: `/collective/${collectiveId}` },
-            { text: 'Donors', route: `/collective/${collectiveId}/donors` },
-          ]}
-        />
+      <Layout
+        breadcrumbPath={[
+          { text: collective?.ipfs.name ?? collectiveId, route: `/collective/${collectiveId}` },
+          { text: 'Donors', route: `/collective/${collectiveId}/donors` },
+        ]}>
         {!collective ? (
           <Text>Loading...</Text>
         ) : (
@@ -74,7 +71,6 @@ const styles = StyleSheet.create({
     height: 'auto',
     borderRadius: 16,
     padding: 50,
-    marginBottom: 32,
   },
   desktopTopRow: {
     flexDirection: 'row',

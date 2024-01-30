@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useState } from 'react';
 import { Colors } from '../utils/colors';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
@@ -112,7 +112,11 @@ const styles = StyleSheet.create({
     width: 'auto',
     height: 'auto',
     maxHeight: 400,
-    overflowY: 'scroll',
+    // @ts-ignore
+    overflowY: Platform.select({
+      native: 'scroll',
+      default: 'auto',
+    }),
     backgroundColor: Colors.white,
     paddingTop: 10,
     paddingBottom: 10,

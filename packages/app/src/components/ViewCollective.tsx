@@ -42,7 +42,7 @@ interface ViewCollectiveProps {
 function ViewCollective({ collective }: ViewCollectiveProps) {
   const { navigate } = useCrossNavigate();
   const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
+    minWidth: 920,
   });
 
   const {
@@ -82,19 +82,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
     tokenPrice
   );
 
-  const renderDonorsButton = () => (
-    <RoundedButton
-      title="See all donors"
-      backgroundColor={Colors.purple[100]}
-      color={Colors.purple[200]}
-      fontSize={18}
-      seeType={true}
-      onPress={() => {
-        navigate(`/collective/${poolAddress}/donors`);
-      }}
-    />
-  );
-
   if (isDesktopResolution) {
     return (
       <View style={{ gap: 24 }}>
@@ -107,26 +94,26 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               <Text style={styles.description}>{ipfs.description}</Text>
               <View style={[styles.icons, { position: 'absolute', bottom: 0, left: 25 }]}>
                 {collective.ipfs.website && (
-                  <Link href={collective.ipfs.website}>
+                  <Link href={collective.ipfs.website} isExternal>
                     <Image source={WebIcon} style={styles.rowIcon} />
                   </Link>
                 )}
                 {collective.ipfs.twitter && (
-                  <Link href={collective.ipfs.twitter}>
+                  <Link href={collective.ipfs.twitter} isExternal>
                     <Image source={TwitterIcon} style={styles.rowIcon} />
                   </Link>
                 )}
                 {collective.ipfs.instagram && (
-                  <Link href={collective.ipfs.instagram}>
+                  <Link href={collective.ipfs.instagram} isExternal>
                     <Image source={InstagramIcon} style={styles.rowIcon} />
                   </Link>
                 )}
                 {collective.ipfs.threads && (
-                  <Link href={collective.ipfs.threads}>
+                  <Link href={collective.ipfs.threads} isExternal>
                     <Image source={AtIcon} style={styles.rowIcon} />
                   </Link>
                 )}
-                <Link href={`https://explorer.celo.org/mainnet/address/${poolAddress}`}>
+                <Link href={`https://explorer.celo.org/mainnet/address/${poolAddress}`} isExternal>
                   <Image source={LastRowIcon} style={styles.rowIcon} />
                 </Link>
               </View>
@@ -151,11 +138,20 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                       title="Stop your donation"
                       backgroundColor={Colors.orange[100]}
                       color={Colors.orange[200]}
-                      fontSize={18}
+                      fontSize={16}
                       seeType={false}
                       onPress={handleStopDonation}
                     />
-                    {renderDonorsButton()}
+                    <RoundedButton
+                      title="See all donors"
+                      backgroundColor={Colors.purple[100]}
+                      color={Colors.purple[200]}
+                      fontSize={16}
+                      seeType={true}
+                      onPress={() => {
+                        navigate(`/collective/${poolAddress}/donors`);
+                      }}
+                    />
                   </View>
                 </View>
               ) : (
@@ -164,13 +160,22 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                     title="Donate"
                     backgroundColor={Colors.green[100]}
                     color={Colors.green[200]}
-                    fontSize={18}
+                    fontSize={16}
                     seeType={false}
                     onPress={() => {
                       navigate(`/donate/${poolAddress}`);
                     }}
                   />
-                  {renderDonorsButton()}
+                  <RoundedButton
+                    title="See all donors"
+                    backgroundColor={Colors.purple[100]}
+                    color={Colors.purple[200]}
+                    fontSize={16}
+                    seeType={true}
+                    onPress={() => {
+                      navigate(`/collective/${poolAddress}/donors`);
+                    }}
+                  />
                 </View>
               )}
             </View>
@@ -244,26 +249,26 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
           <Text style={styles.description}>{ipfs.description}</Text>
           <View style={styles.icons}>
             {collective.ipfs.website && (
-              <Link href={collective.ipfs.website}>
+              <Link href={collective.ipfs.website} isExternal>
                 <Image source={WebIcon} style={styles.rowIcon} />
               </Link>
             )}
             {collective.ipfs.twitter && (
-              <Link href={collective.ipfs.twitter}>
+              <Link href={collective.ipfs.twitter} isExternal>
                 <Image source={TwitterIcon} style={styles.rowIcon} />
               </Link>
             )}
             {collective.ipfs.instagram && (
-              <Link href={collective.ipfs.instagram}>
+              <Link href={collective.ipfs.instagram} isExternal>
                 <Image source={InstagramIcon} style={styles.rowIcon} />
               </Link>
             )}
             {collective.ipfs.threads && (
-              <Link href={collective.ipfs.threads}>
+              <Link href={collective.ipfs.threads} isExternal>
                 <Image source={AtIcon} style={styles.rowIcon} />
               </Link>
             )}
-            <Link href={`https://explorer.celo.org/mainnet/address/${poolAddress}`}>
+            <Link href={`https://explorer.celo.org/mainnet/address/${poolAddress}`} isExternal>
               <Image source={LastRowIcon} style={styles.rowIcon} />
             </Link>
           </View>
@@ -314,7 +319,16 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                   seeType={false}
                   onPress={handleStopDonation}
                 />
-                {renderDonorsButton()}
+                <RoundedButton
+                  title="See all donors"
+                  backgroundColor={Colors.purple[100]}
+                  color={Colors.purple[200]}
+                  fontSize={18}
+                  seeType={true}
+                  onPress={() => {
+                    navigate(`/collective/${poolAddress}/donors`);
+                  }}
+                />
               </View>
             </View>
           ) : (
@@ -329,7 +343,16 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                   navigate(`/donate/${poolAddress}`);
                 }}
               />
-              {renderDonorsButton()}
+              <RoundedButton
+                title="See all donors"
+                backgroundColor={Colors.purple[100]}
+                color={Colors.purple[200]}
+                fontSize={18}
+                seeType={true}
+                onPress={() => {
+                  navigate(`/collective/${poolAddress}/donors`);
+                }}
+              />
             </View>
           )}
         </View>
@@ -484,11 +507,13 @@ const styles = StyleSheet.create({
   collectiveDonateBox: { gap: 24, height: 230 },
   collectiveInformation: { flex: 1, flexDirection: 'row', gap: 8 },
   desktopContainer: {
+    flex: 1,
+    justifyContent: 'space-between',
     maxWidth: '50%',
     height: 540,
     borderRadius: 16,
   },
-  collectiveDesktopActions: { flex: 1, flexDirection: 'row', justifyContent: 'center', gap: 32, paddingHorizontal: 16 },
+  collectiveDesktopActions: { flex: 1, flexDirection: 'row', justifyContent: 'center', gap: 32 },
 });
 
 export default ViewCollective;

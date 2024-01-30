@@ -11,7 +11,7 @@ interface ImpactButtonProps {
 
 function ImpactButton({ title, onClick }: ImpactButtonProps) {
   const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
+    minWidth: 920,
   });
 
   return (
@@ -37,7 +37,8 @@ const styles = StyleSheet.create({
   desktopButton: {
     position: 'relative',
     borderRadius: 16,
-    width: '50%',
+    width: '49%',
+    marginTop: 32,
   },
   buttonDesktopContent: {
     justifyContent: 'space-between',

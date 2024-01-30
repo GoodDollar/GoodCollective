@@ -21,7 +21,7 @@ function FlowingDonationsRowItem({
   imageUrl,
 }: FlowingDonationsRowItemProps) {
   const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
+    minWidth: 920,
   });
 
   const { formatted: formattedDonations, usdValue: donationsUsdValue } = useDonorCollectivesFlowingBalances(

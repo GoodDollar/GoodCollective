@@ -1,6 +1,6 @@
 import { Image, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import CollectiveHomeCard from '../components/CollectiveHomeCard';
-import Layout from '../components/Layout';
+import Layout from '../components/Layout/Layout';
 import { Colors } from '../utils/colors';
 import { InterSemiBold } from '../utils/webFonts';
 import { Link, useMediaQuery } from 'native-base';
@@ -11,7 +11,7 @@ import { ForwardIcon } from '../assets';
 function HomePage() {
   const collectives = useCollectivesMetadata();
   const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
+    minWidth: 920,
   });
 
   return (

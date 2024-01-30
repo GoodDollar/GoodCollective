@@ -25,7 +25,7 @@ function FlowingDonationsRowItem({
   imageUrl,
 }: FlowingDonationsRowItemProps) {
   const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
+    minWidth: 920,
   });
 
   const currentBalance = useGetTokenBalance('G$', collective, SupportedNetwork.CELO);

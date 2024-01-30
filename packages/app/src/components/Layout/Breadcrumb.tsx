@@ -1,7 +1,7 @@
 import { Image, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { Colors } from '../utils/colors';
+import { Colors } from '../../utils/colors';
 import { useNavigate } from 'react-router-dom';
-import { chevronRight } from '../assets';
+import { chevronRight } from '../../assets';
 
 export interface BreadcrumbPathEntry {
   text: string;

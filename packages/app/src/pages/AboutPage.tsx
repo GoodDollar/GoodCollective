@@ -1,9 +1,9 @@
 import AboutCard from '../components/AboutCard';
-import Layout from '../components/Layout';
+import Layout from '../components/Layout/Layout';
 
 function AboutPage() {
   return (
-    <Layout>
+    <Layout breadcrumbPath={[{ text: 'About', route: '/about' }]}>
       <AboutCard />
     </Layout>
   );

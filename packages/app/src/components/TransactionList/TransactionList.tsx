@@ -1,4 +1,4 @@
-import { Image, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, Text, View, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { Colors } from '../../utils/colors';
 import { useMediaQuery } from 'native-base';
@@ -16,7 +16,7 @@ interface TransactionListProps {
 
 function TransactionList({ collective }: TransactionListProps) {
   const [isDesktopResolution] = useMediaQuery({
-    minWidth: 612,
+    minWidth: 920,
   });
   const { navigate } = useCrossNavigate();
 
@@ -27,11 +27,12 @@ function TransactionList({ collective }: TransactionListProps) {
   return (
     <View style={styles.txContainer}>
       <View style={[styles.row, { marginBottom: 24 }]}>
+        {/* @ts-ignore */}
         <Image source={{ uri: TransactionIcon }} style={styles.firstIcon} />
         <Text style={styles.rowText}>Recent Transactions</Text>
       </View>
       {isDesktopResolution && <View style={styles.horizontalDivider} />}
-      <View style={styles.list}>
+      <View style={[styles.list, overflowStyle.overflow]}>
         {transactions
           .slice(0, 5)
           .map((transaction) =>
@@ -119,7 +120,6 @@ const styles = StyleSheet.create({
   },
   list: {
     maxHeight: 389,
-    overflow: 'scroll',
     gap: 16,
   },
   showMoreButton: {
@@ -144,6 +144,16 @@ const styles = StyleSheet.create({
     height: 1,
     marginBottom: 21,
     backgroundColor: Colors.gray[600],
+  },
+});
+
+const overflowStyle = StyleSheet.create({
+  overflow: {
+    // @ts-ignore
+    overflow: Platform.select({
+      native: 'scroll',
+      default: 'auto',
+    }),
   },
 });
 
