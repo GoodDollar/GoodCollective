@@ -59,7 +59,8 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const headerImg = { uri: ipfs.headerImage } ?? Ocean;
 
   const stewardsPaid = stewardCollectives.length;
-  const infoLabel = collective.ipfs.infoLabel ?? 'Stewards get G$ each time they complete an action.';
+  const infoLabel =
+    collective.ipfs.infoLabel ?? 'Please see the smart contract for information regarding payment logic.';
 
   const { address } = useAccount();
   const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress);
