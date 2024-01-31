@@ -6,6 +6,7 @@ import { styles } from './styles';
 import { DonorGreenIcon, InfoIcon } from '../../assets';
 import { useFlowingBalance } from '../../hooks/useFlowingBalance';
 import { useCountPeopleSupported } from '../../hooks/useCountPeopleSupported';
+import { defaultInfoLabel } from '../../models/constants';
 
 interface DonorCollectiveCardProps {
   donorCollective: DonorCollective;
@@ -24,7 +25,7 @@ function DonorCollectiveCard({
 }: DonorCollectiveCardProps) {
   const { navigate } = useCrossNavigate();
   const userName = ensName ?? 'This wallet';
-  const infoLabel = ipfsCollective.infoLabel ?? 'Stewards get G$ each time they complete an action.';
+  const infoLabel = ipfsCollective.infoLabel ?? defaultInfoLabel;
 
   const peopleSupported = useCountPeopleSupported([donorCollective]) ?? 0;
 
