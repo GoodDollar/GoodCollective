@@ -62,7 +62,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const infoLabel = collective.ipfs.infoLabel ?? 'Stewards get G$ each time they complete an action.';
 
   const { address } = useAccount();
-  const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress);
+  const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress, 1000);
   const isDonating = maybeDonorCollective && maybeDonorCollective.flowRate !== '0';
 
   const [stopDonationModalVisible, setStopDonationModalVisible] = useState(false);
