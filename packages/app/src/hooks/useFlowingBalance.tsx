@@ -3,7 +3,7 @@ import { BigNumberish, ethers } from 'ethers';
 import { DonorCollective } from '../models/models';
 import { calculateGoodDollarAmounts, CalculatedAmounts } from '../lib/calculateGoodDollarAmounts';
 
-// based on https://github.com/superfluid-finance/superfluid-console/blob/master/src/components/FlowingBalance.tsx
+// based on https://github.com/superfluid-finance/superfluid-console/blob/master/src/components/Amount/FlowingBalance.tsx
 
 const ANIMATION_MINIMUM_STEP_TIME = 75;
 
