@@ -1,7 +1,9 @@
-import { ApolloClient, HttpLink, NormalizedCacheObject } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import * as Realm from 'realm-web';
 import { InvalidationPolicyCache, RenewalPolicy } from '@nerdwallet/apollo-cache-policies';
+import { ApolloClient, from, HttpLink, NormalizedCacheObject } from '@apollo/client';
+import { onError } from '@apollo/client/link/error';
+import { RetryLink } from '@apollo/client/link/retry';
 import { AsyncStorageWrapper, persistCache } from 'apollo3-cache-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -42,32 +44,52 @@ export const useCreateMongoDbApolloClient = (): ApolloClient<any> | undefined =>
         storage: new AsyncStorageWrapper(AsyncStorage),
       });
 
-      const client = new ApolloClient({
-        cache,
-        link: new HttpLink({
-          uri: mongoDbUri,
-          fetch: async (uri, options) => {
-            const accessToken = await getValidAccessToken();
-            if (!options) {
-              options = {};
-            }
-            if (!options.headers) {
-              options.headers = {};
-            }
-            (options.headers as Record<string, any>).Authorization = `Bearer ${accessToken}`;
-            return fetch(uri, options);
-          },
-        }),
-        defaultOptions: {
-          watchQuery: {
-            fetchPolicy: 'cache-and-network',
-          },
-          query: {
-            fetchPolicy: 'cache-first',
-          },
+      // ref:https://www.apollographql.com/docs/react/data/error-handling/#advanced-error-handling-with-apollo-link
+      const errorLink = onError(({ graphQLErrors, networkError }) => {
+        if (graphQLErrors)
+          graphQLErrors.forEach(({ message, locations, path }) =>
+            console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`)
+          );
+        if (networkError) {
+          console.error(`[Network error]: ${networkError}`);
+          throw networkError;
+        }
+      });
+
+      const httpLink = new HttpLink({
+        uri: mongoDbUri,
+        fetch: async (uri, options) => {
+          const accessToken = await getValidAccessToken();
+          if (!options) {
+            options = {};
+          }
+          if (!options.headers) {
+            options.headers = {};
+          }
+          (options.headers as Record<string, any>).Authorization = `Bearer ${accessToken}`;
+          return fetch(uri, options);
         },
       });
-      setApolloClient(client);
+
+      try {
+        const client = new ApolloClient({
+          cache,
+          link: from([errorLink, httpLink]),
+          defaultOptions: {
+            watchQuery: {
+              fetchPolicy: 'cache-and-network',
+            },
+            query: {
+              fetchPolicy: 'cache-first',
+            },
+          },
+        });
+        setApolloClient(client);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        return;
+      }
     }
 
     initApollo().catch(console.error);
