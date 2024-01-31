@@ -25,6 +25,7 @@ import { TransactionReceipt } from 'viem';
 import { useToken, useTokenList } from '../hooks/useTokenList';
 import { formatDecimalStringInput } from '../lib/formatDecimalStringInput';
 import ThankYouModal from './modals/ThankYouModal';
+import useCrossNavigate from '../routes/useCrossNavigate';
 
 interface DonateComponentProps {
   collective: IpfsCollective;
@@ -44,6 +45,12 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [approveSwapModalVisible, setApproveSwapModalVisible] = useState(false);
   const [thankYouModalVisible, setThankYouModalVisible] = useState(false);
+
+  const [isDonationComplete, setIsDonationComplete] = useState(false);
+  const { navigate } = useCrossNavigate();
+  if (isDonationComplete) {
+    navigate(`/profile/${address}`);
+  }
 
   const [currency, setCurrency] = useState<string>('G$');
   const [frequency, setFrequency] = useState<Frequency>(Frequency.OneTime);
@@ -87,6 +94,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
     (error) => setErrorMessage(error),
     (value: boolean) => setCompleteDonationModalVisible(value),
     (value: boolean) => setThankYouModalVisible(value),
+    (value: boolean) => setIsDonationComplete(value),
     rawMinimumAmountOut,
     swapPath
   );
@@ -482,7 +490,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
       <ErrorModal openModal={!!errorMessage} setOpenModal={onCloseErrorModal} message={errorMessage ?? ''} />
       <ApproveSwapModal openModal={approveSwapModalVisible} setOpenModal={setApproveSwapModalVisible} />
       <CompleteDonationModal openModal={completeDonationModalVisible} setOpenModal={setCompleteDonationModalVisible} />
-      <ThankYouModal openModal={thankYouModalVisible} setOpenModal={setThankYouModalVisible} collective={collective} />
+      <ThankYouModal openModal={thankYouModalVisible} address={address} collective={collective} />
     </View>
   );
 }
