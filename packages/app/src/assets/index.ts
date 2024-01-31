@@ -53,3 +53,4 @@ export { default as chevronRight } from './chevron-right.svg';
 export { default as empty } from './empty.svg';
 export { default as MetaMaskLogo } from './MetaMask_Fox.svg';
 export { default as WalletConnectLogo } from './WalletConnectLogo.svg';
+export { default as WalletConnectLogoWhite } from './WalletConnectLogoWhite.svg';
