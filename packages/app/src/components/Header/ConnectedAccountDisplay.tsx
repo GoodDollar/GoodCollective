@@ -5,7 +5,7 @@ import { useEnsName, useNetwork } from 'wagmi';
 import { Colors } from '../../utils/colors';
 import { PlaceholderAvatar } from '../../assets';
 import { useGetTokenBalance } from '../../hooks/useGetTokenBalance';
-import { formatGoodDollarAmount } from '../../lib/calculateGoodDollarAmounts';
+import { formatNumberWithCommas } from '../../lib/formatFiatCurrency';
 
 interface ConnectedAccountDisplayProps {
   isDesktopResolution: boolean;
@@ -21,8 +21,8 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
     chainName = 'None';
   }
 
-  const tokenBalance = useGetTokenBalance('G$', address, chain?.id, false);
-  const formattedTokenBalance = formatGoodDollarAmount(tokenBalance);
+  const tokenBalance = useGetTokenBalance('G$', address, chain?.id, true);
+  const formattedTokenBalance = formatNumberWithCommas(tokenBalance);
   const { data: ensName } = useEnsName({ address, chainId: 1 });
 
   return (
