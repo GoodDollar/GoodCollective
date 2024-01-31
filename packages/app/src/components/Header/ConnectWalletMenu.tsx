@@ -3,43 +3,57 @@ import { useConnect } from 'wagmi';
 import { Colors } from '../../utils/colors';
 import { useState } from 'react';
 import { RotatingArrowIcon } from './RotatingArrowIcon';
-import { MetaMaskLogo, WalletConnectLogo, WebIcon } from '../../assets';
+import { MetaMaskLogo, WalletConnectLogo, WalletConnectLogoWhite, WebIcon } from '../../assets';
+import { useMediaQuery } from 'native-base';
+
+const supportedConnectors = {
+  metaMask: 'MetaMask',
+  walletConnect: 'WalletConnect',
+};
 
 interface ConnectWalletMenuProps {
   dropdownOffset: { top: number; right?: number; left?: number };
 }
 
 export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
+  const [isDesktopResolution] = useMediaQuery({ minWidth: 920 });
   const { dropdownOffset } = props;
   const { connect, connectors, isLoading, pendingConnector } = useConnect();
 
   const [openDropdown, setOpenDropdown] = useState<boolean>(false);
 
-  connectors.sort((a, b) => {
-    if (a.name === 'WalletConnect') {
-      return -1;
-    } else if (b.name === 'WalletConnect') {
-      return 1;
-    }
-    return a.name.localeCompare(b.name);
-  });
-
   function connectorLogo(name: string) {
     switch (name) {
-      case 'MetaMask':
+      case supportedConnectors.metaMask:
         return MetaMaskLogo;
-      case 'WalletConnect':
+      case supportedConnectors.walletConnect:
         return WalletConnectLogo;
       default:
         return WebIcon;
     }
   }
 
+  const onClickConnectWallet = () => {
+    if (isDesktopResolution) {
+      setOpenDropdown(!openDropdown);
+    } else {
+      const connector = connectors.find((conn) => conn.name === supportedConnectors.walletConnect);
+      if (connector && connector.ready) {
+        connect({ connector });
+      }
+    }
+  };
+
   return (
     <>
-      <TouchableOpacity style={styles.walletConnectButton} onPress={() => setOpenDropdown(!openDropdown)}>
-        <Text style={styles.walletConnectButtonText}>Connect Wallet</Text>
-        <RotatingArrowIcon openDropdown={openDropdown} />
+      <TouchableOpacity style={styles.walletConnectButton} onPress={onClickConnectWallet}>
+        <View style={isDesktopResolution ? {} : styles.mobileButtonContentContainer}>
+          {!isDesktopResolution && (
+            <Image source={WalletConnectLogoWhite} resizeMode="contain" style={[styles.walletConnectorLogo]} />
+          )}
+          <Text style={styles.walletConnectButtonText}>Connect Wallet</Text>
+        </View>
+        {isDesktopResolution && <RotatingArrowIcon openDropdown={openDropdown} />}
       </TouchableOpacity>
       {openDropdown && (
         <View style={[styles.dropdownContainer, dropdownOffset]}>
@@ -125,5 +139,12 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     height: 1,
     backgroundColor: Colors.gray[600],
+  },
+  mobileButtonContentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    justifyContent: 'center',
+    width: '100%',
   },
 });
