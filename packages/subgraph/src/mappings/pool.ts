@@ -111,6 +111,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     nft = new ProvableNFT(tokenId);
     nft.hash = '';
     nft.owner = '';
+    nft.stewards = new Array<string>();
   }
   nft.collective = poolAddress;
 
@@ -118,6 +119,9 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   for (let i = 0; i < contributors.length; i++) {
     const stewardAddress = contributors[i].toHexString();
     const stewardCollectiveId = `${stewardAddress} ${poolAddress}`;
+
+    // add steward to NFT
+    nft.stewards.push(stewardAddress);
 
     // adds steward to event data
     claimEvent.contributors.push(stewardAddress);

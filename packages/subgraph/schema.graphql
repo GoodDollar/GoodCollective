@@ -115,7 +115,7 @@ type ProvableNFT @entity {
   id: String!
   owner: String!
   hash: String!
-  stewards: [Steward!]! @derivedFrom(field: "nfts")
+  stewards: [Steward!]!
   collective: Collective # This is always populated, but not by the same handler that creates the ProvableNFT
 }
 
