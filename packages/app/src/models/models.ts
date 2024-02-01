@@ -9,8 +9,8 @@ export interface Steward {
   address: string;
   actions: number;
   totalEarned: string;
-  // nfts: ProvableNFT[] | string[]; --> This can be fetched, but we are not using it in the MVP
   collectives: StewardCollective[];
+  nfts: ProvableNFT[];
 }
 
 export interface DonorCollective {
@@ -55,11 +55,12 @@ export interface IpfsCollective {
   images?: string[];
 }
 
-// export type ProvableNFT = {
-//   owner: string;
-//   hash: string;
-//   collective: Collective | string;
-// };
+export type ProvableNFT = {
+  id: string;
+  owner: string;
+  hash: string;
+  collective: string;
+};
 
 export interface Transaction {
   hash: string;
