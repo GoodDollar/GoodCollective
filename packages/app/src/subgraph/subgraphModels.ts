@@ -19,8 +19,8 @@ export type SubgraphSteward = {
   id: string;
   actions: number;
   totalEarned: string;
-  nfts?: SubgraphProvableNFT[] | { id: string }[];
   collectives: SubgraphStewardCollective[];
+  nfts: SubgraphProvableNFT[];
 };
 
 export type SubgraphStewardCollective = {
@@ -83,8 +83,8 @@ export type SubgraphProvableNFT = {
   id: string;
   owner: string;
   hash: string;
-  steward: SubgraphSteward[] | { id: string }[];
-  collective: SubgraphCollective | string;
+  stewards?: SubgraphSteward[] | { id: string }[];
+  collective: SubgraphCollective | { id: string };
 };
 
 export type SubgraphClaimEvent = {
