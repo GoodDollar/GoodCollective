@@ -18,12 +18,7 @@ export function SupportTransactionListItem({ transaction }: SupportTransactionLi
   const userFullName = useFetchFullName(userAddress);
   const userIdentifier = userFullName ?? ensName ?? formatAddress(userAddress);
 
-  const { formatted: formattedAmount } = useFlowingBalance(
-    transaction.contribution,
-    timestamp,
-    transaction.flowRate,
-    undefined
-  );
+  const { formatted: formattedAmount } = useFlowingBalance('0', timestamp, transaction.flowRate, undefined);
   const amount = transaction.isFlowUpdate
     ? formattedAmount
     : new Decimal(transaction.contribution).minus(transaction.previousContribution).toString();
