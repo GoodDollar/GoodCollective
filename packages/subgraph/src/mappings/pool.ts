@@ -153,8 +153,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   }
 
   // update pool
-  const totalRewards = rewardPerContributor.times(BigInt.fromI32(contributors.length));
-  pool.totalRewards = pool.totalRewards.plus(totalRewards);
+  pool.totalRewards = pool.totalRewards.plus(eventReward);
   pool.paymentsMade = pool.paymentsMade + contributors.length;
 
   claim.save();
