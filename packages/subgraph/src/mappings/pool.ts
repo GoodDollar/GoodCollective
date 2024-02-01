@@ -121,10 +121,14 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     const stewardCollectiveId = `${stewardAddress} ${poolAddress}`;
 
     // add steward to NFT
-    nft.stewards.push(stewardAddress);
+    const nftStewards = nft.stewards;
+    nftStewards.push(stewardAddress);
+    nft.stewards = nftStewards;
 
     // adds steward to event data
-    claimEvent.contributors.push(stewardAddress);
+    const claimEventStewards = claimEvent.contributors;
+    claimEventStewards.push(stewardAddress);
+    claimEvent.contributors = claimEventStewards;
 
     // update Steward
     let steward = Steward.load(stewardAddress);
@@ -134,7 +138,9 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
       steward.totalEarned = BigInt.fromI32(0);
       steward.nfts = new Array<string>();
     }
-    steward.nfts.push(tokenId);
+    const stewardNfts = steward.nfts;
+    stewardNfts.push(tokenId);
+    steward.nfts = stewardNfts;
     steward.actions = steward.actions + 1;
     steward.totalEarned = steward.totalEarned.plus(rewardPerContributor);
 
