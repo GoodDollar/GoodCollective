@@ -19,6 +19,14 @@ const steward = gql`
         actions
         totalEarned
       }
+      nfts {
+        id
+        owner
+        hash
+        collective {
+          id
+        }
+      }
     }
   }
 `;

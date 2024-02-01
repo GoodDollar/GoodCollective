@@ -10,6 +10,7 @@ export function handleNftMint(event: ProvableNftMinted): void {
   let provableNFT = ProvableNFT.load(tokenID);
   if (provableNFT === null) {
     provableNFT = new ProvableNFT(tokenID);
+    provableNFT.stewards = new Array<string>();
   }
   provableNFT.owner = to;
   provableNFT.hash = nftHash;

@@ -4802,9 +4802,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-cli@npm:^0.65.0":
-  version: 0.65.0
-  resolution: "@graphprotocol/graph-cli@npm:0.65.0"
+"@graphprotocol/graph-cli@npm:^0.67.2":
+  version: 0.67.2
+  resolution: "@graphprotocol/graph-cli@npm:0.67.2"
   dependencies:
     "@float-capital/float-subgraph-uncrashable": ^0.0.0-alpha.4
     "@oclif/core": 2.8.6
@@ -4820,14 +4820,13 @@ __metadata:
     dockerode: 2.5.8
     fs-extra: 9.1.0
     glob: 9.3.5
-    gluegun: 5.1.2
+    gluegun: 5.1.6
     graphql: 15.5.0
     immutable: 4.2.1
     ipfs-http-client: 55.0.0
     jayson: 4.0.0
     js-yaml: 3.14.1
     prettier: 3.0.3
-    request: 2.88.2
     semver: 7.4.0
     sync-request: 6.1.0
     tmp-promise: 3.0.3
@@ -4836,7 +4835,7 @@ __metadata:
     yaml: 1.10.2
   bin:
     graph: bin/run
-  checksum: d152d94a192f347299f2b1043e03390070253c297d74412da8f342ff4daae57335f30930f0a706eae0ab195e6f80db39e04966dce61fc48393bb1e27824e198f
+  checksum: 6e0e81e3058dd2932071046199ac7adcdda3732a2c9bb8b5f768e87b138457a7a5b7b65b38646788b11f2a70931cceeeff40035605c5546543cb67babc93f9d1
   languageName: node
   linkType: hard
 
@@ -8911,7 +8910,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@scaffold-eth/subgraph@workspace:packages/subgraph"
   dependencies:
-    "@graphprotocol/graph-cli": ^0.65.0
+    "@graphprotocol/graph-cli": ^0.67.2
     "@graphprotocol/graph-ts": ^0.32.0
     mustache: ^4.2.0
   languageName: unknown
@@ -19902,14 +19901,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ejs@npm:3.1.6":
-  version: 3.1.6
-  resolution: "ejs@npm:3.1.6"
+"ejs@npm:3.1.8":
+  version: 3.1.8
+  resolution: "ejs@npm:3.1.8"
   dependencies:
-    jake: ^10.6.1
+    jake: ^10.8.5
   bin:
-    ejs: ./bin/cli.js
-  checksum: 81a9cdea0b4ded3b5a4b212b7c17e20bb07468f08394e2d519708d367957a70aef3d282a6d5d38bf6ad313ba25802b9193d4227f29b084d2ee0f28d115141d48
+    ejs: bin/cli.js
+  checksum: 1d40d198ad52e315ccf37e577bdec06e24eefdc4e3c27aafa47751a03a0c7f0ec4310254c9277a5f14763c3cd4bbacce27497332b2d87c74232b9b1defef8efc
   languageName: node
   linkType: hard
 
@@ -24123,9 +24122,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"gluegun@npm:5.1.2":
-  version: 5.1.2
-  resolution: "gluegun@npm:5.1.2"
+"gluegun@npm:5.1.6":
+  version: 5.1.6
+  resolution: "gluegun@npm:5.1.6"
   dependencies:
     apisauce: ^2.1.5
     app-module-path: ^2.2.0
@@ -24133,7 +24132,7 @@ __metadata:
     colors: 1.4.0
     cosmiconfig: 7.0.1
     cross-spawn: 7.0.3
-    ejs: 3.1.6
+    ejs: 3.1.8
     enquirer: 2.3.6
     execa: 5.1.1
     fs-jetpack: 4.3.1
@@ -24159,7 +24158,7 @@ __metadata:
     yargs-parser: ^21.0.0
   bin:
     gluegun: bin/gluegun
-  checksum: 2c91934b98022018a524a3be32efb3e4567905a618ccb4aca4f19207ff4b37262bc18264b306f1c82757eaab634bac6c06aacff16059b11a38deefd07b6293b6
+  checksum: 58e6d402030fec40068aea40f1fec08838fab3fbd5f811570b832e8da8028e100620cbb5c5444830dfa97a691849509bc6e64618ee74b454ba4073dc674c4042
   languageName: node
   linkType: hard
 
@@ -26603,7 +26602,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jake@npm:^10.6.1, jake@npm:^10.8.5":
+"jake@npm:^10.8.5":
   version: 10.8.7
   resolution: "jake@npm:10.8.7"
   dependencies:
@@ -35557,7 +35556,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"request@npm:2.88.2, request@npm:^2.67.0, request@npm:^2.79.0, request@npm:^2.85.0, request@npm:^2.88.2":
+"request@npm:^2.67.0, request@npm:^2.79.0, request@npm:^2.85.0, request@npm:^2.88.2":
   version: 2.88.2
   resolution: "request@npm:2.88.2"
   dependencies:

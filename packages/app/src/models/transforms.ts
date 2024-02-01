@@ -7,6 +7,7 @@ import {
   DonorCollective,
   ClaimTx,
   SupportTx,
+  ProvableNFT,
 } from './models';
 import {
   SubgraphClaim,
@@ -14,6 +15,7 @@ import {
   SubgraphDonor,
   SubgraphDonorCollective,
   SubgraphIpfsCollective,
+  SubgraphProvableNFT,
   SubgraphSteward,
   SubgraphStewardCollective,
   SubgraphSupportEvent,
@@ -36,6 +38,7 @@ export function subgraphStewardToModel(subgraphSteward: SubgraphSteward): Stewar
     actions: subgraphSteward.actions,
     totalEarned: subgraphSteward.totalEarned,
     collectives: subgraphSteward.collectives.map(subgraphStewardCollectiveToModel),
+    nfts: subgraphSteward.nfts.map(subgraphProvableNftToModel),
   };
 }
 
@@ -101,6 +104,15 @@ export function subgraphClaimToModel(subgraphClaim: SubgraphClaim): ClaimTx {
     timestamp: subgraphClaim.timestamp,
     stewards: stewards,
     totalRewards: subgraphClaim.totalRewards,
+  };
+}
+
+export function subgraphProvableNftToModel(nft: SubgraphProvableNFT): ProvableNFT {
+  return {
+    id: nft.id,
+    owner: nft.owner,
+    hash: nft.hash,
+    collective: nft.collective.id,
   };
 }
 
