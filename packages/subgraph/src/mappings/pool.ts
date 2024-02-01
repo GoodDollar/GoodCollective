@@ -127,9 +127,9 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     claimEvent.contributors.push(stewardAddress);
 
     // update Steward
-    let steward = Steward.load(contributors[i].toHexString());
+    let steward = Steward.load(stewardAddress);
     if (steward === null) {
-      steward = new Steward(contributors[i].toHexString());
+      steward = new Steward(stewardAddress);
       steward.actions = 0;
       steward.totalEarned = BigInt.fromI32(0);
       steward.nfts = new Array<string>();
