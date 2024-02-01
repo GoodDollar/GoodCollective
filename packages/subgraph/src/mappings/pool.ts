@@ -68,7 +68,7 @@ export function handlePoolLimitsChange(event: PoolLimitsChanged): void {
 }
 
 export function handleRewardClaim(event: EventRewardClaimed): void {
-  const claimId = event.params.tokenId;
+  const tokenId = event.params.tokenId.toString();
   const eventType = event.params.eventType;
   const eventTimestamp = event.params.eventTimestamp;
   const eventQuantity = event.params.eventQuantity;
@@ -76,7 +76,6 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   const contributors = event.params.contributers;
   const rewardPerContributor = event.params.rewardPerContributer;
 
-  const nftId = claimId.toHexString();
   const poolAddress = event.address.toHexString();
 
   let pool = Collective.load(poolAddress);
@@ -86,16 +85,16 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   }
 
   const claimEvent = new ClaimEvent(eventUri);
-  claimEvent.claim = claimId.toHexString();
+  claimEvent.claim = tokenId;
   claimEvent.eventType = eventType;
   claimEvent.timestamp = eventTimestamp.toI32();
   claimEvent.quantity = eventQuantity;
   claimEvent.rewardPerContributor = rewardPerContributor;
 
   // handle claim
-  let claim = Claim.load(claimId.toHexString());
+  let claim = Claim.load(tokenId);
   if (claim === null) {
-    claim = new Claim(claimId.toHexString());
+    claim = new Claim(tokenId);
     claim.totalRewards = BigInt.fromI32(0);
     claim.collective = pool.id;
     claim.txHash = event.transaction.hash.toHexString();
@@ -106,10 +105,10 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   claim.totalRewards = claim.totalRewards.plus(eventReward);
 
   // handle nft -> note that ProvableNFT.hash and ProvableNFT.owner are set by NFT mint event
-  claimEvent.nft = nftId;
-  let nft = ProvableNFT.load(nftId);
+  claimEvent.nft = tokenId;
+  let nft = ProvableNFT.load(tokenId);
   if (nft === null) {
-    nft = new ProvableNFT(nftId);
+    nft = new ProvableNFT(tokenId);
     nft.hash = '';
     nft.owner = '';
   }
@@ -131,7 +130,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
       steward.totalEarned = BigInt.fromI32(0);
       steward.nfts = new Array<string>();
     }
-    steward.nfts.push(nftId);
+    steward.nfts.push(tokenId);
     steward.actions = steward.actions + 1;
     const totalReward = rewardPerContributor.times(eventQuantity);
     steward.totalEarned = steward.totalEarned.plus(totalReward);
