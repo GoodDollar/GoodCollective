@@ -101,7 +101,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     claim.timestamp = event.block.timestamp.toI32();
     claim.networkFee = event.transaction.gasLimit.times(event.transaction.gasPrice);
   }
-  const eventReward = rewardPerContributor.times(eventQuantity).times(BigInt.fromI32(contributors.length));
+  const eventReward = rewardPerContributor.times(BigInt.fromI32(contributors.length));
   claim.totalRewards = claim.totalRewards.plus(eventReward);
 
   // handle nft -> note that ProvableNFT.hash and ProvableNFT.owner are set by NFT mint event
@@ -132,8 +132,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     }
     steward.nfts.push(tokenId);
     steward.actions = steward.actions + 1;
-    const totalReward = rewardPerContributor.times(eventQuantity);
-    steward.totalEarned = steward.totalEarned.plus(totalReward);
+    steward.totalEarned = steward.totalEarned.plus(rewardPerContributor);
 
     // update StewardCollective
     let stewardCollective = StewardCollective.load(stewardCollectiveId);
@@ -143,7 +142,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
       stewardCollective.totalEarned = BigInt.fromI32(0);
     }
     stewardCollective.actions = stewardCollective.actions + 1;
-    stewardCollective.totalEarned = stewardCollective.totalEarned.plus(totalReward);
+    stewardCollective.totalEarned = stewardCollective.totalEarned.plus(rewardPerContributor);
     stewardCollective.steward = steward.id;
     stewardCollective.collective = pool.id;
 
@@ -152,7 +151,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   }
 
   // update pool
-  pool.totalRewards = pool.totalRewards.plus(eventReward);
+  pool.totalRewards = rewardPerContributor.times(BigInt.fromI32(contributors.length));
   pool.paymentsMade = pool.paymentsMade + contributors.length;
 
   claim.save();
