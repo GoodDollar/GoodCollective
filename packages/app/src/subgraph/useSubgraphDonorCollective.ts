@@ -21,13 +21,15 @@ const donorCollectiveByEntities = gql`
 
 export function useSubgraphDonorCollective(
   donorAddress: string,
-  collectiveAddress: string
+  collectiveAddress: string,
+  pollInterval?: number
 ): SubgraphDonorCollective | undefined {
   const response = useSubgraphData(donorCollectiveByEntities, {
     variables: {
       donor: donorAddress.toLowerCase(),
       collective: collectiveAddress.toLowerCase(),
     },
+    pollInterval,
   });
   const data = (response as DonorCollectiveSubgraphResponse).donorCollectives;
   if (!data || data.length === 0) {

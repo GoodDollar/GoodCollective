@@ -34,7 +34,7 @@ import FlowingDonationsRowItem from './FlowingDonationsRowItem';
 import { useDeleteFlow } from '../hooks/useContractCalls/useDeleteFlow';
 import ErrorModal from './modals/ErrorModal';
 import FlowingCurrentPoolRowItem from './FlowingCurrentPoolRowItem';
-import { defaultInfoLabel } from '../models/constants';
+import { defaultInfoLabel, IS_DONATING_POLL_INTERVAL } from '../models/constants';
 
 interface ViewCollectiveProps {
   collective: Collective;
@@ -63,7 +63,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const infoLabel = collective.ipfs.infoLabel ?? defaultInfoLabel;
 
   const { address } = useAccount();
-  const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress);
+  const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress, IS_DONATING_POLL_INTERVAL);
   const isDonating = maybeDonorCollective && maybeDonorCollective.flowRate !== '0';
 
   const [stopDonationModalVisible, setStopDonationModalVisible] = useState(false);
