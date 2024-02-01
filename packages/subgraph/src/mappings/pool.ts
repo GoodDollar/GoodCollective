@@ -161,13 +161,16 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
 }
 
 export function handleClaim(event: NFTClaimed): void {
-  const claimId = event.params.tokenId;
+  const claimId = event.params.tokenId.toString();
   const totalRewards = event.params.totalRewards;
-  let claim = Claim.load(claimId.toHexString());
+  let claim = Claim.load(claimId);
   if (claim === null) {
-    claim = new Claim(claimId.toHexString());
-    claim.id = claimId.toHexString();
-    claim.totalRewards = totalRewards;
-    claim.save();
+    claim = new Claim(claimId);
+    claim.collective = event.address.toHexString();
+    claim.txHash = event.transaction.hash.toHexString();
+    claim.timestamp = event.block.timestamp.toI32();
+    claim.networkFee = event.transaction.gasLimit.times(event.transaction.gasPrice);
   }
+  claim.totalRewards = totalRewards;
+  claim.save();
 }
