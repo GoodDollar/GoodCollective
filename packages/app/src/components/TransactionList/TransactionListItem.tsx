@@ -5,6 +5,7 @@ import { ReceiveIcon, SendIcon } from '../../assets';
 import Decimal from 'decimal.js';
 import { ethers } from 'ethers';
 import { formatGoodDollarAmount } from '../../lib/calculateGoodDollarAmounts';
+import { Link } from 'native-base';
 
 interface TransactionListItemProps {
   userIdentifier: string;
@@ -48,9 +49,9 @@ function TransactionListItem({
             <Text style={styles.amount}>{formattedAmount}</Text>
           </View>
         </View>
-        <View>
+        <Link href={`https://explorer.celo.org/mainnet/tx/${txHash}`} isExternal>
           <Text style={styles.hash}>{formattedHash}</Text>
-        </View>
+        </Link>
         <View>
           <View style={styles.txDetails}>
             <Text style={[styles.feeText, styles.alignLeft]}>Transaction fee (Gas)</Text>
