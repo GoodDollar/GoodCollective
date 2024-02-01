@@ -43,6 +43,10 @@ type Steward @entity {
   actions: Int!
   totalEarned: BigInt!
   """
+  NFT's minted to steward
+  """
+  nfts: [ProvableNFT!]!
+  """
   Collectives the steward is apart of
   """
   collectives: [StewardCollective!]! @derivedFrom(field: "steward")
@@ -57,10 +61,6 @@ type StewardCollective @entity {
   collective: Collective!
   actions: Int!
   totalEarned: BigInt!
-  """
-  NFT's minted to steward
-  """
-  nfts: [ProvableNFT!]!
 }
 
 type Collective @entity {

@@ -136,7 +136,11 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
       steward = new Steward(stewardAddress);
       steward.actions = 0;
       steward.totalEarned = BigInt.fromI32(0);
+      steward.nfts = new Array<string>();
     }
+    const stewardNfts = steward.nfts;
+    stewardNfts.push(tokenId);
+    steward.nfts = stewardNfts;
     steward.actions = steward.actions + 1;
     steward.totalEarned = steward.totalEarned.plus(rewardPerContributor);
 
@@ -146,11 +150,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
       stewardCollective = new StewardCollective(stewardCollectiveId);
       stewardCollective.actions = 0;
       stewardCollective.totalEarned = BigInt.fromI32(0);
-      stewardCollective.nfts = new Array<string>();
     }
-    const stewardCollectiveNfts = stewardCollective.nfts;
-    stewardCollectiveNfts.push(tokenId);
-    stewardCollective.nfts = stewardCollectiveNfts;
     stewardCollective.actions = stewardCollective.actions + 1;
     stewardCollective.totalEarned = stewardCollective.totalEarned.plus(rewardPerContributor);
     stewardCollective.steward = steward.id;
