@@ -15,12 +15,12 @@ export function useSupportFlow(
   frequency: Frequency,
   onError: (error: string) => void,
   toggleCompleteDonationModal: (value: boolean) => void,
-  toggleThankYouModal: (value: boolean) => void
+  toggleThankYouModal: (value: boolean) => void,
+  toggleIsDonationComplete: (value: boolean) => void
 ) {
   const { address: maybeAddress } = useAccount();
   const { chain } = useNetwork();
   const maybeSigner = useEthersSigner({ chainId: chain?.id });
-  const { navigate } = useCrossNavigate();
 
   return useCallback(async () => {
     const validation = validateConnection(maybeAddress, chain?.id, maybeSigner);
@@ -28,7 +28,7 @@ export function useSupportFlow(
       onError(validation);
       return;
     }
-    const { address, chainId, signer } = validation;
+    const { chainId, signer } = validation;
 
     const flowRate = calculateFlowRate(decimalAmountIn, duration, frequency, currencyDecimals);
     if (!flowRate) {
@@ -46,7 +46,7 @@ export function useSupportFlow(
       toggleCompleteDonationModal(false);
       toggleThankYouModal(true);
       await tx.wait();
-      navigate(`/profile/${address}`);
+      toggleIsDonationComplete(true);
       return;
     } catch (error) {
       toggleCompleteDonationModal(false);
@@ -66,6 +66,6 @@ export function useSupportFlow(
     toggleCompleteDonationModal,
     collective,
     toggleThankYouModal,
-    navigate,
+    toggleIsDonationComplete,
   ]);
 }

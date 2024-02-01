@@ -3,15 +3,17 @@ import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { Colors } from '../../utils/colors';
 import { ThankYouImg } from '../../assets';
 import { IpfsCollective } from '../../models/models';
+import useCrossNavigate from '../../routes/useCrossNavigate';
 
 interface ThankYouModalProps {
   openModal: boolean;
-  setOpenModal: (openModal: boolean) => void;
+  address?: `0x${string}`;
   collective: IpfsCollective;
 }
 
-const ThankYouModal = ({ openModal, setOpenModal, collective }: ThankYouModalProps) => {
-  const onClick = () => setOpenModal(false);
+const ThankYouModal = ({ openModal, address, collective }: ThankYouModalProps) => {
+  const { navigate } = useCrossNavigate();
+  const onClick = () => navigate(`/profile/${address}`);
 
   return (
     <Modal style={styles.centeredView} animationType="slide" transparent={true} visible={openModal}>

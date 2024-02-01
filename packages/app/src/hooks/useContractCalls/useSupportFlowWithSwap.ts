@@ -19,13 +19,13 @@ export function useSupportFlowWithSwap(
   onError: (error: string) => void,
   toggleCompleteDonationModal: (value: boolean) => void,
   toggleThankYouModal: (value: boolean) => void,
+  toggleIsDonationComplete: (value: boolean) => void,
   minReturnFromSwap?: string,
   swapPath?: string
 ) {
   const { address: maybeAddress } = useAccount();
   const { chain } = useNetwork();
   const maybeSigner = useEthersSigner({ chainId: chain?.id });
-  const { navigate } = useCrossNavigate();
 
   return useCallback(async () => {
     const validation = validateConnection(maybeAddress, chain?.id, maybeSigner);
@@ -33,7 +33,7 @@ export function useSupportFlowWithSwap(
       onError(validation);
       return;
     }
-    const { address, chainId, signer } = validation;
+    const { chainId, signer } = validation;
 
     if (!minReturnFromSwap || !swapPath) {
       onError('Swap route not ready.');
@@ -68,7 +68,7 @@ export function useSupportFlowWithSwap(
       toggleCompleteDonationModal(false);
       toggleThankYouModal(true);
       await tx.wait();
-      navigate(`/profile/${address}`);
+      toggleIsDonationComplete(true);
       return;
     } catch (error) {
       toggleCompleteDonationModal(false);
@@ -91,6 +91,6 @@ export function useSupportFlowWithSwap(
     toggleCompleteDonationModal,
     collective,
     toggleThankYouModal,
-    navigate,
+    toggleIsDonationComplete,
   ]);
 }
