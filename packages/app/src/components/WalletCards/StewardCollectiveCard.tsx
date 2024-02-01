@@ -5,6 +5,7 @@ import { IpfsCollective, StewardCollective } from '../../models/models';
 import { styles } from './styles';
 import { InfoIcon, StewardOrange } from '../../assets';
 import { calculateGoodDollarAmounts } from '../../lib/calculateGoodDollarAmounts';
+import { defaultInfoLabel } from '../../models/constants';
 
 interface StewardCollectiveCardProps {
   collective: StewardCollective;
@@ -32,6 +33,8 @@ function StewardCollectiveCard({
 
   const dynamicContainerStyle = isDesktopResolution ? { width: '48%' } : {};
 
+  const infoLabel = ipfsCollective.infoLabel ?? defaultInfoLabel;
+
   return (
     <View style={[styles.cardContainer, styles.elevation, dynamicContainerStyle]}>
       <View style={styles.cardContentContainer}>
@@ -40,7 +43,7 @@ function StewardCollectiveCard({
         <Text style={styles.title}>{ipfsCollective.name}</Text>
         <View style={styles.cardDescription}>
           <Image source={InfoIcon} style={styles.infoIcon} />
-          <Text style={styles.description}>{ipfsCollective.description}</Text>
+          <Text style={styles.description}>{infoLabel}</Text>
         </View>
 
         <View style={styles.actionsContent}>

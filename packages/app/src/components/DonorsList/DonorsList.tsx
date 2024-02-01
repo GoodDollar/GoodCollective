@@ -22,8 +22,8 @@ function DonorsList({ donors, listStyle }: DonorsListProps) {
   }, [donors]);
 
   const userAddresses = useMemo(() => {
-    return donors.map((donor) => donor.donor as `0x${string}`);
-  }, [donors]);
+    return sortedDonors.map((donor) => donor.donor as `0x${string}`);
+  }, [sortedDonors]);
   const userFullNames = useFetchFullNames(userAddresses);
 
   return (
