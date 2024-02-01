@@ -101,7 +101,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     claim.timestamp = event.block.timestamp.toI32();
     claim.networkFee = event.transaction.gasLimit.times(event.transaction.gasPrice);
   }
-  const eventReward = rewardPerContributor.times(eventQuantity).times(BigInt.fromI32(contributors.length));
+  const eventReward = rewardPerContributor.times(BigInt.fromI32(contributors.length));
   claim.totalRewards = claim.totalRewards.plus(eventReward);
 
   // handle nft -> note that ProvableNFT.hash and ProvableNFT.owner are set by NFT mint event
