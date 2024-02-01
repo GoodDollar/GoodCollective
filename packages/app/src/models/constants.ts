@@ -36,3 +36,5 @@ export const frequencyOptions: { value: Frequency; label: Frequency }[] = Object
   value,
   label: value,
 }));
+
+export const defaultInfoLabel = 'Please see the smart contract for information regarding payment logic.';

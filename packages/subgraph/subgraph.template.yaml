@@ -26,7 +26,7 @@ dataSources:
           handler: handlePoolDetailsChanged
         - event: PoolVerifiedChanged(indexed address,bool)
           handler: handlePoolVerifiedChange
-      file: ./src/mappings/pool.ts
+      file: ./src/mappings/poolFactory.ts
 
   - kind: ethereum
     name: ProvableNFT

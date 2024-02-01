@@ -34,6 +34,7 @@ import FlowingDonationsRowItem from './FlowingDonationsRowItem';
 import { useDeleteFlow } from '../hooks/useContractCalls/useDeleteFlow';
 import ErrorModal from './modals/ErrorModal';
 import FlowingCurrentPoolRowItem from './FlowingCurrentPoolRowItem';
+import { defaultInfoLabel } from '../models/constants';
 
 interface ViewCollectiveProps {
   collective: Collective;
@@ -59,7 +60,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const headerImg = { uri: ipfs.headerImage } ?? Ocean;
 
   const stewardsPaid = stewardCollectives.length;
-  const infoLabel = collective.ipfs.infoLabel ?? 'Stewards get G$ each time they complete an action.';
+  const infoLabel = collective.ipfs.infoLabel ?? defaultInfoLabel;
 
   const { address } = useAccount();
   const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress);
