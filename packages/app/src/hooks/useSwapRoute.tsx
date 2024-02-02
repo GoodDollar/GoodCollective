@@ -27,6 +27,7 @@ export function useSwapRoute(
   rawMinimumAmountOut?: string;
   priceImpact?: number;
   status: SwapRouteState;
+  route?: SwapRoute;
 } {
   const { address } = useAccount();
   const { chain } = useNetwork();
@@ -82,6 +83,6 @@ export function useSwapRoute(
     const quote = new Decimal(route.quote.toFixed(18));
     const rawMinimumAmountOut = route.trade.minimumAmountOut(slippageTolerance).numerator.toString();
     const priceImpact = parseFloat(route.trade.priceImpact.toFixed(4));
-    return { path, quote, rawMinimumAmountOut, priceImpact, status: SwapRouteState.READY };
+    return { path, quote, rawMinimumAmountOut, priceImpact, status: SwapRouteState.READY, route };
   }
 }

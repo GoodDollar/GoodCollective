@@ -4,12 +4,15 @@ import { useSupportFlowWithSwap } from './useSupportFlowWithSwap';
 import { useSupportSingleTransferAndCall } from './useSupportSingleTransferAndCall';
 import { useSupportSingleBatch } from './useSupportSingleBatch';
 import { useToken } from '../useTokenList';
+import { SwapRoute } from '@uniswap/smart-order-router';
+import { useSwap } from './useSwap';
 
 interface ContractCalls {
   supportFlowWithSwap: () => Promise<void>;
   supportFlow: () => Promise<void>;
   supportSingleTransferAndCall: () => Promise<void>;
   supportSingleBatch: () => Promise<void>;
+  swapCall: () => Promise<void>;
 }
 
 export const useContractCalls = (
@@ -23,7 +26,8 @@ export const useContractCalls = (
   toggleThankYouModal: (value: boolean) => void,
   toggleIsDonationComplete: (value: boolean) => void,
   minReturnFromSwap?: string,
-  swapPath?: string
+  swapPath?: string,
+  swapRoute?: SwapRoute
 ): ContractCalls => {
   const tokenIn = useToken(currency);
 
@@ -70,10 +74,26 @@ export const useContractCalls = (
     toggleIsDonationComplete
   );
 
+  const swapCall = useSwap(
+    collective,
+    tokenIn,
+    decimalAmountIn,
+    duration,
+    frequency,
+    onError,
+    toggleCompleteDonationModal,
+    toggleThankYouModal,
+    toggleIsDonationComplete,
+    minReturnFromSwap,
+    swapPath,
+    swapRoute
+  );
+
   return {
     supportFlow,
     supportFlowWithSwap,
     supportSingleTransferAndCall,
     supportSingleBatch,
+    swapCall,
   };
 };

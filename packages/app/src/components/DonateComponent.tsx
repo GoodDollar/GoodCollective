@@ -75,6 +75,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
     rawMinimumAmountOut,
     priceImpact,
     status: swapRouteStatus,
+    route,
   } = useSwapRoute(currency, decimalDonationAmount, duration);
 
   const { handleApproveToken } = useApproveSwapTokenCallback(
@@ -85,7 +86,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
   );
   const approvalNotReady = handleApproveToken === undefined && currency !== 'G$';
 
-  const { supportFlowWithSwap, supportFlow, supportSingleTransferAndCall } = useContractCalls(
+  const { supportFlowWithSwap, supportFlow, supportSingleTransferAndCall, swapCall } = useContractCalls(
     collectiveId,
     currency,
     decimalDonationAmount,
@@ -96,7 +97,8 @@ function DonateComponent({ collective }: DonateComponentProps) {
     (value: boolean) => setThankYouModalVisible(value),
     (value: boolean) => setIsDonationComplete(value),
     rawMinimumAmountOut,
-    swapPath
+    swapPath,
+    route
   );
 
   const handleDonate = useCallback(async () => {
@@ -124,6 +126,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
     }
     if (txReceipt?.status === 'success') {
       await supportFlowWithSwap();
+      await swapCall();
     }
   }, [
     chain?.id,
@@ -133,6 +136,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
     supportFlow,
     supportFlowWithSwap,
     supportSingleTransferAndCall,
+    swapCall,
   ]);
 
   const currencyDecimals = useToken(currency).decimals;
