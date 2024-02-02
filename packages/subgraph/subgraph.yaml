@@ -1,8 +1,6 @@
 specVersion: 0.0.4
 schema:
   file: ./schema.graphql
-features:
-  - ipfsOnEthereumContracts
 dataSources:
   - kind: ethereum/contract
     name: DirectPaymentsFactory
@@ -11,7 +9,7 @@ dataSources:
     source:
       address: '0x58b5E37c5aFad520dD93E92A5D11B8721A9115F0'
       abi: DirectPaymentsFactory
-      startBlock: 20920304
+      startBlock: 20920303
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -37,7 +35,7 @@ dataSources:
     source:
       address: '0x2AF5DB8249229ba696E0bac1a382aDb1fee040A6'
       abi: ProvableNFT
-      startBlock: 20920304
+      startBlock: 20920303
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -58,7 +56,7 @@ dataSources:
     network: celo
     source:
       abi: GoodCollectiveSuperApp
-      startBlock: 20920304
+      startBlock: 20920303
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -73,7 +71,6 @@ dataSources:
         - event: SupporterUpdated(indexed address,uint256,uint256,int96,int96,bool)
           handler: handleSupport
       file: ./src/mappings/superApp.ts
-
 templates:
   - kind: ethereum/contract
     name: DirectPaymentsPool
@@ -113,5 +110,5 @@ templates:
       entities:
         - IpfsCollective
       abis:
-        - name: DirectPaymentsPool
-          file: ./abis/DirectPaymentsPool.json
+        - name: DirectPaymentsFactory
+          file: ./abis/DirectPaymentsFactory.json

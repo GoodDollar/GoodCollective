@@ -36,3 +36,7 @@ export const frequencyOptions: { value: Frequency; label: Frequency }[] = Object
   value,
   label: value,
 }));
+
+export const defaultInfoLabel = 'Please see the smart contract for information regarding payment logic.';
+
+export const IS_DONATING_POLL_INTERVAL = parseInt(process.env.IS_DONATING_POLL_INTERVAL ?? '30000', 10);
