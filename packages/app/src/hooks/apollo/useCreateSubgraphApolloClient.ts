@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { ApolloClient, InMemoryCache, NormalizedCacheObject } from '@apollo/client';
+import { ApolloClient, from, InMemoryCache, NormalizedCacheObject } from '@apollo/client';
 import { AsyncStorageWrapper, persistCache } from 'apollo3-cache-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { errorLink } from '../../utils/errorLink';
 
 const subgraphUri = 'https://api.thegraph.com/subgraphs/name/gooddollar/goodcollective';
 
@@ -17,6 +19,7 @@ export const useCreateSubgraphApolloClient = (): ApolloClient<any> | undefined =
       });
       const client = new ApolloClient({
         uri: subgraphUri,
+        link: from([errorLink]),
         cache,
         defaultOptions: {
           watchQuery: {

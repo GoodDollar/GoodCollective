@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import * as Realm from 'realm-web';
 import { InvalidationPolicyCache, RenewalPolicy } from '@nerdwallet/apollo-cache-policies';
 import { ApolloClient, from, HttpLink, NormalizedCacheObject } from '@apollo/client';
-import { onError } from '@apollo/client/link/error';
-import { RetryLink } from '@apollo/client/link/retry';
 import { AsyncStorageWrapper, persistCache } from 'apollo3-cache-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { errorLink } from '../../utils/errorLink';
 
 const APP_ID = 'wallet_prod-obclo';
 const mongoDbUri = `https://realm.mongodb.com/api/client/v2.0/app/${APP_ID}/graphql`;
@@ -42,18 +42,6 @@ export const useCreateMongoDbApolloClient = (): ApolloClient<any> | undefined =>
       await persistCache({
         cache,
         storage: new AsyncStorageWrapper(AsyncStorage),
-      });
-
-      // ref:https://www.apollographql.com/docs/react/data/error-handling/#advanced-error-handling-with-apollo-link
-      const errorLink = onError(({ graphQLErrors, networkError }) => {
-        if (graphQLErrors)
-          graphQLErrors.forEach(({ message, locations, path }) =>
-            console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`)
-          );
-        if (networkError) {
-          console.error(`[Network error]: ${networkError}`);
-          throw networkError;
-        }
       });
 
       const httpLink = new HttpLink({
