@@ -24,12 +24,13 @@ function DonorsList({ donors, listStyle }: DonorsListProps) {
   const userAddresses = useMemo(() => {
     return sortedDonors.map((donor) => donor.donor as `0x${string}`);
   }, [sortedDonors]);
+
   const userFullNames = useFetchFullNames(userAddresses);
 
   return (
     <View style={[styles.list, { ...(listStyle ?? {}) }]}>
       {sortedDonors.map((donor, index) => (
-        <DonorsListItem key={donor.donor} donor={donor} rank={index + 1} userFullName={userFullNames[index]} />
+        <DonorsListItem key={donor.donor} donor={donor} rank={index + 1} userFullName={userFullNames[donor.donor]} />
       ))}
     </View>
   );

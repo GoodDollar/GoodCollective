@@ -4,18 +4,32 @@ import { gql } from '@apollo/client';
 import { useMongoDbQuery } from './apollo/useMongoDbQuery';
 
 interface UserProfile {
-  fullName?: { display?: string };
+  fullName?: { display?: string; privacy: string };
+  index: {
+    walletAddress: {
+      hash: string;
+      display?: string;
+      value?: string;
+    };
+  };
 }
 
 interface UserProfilesResponse {
   user_profiles: (UserProfile | undefined)[];
 }
 
+//todo: needs privacy settings to be configurable in the wallet
 const findProfiles = gql`
   query FindProfiles($query: User_profileQueryInput!) {
     user_profiles(query: $query) {
       fullName {
         display
+        privacy
+      }
+      index {
+        walletAddress {
+          hash
+        }
       }
     }
   }
@@ -27,22 +41,35 @@ export function useFetchFullName(address?: string): string | undefined {
   return names[0];
 }
 
-export function useFetchFullNames(addresses: string[]): (string | undefined)[] {
-  const hashedAddresses = useMemo(() => {
-    return addresses.map((address: string) => ethers.utils.keccak256(address));
-  }, [addresses]);
+export function useFetchFullNames(addresses: string[]): any {
+  const addressToHashMapping = addresses.reduce((acc: any, address) => {
+    const hash = ethers.utils.keccak256(address);
+    acc[hash] = address;
+    return acc;
+  }, {});
+
+  const hashedAddresses = Object.keys(addressToHashMapping);
 
   const { data, error } = useMongoDbQuery<UserProfilesResponse>(findProfiles, {
-    variables: { query: { index: { walletAddress: { hash_in: hashedAddresses } } } },
+    variables: {
+      query: {
+        fullName: { privacy: 'public' },
+        index: { walletAddress: { hash_in: hashedAddresses } },
+      },
+    },
   });
 
   return useMemo(() => {
-    if (error) {
-      console.error(error);
-    }
     if (!data || data.user_profiles.length === 0) {
-      return [];
+      return {};
     }
-    return data.user_profiles.map((profile) => profile?.fullName?.display);
-  }, [data, error]);
+    return data.user_profiles.reduce((acc: Record<string, string>, profile) => {
+      if (!profile) return {};
+      const { hash } = profile.index.walletAddress;
+      const { display } = profile.fullName ?? {};
+      const address = addressToHashMapping[hash];
+      acc[address] = display ?? '';
+      return acc;
+    }, {});
+  }, [data, addressToHashMapping]);
 }

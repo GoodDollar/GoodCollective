@@ -14,8 +14,7 @@ interface DonorsListItemProps {
   userFullName?: string;
 }
 
-export const DonorsListItem = (props: DonorsListItemProps) => {
-  const { donor, rank, userFullName } = props;
+export const DonorsListItem = ({ donor, rank, userFullName }: DonorsListItemProps) => {
   const { navigate } = useCrossNavigate();
 
   const formattedDonations: string = new Decimal(ethers.utils.formatEther(donor.contribution) ?? 0).toFixed(
