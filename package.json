@@ -27,7 +27,7 @@
       "packages/*"
     ]
   },
-  "packageManager": "yarn@3.6.0",
+  "packageManager": "yarn@3.6.1",
   "devDependencies": {
     "chalk": "^4.1.2",
     "commander": "^9.4.0",
