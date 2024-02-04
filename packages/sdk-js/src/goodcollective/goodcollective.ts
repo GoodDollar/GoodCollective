@@ -14,14 +14,18 @@ export type EventData = ProvableNFT.EventDataStruct;
 export type PoolSettings = Omit<DirectPaymentsPool.PoolSettingsStruct, 'nftType'> & { nftType?: BigNumberish };
 export type PoolLimits = DirectPaymentsPool.SafetyLimitsStruct;
 export type SwapData = HelperLibrary.SwapDataStruct;
+
 export type PoolAttributes = {
   name: string;
   description: string;
+  headerImage: string;
+  logo: string;
   twitter?: string;
   email?: string;
   instagram?: string;
   threads?: string;
   website?: string;
+  images?: Array<string>;
 };
 export type SDKOptions = {
   network?: string;
