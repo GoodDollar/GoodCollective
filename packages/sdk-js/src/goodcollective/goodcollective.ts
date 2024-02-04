@@ -146,10 +146,11 @@ export class GoodCollectiveSDK {
     projectId: string,
     poolAttributes: PoolAttributes,
     poolSettings: PoolSettings,
-    poolLimits: PoolLimits
+    poolLimits: PoolLimits,
+    isBeacon: boolean
   ) {
     const uri = await this.savePoolToIPFS(poolAttributes);
-    return this.createPool(signer, projectId, uri, poolSettings, poolLimits);
+    return this.createPool(signer, projectId, uri, poolSettings, poolLimits, isBeacon);
   }
 
   /**
@@ -166,13 +167,15 @@ export class GoodCollectiveSDK {
     projectId: string,
     poolIpfs: string,
     poolSettings: PoolSettings,
-    poolLimits: PoolLimits
+    poolLimits: PoolLimits,
+    isBeacon: boolean
   ) {
     poolSettings.nftType = 0; // force some type, this will be re-assigned by the factory
+    const createMethod = isBeacon
+      ? this.factory.connect(signer).createBeaconPool
+      : this.factory.connect(signer).createPool;
     const tx = await (
-      await this.factory
-        .connect(signer)
-        .createPool(projectId, poolIpfs, poolSettings as DirectPaymentsPool.PoolSettingsStruct, poolLimits)
+      await createMethod(projectId, poolIpfs, poolSettings as DirectPaymentsPool.PoolSettingsStruct, poolLimits)
     ).wait();
     const created = tx.events?.find((_) => _.event === 'PoolCreated');
     return this.pool.attach(created?.args?.[0]);
