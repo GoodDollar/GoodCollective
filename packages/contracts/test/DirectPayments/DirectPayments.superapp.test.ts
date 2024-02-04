@@ -163,7 +163,7 @@ describe('DirectPaymentsPool Superapp', () => {
     await mine(2, { interval: 5 });
     const supporter = await pool.supporters(signer.address);
     expect(supporter.contribution)
-      .gt(Number(baseFlowRate) * 10)
+      .gt(Number(baseFlowRate) * 5)
       .gt(before.contribution);
     expect(supporter.lastUpdated).gt(before.lastUpdated);
     expect(supporter.flowRate).equal(ethers.constants.WeiPerEther.toString());

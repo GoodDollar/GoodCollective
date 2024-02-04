@@ -3,7 +3,7 @@
 pragma solidity >=0.8.0;
 
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
-import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import "@uniswap/swap-router-contracts/contracts/interfaces/IV3SwapRouter.sol";
 import { ISuperToken } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 import { SuperTokenV1Library } from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperTokenV1Library.sol";
 
@@ -29,7 +29,7 @@ library HelperLibrary {
     }
 
     function handleSwap(
-        ISwapRouter swapRouter,
+        IV3SwapRouter swapRouter,
         SwapData memory _customData,
         address outTokenIfNoPath,
         address _sender
@@ -42,22 +42,20 @@ library HelperLibrary {
 
         if (_customData.path.length > 0) {
             // If a path is provided, execute a multi-hop swap
-            ISwapRouter.ExactInputParams memory params = ISwapRouter.ExactInputParams({
+            IV3SwapRouter.ExactInputParams memory params = IV3SwapRouter.ExactInputParams({
                 path: _customData.path,
                 recipient: _sender,
-                deadline: _customData.deadline,
                 amountIn: _customData.amount,
                 amountOutMinimum: _customData.minReturn
             });
             swapRouter.exactInput(params);
         } else {
             // If no path is provided, execute a single-hop swap
-            ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
+            IV3SwapRouter.ExactInputSingleParams memory params = IV3SwapRouter.ExactInputSingleParams({
                 tokenIn: _customData.swapFrom,
                 tokenOut: outTokenIfNoPath,
                 fee: 10000,
                 recipient: _sender,
-                deadline: _customData.deadline,
                 amountIn: _customData.amount,
                 amountOutMinimum: _customData.minReturn,
                 sqrtPriceLimitX96: 0

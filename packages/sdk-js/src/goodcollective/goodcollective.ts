@@ -317,4 +317,11 @@ export class GoodCollectiveSDK {
 
     return op.exec(signer);
   }
+
+  async swap(signer: ethers.Signer, poolAddress: string, swap: SwapData) {
+    const signerAddress = await signer.getAddress();
+
+    const tx = await this.pool.attach(poolAddress).connect(signer).handleSwap(swap, signerAddress, '0x');
+    return tx;
+  }
 }

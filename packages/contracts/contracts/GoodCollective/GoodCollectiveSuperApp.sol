@@ -9,7 +9,7 @@ import { SuperTokenV1Library } from "@superfluid-finance/ethereum-contracts/cont
 import { CFAv1Library, IConstantFlowAgreementV1 } from "@superfluid-finance/ethereum-contracts/contracts/apps/CFAv1Library.sol";
 
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
-import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import "@uniswap/swap-router-contracts/contracts/interfaces/IV3SwapRouter.sol";
 
 import "../DirectPayments/DirectPaymentsFactory.sol";
 import "../utils/HelperLibrary.sol";
@@ -51,7 +51,7 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
     // ask about "receiver" can it be different then app?
 
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
-    ISwapRouter public immutable swapRouter;
+    IV3SwapRouter public immutable swapRouter;
 
     struct SupporterData {
         uint256 contribution;
@@ -71,7 +71,7 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
     uint256[48] private _reserved;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor(ISuperfluid _host, ISwapRouter _swapRouter) SuperAppBaseFlow(_host) {
+    constructor(ISuperfluid _host, IV3SwapRouter _swapRouter) SuperAppBaseFlow(_host) {
         if (address(_host) == address(0)) revert ZERO_ADDRESS();
         swapRouter = _swapRouter;
     }
