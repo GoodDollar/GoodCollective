@@ -14,14 +14,18 @@ export type EventData = ProvableNFT.EventDataStruct;
 export type PoolSettings = Omit<DirectPaymentsPool.PoolSettingsStruct, 'nftType'> & { nftType?: BigNumberish };
 export type PoolLimits = DirectPaymentsPool.SafetyLimitsStruct;
 export type SwapData = HelperLibrary.SwapDataStruct;
+
 export type PoolAttributes = {
   name: string;
   description: string;
+  headerImage: string;
+  logo: string;
   twitter?: string;
   email?: string;
   instagram?: string;
   threads?: string;
   website?: string;
+  images?: Array<string>;
 };
 export type SDKOptions = {
   network?: string;
@@ -146,10 +150,11 @@ export class GoodCollectiveSDK {
     projectId: string,
     poolAttributes: PoolAttributes,
     poolSettings: PoolSettings,
-    poolLimits: PoolLimits
+    poolLimits: PoolLimits,
+    isBeacon: boolean
   ) {
     const uri = await this.savePoolToIPFS(poolAttributes);
-    return this.createPool(signer, projectId, uri, poolSettings, poolLimits);
+    return this.createPool(signer, projectId, uri, poolSettings, poolLimits, isBeacon);
   }
 
   /**
@@ -166,13 +171,15 @@ export class GoodCollectiveSDK {
     projectId: string,
     poolIpfs: string,
     poolSettings: PoolSettings,
-    poolLimits: PoolLimits
+    poolLimits: PoolLimits,
+    isBeacon: boolean
   ) {
     poolSettings.nftType = 0; // force some type, this will be re-assigned by the factory
+    const createMethod = isBeacon
+      ? this.factory.connect(signer).createBeaconPool
+      : this.factory.connect(signer).createPool;
     const tx = await (
-      await this.factory
-        .connect(signer)
-        .createPool(projectId, poolIpfs, poolSettings as DirectPaymentsPool.PoolSettingsStruct, poolLimits)
+      await createMethod(projectId, poolIpfs, poolSettings as DirectPaymentsPool.PoolSettingsStruct, poolLimits)
     ).wait();
     const created = tx.events?.find((_) => _.event === 'PoolCreated');
     return this.pool.attach(created?.args?.[0]);
@@ -316,5 +323,12 @@ export class GoodCollectiveSDK {
     const op = sdk.batchCall([approve, supportAction]);
 
     return op.exec(signer);
+  }
+
+  async swap(signer: ethers.Signer, poolAddress: string, swap: SwapData) {
+    const signerAddress = await signer.getAddress();
+
+    const tx = await this.pool.attach(poolAddress).connect(signer).handleSwap(swap, signerAddress, '0x');
+    return tx;
   }
 }
