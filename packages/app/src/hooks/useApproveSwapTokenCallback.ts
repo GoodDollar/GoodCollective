@@ -4,13 +4,13 @@ import { calculateRawTotalDonation } from '../lib/calculateRawTotalDonation';
 import Decimal from 'decimal.js';
 import ERC20 from '../abi/ERC20.json';
 import { useToken } from './useTokenList';
-import { UNISWAP_V3_ROUTER_ADDRESS } from '../models/constants';
 
 export function useApproveSwapTokenCallback(
   currencyIn: string,
   decimalAmountIn: number,
   duration: number,
-  toggleApproveSwapModalVisible: (value: boolean) => void
+  toggleApproveSwapModalVisible: (value: boolean) => void,
+  collectiveAddress: string
 ): {
   isLoading: boolean;
   isSuccess: boolean;
@@ -32,7 +32,7 @@ export function useApproveSwapTokenCallback(
     abi: ERC20,
     account: address,
     functionName: 'approve',
-    args: [UNISWAP_V3_ROUTER_ADDRESS, rawAmountIn],
+    args: [collectiveAddress, rawAmountIn],
   });
 
   const { isLoading, isSuccess, isError, writeAsync } = useContractWrite(config);
