@@ -17,7 +17,6 @@ interface UserProfilesResponse {
   user_profiles: (UserProfile | undefined)[];
 }
 
-//todo: needs privacy settings to be configurable in the wallet
 const findProfiles = gql`
   query FindProfiles($query: User_profileQueryInput!) {
     user_profiles(query: $query) {
