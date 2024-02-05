@@ -5,6 +5,8 @@ import { ApolloClient, from, HttpLink, NormalizedCacheObject } from '@apollo/cli
 import { AsyncStorageWrapper, persistCache } from 'apollo3-cache-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { RetryLink } from '@apollo/client/link/retry';
+
 import { errorLink } from '../../utils/errorLink';
 
 const APP_ID = 'wallet_prod-obclo';
@@ -26,6 +28,18 @@ export const useCreateMongoDbApolloClient = (): ApolloClient<any> | undefined =>
         }
         return app.currentUser?.accessToken;
       }
+
+      const retryLink = new RetryLink({
+        delay: {
+          initial: 500,
+          max: Infinity,
+          jitter: true,
+        },
+        attempts: {
+          max: 3,
+          retryIf: (error, _operation) => !!error,
+        },
+      });
 
       const cache = new InvalidationPolicyCache({
         invalidationPolicies: {
@@ -62,7 +76,7 @@ export const useCreateMongoDbApolloClient = (): ApolloClient<any> | undefined =>
       try {
         const client = new ApolloClient({
           cache,
-          link: from([errorLink, httpLink]),
+          link: from([errorLink, retryLink, httpLink]),
           defaultOptions: {
             watchQuery: {
               fetchPolicy: 'cache-and-network',
