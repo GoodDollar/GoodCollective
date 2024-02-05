@@ -2,12 +2,12 @@ import ViewCollective from '../components/ViewCollective';
 import Layout from '../components/Layout/Layout';
 import React from 'react';
 import { useCollectiveById } from '../hooks';
-import { useLocation } from 'react-router-native';
+import { useParams } from 'react-router-native';
 import { Text } from 'react-native';
 
 function ViewCollectivePage() {
-  const location = useLocation();
-  const collectiveId = location.pathname.slice('/collective/'.length);
+  const { id: collectiveId = '' } = useParams();
+
   const collective = useCollectiveById(collectiveId);
 
   return (

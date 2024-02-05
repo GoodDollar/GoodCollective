@@ -1,4 +1,4 @@
-import { BigNumberish, ethers } from 'ethers';
+import { BigNumberish, ContractTransaction, ethers } from 'ethers';
 import GoodCollectiveContracts from '@gooddollar/goodcollective-contracts/releases/deployment.json';
 import {
   ProvableNFT,
@@ -277,14 +277,18 @@ export class GoodCollectiveSDK {
 
     const appAction = this.pool.interface.encodeFunctionData('handleSwap', [swap, signerAddress, '0x']);
 
-    const flowAction = st.createFlow({
+    const hasFlow = await st.getFlow({ receiver: poolAddress, sender: signerAddress, providerOrSigner: signer });
+    const flowAction = hasFlow.flowRate === '0' ? st.createFlow : st.updateFlow;
+
+    const flowOp = flowAction({
       receiver: poolAddress,
       sender: signerAddress,
       flowRate: flowRate,
       overrides: { ...CHAIN_OVERRIDES[this.chainId] },
     });
+
     const swapAction = sdk.host.callAppAction(poolAddress, appAction, { ...CHAIN_OVERRIDES[this.chainId] });
-    const op = sdk.batchCall([swapAction, flowAction]);
+    const op = sdk.batchCall([swapAction, flowOp]);
 
     return op.exec(signer);
   }
@@ -330,5 +334,15 @@ export class GoodCollectiveSDK {
 
     const tx = await this.pool.attach(poolAddress).connect(signer).handleSwap(swap, signerAddress, '0x');
     return tx;
+  }
+
+  async approve(
+    signer: ethers.Signer,
+    tokenAddress: string,
+    poolAddress: string,
+    amount: string
+  ): Promise<ContractTransaction> {
+    const token = new ethers.Contract(tokenAddress, ['function approve(address spender, uint256 amount)'], signer);
+    return token.approve(poolAddress, amount, { ...CHAIN_OVERRIDES[this.chainId], gasLimit: 100000 });
   }
 }

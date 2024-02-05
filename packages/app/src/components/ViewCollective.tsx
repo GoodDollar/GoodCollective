@@ -30,7 +30,6 @@ import {
   WebIcon,
 } from '../assets/';
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
-import FlowingDonationsRowItem from './FlowingDonationsRowItem';
 import { useDeleteFlow } from '../hooks/useContractCalls/useDeleteFlow';
 import ErrorModal from './modals/ErrorModal';
 import FlowingCurrentPoolRowItem from './FlowingCurrentPoolRowItem';
@@ -189,12 +188,14 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               <RowItem imageUrl={ListGreenIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
             </View>
             <View style={{ flex: 1, gap: 16 }}>
-              <FlowingDonationsRowItem
+              <FlowingCurrentPoolRowItem
                 imageUrl={ReceiveLightIcon}
                 rowInfo="Total Donations Received"
+                collective={collective.address as `0x${string}`}
                 donorCollectives={donorCollectives}
                 tokenPrice={tokenPrice}
                 currency="G$"
+                additionalBalance={totalRewards}
               />
               <RowItem
                 imageUrl={SendIcon}
@@ -282,12 +283,14 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
             <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
             <RowItem imageUrl={ListGreenIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
-            <FlowingDonationsRowItem
+            <FlowingCurrentPoolRowItem
               imageUrl={ReceiveLightIcon}
               rowInfo="Total Donations Received"
+              collective={collective.address as `0x${string}`}
               donorCollectives={donorCollectives}
               tokenPrice={tokenPrice}
               currency="G$"
+              additionalBalance={totalRewards}
             />
             <RowItem
               imageUrl={SendIcon}
