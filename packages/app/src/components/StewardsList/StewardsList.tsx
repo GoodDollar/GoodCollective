@@ -41,7 +41,7 @@ function StewardList({ listType, stewards, titleStyle, listStyle }: StewardListP
             showActions={listType === 'viewStewards'}
             key={steward.steward}
             profileImage={profileImages[index % profileImages.length]}
-            userFullName={userFullNames[index]}
+            userFullName={userFullNames[steward.steward]}
           />
         ))}
       </View>
