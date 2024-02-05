@@ -1,8 +1,8 @@
-import { useAccount, useContractWrite, useNetwork, usePrepareContractWrite } from 'wagmi';
+import { useAccount, useContractRead, useContractWrite, useNetwork, usePrepareContractWrite } from 'wagmi';
 import { useMemo } from 'react';
 import { calculateRawTotalDonation } from '../lib/calculateRawTotalDonation';
 import Decimal from 'decimal.js';
-import ERC20 from '../abi/ERC20.json';
+import { ERC20 } from '../abi/ERC20';
 import { useToken } from './useTokenList';
 
 export function useApproveSwapTokenCallback(
@@ -10,21 +10,30 @@ export function useApproveSwapTokenCallback(
   decimalAmountIn: number,
   duration: number,
   toggleApproveSwapModalVisible: (value: boolean) => void,
-  collectiveAddress: string
+  collectiveAddress: `0x${string}`
 ): {
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
+  isRequireApprove: boolean;
   handleApproveToken?: () => Promise<`0x${string}` | undefined>;
 } {
-  const { address } = useAccount();
+  const { address = '0x' } = useAccount();
   const { chain } = useNetwork();
   const tokenIn = useToken(currencyIn);
 
   const rawAmountIn = useMemo(
-    () => calculateRawTotalDonation(decimalAmountIn, duration, tokenIn.decimals).toFixed(0, Decimal.ROUND_DOWN),
+    () => BigInt(calculateRawTotalDonation(decimalAmountIn, duration, tokenIn.decimals).toFixed(0, Decimal.ROUND_DOWN)),
     [decimalAmountIn, duration, tokenIn.decimals]
   );
+
+  const { data: allowance = 0n } = useContractRead({
+    chainId: chain?.id,
+    address: tokenIn.address as `0x${string}`,
+    abi: ERC20,
+    functionName: 'allowance',
+    args: [address, collectiveAddress],
+  });
 
   const { config } = usePrepareContractWrite({
     chainId: chain?.id,
@@ -51,6 +60,7 @@ export function useApproveSwapTokenCallback(
         };
 
   return {
+    isRequireApprove: rawAmountIn > allowance,
     isLoading,
     isSuccess,
     isError,

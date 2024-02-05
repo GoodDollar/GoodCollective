@@ -16,11 +16,13 @@ export enum SwapRouteState {
   NO_ROUTE,
 }
 
+const DEFAULT_SLIPPAGE_TOLERANCE = new Percent(100, 10_000);
+
 export function useSwapRoute(
   currencyIn: string,
   decimalAmountIn: number,
   duration: number,
-  slippageTolerance: Percent = new Percent(100, 10_000)
+  slippageTolerance: Percent = DEFAULT_SLIPPAGE_TOLERANCE
 ): {
   path?: string;
   quote?: Decimal;
