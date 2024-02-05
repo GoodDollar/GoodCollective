@@ -5,9 +5,7 @@ import { ApolloClient, from, HttpLink, NormalizedCacheObject } from '@apollo/cli
 import { AsyncStorageWrapper, persistCache } from 'apollo3-cache-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { RetryLink } from '@apollo/client/link/retry';
-
-import { errorLink } from '../../utils/errorLink';
+import { errorLink, retryLink } from '../../utils/apolloLinkUtils';
 
 const APP_ID = 'wallet_prod-obclo';
 const mongoDbUri = `https://realm.mongodb.com/api/client/v2.0/app/${APP_ID}/graphql`;
@@ -28,18 +26,6 @@ export const useCreateMongoDbApolloClient = (): ApolloClient<any> | undefined =>
         }
         return app.currentUser?.accessToken;
       }
-
-      const retryLink = new RetryLink({
-        delay: {
-          initial: 500,
-          max: Infinity,
-          jitter: true,
-        },
-        attempts: {
-          max: 3,
-          retryIf: (error, _operation) => !!error,
-        },
-      });
 
       const cache = new InvalidationPolicyCache({
         invalidationPolicies: {

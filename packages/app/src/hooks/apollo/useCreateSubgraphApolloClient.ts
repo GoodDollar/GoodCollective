@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react';
 import { ApolloClient, from, HttpLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client';
 import { AsyncStorageWrapper, persistCache } from 'apollo3-cache-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { RetryLink } from '@apollo/client/link/retry';
 
-import { errorLink } from '../../utils/errorLink';
+import { errorLink, retryLink } from '../../utils/apolloLinkUtils';
 
 const subgraphUri = 'https://api.thegraph.com/subgraphs/name/gooddollar/goodcollective';
 
@@ -20,18 +19,6 @@ export const useCreateSubgraphApolloClient = (): ApolloClient<any> | undefined =
       await persistCache({
         cache,
         storage: new AsyncStorageWrapper(AsyncStorage),
-      });
-
-      const retryLink = new RetryLink({
-        delay: {
-          initial: 500,
-          max: Infinity,
-          jitter: true,
-        },
-        attempts: {
-          max: 3,
-          retryIf: (error, _operation) => !!error,
-        },
       });
 
       const client = new ApolloClient({
