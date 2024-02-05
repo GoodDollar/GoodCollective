@@ -4,7 +4,7 @@ import { SubgraphCollective } from './subgraphModels';
 
 export const collectivesById = gql`
   query COLLECTIVES_BY_ID($ids: [String!]) {
-    collectives(where: { id_in: $ids }) {
+    collectives(where: { id_in: $ids, ipfs_: { name_not: null } }) {
       id
       ipfs {
         id
