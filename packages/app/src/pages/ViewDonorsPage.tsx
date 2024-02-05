@@ -3,7 +3,7 @@ import Layout from '../components/Layout/Layout';
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
 import { DonorBlue, Ocean } from '../assets';
-import { useLocation } from 'react-router-native';
+import { useParams } from 'react-router-native';
 import { useCollectiveById } from '../hooks';
 import React from 'react';
 import { useMediaQuery } from 'native-base';
@@ -12,8 +12,7 @@ import DonorList from '../components/DonorsList/DonorsList';
 function ViewDonorsPage() {
   const [isDesktopResolution] = useMediaQuery({ minWidth: 612 });
 
-  const location = useLocation();
-  const collectiveId = location.pathname.slice('/collective/'.length, location.pathname.indexOf('/donors'));
+  const { id: collectiveId = '' } = useParams();
   const collective = useCollectiveById(collectiveId);
   const headerImage = collective?.ipfs.headerImage ? { uri: collective.ipfs.headerImage } : Ocean;
 

@@ -19,7 +19,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
 
   const { chain } = useNetwork();
   let chainName = chain?.name.replace(/\d+|\s/g, '');
-  console.log('chainName', { chainName, chain: chain });
+
   if (!(chainName && chainName.toUpperCase() in SupportedNetwork)) {
     chainName = 'Unsupported Network';
   }
