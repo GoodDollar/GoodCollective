@@ -10,7 +10,7 @@
     "format:check": "prettier -c ./src",
     "start": "react-native start",
     "test": "jest",
-    "web": "vite -c web/vite.config.ts",
+    "web": "vite --port 3000 -c web/vite.config.ts",
     "build": "yarn build:web",
     "build:web": "tsc && vite build -c web/vite.config.ts",
     "preview:web": "vite preview -c web/vite.config.ts"

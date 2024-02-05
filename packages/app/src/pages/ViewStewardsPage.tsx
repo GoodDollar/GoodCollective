@@ -5,7 +5,7 @@ import Layout from '../components/Layout/Layout';
 import StewardList from '../components/StewardsList/StewardsList';
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
-import { useLocation } from 'react-router-native';
+import { useParams } from 'react-router-native';
 import { useCollectiveById } from '../hooks';
 import React from 'react';
 import { Ocean } from '../assets';
@@ -13,8 +13,7 @@ import { Ocean } from '../assets';
 function ViewStewardsPage() {
   const [isDesktopResolution] = useMediaQuery({ minWidth: 612 });
 
-  const location = useLocation();
-  const collectiveId = location.pathname.slice('/collective/'.length, location.pathname.indexOf('/stewards'));
+  const { id: collectiveId = '' } = useParams();
   const collective = useCollectiveById(collectiveId);
   const headerImage = collective?.ipfs.headerImage ? { uri: collective.ipfs.headerImage } : Ocean;
 

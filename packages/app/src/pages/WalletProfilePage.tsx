@@ -1,14 +1,15 @@
 import React from 'react';
 import Layout from '../components/Layout/Layout';
 import { useDonorById, useStewardById } from '../hooks';
-import { useLocation } from 'react-router-native';
+import { useParams } from 'react-router-native';
 import WalletProfile from '../components/WalletProfile';
 import { useEnsName } from 'wagmi';
 import { useFetchFullName } from '../hooks/useFetchFullName';
 
 function WalletProfilePage() {
-  const location = useLocation();
-  const profileAddress = location.pathname.slice('/profile/'.length).toLocaleLowerCase();
+  const { id = '' } = useParams();
+  const profileAddress = id.toLowerCase();
+
   const donor = useDonorById(profileAddress, 1000);
   const steward = useStewardById(profileAddress);
 
