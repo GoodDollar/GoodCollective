@@ -25,8 +25,8 @@ function RowItem({ rowInfo, rowData, balance, currency, imageUrl }: RowItemProps
         <Image source={{ uri: imageUrl }} style={styles.rowIcon} />
         <Text style={styles.rowInfo}>{rowInfo}</Text>
       </View>
-      <View style={{ gap: 2 }}>
-        <Text style={styles.rowData}>
+      <View style={styles.rowData}>
+        <Text style={{ gap: 2 }}>
           <Text>
             <Text>{currency}</Text> <Text style={{ ...InterRegular }}>{rowData}</Text>
             {isDesktopResolution && currency && <Text style={styles.rowBalance}> = {usdBalance} USD</Text>}
