@@ -112,7 +112,7 @@ contract DirectPaymentsPool is
     DirectPaymentsFactory public registry;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor(ISuperfluid _host, ISwapRouter _swapRouter) GoodCollectiveSuperApp(_host, _swapRouter) {}
+    constructor(ISuperfluid _host, IV3SwapRouter _swapRouter) GoodCollectiveSuperApp(_host, _swapRouter) {}
 
     /**
      * @dev Authorizes an upgrade for the implementation contract.

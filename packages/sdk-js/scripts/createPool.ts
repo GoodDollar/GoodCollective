@@ -10,9 +10,9 @@ const wallet = new ethers.Wallet(process.env.PRIVATE_KEY || '').connect(provider
 const sdk = new GoodCollectiveSDK('42220', provider, { nftStorageKey: process.env.VITE_NFTSTORAGE_KEY });
 
 const main = async () => {
-  const projectId = 'silvi';
+  const projectId = 'gc';
   const poolAttributes = {
-    name: 'Silvi Test With Max (Real G$)',
+    name: 'Beacon Fixed Swap Test (Real G$)',
     description:
       'This Collective directly supports smallholder farmers around Kenya’s Kakamega forest. These farmers are acting as nurseries, growing and nurturing native trees to maturity for subsequent reforestation. In partnership with Silvi.',
     email: 'myemail@gmail.com',
@@ -32,7 +32,7 @@ const main = async () => {
   const poolSettings = {
     validEvents: [1, 2],
     rewardPerEvent: [ethers.constants.WeiPerEther.mul(1), ethers.constants.WeiPerEther.mul(2)],
-    manager: '0xEbB3341cD1511035845f1b37e6A2BFCDcf433Ad7',
+    manager: wallet.address,
     membersValidator: ethers.constants.AddressZero,
     uniquenessValidator: ethers.constants.AddressZero,
     rewardToken: '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A', //celo production token
@@ -45,7 +45,7 @@ const main = async () => {
     maxMemberPerDay: ethers.constants.WeiPerEther.mul(5),
   };
 
-  const pool = await sdk.createPoolWithAttributes(wallet, projectId, poolAttributes, poolSettings, poolLimits);
+  const pool = await sdk.createPoolWithAttributes(wallet, projectId, poolAttributes, poolSettings, poolLimits, true);
   console.log(pool.address);
 };
 
