@@ -81,7 +81,8 @@ function DonateComponent({ collective }: DonateComponentProps) {
     currency,
     decimalDonationAmount,
     duration,
-    (value: boolean) => setApproveSwapModalVisible(value)
+    (value: boolean) => setApproveSwapModalVisible(value),
+    collectiveId
   );
   const approvalNotReady = handleApproveToken === undefined && currency !== 'G$';
 
