@@ -6,6 +6,7 @@ import { useDonorCollectivesFlowingBalancesWithAltStaticBalance } from '../hooks
 import { DonorCollective } from '../models/models';
 import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
 import { SupportedNetwork } from '../models/constants';
+import Decimal from 'decimal.js';
 
 interface FlowingDonationsRowItemProps {
   rowInfo: string;
@@ -14,6 +15,7 @@ interface FlowingDonationsRowItemProps {
   tokenPrice: number | undefined;
   currency?: string;
   imageUrl: string;
+  additionalBalance?: string;
 }
 
 function FlowingDonationsRowItem({
@@ -23,14 +25,18 @@ function FlowingDonationsRowItem({
   tokenPrice,
   currency,
   imageUrl,
+  additionalBalance,
 }: FlowingDonationsRowItemProps) {
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 920,
   });
 
   const currentBalance = useGetTokenBalance('G$', collective, SupportedNetwork.CELO);
+  const balanceUsed = additionalBalance
+    ? new Decimal(currentBalance).add(additionalBalance).toFixed(0, Decimal.ROUND_DOWN)
+    : currentBalance;
   const { formatted: formattedCurrentPool, usdValue: usdValueCurrentPool } =
-    useDonorCollectivesFlowingBalancesWithAltStaticBalance(currentBalance, donorCollectives, tokenPrice);
+    useDonorCollectivesFlowingBalancesWithAltStaticBalance(balanceUsed, donorCollectives, tokenPrice);
 
   return (
     <View style={styles.row}>

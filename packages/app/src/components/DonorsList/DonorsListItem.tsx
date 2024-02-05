@@ -7,6 +7,7 @@ import Decimal from 'decimal.js';
 import { formatAddress } from '../../lib/formatAddress';
 import { ethers } from 'ethers';
 import { useEnsName } from 'wagmi';
+import { useFlowingBalance } from '../../hooks/useFlowingBalance';
 
 interface DonorsListItemProps {
   donor: DonorCollective;
@@ -14,13 +15,14 @@ interface DonorsListItemProps {
   userFullName?: string;
 }
 
-export const DonorsListItem = (props: DonorsListItemProps) => {
-  const { donor, rank, userFullName } = props;
+export const DonorsListItem = ({ donor, rank, userFullName }: DonorsListItemProps) => {
   const { navigate } = useCrossNavigate();
 
-  const formattedDonations: string = new Decimal(ethers.utils.formatEther(donor.contribution) ?? 0).toFixed(
-    2,
-    Decimal.ROUND_DOWN
+  const { formatted: formattedDonations } = useFlowingBalance(
+    donor.contribution,
+    donor.timestamp,
+    donor.flowRate,
+    undefined
   );
 
   const { data: ensName } = useEnsName({ address: donor.donor as `0x${string}`, chainId: 1 });
