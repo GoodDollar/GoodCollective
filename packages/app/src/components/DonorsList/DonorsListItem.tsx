@@ -15,8 +15,7 @@ interface DonorsListItemProps {
   userFullName?: string;
 }
 
-export const DonorsListItem = (props: DonorsListItemProps) => {
-  const { donor, rank, userFullName } = props;
+export const DonorsListItem = ({ donor, rank, userFullName }: DonorsListItemProps) => {
   const { navigate } = useCrossNavigate();
 
   const { formatted: formattedDonations } = useFlowingBalance(
