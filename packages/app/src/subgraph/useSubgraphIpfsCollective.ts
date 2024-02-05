@@ -2,9 +2,10 @@ import { gql } from '@apollo/client';
 import { IpfsCollectivesSubgraphResponse, useSubgraphData } from './useSubgraphData';
 import { SubgraphIpfsCollective } from './subgraphModels';
 
+// filter by name not null, because it can take time until thegraph index from ipfs, and if ipfs fields are null it will break the query
 const allIpfsCollectives = gql`
   query IPFS_COLLECTIVES {
-    collectives {
+    collectives(where: { ipfs_: { name_not: null } }) {
       id
       ipfs {
         id
