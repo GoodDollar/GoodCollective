@@ -4,12 +4,11 @@ import { gql } from '@apollo/client';
 import { useMongoDbQuery } from './apollo/useMongoDbQuery';
 
 interface UserProfile {
-  fullName?: { display?: string; privacy: string };
+  fullName?: { display?: string };
   index: {
     walletAddress: {
       hash: string;
       display?: string;
-      value?: string;
     };
   };
 }
@@ -24,7 +23,6 @@ const findProfiles = gql`
     user_profiles(query: $query) {
       fullName {
         display
-        privacy
       }
       index {
         walletAddress {
@@ -53,7 +51,6 @@ export function useFetchFullNames(addresses: string[]): any {
   const { data, error } = useMongoDbQuery<UserProfilesResponse>(findProfiles, {
     variables: {
       query: {
-        fullName: { privacy: 'public' },
         index: { walletAddress: { hash_in: hashedAddresses } },
       },
     },
