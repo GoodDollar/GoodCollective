@@ -22,7 +22,7 @@ function TransactionList({ collective }: TransactionListProps) {
 
   const transactions: Transaction[] = useRecentTransactions(collective, 6, 1000);
 
-  const onClickShowMore = () => navigate('/profile/abc123/activity');
+  const onClickShowMore = () => navigate(`https://explorer.celo.org/mainnet/address/${collective}`);
 
   return (
     <View style={styles.txContainer}>
