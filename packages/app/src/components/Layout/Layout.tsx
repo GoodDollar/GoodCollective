@@ -27,10 +27,18 @@ function Layout({ children, breadcrumbPath }: LayoutProps) {
   const { navigate } = useCrossNavigate();
   const onClickImpactButton = () => navigate('/profile/' + (address ?? ''));
 
+  const isCollectivePage = location.pathname.includes('collective');
+
   const bodyStyles = {
     ...styles.body,
     backgroundColor: isDesktopResolution ? Colors.brown[200] : Colors.gray[400],
   };
+
+  const scrollViewStyles = [
+    styles.scrollView,
+    { maxHeight: scrollViewHeight },
+    { paddingBottom: isCollectivePage ? 61 : 0 },
+  ];
 
   return (
     <View style={bodyStyles}>
@@ -46,9 +54,9 @@ function Layout({ children, breadcrumbPath }: LayoutProps) {
           </DesktopPageContentContainer>
         </View>
       ) : (
-        <ScrollView style={[styles.scrollView, { maxHeight: scrollViewHeight }]}>{children}</ScrollView>
+        <ScrollView style={scrollViewStyles}>{children}</ScrollView>
       )}
-      {location.pathname.includes('collective') && !isDesktopResolution && (
+      {isCollectivePage && !isDesktopResolution && (
         <ImpactButton title="SEE YOUR IMPACT" onClick={onClickImpactButton} />
       )}
     </View>

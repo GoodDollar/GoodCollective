@@ -371,14 +371,15 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
         </View>
         <View style={styles.container}>
           <TransactionList collective={collective.address as `0x${string}`} />
-          <RoundedButton
-            title="See all Transactions"
-            backgroundColor={Colors.purple[100]}
-            color={Colors.purple[200]}
-            fontSize={18}
-            seeType={true}
-            onPress={() => navigate('/profile/abc123/activity')}
-          />
+          <Link href={`https://explorer.celo.org/mainnet/address/${collective.address}`} isExternal>
+            <RoundedButton
+              title="See all transactions"
+              backgroundColor={Colors.purple[100]}
+              color={Colors.purple[200]}
+              fontSize={18}
+              seeType={true}
+            />
+          </Link>
         </View>
         <ErrorModal
           openModal={!!errorMessage}
