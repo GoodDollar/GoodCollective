@@ -9,6 +9,7 @@ import { useRecentTransactions } from '../../hooks/useRecentTransactions';
 import { isSupportTx } from '../../models/typeUtil';
 import { ClaimTransactionListItem } from './ClaimTransactionListItem';
 import { SupportTransactionListItem } from './SupportTransactionListItem';
+import { SUBGRAPH_POLL_INTERVAL } from '../../models/constants';
 
 interface TransactionListProps {
   collective: `0x${string}`;
@@ -20,7 +21,7 @@ function TransactionList({ collective }: TransactionListProps) {
   });
   const { navigate } = useCrossNavigate();
 
-  const transactions: Transaction[] = useRecentTransactions(collective, 6, 1000);
+  const transactions: Transaction[] = useRecentTransactions(collective, 6, SUBGRAPH_POLL_INTERVAL);
 
   const onClickShowMore = () => navigate(`https://explorer.celo.org/mainnet/address/${collective}`);
 
