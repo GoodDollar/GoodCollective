@@ -5,12 +5,13 @@ import { useParams } from 'react-router-native';
 import WalletProfile from '../components/WalletProfile';
 import { useEnsName } from 'wagmi';
 import { useFetchFullName } from '../hooks/useFetchFullName';
+import { SUBGRAPH_POLL_INTERVAL } from '../models/constants';
 
 function WalletProfilePage() {
   const { id = '' } = useParams();
   const profileAddress = id.toLowerCase();
 
-  const donor = useDonorById(profileAddress, 1000);
+  const donor = useDonorById(profileAddress, SUBGRAPH_POLL_INTERVAL);
   const steward = useStewardById(profileAddress);
 
   const address: `0x${string}` | undefined = profileAddress.startsWith('0x')
