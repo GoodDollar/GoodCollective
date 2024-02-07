@@ -25,14 +25,15 @@ function RowItem({ rowInfo, rowData, balance, currency, imageUrl }: RowItemProps
         <Image source={{ uri: imageUrl }} style={styles.rowIcon} />
         <Text style={styles.rowInfo}>{rowInfo}</Text>
       </View>
-      <View style={styles.rowData}>
-        <Text style={{ gap: 2 }}>
-          <Text>
+      <View style={{ gap: 2 }}>
+        {!currency && <Text style={styles.rowData}>{rowData}</Text>}
+        {currency && (
+          <Text style={styles.rowData}>
             <Text>{currency}</Text> <Text style={{ ...InterRegular }}>{rowData}</Text>
-            {isDesktopResolution && currency && <Text style={styles.rowBalance}> = {usdBalance} USD</Text>}
+            {isDesktopResolution && <Text style={styles.rowBalance}> = {usdBalance} USD</Text>}
           </Text>
-          {!isDesktopResolution && currency && <Text style={styles.rowBalance}>= {usdBalance} USD</Text>}
-        </Text>
+        )}
+        {!isDesktopResolution && currency && <Text style={styles.rowBalance}>= {usdBalance} USD</Text>}
       </View>
     </View>
   );
@@ -61,6 +62,7 @@ const styles = StyleSheet.create({
     maxWidth: '60%',
     fontWeight: '700',
     fontSize: 16,
+    lineHeight: 24,
     color: Colors.black,
     ...InterSemiBold,
   },
@@ -72,13 +74,14 @@ const styles = StyleSheet.create({
     color: Colors.gray[100],
     textAlign: 'right',
     fontSize: 16,
+    lineHeight: 24,
     ...InterSemiBold,
-    gap: 2,
   },
   rowBalance: {
     fontSize: 12,
     textAlign: 'right',
     color: Colors.gray[200],
+    lineHeight: 18,
     ...InterRegular,
   },
 });
