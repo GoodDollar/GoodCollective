@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import Header from '../Header/Header';
-import { Platform, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import ImpactButton from '../ImpactButton';
 import { useLocation } from 'react-router-native';
 import { Colors } from '../../utils/colors';
@@ -9,6 +9,7 @@ import { useMediaQuery } from 'native-base';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import Breadcrumb, { BreadcrumbPathEntry } from './Breadcrumb';
 import { DesktopPageContentContainer } from './DesktopPageContentContainer';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 interface LayoutProps {
   children: ReactNode;
@@ -16,8 +17,9 @@ interface LayoutProps {
 }
 
 function Layout({ children, breadcrumbPath }: LayoutProps) {
-  const windowDimensions = useWindowDimensions();
-  const scrollViewHeight = windowDimensions.height - 100;
+  const { height: safeAreaHeight } = useSafeAreaFrame();
+  const scrollViewHeight = safeAreaHeight - 105;
+
   const { address } = useAccount();
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 920,
@@ -36,7 +38,7 @@ function Layout({ children, breadcrumbPath }: LayoutProps) {
 
   const scrollViewStyles = [
     styles.scrollView,
-    { maxHeight: scrollViewHeight },
+    { maxHeight: scrollViewHeight, minHeight: scrollViewHeight },
     { paddingBottom: isCollectivePage ? 61 : 0 },
   ];
 
