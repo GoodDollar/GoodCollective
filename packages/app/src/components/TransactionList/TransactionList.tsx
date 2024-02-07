@@ -1,10 +1,9 @@
-import { Image, Text, View, Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, Text, View, Platform, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { Colors } from '../../utils/colors';
-import { useMediaQuery } from 'native-base';
+import { Link, useMediaQuery } from 'native-base';
 import { chevronDown, TransactionIcon } from '../../assets';
 import { ClaimTx, Transaction } from '../../models/models';
-import useCrossNavigate from '../../routes/useCrossNavigate';
 import { useRecentTransactions } from '../../hooks/useRecentTransactions';
 import { isSupportTx } from '../../models/typeUtil';
 import { ClaimTransactionListItem } from './ClaimTransactionListItem';
@@ -19,11 +18,8 @@ function TransactionList({ collective }: TransactionListProps) {
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 920,
   });
-  const { navigate } = useCrossNavigate();
 
   const transactions: Transaction[] = useRecentTransactions(collective, 6, SUBGRAPH_POLL_INTERVAL);
-
-  const onClickShowMore = () => navigate(`https://explorer.celo.org/mainnet/address/${collective}`);
 
   return (
     <View style={styles.txContainer}>
@@ -45,10 +41,10 @@ function TransactionList({ collective }: TransactionListProps) {
           )}
       </View>
       {isDesktopResolution && transactions.length > 5 && (
-        <TouchableOpacity onPress={onClickShowMore} style={styles.showMoreButton}>
+        <Link href={`https://explorer.celo.org/mainnet/address/${collective}`} isExternal style={styles.showMoreButton}>
           <Text style={styles.showMoreText}>Show more</Text>
           <Image source={chevronDown} style={styles.showMoreIcon} />
-        </TouchableOpacity>
+        </Link>
       )}
     </View>
   );
