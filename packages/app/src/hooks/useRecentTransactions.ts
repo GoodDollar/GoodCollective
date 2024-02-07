@@ -26,6 +26,7 @@ export const useRecentTransactions = (
   claimsPollInterval?: number
 ): Transaction[] => {
   const claims: Transaction[] | undefined = useRecentClaims(collective, maxN, claimsPollInterval);
+  //todo-fix: donations is called endlessly
   const donations: Transaction[] | undefined = useRecentDonations(collective, maxN, donationsPollInterval);
   return useMemo(() => {
     const transactions: Transaction[] = [...(claims ?? []), ...(donations ?? [])];

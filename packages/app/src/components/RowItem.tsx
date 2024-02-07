@@ -27,13 +27,14 @@ function RowItem({ rowInfo, rowData, balance, currency, imageUrl }: RowItemProps
       </View>
       <View style={{ gap: 2 }}>
         {!currency && <Text style={styles.rowData}>{rowData}</Text>}
-        {currency && (
-          <Text style={styles.rowData}>
-            <Text>{currency}</Text> <Text style={{ ...InterRegular }}>{rowData}</Text>
-            {isDesktopResolution && <Text style={styles.rowBalance}> = {usdBalance} USD</Text>}
-          </Text>
-        )}
-        {!isDesktopResolution && currency && <Text style={styles.rowBalance}>= {usdBalance} USD</Text>}
+        {currency ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={styles.rowData}>{currency}</Text>
+            <Text style={[styles.rowData, { ...InterRegular }]}>{rowData}</Text>
+            {isDesktopResolution ? <Text style={styles.rowBalance}> = {usdBalance} USD</Text> : null}
+          </View>
+        ) : null}
+        {!isDesktopResolution && currency ? <Text style={styles.rowBalance}>= {usdBalance} USD</Text> : null}
       </View>
     </View>
   );
