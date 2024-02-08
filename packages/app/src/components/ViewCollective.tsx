@@ -33,7 +33,7 @@ import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 import { useDeleteFlow } from '../hooks/useContractCalls/useDeleteFlow';
 import ErrorModal from './modals/ErrorModal';
 import FlowingCurrentPoolRowItem from './FlowingCurrentPoolRowItem';
-import { defaultInfoLabel, IS_DONATING_POLL_INTERVAL } from '../models/constants';
+import { defaultInfoLabel, SUBGRAPH_POLL_INTERVAL } from '../models/constants';
 
 interface ViewCollectiveProps {
   collective: Collective;
@@ -62,7 +62,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const infoLabel = collective.ipfs.infoLabel ?? defaultInfoLabel;
 
   const { address } = useAccount();
-  const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress, IS_DONATING_POLL_INTERVAL);
+  const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress, SUBGRAPH_POLL_INTERVAL);
   const isDonating = maybeDonorCollective && maybeDonorCollective.flowRate !== '0';
 
   const [stopDonationModalVisible, setStopDonationModalVisible] = useState(false);
@@ -374,14 +374,15 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
         </View>
         <View style={styles.container}>
           <TransactionList collective={collective.address as `0x${string}`} />
-          <RoundedButton
-            title="See all Transactions"
-            backgroundColor={Colors.purple[100]}
-            color={Colors.purple[200]}
-            fontSize={18}
-            seeType={true}
-            onPress={() => navigate('/profile/abc123/activity')}
-          />
+          <Link href={`https://explorer.celo.org/mainnet/address/${collective.address}`} isExternal>
+            <RoundedButton
+              title="See all transactions"
+              backgroundColor={Colors.purple[100]}
+              color={Colors.purple[200]}
+              fontSize={18}
+              seeType={true}
+            />
+          </Link>
         </View>
         <ErrorModal
           openModal={!!errorMessage}

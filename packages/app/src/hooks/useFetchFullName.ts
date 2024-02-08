@@ -35,15 +35,19 @@ const findProfiles = gql`
 export function useFetchFullName(address?: string): string | undefined {
   const names = useFetchFullNames(address ? [address] : []);
   if (!names || names.length === 0) return undefined;
-  return names[0];
+  return names[address ?? ''];
 }
 
 export function useFetchFullNames(addresses: string[]): any {
-  const addressToHashMapping = addresses.reduce((acc: any, address) => {
-    const hash = ethers.utils.keccak256(address);
-    acc[hash] = address;
-    return acc;
-  }, {});
+  const addressToHashMapping = useMemo(() => {
+    return addresses.reduce((acc: any, address) => {
+      const hash = ethers.utils.keccak256(address);
+      acc[hash] = address;
+      return acc;
+    }, {});
+  }, [addresses]);
+
+  console.log('fetchFullNames -->');
 
   const hashedAddresses = Object.keys(addressToHashMapping);
 

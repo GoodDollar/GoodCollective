@@ -8,6 +8,7 @@ import { useRecentTransactions } from '../../hooks/useRecentTransactions';
 import { isSupportTx } from '../../models/typeUtil';
 import { ClaimTransactionListItem } from './ClaimTransactionListItem';
 import { SupportTransactionListItem } from './SupportTransactionListItem';
+import { SUBGRAPH_POLL_INTERVAL } from '../../models/constants';
 
 interface TransactionListProps {
   collective: `0x${string}`;
@@ -18,7 +19,7 @@ function TransactionList({ collective }: TransactionListProps) {
     minWidth: 920,
   });
 
-  const transactions: Transaction[] = useRecentTransactions(collective, 6, 1000);
+  const transactions: Transaction[] = useRecentTransactions(collective, 6, SUBGRAPH_POLL_INTERVAL);
 
   return (
     <View style={styles.txContainer}>
