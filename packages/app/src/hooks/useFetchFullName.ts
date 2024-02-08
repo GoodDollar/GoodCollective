@@ -47,8 +47,6 @@ export function useFetchFullNames(addresses: string[]): any {
     }, {});
   }, [addresses]);
 
-  console.log('fetchFullNames -->');
-
   const hashedAddresses = Object.keys(addressToHashMapping);
 
   const { data, error } = useMongoDbQuery<UserProfilesResponse>(findProfiles, {
