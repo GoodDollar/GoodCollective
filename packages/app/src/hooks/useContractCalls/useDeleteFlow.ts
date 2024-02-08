@@ -37,7 +37,7 @@ export function useDeleteFlow(
     try {
       const sdk = new GoodCollectiveSDK(chainIdString, signer.provider, { network });
       toggleStopDonationModal(true);
-      const tx = await sdk.deleteFlow(signer, collective, flowRate);
+      const tx = await sdk.deleteFlow(signer, collective, '0');
       await tx.wait();
       navigate(`/profile/${address}`);
       return;
