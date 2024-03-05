@@ -4,7 +4,7 @@ import { useEnsName } from 'wagmi';
 import Decimal from 'decimal.js';
 import TransactionListItem from './TransactionListItem';
 import { useFetchFullName } from '../../hooks/useFetchFullName';
-import { calculateGoodDollarAmounts } from '../../lib/calculateGoodDollarAmounts';
+import { calculateGoodDollarAmounts, formatGoodDollarAmount } from '../../lib/calculateGoodDollarAmounts';
 
 interface SupportTransactionListItemProps {
   transaction: SupportTx;
@@ -19,19 +19,24 @@ export function SupportTransactionListItem({ transaction }: SupportTransactionLi
   const userFullName = useFetchFullName(userAddress);
   const userIdentifier = userFullName ?? ensName ?? formatAddress(userAddress);
 
-  const monthlyFlowRate =
-    transaction.isFlowUpdate &&
-    calculateGoodDollarAmounts(String(BigInt(transaction.flowRate) * BigInt(MONTH_SECONDS))).formatted;
-  const amount = transaction.isFlowUpdate
-    ? `${monthlyFlowRate} / Month`
-    : new Decimal(transaction.contribution).minus(transaction.previousContribution).toString();
+  let formattedContribution = formatGoodDollarAmount(
+    new Decimal(transaction.contribution).minus(transaction.previousContribution).toString()
+  );
+  // flow delete case
+  if (transaction.isFlowUpdate && transaction.flowRate === '0') {
+    formattedContribution = `${formattedContribution} Donated.\n(Subscription canceled)`;
+  } else if (transaction.isFlowUpdate) {
+    formattedContribution = formatGoodDollarAmount(String(BigInt(transaction.flowRate) * BigInt(MONTH_SECONDS)));
+    formattedContribution = `${formattedContribution} / Month`;
+  }
 
+  console.log(formattedContribution);
   return (
     <TransactionListItem
       userIdentifier={userIdentifier}
       isDonation={true}
-      amount={amount ?? '0'}
-      amountIsFormatted={transaction.isFlowUpdate}
+      amount={formattedContribution ?? '0'}
+      amountIsFormatted={true}
       txHash={hash}
       rawNetworkFee={networkFee}
     />
