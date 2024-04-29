@@ -3,8 +3,12 @@ import { formatAddress } from '../../lib/formatAddress';
 import { useEnsName } from 'wagmi';
 import Decimal from 'decimal.js';
 import TransactionListItem from './TransactionListItem';
-import { useFlowingBalance } from '../../hooks/useFlowingBalance';
 import { useFetchFullName } from '../../hooks/useFetchFullName';
+import { formatGoodDollarAmount } from '../../lib/calculateGoodDollarAmounts';
+import { Text } from 'react-native';
+import { useMemo } from 'react';
+import { FlowingBalance } from '../FlowingBalance';
+import { styles } from './styles';
 
 interface SupportTransactionListItemProps {
   transaction: SupportTx;
@@ -18,22 +22,35 @@ export function SupportTransactionListItem({ transaction }: SupportTransactionLi
   const userFullName = useFetchFullName(userAddress);
   const userIdentifier = userFullName ?? ensName ?? formatAddress(userAddress);
 
-  const { formatted: formattedAmount } = useFlowingBalance(
+  const flowingAmount = useMemo(() => {
+    return transaction.isFlowUpdate ? (
+      <FlowingBalance
+        balance={transaction.contribution}
+        balanceTimestamp={timestamp}
+        flowRate={transaction.flowRate}
+        tokenPrice={undefined}
+        style={styles.amount}
+      />
+    ) : (
+      <Text style={styles.amount}>
+        {formatGoodDollarAmount(
+          new Decimal(transaction.contribution).minus(transaction.previousContribution).toString()
+        )}
+      </Text>
+    );
+  }, [
+    transaction.isFlowUpdate,
     transaction.contribution,
-    timestamp,
     transaction.flowRate,
-    undefined
-  );
-  const amount = transaction.isFlowUpdate
-    ? formattedAmount
-    : new Decimal(transaction.contribution).minus(transaction.previousContribution).toString();
+    transaction.previousContribution,
+    timestamp,
+  ]);
 
   return (
     <TransactionListItem
       userIdentifier={userIdentifier}
       isDonation={true}
-      amount={amount ?? '0'}
-      amountIsFormatted={transaction.isFlowUpdate}
+      amount={flowingAmount}
       txHash={hash}
       rawNetworkFee={networkFee}
     />
