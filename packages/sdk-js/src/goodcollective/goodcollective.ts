@@ -282,7 +282,7 @@ export class GoodCollectiveSDK {
     const results: ContractCallResults = await multicall.call(contractCallContext);
     const memberPools = pools.map((addr) => {
       const data = results.results[`pool_${addr}`].callsReturnContext;
-      const result: { [key: string]: any } = {};
+      const result: { [key: string]: any } = { contract: addr };
       data.forEach((callData) => {
         result[callData.reference] =
           callData.returnValues[0].type === 'BigNumber'
