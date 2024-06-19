@@ -3703,7 +3703,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/providers@npm:5.7.2, @ethersproject/providers@npm:^5.2.0, @ethersproject/providers@npm:^5.5.3, @ethersproject/providers@npm:^5.7.0, @ethersproject/providers@npm:^5.7.1, @ethersproject/providers@npm:^5.7.2":
+"@ethersproject/providers@npm:5.7.2, @ethersproject/providers@npm:^5.0.10, @ethersproject/providers@npm:^5.2.0, @ethersproject/providers@npm:^5.5.3, @ethersproject/providers@npm:^5.7.0, @ethersproject/providers@npm:^5.7.1, @ethersproject/providers@npm:^5.7.2":
   version: 5.7.2
   resolution: "@ethersproject/providers@npm:5.7.2"
   dependencies:
@@ -4369,7 +4369,7 @@ __metadata:
     react-native-get-random-values: ^1.9.0
     react-native-modal: ^13.0.1
     react-native-safe-area-context: 3.3.2
-    react-native-svg: ^13.9.0
+    react-native-svg: ^15.1.0
     react-native-svg-web: ^1.0.9
     react-native-web: 0.18.*
     react-router-dom: ^6.14.1
@@ -4420,7 +4420,7 @@ __metadata:
     hardhat-abi-exporter: ^2.10.1
     hardhat-celo: ^0.0.4
     hardhat-contract-sizer: ^2.10.0
-    hardhat-deploy: ^0.11.31
+    hardhat-deploy: ^0.12.4
     hardhat-gas-reporter: ^1.0.8
     prettier: ^2.8.8
     prettier-plugin-solidity: ^1.1.3
@@ -4443,6 +4443,7 @@ __metadata:
     dotenv: ^16.3.1
     eslint: ^8.43.0
     eslint-config-prettier: ^8.8.0
+    ethereum-multicall: ^2.24.0
     ethers: 5
     graphql: ^16.7.1
     nft.storage: ^7.1.1
@@ -20296,6 +20297,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ethereum-multicall@npm:^2.24.0":
+  version: 2.24.0
+  resolution: "ethereum-multicall@npm:2.24.0"
+  dependencies:
+    "@ethersproject/providers": ^5.0.10
+    ethers: ^5.0.15
+  checksum: 1256325955d865bcd64b98da31785f3e2f8ec7b7cefabe5ea5723b410f75104a2732af180375c5c544e5f6d9b0396b655ecd2091b2e62ae9f1369dcb4b73bfb8
+  languageName: node
+  linkType: hard
+
 "ethereum-waffle@npm:^3.0.0":
   version: 3.4.4
   resolution: "ethereum-waffle@npm:3.4.4"
@@ -20567,7 +20578,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:5, ethers@npm:5.7.2, ethers@npm:^5.*, ethers@npm:^5.0.0, ethers@npm:^5.0.1, ethers@npm:^5.0.13, ethers@npm:^5.0.2, ethers@npm:^5.3.1, ethers@npm:^5.5.2, ethers@npm:^5.5.4, ethers@npm:^5.7.0, ethers@npm:^5.7.1, ethers@npm:^5.7.2":
+"ethers@npm:5, ethers@npm:5.7.2, ethers@npm:^5.*, ethers@npm:^5.0.0, ethers@npm:^5.0.1, ethers@npm:^5.0.13, ethers@npm:^5.0.15, ethers@npm:^5.0.2, ethers@npm:^5.3.1, ethers@npm:^5.5.2, ethers@npm:^5.5.4, ethers@npm:^5.7.0, ethers@npm:^5.7.1, ethers@npm:^5.7.2, ethers@npm:~5.7.0":
   version: 5.7.2
   resolution: "ethers@npm:5.7.2"
   dependencies:
@@ -22771,9 +22782,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat-deploy@npm:^0.11.31":
-  version: 0.11.43
-  resolution: "hardhat-deploy@npm:0.11.43"
+"hardhat-deploy@npm:^0.12.4":
+  version: 0.12.4
+  resolution: "hardhat-deploy@npm:0.12.4"
   dependencies:
     "@ethersproject/abi": ^5.7.0
     "@ethersproject/abstract-signer": ^5.7.0
@@ -22798,8 +22809,8 @@ __metadata:
     match-all: ^1.2.6
     murmur-128: ^0.2.1
     qs: ^6.9.4
-    zksync-web3: ^0.14.3
-  checksum: 498c9b1485fa73161cef24eeeaaab749097df8c5a53df3f22e3c23cb825adf3006289778f0f5a433a7efcd58df3e18034f09dd4650d714d8f0b08c1e79527590
+    zksync-ethers: ^5.0.0
+  checksum: 995a20a7ae8d10d2b961690e0903cd2a4a07198bc3d20a15d4734f2d9aade261b6f0ffb9e01b8fc013de34b687e401ed0c90dfc4d592571576f133ce8cbf3003
   languageName: node
   linkType: hard
 
@@ -32106,16 +32117,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-svg@npm:^13.9.0":
-  version: 13.14.0
-  resolution: "react-native-svg@npm:13.14.0"
+"react-native-svg@npm:^15.1.0":
+  version: 15.1.0
+  resolution: "react-native-svg@npm:15.1.0"
   dependencies:
     css-select: ^5.1.0
     css-tree: ^1.1.3
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 4668028563ae0ca669003cc29ff5f03fd5b13a61d53273f294f04a496cbc0af6003277025793d01fb9c3a53af4515839185578d59e9eecb072587178b751c234
+  checksum: a3694b74097e56a810a9142c9480532b63fb9cac0ff8b74c038478172d09acdb4077d93cfa53a8bb31e7ec1a9fc9f6e81a95b028c64af5370b5b3534c99aee0b
   languageName: node
   linkType: hard
 
@@ -39280,12 +39291,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:^0.14.3":
-  version: 0.14.4
-  resolution: "zksync-web3@npm:0.14.4"
+"zksync-ethers@npm:^5.0.0":
+  version: 5.8.0
+  resolution: "zksync-ethers@npm:5.8.0"
+  dependencies:
+    ethers: ~5.7.0
   peerDependencies:
-    ethers: ^5.7.0
-  checksum: f702a3437f48a8d42c4bb35b8dd13671a168aadfc4e23ce723d62959220ccb6bf9c529c60331fe5b91afaa622147c6a37490551474fe3e35c06ac476524b5160
+    ethers: ~5.7.0
+  checksum: e9f656baf8bff0ea6e6ccf0d3af14fb5c1331e844befab6c2edefb069fe5c47f1d323cecb0a740e7d7650ee753c9967cd1930f9c8c6cd14b791cb2df9f97ad1d
   languageName: node
   linkType: hard
 

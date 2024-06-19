@@ -16,6 +16,12 @@ import "../utils/HelperLibrary.sol";
 
 // import "hardhat/console.sol";
 
+interface IRegistry {
+    function feeRecipient() external view returns (address);
+
+    function feeBps() external view returns (uint32);
+}
+
 abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
     int96 public constant MIN_FLOW_RATE = 386e9;
 
@@ -76,7 +82,7 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         swapRouter = _swapRouter;
     }
 
-    function getRegistry() public view virtual returns (DirectPaymentsFactory);
+    function getRegistry() public view virtual returns (IRegistry);
 
     /**
      * @dev Sets the address of the super token and registers the app with the host

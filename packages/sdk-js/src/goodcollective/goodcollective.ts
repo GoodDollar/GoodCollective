@@ -4,16 +4,21 @@ import {
   ProvableNFT,
   DirectPaymentsFactory,
   DirectPaymentsPool,
+  UBIPool,
+  UBIPoolFactory,
 } from '@gooddollar/goodcollective-contracts/typechain-types';
 import { Framework } from '@superfluid-finance/sdk-core';
 import { HelperLibrary } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/GoodCollective/GoodCollectiveSuperApp';
 import { NFTStorage, File, CIDString } from 'nft.storage';
+import { Multicall, ContractCallResults, ContractCallContext } from 'ethereum-multicall';
 
 export type NFTData = ProvableNFT.NFTDataStruct;
 export type EventData = ProvableNFT.EventDataStruct;
 export type PoolSettings = Omit<DirectPaymentsPool.PoolSettingsStruct, 'nftType'> & { nftType?: BigNumberish };
 export type PoolLimits = DirectPaymentsPool.SafetyLimitsStruct;
 export type SwapData = HelperLibrary.SwapDataStruct;
+export type UBIPoolSettings = UBIPool.PoolSettingsStruct;
+export type UBISettings = UBIPool.UBISettingsStruct;
 
 export type PoolAttributes = {
   name: string;
@@ -27,13 +32,14 @@ export type PoolAttributes = {
   website?: string;
   images?: Array<string>;
 };
+
 export type SDKOptions = {
   network?: string;
   nftStorageKey?: string;
 };
 
 type Key = keyof typeof GoodCollectiveContracts;
-type Contracts = (typeof GoodCollectiveContracts)[keyof typeof GoodCollectiveContracts][0]['contracts'];
+type Contracts = (typeof GoodCollectiveContracts)['42220'][0]['contracts'];
 
 const SF_RESOLVERS: { [key: string]: string } = {
   44787: '0x6e9CaBE4172344Db81a1E1D735a6AD763700064A',
@@ -46,6 +52,7 @@ const CHAIN_OVERRIDES: { [key: string]: object } = {
 
 export class GoodCollectiveSDK {
   factory: DirectPaymentsFactory;
+  ubifactory: UBIPoolFactory;
   contracts: Contracts;
   pool: DirectPaymentsPool;
   superfluidSDK: Promise<Framework>;
@@ -58,12 +65,21 @@ export class GoodCollectiveSDK {
       options.network ? _.name === options.network : true
     )?.contracts as Contracts;
 
-    const factory = this.contracts.DirectPaymentsFactory;
-    this.factory = new ethers.Contract(factory.address, factory.abi, readProvider) as DirectPaymentsFactory;
-    const nftEvents = this.contracts.ProvableNFT.abi.filter((_) => _.type === 'event');
+    const factory = this.contracts.DirectPaymentsFactory || ({} as any);
+
+    this.factory = new ethers.Contract(
+      factory.address || ethers.constants.AddressZero,
+      factory.abi || [],
+      readProvider
+    ) as DirectPaymentsFactory;
+
+    const ubifactory = this.contracts.UBIPoolFactory || ({} as any);
+    this.ubifactory = new ethers.Contract(ubifactory.address, ubifactory.abi, readProvider) as UBIPoolFactory;
+
+    const nftEvents = this.contracts.ProvableNFT?.abi.filter((_) => _.type === 'event') || [];
     this.pool = new ethers.Contract(
       ethers.constants.AddressZero,
-      (this.contracts.DirectPaymentsPool.abi as []).concat(nftEvents as []), //add events of nft so they are parsable
+      (this.contracts.DirectPaymentsPool?.abi || []).concat(nftEvents as []), //add events of nft so they are parsable
       readProvider
     ) as DirectPaymentsPool;
     // initialize framework
@@ -102,7 +118,7 @@ export class GoodCollectiveSDK {
     const nftContractAddress = await this.factory.nft();
     return new ethers.Contract(
       nftContractAddress,
-      this.contracts.ProvableNFT.abi,
+      this.contracts.ProvableNFT?.abi || [],
       this.factory.provider
     ) as ProvableNFT;
   }
@@ -136,6 +152,7 @@ export class GoodCollectiveSDK {
     const uri = await this.nftStorage.storeBlob(file);
     return uri;
   }
+
   /**
    * Creates a new DirectPaymentsPool contract instance and returns it.
    * @param {ethers.Signer} signer - The signer object for the transaction.
@@ -185,6 +202,107 @@ export class GoodCollectiveSDK {
     return this.pool.attach(created?.args?.[0]);
   }
 
+  /**
+   * Creates a new UBIPool contract instance and returns it.
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} projectId - The ID of the project associated with the new pool.
+   * @param {PoolAttributes} poolAttributes - Pool data to save to ipfs
+   * @param {UBIPoolSettings} poolSettings - The settings for the new pool.
+   * @param {UBISettings} ubiSettings - The ubi settings for the new pool.
+   * @returns {Promise<UBIPool>} A promise that resolves to the new UBIPool contract instance.
+   */
+  async createUbiPoolWithAttributes(
+    signer: ethers.Signer,
+    projectId: string,
+    poolAttributes: PoolAttributes,
+    poolSettings: UBIPoolSettings,
+    poolLimits: UBISettings,
+    isBeacon: boolean
+  ) {
+    const uri = await this.savePoolToIPFS(poolAttributes);
+    return this.createUbiPool(signer, projectId, uri, poolSettings, poolLimits, isBeacon);
+  }
+
+  /**
+   * Creates a new DirectPaymentsPool contract instance and returns it.
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} projectId - The ID of the project associated with the new pool.
+   * @param {string} poolIpfs - The IPFS hash of the pool metadata.
+   * @param {UBIPoolSettings} poolSettings - The settings for the new pool.
+   * @param {UBISettings} ubiSettings - The ubi settings for the new pool.
+   * @returns {Promise<UBIPool>} A promise that resolves to the new UBIPool contract instance.
+   */
+  async createUbiPool(
+    signer: ethers.Signer,
+    projectId: string,
+    poolIpfs: string,
+    poolSettings: UBIPoolSettings,
+    poolLimits: UBISettings,
+    isBeacon: boolean
+  ) {
+    const createMethod = isBeacon
+      ? this.ubifactory.connect(signer).createManagedPool
+      : this.ubifactory.connect(signer).createPool;
+    const tx = await (
+      await createMethod(projectId, poolIpfs, poolSettings as DirectPaymentsPool.PoolSettingsStruct, poolLimits)
+    ).wait();
+    const created = tx.events?.find((_) => _.event === 'PoolCreated');
+    return new ethers.Contract(created?.args?.[0], this.contracts.UBIPool?.abi as [], this.factory.provider) as UBIPool;
+  }
+
+  async getMemberUBIPools(memberAddress: string) {
+    const pools = await this.ubifactory.getMemberPools(memberAddress);
+    const multicall = new Multicall({ ethersProvider: this.ubifactory.provider, tryAggregate: true });
+
+    const contractCallContext: ContractCallContext[] = pools
+      .map((addr) => [
+        {
+          reference: `pool_${addr}`,
+          contractAddress: addr,
+          abi: this.contracts.UBIPool?.abi as [],
+          calls: [
+            {
+              reference: 'isRegistered',
+              methodName: 'hasRole',
+              methodParameters: [ethers.utils.keccak256(ethers.utils.toUtf8Bytes('MEMBER_ROLE')), memberAddress],
+            },
+            { reference: 'nextClaimTime', methodName: 'nextClaimTime', methodParameters: [] },
+            { reference: 'claimAmount', methodName: 'checkEntitlement(address)', methodParameters: [memberAddress] },
+          ],
+        },
+        {
+          reference: `pooldetails_${addr}`,
+          contractAddress: this.ubifactory.address,
+          abi: this.contracts.UBIPoolFactory?.abi as [],
+          calls: [{ reference: 'poolDetails', methodName: 'registry', methodParameters: [addr] }],
+        },
+      ])
+      .flat();
+
+    const results: ContractCallResults = await multicall.call(contractCallContext);
+    const memberPools = pools.map((addr) => {
+      const data = results.results[`pool_${addr}`].callsReturnContext;
+      const result: { [key: string]: any } = {};
+      data.forEach((callData) => {
+        result[callData.reference] =
+          callData.returnValues[0].type === 'BigNumber'
+            ? ethers.BigNumber.from(callData.returnValues[0]).toString()
+            : callData.returnValues[0];
+      });
+      const details = results.results[`pooldetails_${addr}`].callsReturnContext;
+      console.log(details);
+      details.forEach((callData) => {
+        result[callData.reference] = {
+          ipfs: callData.returnValues[0],
+          isVerified: callData.returnValues[1],
+          projectId: callData.returnValues[2],
+        };
+      });
+      return result;
+    });
+
+    return memberPools;
+  }
   /**
    * Starts a new donation flow using Superfluid's core-sdk createFlow method.
    * @param {ethers.Signer} signer - The signer object for the transaction.
