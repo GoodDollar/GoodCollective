@@ -4,8 +4,9 @@ import { AsyncStorageWrapper, persistCache } from 'apollo3-cache-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { errorLink, retryLink } from '../../utils/apolloLinkUtils';
+import env from '../../lib/env';
 
-const subgraphUri = 'https://api.thegraph.com/subgraphs/name/gooddollar/goodcollective';
+const subgraphUri = env.REACT_APP_SUBGRAPH;
 
 export const useCreateSubgraphApolloClient = (): ApolloClient<any> | undefined => {
   const [apolloClient, setApolloClient] = useState<ApolloClient<NormalizedCacheObject> | undefined>();
