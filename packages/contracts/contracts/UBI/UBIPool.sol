@@ -28,11 +28,11 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
 
     error CLAIMFOR_DISABLED();
     error NOT_MEMBER(address claimer);
-    error NOT_WHITELISTED(address claimer);
-    error ALREADY_CLAIMED(address claimer);
+    error NOT_WHITELISTED(address whitelistedRoot);
+    error ALREADY_CLAIMED(address whitelistedRoot);
     error INVALID_0_VALUE();
     error EMPTY_MANAGER();
-    error MAX_MEMBERS_REACHED();
+    error MAX_CLAIMERS_REACHED();
 
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
     bytes32 public constant MEMBER_ROLE = keccak256("MEMBER_ROLE");
@@ -70,7 +70,8 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         // can you trigger claim for someone else
         bool claimForEnabled;
         uint maxClaimAmount;
-        uint32 maxMembers;
+        uint32 maxClaimers;
+        bool onlyMembers;
     }
 
     struct PoolStatus {
@@ -88,7 +89,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         uint256 periodClaimers;
         uint256 periodDistributed;
         mapping(address => uint256) lastClaimed;
-        uint32 membersCount;
+        uint32 claimersCount;
     }
 
     PoolSettings public settings;
@@ -225,7 +226,12 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     function _claim(address claimer, bool sendToWhitelistedRoot) internal {
         address whitelistedRoot = IIdentityV2(settings.uniquenessValidator).getWhitelistedRoot(claimer);
         if (whitelistedRoot == address(0)) revert NOT_WHITELISTED(claimer);
-        if (address(settings.membersValidator) != address(0) && hasRole(MEMBER_ROLE, claimer) == false)
+
+        // if open for anyone but has limits, we add the first claimers as members to handle the max claimers
+        if ((ubiSettings.maxClaimers > 0 && ubiSettings.onlyMembers == false)) _grantRole(MEMBER_ROLE, claimer);
+
+        // check membership if has claimers limits or limited to members only
+        if ((ubiSettings.maxClaimers > 0 || ubiSettings.onlyMembers) && hasRole(MEMBER_ROLE, claimer) == false)
             revert NOT_MEMBER(claimer);
 
         // calculats the formula up today ie on day 0 there are no active users, on day 1 any user
@@ -246,18 +252,6 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         emit UBIClaimed(whitelistedRoot, claimer, dailyUbi);
     }
 
-    function addMemberByManager(address member) external onlyRole(MANAGER_ROLE) returns (bool) {
-        if (hasRole(MEMBER_ROLE, member)) return true;
-
-        if (address(settings.uniquenessValidator) != address(0)) {
-            address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
-            if (rootAddress == address(0)) revert NOT_WHITELISTED(member);
-        }
-
-        _grantRole(MEMBER_ROLE, member);
-        return true;
-    }
-
     /**
      * @dev Adds a member to the contract.
      * @param member The address of the member to add.
@@ -265,18 +259,19 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
      */
 
     function addMember(address member, bytes memory extraData) external returns (bool isMember) {
-        if (hasRole(MEMBER_ROLE, member)) return true;
-
         if (address(settings.uniquenessValidator) != address(0)) {
             address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
             if (rootAddress == address(0)) revert NOT_WHITELISTED(member);
         }
 
-        // if no members validator then anyone can join the pool
-        if (address(settings.membersValidator) != address(0)) {
+        if (address(settings.membersValidator) != address(0) && hasRole(MANAGER_ROLE, msg.sender) == false) {
             if (settings.membersValidator.isMemberValid(address(this), msg.sender, member, extraData) == false) {
-                return false;
+                revert NOT_MEMBER(member);
             }
+        }
+        // if no members validator then if members only only manager can add members
+        else if (ubiSettings.onlyMembers && hasRole(MANAGER_ROLE, msg.sender) == false) {
+            revert NOT_MEMBER(member);
         }
 
         _grantRole(MEMBER_ROLE, member);
@@ -284,18 +279,19 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     }
 
     function _grantRole(bytes32 role, address account) internal virtual override {
-        if (role == MEMBER_ROLE) {
+        if (role == MEMBER_ROLE && hasRole(MEMBER_ROLE, account) == false) {
+            if (ubiSettings.maxClaimers > 0 && status.claimersCount > ubiSettings.maxClaimers)
+                revert MAX_CLAIMERS_REACHED();
             registry.addMember(account);
-            if (ubiSettings.maxMembers > 0 && status.membersCount > ubiSettings.maxMembers)
-                revert MAX_MEMBERS_REACHED();
-            status.membersCount += 1;
+            status.claimersCount += 1;
         }
         super._grantRole(role, account);
     }
 
     function _revokeRole(bytes32 role, address account) internal virtual override {
-        if (role == MEMBER_ROLE) {
-            status.membersCount -= 1;
+        if (role == MEMBER_ROLE && hasRole(MEMBER_ROLE, account)) {
+            status.claimersCount -= 1;
+            registry.removeMember(account);
         }
         super._revokeRole(role, account);
     }

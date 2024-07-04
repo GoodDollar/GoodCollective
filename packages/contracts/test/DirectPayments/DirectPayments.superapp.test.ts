@@ -258,4 +258,37 @@ describe('DirectPaymentsPool Superapp', () => {
     expect(supporter.lastUpdated).gt(0);
     expect(supporter.flowRate).equal(Number(baseFlowRate));
   });
+
+  it('should be able to swap mockToken and support single when 0 G$ balance in one tx + approve', async () => {
+    const signer = signers[1];
+
+    const mockToken = await (await ethers.getContractFactoryFromArtifact(ERC20ABI)).deploy('x', 'x');
+    await mockToken.mint(signer.address, ethers.constants.WeiPerEther);
+    await (await mockToken.connect(signer).approve(pool.address, ethers.constants.WeiPerEther)).wait();
+
+    expect(await gdframework.GoodDollar.balanceOf(signer.address)).equal(0);
+    expect(await mockToken.balanceOf(signer.address)).gt(0);
+
+    //mint to the swaprouter so it has G$s to send in exchange
+    await gdframework.GoodDollar.mint(await pool.swapRouter(), ethers.constants.WeiPerEther);
+
+    const st = await sf.loadSuperToken(gdframework.GoodDollar.address);
+    const tx = await pool.connect(signer).supportWithSwap(signer.address, {
+      swapFrom: mockToken.address,
+      amount: ethers.constants.WeiPerEther,
+      minReturn: ethers.constants.WeiPerEther,
+      deadline: (Date.now() / 1000).toFixed(0),
+      path: '0x',
+    }, '0x')
+
+    console.log((await tx.wait()).events)
+
+    expect(await mockToken.balanceOf(signer.address)).eq(0);
+    expect(await gdframework.GoodDollar.balanceOf(signer.address)).eq(0);
+
+    const supporter = await pool.supporters(signer.address);
+    expect(supporter.contribution).equal(ethers.constants.WeiPerEther);
+    expect(supporter.lastUpdated).eq(0);
+    expect(supporter.flowRate).equal(0);
+  });
 });

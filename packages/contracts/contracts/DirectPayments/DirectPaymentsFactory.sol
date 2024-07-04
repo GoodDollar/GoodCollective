@@ -15,6 +15,7 @@ import "hardhat/console.sol";
 
 contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
     error NOT_PROJECT_OWNER();
+    error NOT_POOL();
 
     event PoolCreated(
         address indexed pool,
@@ -45,6 +46,9 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
     address public feeRecipient;
     uint32 public feeBps;
 
+    mapping(address => address[]) public memberPools;
+    address[] public pools;
+
     modifier onlyProjectOwnerOrNon(string memory projectId) {
         DirectPaymentsPool controlPool = projectIdToControlPool[keccak256(bytes(projectId))];
         // console.log("result %s", controlPool.hasRole(controlPool.DEFAULT_ADMIN_ROLE(), msg.sender));
@@ -56,13 +60,18 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         _;
     }
 
-    modifier onlyProjectOwnerByPool(DirectPaymentsPool pool) {
-        string memory projectId = registry[address(pool)].projectId;
-        DirectPaymentsPool controlPool = projectIdToControlPool[keccak256(bytes(projectId))];
-        if (controlPool.hasRole(controlPool.DEFAULT_ADMIN_ROLE(), msg.sender) == false) {
+    modifier onlyPoolOwner(DirectPaymentsPool pool) {
+        if (pool.hasRole(pool.DEFAULT_ADMIN_ROLE(), msg.sender) == false) {
             revert NOT_PROJECT_OWNER();
         }
 
+        _;
+    }
+
+    modifier onlyPool() {
+        if (bytes(registry[msg.sender].projectId).length == 0) {
+            revert NOT_POOL();
+        }
         _;
     }
 
@@ -138,12 +147,14 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         registry[address(pool)].projectId = _projectId;
 
         pool.renounceRole(DEFAULT_ADMIN_ROLE, address(this));
+        pools.push(address(pool));
+
         emit PoolCreated(address(pool), _projectId, _ipfs, nextNftType, _settings, _limits);
 
         nextNftType++;
     }
 
-    function changePoolDetails(DirectPaymentsPool _pool, string memory _ipfs) external onlyProjectOwnerByPool(_pool) {
+    function changePoolDetails(DirectPaymentsPool _pool, string memory _ipfs) external onlyPoolOwner(_pool) {
         registry[address(_pool)].ipfs = _ipfs;
         emit PoolDetailsChanged(address(_pool), _ipfs);
     }
@@ -161,5 +172,18 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
     function setFeeInfo(address _feeRecipient, uint32 _feeBps) external onlyRole(DEFAULT_ADMIN_ROLE) {
         feeBps = _feeBps;
         feeRecipient = _feeRecipient;
+    }
+
+    function addMember(address member) external onlyPool {
+        memberPools[member].push(msg.sender);
+    }
+
+    function removeMember(address member) external onlyPool {
+        for (uint i = 0; i < memberPools[member].length; i++) {
+            if (memberPools[member][i] == msg.sender) {
+                memberPools[member][i] = memberPools[member][memberPools[member].length - 1];
+                memberPools[member].pop();
+            }
+        }
     }
 }

@@ -18,28 +18,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   let feeRecipient = GDContracts[hre.network.name]?.UBIScheme || deployer;
   let feeBps = 1000;
   if (hre.network.live === false) {
-    const { frameworkDeployer } = await deployTestFramework();
-    const sfFramework = await frameworkDeployer.getFramework();
-
-    const signers = await ethers.getSigners();
-    const gdframework = await deploySuperGoodDollar(signers[0], sfFramework, [
-      ethers.constants.AddressZero,
-      ethers.constants.AddressZero,
-    ]);
-
-    swapMock = await deploy('SwapRouterMock', {
-      from: deployer,
-      log: true,
-      args: [gdframework.GoodDollar.address],
-    });
-    await deployments.save('GoodDollar', {
-      abi: (gdframework.GoodDollar.interface as any).format(FormatTypes.full),
-      address: gdframework.GoodDollar.address,
-    });
-    await deployments.save('SuperFluidResolver', { abi: [], address: sfFramework.resolver });
-    await gdframework.GoodDollar.mint(swapMock.address, ethers.constants.WeiPerEther.mul(100000));
-    await gdframework.GoodDollar.mint(deployer, ethers.constants.WeiPerEther.mul(100000));
-    sfHost = sfFramework.host;
+    swapMock = (await deployments.get("SwapRouterMock")).address
+    const gd = await ethers.getContractAt("ISuperGoodDollar", (await deployments.get("GoodDollar")).address)
+    sfHost = await gd.getHost()
+    console.log("deployed test gd and sf host", gd.address, sfHost, swapMock)
   } else {
     const sfFramework = await Framework.create({
       chainId: network.config.chainId || 0,
@@ -54,11 +36,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log: true,
   });
 
-  console.log('deploying pool impl', [sfHost, swapMock?.address || '0x5615CDAb10dc425a742d643d949a7F474C01abc4']);
+  console.log('deploying pool impl', [sfHost, swapMock || '0x5615CDAb10dc425a742d643d949a7F474C01abc4']);
   const pool = await deploy('DirectPaymentsPool', {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
-    args: [sfHost, swapMock?.address || '0x5615CDAb10dc425a742d643d949a7F474C01abc4'], //uniswap on celo
+    args: [sfHost, swapMock || '0x5615CDAb10dc425a742d643d949a7F474C01abc4'], //uniswap on celo
     log: true,
     libraries: {
       HelperLibrary: helplib.address,

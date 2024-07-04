@@ -1,7 +1,7 @@
 {
   "name": "@gooddollar/goodcollective-contracts",
   "packageManager": "yarn@3.2.1",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "license": "MIT",
   "types": "./typechain-types/index.ts",
   "files": [
@@ -63,7 +63,7 @@
     "test": "npx hardhat test",
     "test:coverage": "npx hardhat coverage",
     "deploy": "hardhat deploy --export-all ./releases/deployment.json",
-    "prepublish": "yarn version patch && yarn compile && git add package.json && git commit -m \"version bump\"",
+    "bump": "yarn version patch && yarn compile && git add package.json && git commit -m \"version bump\"",
     "publish": "yarn npm publish --access public",
     "test:setup": "yarn exec ./scripts/deployContracts.sh",
     "verify": "npx hardhat run scripts/verify.ts --network ${0}"

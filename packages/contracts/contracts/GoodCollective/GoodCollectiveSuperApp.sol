@@ -14,14 +14,6 @@ import "@uniswap/swap-router-contracts/contracts/interfaces/IV3SwapRouter.sol";
 import "../DirectPayments/DirectPaymentsFactory.sol";
 import "../utils/HelperLibrary.sol";
 
-// import "hardhat/console.sol";
-
-interface IRegistry {
-    function feeRecipient() external view returns (address);
-
-    function feeBps() external view returns (uint32);
-}
-
 abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
     int96 public constant MIN_FLOW_RATE = 386e9;
 
@@ -167,6 +159,28 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
     }
 
     /**
+     * @dev allow single contribution. user needs to approve tokens first. can be used in superfluid batch actions.
+     * @param _sender The address of the sender who is contributing tokens.
+     * @param _customData The SwapData struct containing information about the swap
+     * @param _ctx The context of the transaction for superfluid in case this was used in superfluid batch. otherwise can be empty.
+     * @return Returns the context of the transaction.
+     */
+    function supportWithSwap(
+        address _sender,
+        HelperLibrary.SwapData memory _customData,
+        bytes memory _ctx
+    ) external onlyHostOrSender(_sender) returns (bytes memory) {
+        uint256 balance = superToken.balanceOf(address(this));
+        HelperLibrary.handleSwap(swapRouter, _customData, address(superToken), _sender, address(this));
+        uint256 amountReceived = superToken.balanceOf(address(this)) - balance;
+        if (amountReceived == 0) revert ZERO_AMOUNT();
+
+        // Update the contribution amount for the sender in the supporters mapping
+        _updateSupporter(_sender, int256(amountReceived), 0, ""); //we pass empty ctx since this is not a flow but a single donation
+        return _ctx;
+    }
+
+    /**
      * @dev Handles the swap of tokens using the SwapData struct
      * @param _customData The SwapData struct containing information about the swap
      * @param _sender The address of the sender of the transaction
@@ -253,7 +267,7 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
     ) internal returns (bytes memory newCtx) {
         newCtx = _ctx;
         bool _isFlow = _ctx.length > 0;
-        _updateStats(_isFlow ? 0 : uint256(_previousFlowRateOrAmount));
+        HelperLibrary.updateStats(stats, superToken, getRegistry(), _isFlow ? 0 : uint256(_previousFlowRateOrAmount));
         // Get the current flow rate for the supporter
         int96 flowRate = superToken.getFlowRate(_supporter, address(this));
         uint256 prevContribution = supporters[_supporter].contribution;
@@ -266,7 +280,14 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
             supporters[_supporter].contribution +=
                 uint96(int96(_previousFlowRateOrAmount)) *
                 (block.timestamp - _lastUpdated);
-            newCtx = _takeFeeFlow(flowRate - int96(_previousFlowRateOrAmount), _ctx);
+            newCtx = HelperLibrary.takeFeeFlow(
+                cfaV1,
+                stats,
+                superToken,
+                getRegistry(),
+                flowRate - int96(_previousFlowRateOrAmount),
+                _ctx
+            );
             // we update the last rate after we do all changes to our own flows
             stats.lastIncomeRate = superToken.getNetFlowRate(address(this));
         } else {
@@ -282,51 +303,6 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
             flowRate,
             _isFlow
         );
-    }
-
-    // this should be called before any flow rate changes
-    function _updateStats(uint256 _amount) internal {
-        //use last rate before the current possible rate update
-        stats.netIncome += uint96(stats.lastIncomeRate) * (block.timestamp - stats.lastUpdate);
-        uint feeBps;
-        if (address(getRegistry()) != address(0)) {
-            feeBps = getRegistry().feeBps();
-            //fees sent to last recipient, the flowRate to recipient still wasnt updated.
-            stats.totalFees +=
-                uint96(superToken.getFlowRate(address(this), stats.lastFeeRecipient)) *
-                (block.timestamp - stats.lastUpdate);
-        }
-        if (_amount > 0) {
-            stats.netIncome += (_amount * (10000 - feeBps)) / 10000;
-            stats.totalFees += (_amount * feeBps) / 10000;
-        }
-        stats.lastUpdate = block.timestamp;
-    }
-
-    function _takeFeeFlow(int96 _diffRate, bytes memory _ctx) internal returns (bytes memory newCtx) {
-        newCtx = _ctx;
-        if (address(getRegistry()) == address(0)) return newCtx;
-        address recipient = getRegistry().feeRecipient();
-        int96 curFeeRate = superToken.getFlowRate(address(this), stats.lastFeeRecipient);
-        bool newRecipient;
-        if (recipient != stats.lastFeeRecipient) {
-            newRecipient = true;
-            if (stats.lastFeeRecipient != address(0)) {
-                //delete old recipient flow
-                if (curFeeRate > 0)
-                    newCtx = cfaV1.deleteFlowWithCtx(newCtx, address(this), stats.lastFeeRecipient, superToken); //passing in the ctx which is sent to the callback here
-            }
-            stats.lastFeeRecipient = recipient;
-        }
-        if (recipient == address(0)) return newCtx;
-
-        int96 feeRateChange = (_diffRate * int32(getRegistry().feeBps())) / 10000;
-        int96 newFeeRate = curFeeRate + feeRateChange;
-        if (newFeeRate <= 0 && newRecipient == false) {
-            newCtx = cfaV1.deleteFlowWithCtx(newCtx, address(this), recipient, superToken); //passing in the ctx which is sent to the callback here
-        } else if (curFeeRate > 0 && newRecipient == false) {
-            newCtx = cfaV1.updateFlowWithCtx(newCtx, recipient, superToken, newFeeRate); //passing in the ctx which is sent to the callback here
-        } else if (newFeeRate > 0) newCtx = cfaV1.createFlowWithCtx(newCtx, recipient, superToken, newFeeRate); //passing in the ctx which is sent to the callback here
     }
 
     function _takeFeeSingle(uint256 _amount) internal {

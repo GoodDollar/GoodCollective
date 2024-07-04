@@ -153,6 +153,15 @@ contract UBIPoolFactory is AccessControlUpgradeable, UUPSUpgradeable {
         memberPools[account].push(msg.sender);
     }
 
+    function removeMember(address member) external onlyPool {
+        for (uint i = 0; i < memberPools[member].length; i++) {
+            if (memberPools[member][i] == msg.sender) {
+                memberPools[member][i] = memberPools[member][memberPools[member].length - 1];
+                memberPools[member].pop();
+            }
+        }
+    }
+
     function getMemberPools(address member) external view returns (address[] memory) {
         return memberPools[member];
     }
