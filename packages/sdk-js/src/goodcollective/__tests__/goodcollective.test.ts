@@ -50,6 +50,7 @@ const testPoolSettings = [
     maxMemberPerMonth: 10000,
     maxTotalPerMonth: 100000,
   },
+  false,
 ];
 describe('GoodCollective SDK', () => {
   beforeAll(async () => {
@@ -67,6 +68,8 @@ describe('GoodCollective SDK', () => {
       description: 'zz',
       twitter: '@ss',
       email: 'x@sag.com',
+      headerImage: '',
+      logo: '',
     });
 
     expect(uri).equal('abc');
@@ -163,6 +166,24 @@ describe('GoodCollective SDK', () => {
 
     await (await gooddollar.connect(wallet).approve(pool.address, '1000')).wait();
     const tx = await sdk.supportFlowWithSwap(wallet, pool.address, '100000000000000', {
+      amount: 1000,
+      minReturn: 100000000000000,
+      path: '0x',
+      swapFrom: gooddollar.address,
+      deadline: (Date.now() + 1000000 / 1000).toFixed(0),
+    });
+
+    expect(tx.wait()).not.rejects;
+  });
+
+  it('should support single with swap', async () => {
+    const pool = await sdk.createPool(...testPoolSettings);
+
+    const balance = await gooddollar.balanceOf(wallet.address);
+    const routerBalance = await gooddollar.balanceOf(await pool.swapRouter());
+    console.log({ balance, router: await pool.swapRouter(), routerBalance });
+    await (await gooddollar.connect(wallet).approve(pool.address, '1000')).wait();
+    const tx = await sdk.supportSingleWithSwap(wallet, pool.address, {
       amount: 1000,
       minReturn: 100000000000000,
       path: '0x',

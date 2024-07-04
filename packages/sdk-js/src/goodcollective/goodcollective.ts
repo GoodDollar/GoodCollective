@@ -189,7 +189,7 @@ export class GoodCollectiveSDK {
     poolIpfs: string,
     poolSettings: PoolSettings,
     poolLimits: PoolLimits,
-    isBeacon: boolean
+    isBeacon = true
   ) {
     poolSettings.nftType = 0; // force some type, this will be re-assigned by the factory
     const createMethod = isBeacon
@@ -445,6 +445,30 @@ export class GoodCollectiveSDK {
     const op = sdk.batchCall([approve, supportAction]);
 
     return op.exec(signer);
+  }
+
+  /**
+   * Single donation using superfluid batch call
+   * Executes a batch of operations including token approval and calling a function on the pool contract.
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} poolAddress - The address of the pool contract.
+   * @param {string} amount - The amount of tokens to transfer.
+   * @returns {Promise<ethers.ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
+   */
+  async supportSingleWithSwap(signer: ethers.Signer, poolAddress: string, swap: SwapData) {
+    const tcabi = ['function allowance(address _from, address _to) view returns (uint256 allowance)'];
+    const token = new ethers.Contract(await swap.swapFrom, tcabi, signer);
+    const signerAddress = await signer.getAddress();
+    const allowance = await token.allowance(signerAddress, poolAddress);
+    console.log({ allowance, amount: await swap.amount });
+    if (allowance.lt(ethers.BigNumber.from(swap.amount))) {
+      throw new Error('Not enough allowance');
+    }
+    const tx = await this.pool
+      .attach(poolAddress)
+      .connect(signer)
+      .supportWithSwap(signerAddress, swap, '0x', { gasLimit: 2000000 });
+    return tx;
   }
 
   async swap(signer: ethers.Signer, poolAddress: string, swap: SwapData) {

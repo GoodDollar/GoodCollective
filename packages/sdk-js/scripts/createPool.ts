@@ -105,7 +105,8 @@ const createUbiPool = async () => {
     minActiveUsers: ethers.BigNumber.from(100),
     claimForEnabled: true,
     maxClaimAmount: ethers.utils.parseEther('100'),
-    maxMembers: 500,
+    maxClaimers: 500,
+    onlyMembers: true,
   };
 
   const pool = await sdk.createUbiPoolWithAttributes(
