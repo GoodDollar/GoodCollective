@@ -1,5 +1,6 @@
 {
   "network": "celo",
   "DirectPaymentsFactoryAddress": "0x58b5E37c5aFad520dD93E92A5D11B8721A9115F0",
-  "ProvableNFTAddress": "0x2AF5DB8249229ba696E0bac1a382aDb1fee040A6"
+  "ProvableNFTAddress": "0x2AF5DB8249229ba696E0bac1a382aDb1fee040A6",
+  "startBlock": 20920303
 }

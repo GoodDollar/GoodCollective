@@ -8,8 +8,11 @@ import {
   UBIPoolFactory,
 } from '@gooddollar/goodcollective-contracts/typechain-types';
 import { Framework } from '@superfluid-finance/sdk-core';
-import { HelperLibrary } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/GoodCollective/GoodCollectiveSuperApp';
-import { NFTStorage, File, CIDString } from 'nft.storage';
+import { HelperLibrary } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/GoodCollective/GoodCollectiveSuperApp.ts';
+// import * as W3Client from '@web3-storage/w3up-client';
+// import { StoreMemory } from '@web3-storage/w3up-client/stores/memory';
+// import * as Proof from '@web3-storage/w3up-client/proof';
+// import { Signer } from '@web3-storage/w3up-client/principal/ed25519';
 import { Multicall, ContractCallResults, ContractCallContext } from 'ethereum-multicall';
 
 export type NFTData = ProvableNFT.NFTDataStruct;
@@ -35,7 +38,8 @@ export type PoolAttributes = {
 
 export type SDKOptions = {
   network?: string;
-  nftStorageKey?: string;
+  w3Key?: string;
+  w3Proof?: string;
 };
 
 type Key = keyof typeof GoodCollectiveContracts;
@@ -52,13 +56,12 @@ const CHAIN_OVERRIDES: { [key: string]: object } = {
 
 export class GoodCollectiveSDK {
   factory: DirectPaymentsFactory;
-  ubifactory: UBIPoolFactory;
+  ubifactory?: UBIPoolFactory;
   contracts: Contracts;
   pool: DirectPaymentsPool;
   superfluidSDK: Promise<Framework>;
   chainId: Key;
-  nftStorage: NFTStorage;
-
+  // w3Storage: Promise<W3Client.Client | void>;
   constructor(chainId: Key, readProvider: ethers.providers.Provider, options: SDKOptions = {}) {
     this.chainId = chainId;
     this.contracts = (GoodCollectiveContracts[chainId] as Array<any>).find((_) =>
@@ -73,8 +76,9 @@ export class GoodCollectiveSDK {
       readProvider
     ) as DirectPaymentsFactory;
 
-    const ubifactory = this.contracts.UBIPoolFactory || ({} as any);
-    this.ubifactory = new ethers.Contract(ubifactory.address, ubifactory.abi, readProvider) as UBIPoolFactory;
+    const ubifactory = this.contracts.UBIPoolFactory;
+    this.ubifactory =
+      ubifactory && (new ethers.Contract(ubifactory.address, ubifactory.abi, readProvider) as UBIPoolFactory);
 
     const nftEvents = this.contracts.ProvableNFT?.abi.filter((_) => _.type === 'event') || [];
     this.pool = new ethers.Contract(
@@ -91,11 +95,22 @@ export class GoodCollectiveSDK {
     };
 
     this.superfluidSDK = Framework.create(opts);
-    this.nftStorage = new NFTStorage({
-      token: options.nftStorageKey || '',
-    });
+    // this.w3Storage = this.initW3Storage(options);
   }
 
+  // async initW3Storage(options: SDKOptions = {}) {
+  //   if (!this.w3Storage && options.w3Key && options.w3Proof) {
+  //     // Load client with specific private key
+  //     const principal = Signer.parse(options.w3Key || '');
+  //     const store = new StoreMemory();
+  //     const client = await W3Client.create({ principal, store });
+  //     // Add proof that this agent has been delegated capabilities on the space
+  //     const proof = await Proof.parse(options.w3Proof || '');
+  //     const space = await client.addSpace(proof);
+  //     await client.setCurrentSpace(space.did());
+  //     return client;
+  //   }
+  // }
   /**
    * Returns the super token for the reward token of a given pool.
    * @param {string} poolAddress - The address of the pool contract.
@@ -146,11 +161,27 @@ export class GoodCollectiveSDK {
     return (await this.nftContract()).getNFTData(id);
   }
 
-  async savePoolToIPFS(attrs: PoolAttributes): Promise<CIDString> {
+  async savePoolToIPFS(attrs: PoolAttributes): Promise<string> {
+    // const client = await this.w3Storage;
+    // if (!client) {
+    //   throw new Error('No w3 storage client');
+    // }
     const data = Buffer.from(JSON.stringify(attrs));
     const file = new File([data], 'pool.json', { type: 'application/json' });
-    const uri = await this.nftStorage.storeBlob(file);
-    return uri;
+    const fd = new FormData();
+    fd.append('file', file);
+    const { Hash } = await fetch('https://api.thegraph.com/ipfs/api/v0/add?pin=true&cid-version=1', {
+      method: 'POST',
+      body: fd,
+    }).then((_) => _.json());
+    // const uri = await client.uploadFile(file, { retries: 3 });
+
+    return Hash.toString();
+  }
+
+  async updatePoolAttributes(signer: ethers.Signer, poolAddress: string, attrs: PoolAttributes) {
+    const uri = await this.savePoolToIPFS(attrs);
+    return this.factory.connect(signer).changePoolDetails(poolAddress, uri);
   }
 
   /**
@@ -240,6 +271,9 @@ export class GoodCollectiveSDK {
     poolLimits: UBISettings,
     isBeacon: boolean
   ) {
+    if (!this.ubifactory) {
+      throw new Error('UBI Factory not initialized');
+    }
     const createMethod = isBeacon
       ? this.ubifactory.connect(signer).createManagedPool
       : this.ubifactory.connect(signer).createPool;
@@ -251,6 +285,9 @@ export class GoodCollectiveSDK {
   }
 
   async getMemberUBIPools(memberAddress: string) {
+    if (!this.ubifactory) {
+      throw new Error('UBI Factory not initialized');
+    }
     const pools = await this.ubifactory.getMemberPools(memberAddress);
     const multicall = new Multicall({ ethersProvider: this.ubifactory.provider, tryAggregate: true });
 
@@ -272,7 +309,7 @@ export class GoodCollectiveSDK {
         },
         {
           reference: `pooldetails_${addr}`,
-          contractAddress: this.ubifactory.address,
+          contractAddress: this.ubifactory?.address || '',
           abi: this.contracts.UBIPoolFactory?.abi as [],
           calls: [{ reference: 'poolDetails', methodName: 'registry', methodParameters: [addr] }],
         },
@@ -290,7 +327,6 @@ export class GoodCollectiveSDK {
             : callData.returnValues[0];
       });
       const details = results.results[`pooldetails_${addr}`].callsReturnContext;
-      console.log(details);
       details.forEach((callData) => {
         result[callData.reference] = {
           ipfs: callData.returnValues[0],

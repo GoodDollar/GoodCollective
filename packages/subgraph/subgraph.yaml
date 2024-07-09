@@ -1,4 +1,6 @@
-specVersion: 0.0.4
+specVersion: 1.2.0
+features:
+ - ipfsOnEthereumContracts
 schema:
   file: ./schema.graphql
 dataSources:
@@ -7,9 +9,9 @@ dataSources:
     # prettier-ignore
     network: celo
     source:
-      address: '0x58b5E37c5aFad520dD93E92A5D11B8721A9115F0'
+      address: '0xb1C7F09156d04BFf6F412447A73a0F72929b6ea4'
       abi: DirectPaymentsFactory
-      startBlock: 20920303
+      startBlock: 26482890
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -33,9 +35,9 @@ dataSources:
     # prettier-ignore
     network: celo
     source:
-      address: '0x2AF5DB8249229ba696E0bac1a382aDb1fee040A6'
+      address: '0x251EEBd7d9469bbcc02Ef23c95D902Cbb7fD73B3'
       abi: ProvableNFT
-      startBlock: 20920303
+      startBlock: 26482890
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -50,27 +52,6 @@ dataSources:
           handler: handleNftMint
       file: ./src/mappings/ProvableNFT.ts
 
-  - kind: ethereum
-    name: SuperApp
-    # prettier-ignore
-    network: celo
-    source:
-      abi: GoodCollectiveSuperApp
-      startBlock: 20920303
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - Donor
-        - DirectPaymentPool
-      abis:
-        - name: GoodCollectiveSuperApp
-          file: ./abis/DirectPaymentsPool.json
-      eventHandlers:
-        - event: SupporterUpdated(indexed address,uint256,uint256,int96,int96,bool)
-          handler: handleSupport
-      file: ./src/mappings/superApp.ts
 templates:
   - kind: ethereum/contract
     name: DirectPaymentsPool
@@ -87,6 +68,7 @@ templates:
         - SafetyLimits
         - PoolSettings
         - Claim
+        - Donor
       abis:
         - name: DirectPaymentsPool
           file: ./abis/DirectPaymentsPool.json
@@ -99,6 +81,8 @@ templates:
           handler: handleRewardClaim
         - event: NFTClaimed(indexed uint256,uint256)
           handler: handleClaim
+        - event: SupporterUpdated(indexed address,uint256,uint256,int96,int96,bool)
+          handler: handleSupport
       file: ./src/mappings/pool.ts
   - kind: file/ipfs
     name: IpfsMetaData
