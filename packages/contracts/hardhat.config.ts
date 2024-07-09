@@ -41,9 +41,10 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    localhost: {
-      chainId: 31337,
+    hardhat: {
+      chainId: 42220,
     },
+    localhost: {},
     mainnet: {
       chainId: 1,
       url: 'https://cloudflare-eth.com',
@@ -76,7 +77,7 @@ const config: HardhatUserConfig = {
         },
       },
     },
-    "development-celo": {
+    'development-celo': {
       chainId: 42220,
       url: `https://forno.celo.org`,
       gasPrice: 5000000000,

@@ -2,9 +2,9 @@
   "name": "@gooddollar/goodcollective-sdk",
   "license": "MIT",
   "version": "1.1.1",
-  "main": "./dist/sdk.js",
-  "module": "./dist/sdk.mjs",
+  "main": "./dist/sdk",
   "types": "./types/index.d.ts",
+  "type": "module",
   "scripts": {
     "build": "rm -fr dist types && tsc && vite build",
     "test:setup": "yarn exec ./scripts/deployContracts.sh",
@@ -32,6 +32,7 @@
     "ethers": "5",
     "prettier": "^2.8.8",
     "ts-node": "^10.9.2",
+    "tsx": "^4.16.2",
     "typescript": "5",
     "vite": "^4.3.9",
     "vitest": "^0.32.2"
@@ -42,9 +43,9 @@
   "dependencies": {
     "@gooddollar/goodcollective-contracts": "^1.1.0",
     "@superfluid-finance/sdk-core": "^0.6.12",
+    "@web3-storage/w3up-client": "^15.0.0",
     "ethereum-multicall": "^2.24.0",
-    "graphql": "^16.7.1",
-    "nft.storage": "^7.1.1"
+    "graphql": "^16.7.1"
   },
   "packageManager": "yarn@3.6.0"
 }

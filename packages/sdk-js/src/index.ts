@@ -1,1 +1,1 @@
-export * from './goodcollective/goodcollective';
+export * from './goodcollective/goodcollective.ts';

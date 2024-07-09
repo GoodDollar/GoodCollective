@@ -16,6 +16,8 @@ import {
   StewardCollective,
 } from '../../generated/schema';
 
+export * from './superApp'
+
 export function handlePoolSettingsChange(event: PoolSettingsChanged): void {
   const poolSettings = event.params.settings;
   let directPaymentPoolSettings = PoolSettings.load(event.address.toHexString());
