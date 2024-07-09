@@ -1,9 +1,5 @@
-import Decimal from 'decimal.js';
+import { parseUnits } from 'viem';
 
-export const calculateRawTotalDonation = (
-  decimalAmount: number,
-  duration: number,
-  currencyDecimals: number
-): Decimal => {
-  return new Decimal(decimalAmount * duration).times(10 ** currencyDecimals);
+export const calculateRawTotalDonation = (decimalAmount: number, duration: number, currencyDecimals: number) => {
+  return parseUnits((decimalAmount * duration).toString(), currencyDecimals);
 };

@@ -18,7 +18,7 @@ export const formatNumberWithCommas = (num: string): string => {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    maximumFractionDigits: 4,
   })
     .format(number)
     .substring(1);

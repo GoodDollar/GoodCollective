@@ -1,52 +1,34 @@
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-import { coingeckoTokenMapping } from '../models/constants';
 import { useToken } from './useTokenList';
-import { Token } from '@uniswap/sdk-core';
+import { useCoinGeckoQuery } from './apollo/useCreateCoinGeckoApolloClient';
+import { gql } from '@apollo/client';
 
+const priceQuery = gql`
+  query TokenPrice($tokenAddress: string) {
+    priceSearch(contract_addresses: $tokenAddress, vs_currencies: usd)
+      @rest(type: "TokenPrice", path: "/?{args}", endpoint: "byAddress") {
+      id
+      usd
+    }
+  }
+`;
+
+const altPriceQuery = gql`
+  query TokenPrice($symbol: string) {
+    priceSearch(ids: $symbol, vs_currencies: usd) @rest(type: "TokenPrice", path: "/?{args}", endpoint: "bySymbol") {
+      id
+      usd
+    }
+  }
+`;
 export const useGetTokenPrice = (currency: string): { price?: number; isLoading: boolean } => {
-  const [price, setPrice] = useState<number | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
-
   const token = useToken(currency);
 
-  useEffect(() => {
-    setIsLoading(true);
-    getTokenPrice(currency, token).then((res: number | undefined) => {
-      setPrice(res);
-    });
-    setIsLoading(false);
-  }, [currency, token]);
+  const response = useCoinGeckoQuery(priceQuery, { variables: { tokenAddress: token.address } });
+  const fallbackResponse = useCoinGeckoQuery(altPriceQuery, {
+    disabled: !!(response.loading || response.data),
+    variables: { symbol: currency },
+  });
 
-  return { price, isLoading };
-};
-
-const getTokenPrice = async (currency: string, token: Token): Promise<number | undefined> => {
-  let tokenAddress = coingeckoTokenMapping[currency] ?? token.address;
-  const priceByContractUrl = `https://api.coingecko.com/api/v3/simple/token_price/celo?contract_addresses=${tokenAddress}&vs_currencies=usd`;
-  const priceByContract: number | undefined = await axios
-    .get(priceByContractUrl)
-    .then((res) => {
-      return res.data[tokenAddress.toLowerCase()]?.usd;
-    })
-    .catch((err) => {
-      console.error(err);
-      return undefined;
-    });
-
-  if (priceByContract !== undefined) {
-    return priceByContract;
-  }
-
-  // fallback
-  const priceBySymbolUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${currency}&vs_currencies=usd`;
-  return await axios
-    .get(priceBySymbolUrl)
-    .then((res) => {
-      return res.data[currency.toLowerCase()]?.usd;
-    })
-    .catch((err) => {
-      console.error(err);
-      return undefined;
-    });
+  const finalResponse = response.data ? response : fallbackResponse;
+  return { price: Number(finalResponse.data?.priceSearch?.[0]?.usd), isLoading: finalResponse.loading };
 };

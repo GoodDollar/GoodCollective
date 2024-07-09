@@ -1,11 +1,9 @@
 import { useCallback } from 'react';
 import { SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
 import { calculateRawTotalDonation } from '../../lib/calculateRawTotalDonation';
-import Decimal from 'decimal.js';
 import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
 import { useAccount, useNetwork } from 'wagmi';
-import { useEthersSigner } from '../useEthersSigner';
-import useCrossNavigate from '../../routes/useCrossNavigate';
+import { useEthersSigner } from '../useEthers';
 import { printAndParseSupportError, validateConnection } from './util';
 
 export function useSupportSingleTransferAndCall(
@@ -32,15 +30,12 @@ export function useSupportSingleTransferAndCall(
     const chainIdString = chainId.toString() as `${SupportedNetwork}`;
     const network = SupportedNetworkNames[chainId as SupportedNetwork];
 
-    const donationAmount = calculateRawTotalDonation(decimalAmountIn, 1, currencyDecimals).toFixed(
-      0,
-      Decimal.ROUND_DOWN
-    );
+    const donationAmount = calculateRawTotalDonation(decimalAmountIn, 1, currencyDecimals);
 
     try {
       const sdk = new GoodCollectiveSDK(chainIdString, signer.provider, { network });
       toggleCompleteDonationModal(true);
-      const tx = await sdk.supportSingleTransferAndCall(signer, collective, donationAmount);
+      const tx = await sdk.supportSingleTransferAndCall(signer, collective, donationAmount.toString());
       toggleCompleteDonationModal(false);
       toggleThankYouModal(true);
       await tx.wait();

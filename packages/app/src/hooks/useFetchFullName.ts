@@ -1,7 +1,7 @@
-import { ethers } from 'ethers';
 import { useMemo } from 'react';
 import { gql } from '@apollo/client';
 import { useMongoDbQuery } from './apollo/useMongoDbQuery';
+import { keccak256 } from 'viem';
 
 interface UserProfile {
   fullName?: { display?: string };
@@ -41,7 +41,7 @@ export function useFetchFullName(address?: string): string | undefined {
 export function useFetchFullNames(addresses: string[]): any {
   const addressToHashMapping = useMemo(() => {
     return addresses.reduce((acc: any, address) => {
-      const hash = ethers.utils.keccak256(address);
+      const hash = keccak256(address as '0x{string}');
       acc[hash] = address;
       return acc;
     }, {});

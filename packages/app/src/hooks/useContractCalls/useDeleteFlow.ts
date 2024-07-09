@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
 import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
 import { useAccount, useNetwork } from 'wagmi';
-import { useEthersSigner } from '../useEthersSigner';
+import { useEthersSigner } from '../useEthers';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import Decimal from 'decimal.js';
 import { printAndParseSupportError, validateConnection } from './util';

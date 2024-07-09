@@ -1,7 +1,6 @@
 import { useAccount, useContractRead, useContractWrite, useNetwork, usePrepareContractWrite } from 'wagmi';
 import { useMemo } from 'react';
 import { calculateRawTotalDonation } from '../lib/calculateRawTotalDonation';
-import Decimal from 'decimal.js';
 import { ERC20 } from '../abi/ERC20';
 import { useToken } from './useTokenList';
 
@@ -23,7 +22,7 @@ export function useApproveSwapTokenCallback(
   const tokenIn = useToken(currencyIn);
 
   const rawAmountIn = useMemo(
-    () => BigInt(calculateRawTotalDonation(decimalAmountIn, duration, tokenIn.decimals).toFixed(0, Decimal.ROUND_DOWN)),
+    () => BigInt(calculateRawTotalDonation(decimalAmountIn, duration, tokenIn.decimals)),
     [decimalAmountIn, duration, tokenIn.decimals]
   );
 

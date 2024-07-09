@@ -1,6 +1,7 @@
-import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import { Image, Text, TouchableOpacity, View, StyleSheet, ActivityIndicator } from 'react-native';
 import { InterSemiBold } from '../utils/webFonts';
 import { ForwardIcon } from '../assets';
+import { Colors } from '../utils/colors';
 
 interface RoundedButtonProps {
   title: string;
@@ -11,6 +12,7 @@ interface RoundedButtonProps {
   onPress?: () => void;
   maxWidth?: number | string;
   disabled?: boolean;
+  isLoading?: boolean;
 }
 
 function RoundedButton({
@@ -22,6 +24,7 @@ function RoundedButton({
   onPress,
   maxWidth,
   disabled,
+  isLoading,
 }: RoundedButtonProps) {
   const dynamicTextStyle = {
     color: color,
@@ -34,7 +37,9 @@ function RoundedButton({
         disabled={disabled}
         style={[styles.button, { backgroundColor, maxWidth: maxWidth ?? 'auto' }]}
         onPress={onPress}>
-        <Text style={[styles.nonSeeTypeText, dynamicTextStyle]}>{title}</Text>
+        {isLoading && <ActivityIndicator size="large" color={Colors.blue[200]} />}
+
+        {!isLoading && <Text style={[styles.nonSeeTypeText, dynamicTextStyle]}>{title}</Text>}
       </TouchableOpacity>
     );
   }

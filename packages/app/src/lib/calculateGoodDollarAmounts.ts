@@ -1,6 +1,6 @@
 import Decimal from 'decimal.js';
-import { ethers } from 'ethers';
 import { formatNumberWithCommas } from './formatFiatCurrency';
+import { formatEther } from 'viem';
 
 export type CalculatedAmounts = { decimal?: Decimal; formatted?: string; usdValue?: number };
 
@@ -13,8 +13,8 @@ export function calculateGoodDollarAmounts(onChainAmount?: string, tokenPrice?: 
       usdValue: undefined,
     };
   }
-  const decimalAmount = new Decimal(ethers.utils.formatEther(onChainAmount));
-  const formattedAmount: string = formatNumberWithCommas(decimalAmount.toFixed(2, Decimal.ROUND_DOWN));
+  const decimalAmount = new Decimal(formatEther(BigInt(onChainAmount)));
+  const formattedAmount: string = formatNumberWithCommas(formatEther(BigInt(onChainAmount)));
   const usdValue = tokenPrice ? parseFloat(decimalAmount.mul(tokenPrice).toFixed(2)) : undefined;
   return {
     decimal: decimalAmount,
@@ -24,6 +24,5 @@ export function calculateGoodDollarAmounts(onChainAmount?: string, tokenPrice?: 
 }
 
 export function formatGoodDollarAmount(onChainAmount: string): string {
-  const decimalAmount = new Decimal(ethers.utils.formatEther(onChainAmount)).toFixed(2, Decimal.ROUND_DOWN);
-  return formatNumberWithCommas(decimalAmount);
+  return formatNumberWithCommas(formatEther(BigInt(onChainAmount)));
 }

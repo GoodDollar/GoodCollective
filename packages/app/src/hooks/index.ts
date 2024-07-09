@@ -5,4 +5,4 @@ export * from './useStewardById';
 export * from './useContractCalls';
 export * from './useGetTokenPrice';
 export * from './useIsStewardVerified';
-export * from './useEthersSigner';
+export * from './useEthers';
