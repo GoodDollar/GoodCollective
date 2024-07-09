@@ -23,6 +23,7 @@ tenderly.yaml
 
 
 # secrets / env
+.env
 **/.env.*.local
 **/*.secret
 **/aws.json
