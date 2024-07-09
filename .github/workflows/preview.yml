@@ -29,7 +29,7 @@ jobs:
       - run: yarn build:contracts
       - run: yarn build:sdk
       - run: yarn vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-      - run: echo "$(cat ./vercel/project.json)"
+      - run: echo "$(cat ~/work/GoodCollective/GoodCollective/.vercel/project.json)"
       - run: yarn vercel build --token=${{ secrets.VERCEL_TOKEN }}
       - id: deploy
         run: echo "::set-output name=url::$(yarn vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})"
