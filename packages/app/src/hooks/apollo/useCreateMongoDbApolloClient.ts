@@ -46,7 +46,7 @@ export const useCreateMongoDbApolloClient = (): ApolloClient<any> | undefined =>
 
       const httpLink = new HttpLink({
         uri: mongoDbUri,
-        fetch: async (uri, options) => {
+        fetch: async (url, options) => {
           const accessToken = await getValidAccessToken();
           if (!options) {
             options = {};
@@ -55,7 +55,7 @@ export const useCreateMongoDbApolloClient = (): ApolloClient<any> | undefined =>
             options.headers = {};
           }
           (options.headers as Record<string, any>).Authorization = `Bearer ${accessToken}`;
-          return fetch(uri, options);
+          return fetch(url as string, options);
         },
       });
 

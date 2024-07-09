@@ -84,13 +84,7 @@ export function getDonateStyles(state: ButtonState): DonateStylesResult {
 
 export function getFrequencyPlural(frequency: Frequency) {
   switch (frequency) {
-    case 'Daily':
-      return 'Days';
-    case 'Weekly':
-      return 'Weeks';
     case 'Monthly':
       return 'Months';
-    case 'Yearly':
-      return 'Years';
   }
 }

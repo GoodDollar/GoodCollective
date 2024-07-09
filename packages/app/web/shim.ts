@@ -1,4 +1,4 @@
 // fix uniswap sdk issue
-globalThis.Browser = {
+(globalThis as any).Browser = {
   T: () => {},
 };
