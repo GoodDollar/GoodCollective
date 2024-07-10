@@ -13,7 +13,7 @@ import { IpfsCollective } from '../models/models';
 import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
 import { acceptablePriceImpact, Frequency, frequencyOptions, SupportedNetwork } from '../models/constants';
 import { InfoIconOrange } from '../assets';
-import { useLocation } from 'react-router-native';
+import { useParams } from 'react-router-native';
 import Decimal from 'decimal.js';
 import { formatFiatCurrency } from '../lib/formatFiatCurrency';
 import ErrorModal from './modals/ErrorModal';
@@ -35,8 +35,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 920,
   });
-  const location = useLocation();
-  const collectiveId = location.pathname.slice('/donate/'.length);
+  const { id: collectiveId = '0x' } = useParams();
 
   const { address, isConnected } = useAccount();
   const { chain } = useNetwork();
@@ -77,11 +76,12 @@ function DonateComponent({ collective }: DonateComponentProps) {
     status: swapRouteStatus,
   } = useSwapRoute(currency, decimalDonationAmount, duration);
 
-  const { handleApproveToken } = useApproveSwapTokenCallback(
+  const { handleApproveToken, isRequireApprove } = useApproveSwapTokenCallback(
     currency,
     decimalDonationAmount,
     duration,
-    (value: boolean) => setApproveSwapModalVisible(value)
+    (value: boolean) => setApproveSwapModalVisible(value),
+    collectiveId as `0x${string}`
   );
   const approvalNotReady = handleApproveToken === undefined && currency !== 'G$';
 
@@ -105,30 +105,37 @@ function DonateComponent({ collective }: DonateComponentProps) {
     } else if (currency === 'G$') {
       return await supportFlow();
     }
-    const txHash = await handleApproveToken?.();
-    if (txHash === undefined) {
-      return;
+
+    let isApproveSuccess = isRequireApprove === false;
+
+    if (isRequireApprove) {
+      const txHash = await handleApproveToken?.();
+      if (txHash === undefined) {
+        return;
+      }
+      let txReceipt: TransactionReceipt | undefined;
+      try {
+        txReceipt = await waitForTransaction({
+          chainId: chain?.id,
+          confirmations: 1,
+          hash: txHash,
+          timeout: 1000 * 60 * 5,
+        });
+        isApproveSuccess = txReceipt?.status === 'success';
+      } catch (error) {
+        setErrorMessage(
+          'Something went wrong: Your token approval transaction was not confirmed within the timeout period.'
+        );
+      }
     }
-    let txReceipt: TransactionReceipt | undefined;
-    try {
-      txReceipt = await waitForTransaction({
-        chainId: chain?.id,
-        confirmations: 1,
-        hash: txHash,
-        timeout: 1000 * 60 * 5,
-      });
-    } catch (error) {
-      setErrorMessage(
-        'Something went wrong: Your token approval transaction was not confirmed within the timeout period.'
-      );
-    }
-    if (txReceipt?.status === 'success') {
+    if (isApproveSuccess) {
       await supportFlowWithSwap();
     }
   }, [
     chain?.id,
     currency,
     frequency,
+    isRequireApprove,
     handleApproveToken,
     supportFlow,
     supportFlowWithSwap,

@@ -30,11 +30,10 @@ import {
   WebIcon,
 } from '../assets/';
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
-import FlowingDonationsRowItem from './FlowingDonationsRowItem';
 import { useDeleteFlow } from '../hooks/useContractCalls/useDeleteFlow';
 import ErrorModal from './modals/ErrorModal';
 import FlowingCurrentPoolRowItem from './FlowingCurrentPoolRowItem';
-import { defaultInfoLabel, IS_DONATING_POLL_INTERVAL } from '../models/constants';
+import { defaultInfoLabel, SUBGRAPH_POLL_INTERVAL } from '../models/constants';
 
 interface ViewCollectiveProps {
   collective: Collective;
@@ -63,7 +62,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const infoLabel = collective.ipfs.infoLabel ?? defaultInfoLabel;
 
   const { address } = useAccount();
-  const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress, IS_DONATING_POLL_INTERVAL);
+  const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress, SUBGRAPH_POLL_INTERVAL);
   const isDonating = maybeDonorCollective && maybeDonorCollective.flowRate !== '0';
 
   const [stopDonationModalVisible, setStopDonationModalVisible] = useState(false);
@@ -189,12 +188,14 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               <RowItem imageUrl={ListGreenIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
             </View>
             <View style={{ flex: 1, gap: 16 }}>
-              <FlowingDonationsRowItem
+              <FlowingCurrentPoolRowItem
                 imageUrl={ReceiveLightIcon}
                 rowInfo="Total Donations Received"
+                collective={collective.address as `0x${string}`}
                 donorCollectives={donorCollectives}
                 tokenPrice={tokenPrice}
                 currency="G$"
+                additionalBalance={totalRewards}
               />
               <RowItem
                 imageUrl={SendIcon}
@@ -282,12 +283,14 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
             <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
             <RowItem imageUrl={ListGreenIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
-            <FlowingDonationsRowItem
+            <FlowingCurrentPoolRowItem
               imageUrl={ReceiveLightIcon}
               rowInfo="Total Donations Received"
+              collective={collective.address as `0x${string}`}
               donorCollectives={donorCollectives}
               tokenPrice={tokenPrice}
               currency="G$"
+              additionalBalance={totalRewards}
             />
             <RowItem
               imageUrl={SendIcon}
@@ -371,14 +374,15 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
         </View>
         <View style={styles.container}>
           <TransactionList collective={collective.address as `0x${string}`} />
-          <RoundedButton
-            title="See all Transactions"
-            backgroundColor={Colors.purple[100]}
-            color={Colors.purple[200]}
-            fontSize={18}
-            seeType={true}
-            onPress={() => navigate('/profile/abc123/activity')}
-          />
+          <Link href={`https://explorer.celo.org/mainnet/address/${collective.address}`} isExternal>
+            <RoundedButton
+              title="See all transactions"
+              backgroundColor={Colors.purple[100]}
+              color={Colors.purple[200]}
+              fontSize={18}
+              seeType={true}
+            />
+          </Link>
         </View>
         <ErrorModal
           openModal={!!errorMessage}

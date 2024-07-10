@@ -5,6 +5,12 @@ import { useMongoDbQuery } from './apollo/useMongoDbQuery';
 
 interface UserProfile {
   fullName?: { display?: string };
+  index: {
+    walletAddress: {
+      hash: string;
+      display?: string;
+    };
+  };
 }
 
 interface UserProfilesResponse {
@@ -17,6 +23,11 @@ const findProfiles = gql`
       fullName {
         display
       }
+      index {
+        walletAddress {
+          hash
+        }
+      }
     }
   }
 `;
@@ -24,25 +35,39 @@ const findProfiles = gql`
 export function useFetchFullName(address?: string): string | undefined {
   const names = useFetchFullNames(address ? [address] : []);
   if (!names || names.length === 0) return undefined;
-  return names[0];
+  return names[address ?? ''];
 }
 
-export function useFetchFullNames(addresses: string[]): (string | undefined)[] {
-  const hashedAddresses = useMemo(() => {
-    return addresses.map((address: string) => ethers.utils.keccak256(address));
+export function useFetchFullNames(addresses: string[]): any {
+  const addressToHashMapping = useMemo(() => {
+    return addresses.reduce((acc: any, address) => {
+      const hash = ethers.utils.keccak256(address);
+      acc[hash] = address;
+      return acc;
+    }, {});
   }, [addresses]);
 
+  const hashedAddresses = Object.keys(addressToHashMapping);
+
   const { data, error } = useMongoDbQuery<UserProfilesResponse>(findProfiles, {
-    variables: { query: { index: { walletAddress: { hash_in: hashedAddresses } } } },
+    variables: {
+      query: {
+        index: { walletAddress: { hash_in: hashedAddresses } },
+      },
+    },
   });
 
   return useMemo(() => {
-    if (error) {
-      console.error(error);
-    }
     if (!data || data.user_profiles.length === 0) {
-      return [];
+      return {};
     }
-    return data.user_profiles.map((profile) => profile?.fullName?.display);
-  }, [data, error]);
+    return data.user_profiles.reduce((acc: Record<string, string>, profile) => {
+      if (!profile) return {};
+      const { hash } = profile.index.walletAddress;
+      const { display } = profile.fullName ?? {};
+      const address = addressToHashMapping[hash];
+      acc[address] = display ?? '';
+      return acc;
+    }, {});
+  }, [data, addressToHashMapping]);
 }

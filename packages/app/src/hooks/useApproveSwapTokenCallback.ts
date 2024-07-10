@@ -1,30 +1,39 @@
-import { useAccount, useContractWrite, useNetwork, usePrepareContractWrite } from 'wagmi';
+import { useAccount, useContractRead, useContractWrite, useNetwork, usePrepareContractWrite } from 'wagmi';
 import { useMemo } from 'react';
 import { calculateRawTotalDonation } from '../lib/calculateRawTotalDonation';
 import Decimal from 'decimal.js';
-import ERC20 from '../abi/ERC20.json';
+import { ERC20 } from '../abi/ERC20';
 import { useToken } from './useTokenList';
-import { UNISWAP_V3_ROUTER_ADDRESS } from '../models/constants';
 
 export function useApproveSwapTokenCallback(
   currencyIn: string,
   decimalAmountIn: number,
   duration: number,
-  toggleApproveSwapModalVisible: (value: boolean) => void
+  toggleApproveSwapModalVisible: (value: boolean) => void,
+  collectiveAddress: `0x${string}`
 ): {
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
+  isRequireApprove: boolean;
   handleApproveToken?: () => Promise<`0x${string}` | undefined>;
 } {
-  const { address } = useAccount();
+  const { address = '0x' } = useAccount();
   const { chain } = useNetwork();
   const tokenIn = useToken(currencyIn);
 
   const rawAmountIn = useMemo(
-    () => calculateRawTotalDonation(decimalAmountIn, duration, tokenIn.decimals).toFixed(0, Decimal.ROUND_DOWN),
+    () => BigInt(calculateRawTotalDonation(decimalAmountIn, duration, tokenIn.decimals).toFixed(0, Decimal.ROUND_DOWN)),
     [decimalAmountIn, duration, tokenIn.decimals]
   );
+
+  const { data: allowance = 0n } = useContractRead({
+    chainId: chain?.id,
+    address: tokenIn.address as `0x${string}`,
+    abi: ERC20,
+    functionName: 'allowance',
+    args: [address, collectiveAddress],
+  });
 
   const { config } = usePrepareContractWrite({
     chainId: chain?.id,
@@ -32,7 +41,7 @@ export function useApproveSwapTokenCallback(
     abi: ERC20,
     account: address,
     functionName: 'approve',
-    args: [UNISWAP_V3_ROUTER_ADDRESS, rawAmountIn],
+    args: [collectiveAddress, rawAmountIn],
   });
 
   const { isLoading, isSuccess, isError, writeAsync } = useContractWrite(config);
@@ -51,6 +60,7 @@ export function useApproveSwapTokenCallback(
         };
 
   return {
+    isRequireApprove: rawAmountIn > allowance,
     isLoading,
     isSuccess,
     isError,

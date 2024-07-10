@@ -21,7 +21,7 @@ interface IMembersValidator {
 }
 
 interface IIdentityV2 {
-    function getWhitelistedRoot(address member) external returns (address);
+    function getWhitelistedRoot(address member) external view returns (address);
 }
 
 /**
@@ -112,7 +112,7 @@ contract DirectPaymentsPool is
     DirectPaymentsFactory public registry;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor(ISuperfluid _host, ISwapRouter _swapRouter) GoodCollectiveSuperApp(_host, _swapRouter) {}
+    constructor(ISuperfluid _host, IV3SwapRouter _swapRouter) GoodCollectiveSuperApp(_host, _swapRouter) {}
 
     /**
      * @dev Authorizes an upgrade for the implementation contract.
@@ -120,8 +120,8 @@ contract DirectPaymentsPool is
      */
     function _authorizeUpgrade(address impl) internal virtual override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
-    function getRegistry() public view override returns (DirectPaymentsFactory) {
-        return DirectPaymentsFactory(registry);
+    function getRegistry() public view override returns (IRegistry) {
+        return IRegistry(address(registry));
     }
 
     /**
@@ -341,8 +341,22 @@ contract DirectPaymentsPool is
             }
         }
 
-        _setupRole(MEMBER_ROLE, member);
+        _grantRole(MEMBER_ROLE, member);
         return true;
+    }
+
+    function _grantRole(bytes32 role, address account) internal virtual override {
+        if (role == MEMBER_ROLE) {
+            registry.addMember(account);
+        }
+        super._grantRole(role, account);
+    }
+
+    function _revokeRole(bytes32 role, address account) internal virtual override {
+        if (role == MEMBER_ROLE) {
+            registry.removeMember(account);
+        }
+        super._revokeRole(role, account);
     }
 
     function mintNFT(address _to, ProvableNFT.NFTData memory _nftData, bool withClaim) external onlyRole(MINTER_ROLE) {

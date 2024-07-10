@@ -11,7 +11,8 @@ on:
 
 jobs:
   stale:
-
+    # temporarliy disable
+    if: false
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -28,7 +29,7 @@ jobs:
         # Number of days of inactivity before an issue becomes stale
         daysUntilStale: 60
         # Number of days of inactivity before a stale issue is closed
-        daysUntilClose: 20
+        daysUntilClose: 120
         # Issues with these labels will never be considered stale
         exemptLabels: 🗺 epic
         # Label to use when marking an issue as stale

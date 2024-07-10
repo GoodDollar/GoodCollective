@@ -1,11 +1,13 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
+import { useEnsName, useNetwork } from 'wagmi';
+
 import { InterRegular } from '../../utils/webFonts';
 import { formatAddress } from '../../lib/formatAddress';
-import { useEnsName, useNetwork } from 'wagmi';
 import { Colors } from '../../utils/colors';
 import { PlaceholderAvatar } from '../../assets';
 import { useGetTokenBalance } from '../../hooks/useGetTokenBalance';
 import { formatNumberWithCommas } from '../../lib/formatFiatCurrency';
+import { SupportedNetwork } from '../../models/constants';
 
 interface ConnectedAccountDisplayProps {
   isDesktopResolution: boolean;
@@ -17,8 +19,9 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
 
   const { chain } = useNetwork();
   let chainName = chain?.name.replace(/\d+|\s/g, '');
-  if (chainName !== 'Celo') {
-    chainName = 'None';
+
+  if (!(chainName && chainName.toUpperCase() in SupportedNetwork)) {
+    chainName = 'Unsupported Network';
   }
 
   const tokenBalance = useGetTokenBalance('G$', address, chain?.id, true);
@@ -33,7 +36,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
             <View
               style={{
                 ...styles.walletWhiteContainer,
-                width: 48,
+                minWidth: 48,
                 ...InterRegular,
               }}>
               <Text style={{ ...InterRegular }}>{chainName}</Text>

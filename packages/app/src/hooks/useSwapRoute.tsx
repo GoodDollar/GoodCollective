@@ -1,7 +1,7 @@
 import { AlphaRouter, SwapRoute, SwapType, V3Route } from '@uniswap/smart-order-router';
 import { CurrencyAmount, Percent, TradeType } from '@uniswap/sdk-core';
 import { useAccount, useNetwork } from 'wagmi';
-import { GDToken } from '../models/constants';
+import { GDToken, SupportedNetwork } from '../models/constants';
 import { useEthersSigner } from './useEthersSigner';
 import { calculateRawTotalDonation } from '../lib/calculateRawTotalDonation';
 import Decimal from 'decimal.js';
@@ -16,11 +16,13 @@ export enum SwapRouteState {
   NO_ROUTE,
 }
 
+const DEFAULT_SLIPPAGE_TOLERANCE = new Percent(100, 10_000);
+
 export function useSwapRoute(
   currencyIn: string,
   decimalAmountIn: number,
   duration: number,
-  slippageTolerance: Percent = new Percent(100, 10_000)
+  slippageTolerance: Percent = DEFAULT_SLIPPAGE_TOLERANCE
 ): {
   path?: string;
   quote?: Decimal;
@@ -37,13 +39,13 @@ export function useSwapRoute(
   const [route, setRoute] = useState<SwapRoute | undefined>(undefined);
 
   useEffect(() => {
-    if (!address || !chain?.id || !signer?.provider || tokenIn.symbol === 'G$') {
+    if (!address || !chain?.id || chain.id !== SupportedNetwork.CELO || !signer?.provider || tokenIn.symbol === 'G$') {
       setRoute(undefined);
       return;
     }
 
     const router = new AlphaRouter({
-      chainId: chain.id,
+      chainId: chain.id as number,
       provider: signer.provider,
     });
 
