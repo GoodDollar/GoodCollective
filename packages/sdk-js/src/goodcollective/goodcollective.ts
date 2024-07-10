@@ -149,7 +149,7 @@ export class GoodCollectiveSDK {
    */
   async mintNft(signer: ethers.Signer, poolAddress: string, addressTo: string, nftData: NFTData, withClaim = true) {
     const connected = this.pool.attach(poolAddress).connect(signer);
-    return connected.mintNFT(addressTo, nftData, withClaim);
+    return connected.mintNFT(addressTo, nftData, withClaim, { ...CHAIN_OVERRIDES[this.chainId] });
   }
 
   /**
@@ -231,6 +231,22 @@ export class GoodCollectiveSDK {
     ).wait();
     const created = tx.events?.find((_) => _.event === 'PoolCreated');
     return this.pool.attach(created?.args?.[0]);
+  }
+
+  /**
+   * Updates settings for a pool
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} poolAddress - The address of the pool contract.
+   * @param {DirectPaymentsPool.PoolSettingsStruct} poolSettings - The updated settings for a pool.
+   * @returns {Promise<DirectPaymentsPool>} A promise that resolves to a transaction object when the operation is complete.
+   */
+  async setPoolSettings(
+    signer: ethers.Signer,
+    poolAddress: string,
+    poolSettings: DirectPaymentsPool.PoolSettingsStruct
+  ) {
+    const connected = this.pool.attach(poolAddress).connect(signer);
+    return connected.setPoolSettings(poolSettings, { ...CHAIN_OVERRIDES[this.chainId] });
   }
 
   /**

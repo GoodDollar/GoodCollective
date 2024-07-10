@@ -22,12 +22,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: yarn
       - run: yarn install --immutable
+      - run: yarn build:contracts
+      - run: yarn build:sdk
       - run: yarn vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
       - run: yarn vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
       - run: yarn vercel deploy --prod --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
