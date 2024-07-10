@@ -3,16 +3,14 @@ import * as ethers from 'ethers';
 import GoodCollectiveContracts from '@gooddollar/goodcollective-contracts/releases/deployment.json';
 import { DirectPaymentsFactory, ProvableNFT } from '@gooddollar/goodcollective-contracts/typechain-types';
 import { GoodCollectiveSDK } from '../goodcollective';
-import { NFTStorage } from 'nft.storage';
 
-NFTStorage.prototype.storeBlob = vi.fn().mockResolvedValue('abc');
-
+GoodCollectiveSDK.prototype.savePoolToIPFS = vi.fn().mockResolvedValue('abc');
 const localProvider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
 const wallet = ethers.Wallet.fromMnemonic('test test test test test test test test test test test junk').connect(
   localProvider
 );
 const contracts =
-  GoodCollectiveContracts['31337'][GoodCollectiveContracts['31337'].findIndex((_) => _.name === 'localhost') || 0]
+  GoodCollectiveContracts['42220'][GoodCollectiveContracts['42220'].findIndex((_) => _.name === 'localhost') || 0]
     .contracts;
 
 const registry = new ethers.Contract(
@@ -54,9 +52,8 @@ const testPoolSettings = [
 ];
 describe('GoodCollective SDK', () => {
   beforeAll(async () => {
-    sdk = new GoodCollectiveSDK('31337', localProvider, {
+    sdk = new GoodCollectiveSDK('42220', localProvider, {
       network: 'localhost',
-      nftStorageKey: process.env.VITE_NFTSTORAGE_KEY,
     });
     nftProxy = await registry.nft();
     deployedNFT = new ethers.Contract(nftProxy, contracts.ProvableNFT.abi, localProvider) as ProvableNFT;
