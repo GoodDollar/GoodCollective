@@ -39,7 +39,7 @@
     "shx": "^0.3.4",
     "syncpack": "^8.2.4",
     "ts-node": "^10.9.1",
-    "vercel": "^31.2.2"
+    "vercel": "^34.3.1"
   },
   "lint-staged": {
     "packages/app/**/*.{ts,tsx}": [
