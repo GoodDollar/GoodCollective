@@ -76,20 +76,20 @@ export function subgraphCollectiveToModel(subgraphCollective: SubgraphCollective
 
 export function ipfsSubgraphCollectiveToModel(subgraphCollective: {
   id: string;
-  ipfs: SubgraphIpfsCollective;
+  ipfs?: SubgraphIpfsCollective;
 }): IpfsCollective {
   return {
-    id: subgraphCollective.ipfs.id,
+    id: subgraphCollective.ipfs?.id || '',
     collective: subgraphCollective.id,
-    name: subgraphCollective.ipfs.name,
-    description: subgraphCollective.ipfs.description,
+    name: subgraphCollective.ipfs?.name || '',
+    description: subgraphCollective.ipfs?.description || '',
     email: subgraphCollective.ipfs?.email,
     twitter: subgraphCollective.ipfs?.twitter,
     instagram: subgraphCollective.ipfs?.instagram,
     website: subgraphCollective.ipfs?.website,
     infoLabel: subgraphCollective.ipfs?.infoLabel,
-    headerImage: subgraphCollective.ipfs.headerImage,
-    logo: subgraphCollective.ipfs.logo,
+    headerImage: subgraphCollective.ipfs?.headerImage || '',
+    logo: subgraphCollective.ipfs?.logo || '',
     threads: subgraphCollective.ipfs?.threads,
     images: subgraphCollective.ipfs?.images,
   };

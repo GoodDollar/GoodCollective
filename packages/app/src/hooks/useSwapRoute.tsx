@@ -2,7 +2,7 @@ import { AlphaRouter, SwapRoute, SwapType, V3Route } from '@uniswap/smart-order-
 import { CurrencyAmount, Percent, TradeType } from '@uniswap/sdk-core';
 import { useAccount, useNetwork } from 'wagmi';
 import { GDToken, SupportedNetwork } from '../models/constants';
-import { useEthersSigner } from './useEthersSigner';
+import { useEthersProvider } from './useEthers';
 import { calculateRawTotalDonation } from '../lib/calculateRawTotalDonation';
 import Decimal from 'decimal.js';
 import { useEffect, useState } from 'react';
@@ -32,25 +32,31 @@ export function useSwapRoute(
 } {
   const { address } = useAccount();
   const { chain } = useNetwork();
-  const signer = useEthersSigner({ chainId: chain?.id });
-
+  const provider = useEthersProvider({ chainId: chain?.id });
   const tokenIn = useToken(currencyIn);
 
-  const [route, setRoute] = useState<SwapRoute | undefined>(undefined);
+  const [route, setRoute] = useState<SwapRoute | undefined | 'loading'>(undefined);
 
   useEffect(() => {
-    if (!address || !chain?.id || chain.id !== SupportedNetwork.CELO || !signer?.provider || tokenIn.symbol === 'G$') {
-      setRoute(undefined);
+    if (
+      decimalAmountIn === 0 ||
+      !address ||
+      !chain?.id ||
+      chain.id !== SupportedNetwork.CELO ||
+      !provider ||
+      tokenIn.symbol === 'G$'
+    ) {
       return;
     }
+    setRoute('loading');
 
     const router = new AlphaRouter({
       chainId: chain.id as number,
-      provider: signer.provider,
+      provider: provider,
     });
 
     const rawAmountIn = calculateRawTotalDonation(decimalAmountIn, duration, tokenIn.decimals);
-    const inputAmount = CurrencyAmount.fromRawAmount(tokenIn, rawAmountIn.toFixed(0, Decimal.ROUND_DOWN));
+    const inputAmount = CurrencyAmount.fromRawAmount(tokenIn, rawAmountIn.toString());
 
     router
       .route(
@@ -74,9 +80,12 @@ export function useSwapRoute(
         console.error(e);
         setRoute(undefined);
       });
-  }, [address, chain?.id, signer?.provider, tokenIn, decimalAmountIn, duration, slippageTolerance]);
+  }, [address, chain?.id, provider, tokenIn, decimalAmountIn, duration, slippageTolerance]);
 
-  if (!route || !route.methodParameters) {
+  if (route === 'loading') {
+    return { status: SwapRouteState.LOADING };
+  }
+  if (!route) {
     return { status: SwapRouteState.NO_ROUTE };
   } else {
     // This typecast is safe because Uniswap v2 is not deployed on Celo

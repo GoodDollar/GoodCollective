@@ -3,9 +3,7 @@ import { Colors } from '../../utils/colors';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { DonorCollective } from '../../models/models';
 import useCrossNavigate from '../../routes/useCrossNavigate';
-import Decimal from 'decimal.js';
 import { formatAddress } from '../../lib/formatAddress';
-import { ethers } from 'ethers';
 import { useEnsName } from 'wagmi';
 import { useFlowingBalance } from '../../hooks/useFlowingBalance';
 

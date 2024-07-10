@@ -2,13 +2,13 @@ import { useCallback } from 'react';
 import { Frequency, SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
 import { calculateFlowRate } from '../../lib/calculateFlowRate';
 import { calculateRawTotalDonation } from '../../lib/calculateRawTotalDonation';
-import Decimal from 'decimal.js';
 import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
 import { useAccount, useNetwork } from 'wagmi';
-import { useEthersSigner } from '../useEthersSigner';
-import useCrossNavigate from '../../routes/useCrossNavigate';
+import { useEthersSigner } from '../useEthers';
 import { Token } from '@uniswap/sdk-core';
 import { printAndParseSupportError, validateConnection } from './util';
+import { formatUnits } from 'viem';
+import { useToken } from '../useTokenList';
 
 export function useSupportFlowWithSwap(
   collective: string,
@@ -23,6 +23,8 @@ export function useSupportFlowWithSwap(
   minReturnFromSwap?: string,
   swapPath?: string
 ) {
+  const g$ = useToken('G$');
+
   const { address: maybeAddress } = useAccount();
   const { chain } = useNetwork();
   const maybeSigner = useEthersSigner({ chainId: chain?.id });
@@ -40,7 +42,12 @@ export function useSupportFlowWithSwap(
       return;
     }
 
-    const flowRate = calculateFlowRate(decimalAmountIn, duration, frequency, tokenIn.decimals);
+    const flowRate = calculateFlowRate(
+      Number(formatUnits(BigInt(minReturnFromSwap), g$.decimals)),
+      duration,
+      frequency,
+      tokenIn.decimals
+    );
     if (!flowRate) {
       onError('Failed to calculate flow rate.');
       return;
@@ -50,14 +57,12 @@ export function useSupportFlowWithSwap(
     const network = SupportedNetworkNames[chainId as SupportedNetwork];
 
     // swap values
-    const amountIn = calculateRawTotalDonation(decimalAmountIn, duration, tokenIn.decimals).toFixed(
-      0,
-      Decimal.ROUND_DOWN
-    );
+    const amountIn = calculateRawTotalDonation(decimalAmountIn, duration, tokenIn.decimals);
 
     try {
       const sdk = new GoodCollectiveSDK(chainIdString, signer.provider, { network });
       toggleCompleteDonationModal(true);
+
       const tx = await sdk.supportFlowWithSwap(signer, collective, flowRate, {
         amount: amountIn,
         minReturn: minReturnFromSwap,
@@ -82,11 +87,12 @@ export function useSupportFlowWithSwap(
     maybeSigner,
     minReturnFromSwap,
     swapPath,
-    decimalAmountIn,
+    g$.decimals,
     duration,
     frequency,
     tokenIn.decimals,
     tokenIn.address,
+    decimalAmountIn,
     onError,
     toggleCompleteDonationModal,
     collective,

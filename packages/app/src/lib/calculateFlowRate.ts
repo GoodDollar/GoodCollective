@@ -1,6 +1,6 @@
 import { Frequency } from '../models/constants';
-import Decimal from 'decimal.js';
 import { totalDurationInSeconds } from './totalDurationInSeconds';
+import { calculateRawTotalDonation } from './calculateRawTotalDonation';
 
 export const calculateFlowRate = (
   decimalAmount: number,
@@ -11,7 +11,7 @@ export const calculateFlowRate = (
   if (frequency === Frequency.OneTime) {
     return undefined;
   }
-  const rawAmount = new Decimal(decimalAmount * duration).times(10 ** currencyDecimals);
-  const totalMilliseconds = totalDurationInSeconds(duration, frequency);
-  return rawAmount.div(totalMilliseconds).toFixed(0, Decimal.ROUND_DOWN);
+  const rawAmount = calculateRawTotalDonation(decimalAmount, duration, currencyDecimals);
+  const totalSeconds = totalDurationInSeconds(duration, frequency);
+  return (rawAmount / BigInt(totalSeconds)).toString();
 };

@@ -1,6 +1,8 @@
+import './shim';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from '../src/App';
+
 // import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 // import { celo } from 'wagmi/chains';
 // import { publicProvider } from 'wagmi/providers/public';

@@ -3,6 +3,7 @@ import { useSupportFlow } from './useSupportFlow';
 import { useSupportFlowWithSwap } from './useSupportFlowWithSwap';
 import { useSupportSingleTransferAndCall } from './useSupportSingleTransferAndCall';
 import { useSupportSingleBatch } from './useSupportSingleBatch';
+import { useSupportSingleWithSwap } from './useSupportSingleWithSwap';
 import { useToken } from '../useTokenList';
 
 interface ContractCalls {
@@ -10,6 +11,7 @@ interface ContractCalls {
   supportFlow: () => Promise<void>;
   supportSingleTransferAndCall: () => Promise<void>;
   supportSingleBatch: () => Promise<void>;
+  supportSingleWithSwap: () => Promise<void>;
 }
 
 export const useContractCalls = (
@@ -70,10 +72,23 @@ export const useContractCalls = (
     toggleIsDonationComplete
   );
 
+  const supportSingleWithSwap = useSupportSingleWithSwap(
+    collective,
+    tokenIn,
+    decimalAmountIn,
+    onError,
+    toggleCompleteDonationModal,
+    toggleThankYouModal,
+    toggleIsDonationComplete,
+    minReturnFromSwap,
+    swapPath
+  );
+
   return {
     supportFlow,
     supportFlowWithSwap,
     supportSingleTransferAndCall,
     supportSingleBatch,
+    supportSingleWithSwap,
   };
 };

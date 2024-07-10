@@ -3,10 +3,6 @@ import { Frequency } from '../models/constants';
 export const totalDurationInSeconds = (duration: number, frequency: Frequency): number => {
   if (frequency === Frequency.OneTime) {
     return 0;
-  } else if (frequency === Frequency.Daily) {
-    return duration * 24 * 60 * 60;
-  } else if (frequency === Frequency.Weekly) {
-    return duration * 7 * 24 * 60 * 60;
   }
 
   const now = new Date();

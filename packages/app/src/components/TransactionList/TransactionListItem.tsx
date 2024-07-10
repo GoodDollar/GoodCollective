@@ -1,10 +1,9 @@
 import { Image, Text, View } from 'react-native';
 import { Colors } from '../../utils/colors';
 import { ReceiveIcon, SendIcon } from '../../assets';
-import Decimal from 'decimal.js';
-import { ethers } from 'ethers';
 import { Link } from 'native-base';
 import { styles } from './styles';
+import { formatEther } from 'viem';
 
 interface TransactionListItemProps {
   userIdentifier: string;
@@ -15,7 +14,7 @@ interface TransactionListItemProps {
 }
 
 function TransactionListItem({ userIdentifier, isDonation, amount, txHash, rawNetworkFee }: TransactionListItemProps) {
-  const formattedFee: string = new Decimal(ethers.utils.formatEther(rawNetworkFee ?? 0)).toString();
+  const formattedFee: string = formatEther(BigInt(rawNetworkFee ?? 0)).toString();
   const formattedHash = txHash.slice(0, 40) + '...';
 
   return (

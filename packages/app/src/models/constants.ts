@@ -1,5 +1,6 @@
 import { Token } from '@uniswap/sdk-core';
 import GdContracts from '@gooddollar/goodprotocol/releases/deployment.json';
+import env from '../lib/env';
 
 // 5%
 export const acceptablePriceImpact = 5;
@@ -9,7 +10,7 @@ export enum SupportedNetwork {
 }
 
 export const SupportedNetworkNames: Record<SupportedNetwork, string> = {
-  [SupportedNetwork.CELO]: 'celo',
+  [SupportedNetwork.CELO]: env.REACT_APP_NETWORK || 'celo',
 };
 
 // Uniswap V3 Router on Celo
@@ -25,10 +26,7 @@ export const coingeckoTokenMapping: Record<string, `0x${string}`> = {
 
 export enum Frequency {
   OneTime = 'One-Time',
-  Daily = 'Daily',
-  Weekly = 'Weekly',
   Monthly = 'Monthly',
-  Yearly = 'Yearly',
 }
 
 // constructed from Frequency

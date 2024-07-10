@@ -28,7 +28,7 @@ import { MongoDbApolloProvider } from './components/providers/MongoDbApolloProvi
 function App(): JSX.Element {
   const { publicClient, webSocketPublicClient } = configureChains(
     [celo, mainnet],
-    [infuraProvider({ apiKey: '88284fbbacd3472ca3361d1317a48fa5' }), publicProvider()]
+    [publicProvider(), infuraProvider({ apiKey: '88284fbbacd3472ca3361d1317a48fa5' })]
   );
 
   const connectors = [

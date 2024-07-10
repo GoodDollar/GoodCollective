@@ -52,22 +52,18 @@ function DonateComponent({ collective }: DonateComponentProps) {
   }
 
   const [currency, setCurrency] = useState<string>('G$');
-  const [frequency, setFrequency] = useState<Frequency>(Frequency.OneTime);
-  const [duration, setDuration] = useState(1);
+  const [frequency, setFrequency] = useState<Frequency>(Frequency.Monthly);
+  const [duration, setDuration] = useState(12);
   const [decimalDonationAmount, setDecimalDonationAmount] = useState(0);
 
   const tokenList = useTokenList();
-  const isOneTime = frequency === Frequency.OneTime;
   const currencyOptions: { value: string; label: string }[] = useMemo(() => {
     let options = Object.keys(tokenList).map((key) => ({
       value: key,
       label: key,
     }));
-    if (isOneTime) {
-      options = [options.find((option) => option.value === 'G$')!];
-    }
     return options;
-  }, [tokenList, isOneTime]);
+  }, [tokenList]);
 
   const {
     path: swapPath,
@@ -85,7 +81,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
   );
   const approvalNotReady = handleApproveToken === undefined && currency !== 'G$';
 
-  const { supportFlowWithSwap, supportFlow, supportSingleTransferAndCall } = useContractCalls(
+  const { supportFlowWithSwap, supportFlow, supportSingleTransferAndCall, supportSingleWithSwap } = useContractCalls(
     collectiveId,
     currency,
     decimalDonationAmount,
@@ -101,7 +97,11 @@ function DonateComponent({ collective }: DonateComponentProps) {
 
   const handleDonate = useCallback(async () => {
     if (frequency === Frequency.OneTime) {
-      return await supportSingleTransferAndCall();
+      if (currency === 'G$') {
+        return await supportSingleTransferAndCall();
+      } else {
+        return await supportSingleWithSwap();
+      }
     } else if (currency === 'G$') {
       return await supportFlow();
     }
@@ -140,6 +140,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
     supportFlow,
     supportFlowWithSwap,
     supportSingleTransferAndCall,
+    supportSingleWithSwap,
   ]);
 
   const currencyDecimals = useToken(currency).decimals;
@@ -151,7 +152,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const isNonZeroDonation = totalDecimalDonation.gt(0);
   const isInsufficientBalance =
     isNonZeroDonation && (!donorCurrencyBalance || totalDecimalDonation.gt(donorCurrencyBalance));
-  const isInsufficientLiquidity = isNonZeroDonation && currency !== 'G$' && swapRouteStatus !== SwapRouteState.READY;
+  const isInsufficientLiquidity = isNonZeroDonation && currency !== 'G$' && swapRouteStatus === SwapRouteState.NO_ROUTE;
   const isUnacceptablePriceImpact =
     isNonZeroDonation && currency !== 'G$' && priceImpact ? priceImpact > acceptablePriceImpact : false;
 
@@ -184,16 +185,12 @@ function DonateComponent({ collective }: DonateComponentProps) {
 
   const onChangeCurrency = (value: string) => setCurrency(value);
   const onChangeAmount = (value: string) => setDecimalDonationAmount(formatDecimalStringInput(value));
-  const onChangeFrequency = useCallback(
-    (value: string) => {
-      if (currency !== 'G$' && value === Frequency.OneTime) {
-        setCurrency('G$');
-        setDecimalDonationAmount(0);
-      }
-      setFrequency(value as Frequency);
-    },
-    [currency]
-  );
+  const onChangeFrequency = useCallback((value: string) => {
+    if (value === Frequency.OneTime) {
+      setDuration(1);
+    }
+    setFrequency(value as Frequency);
+  }, []);
   const onChangeDuration = (value: string) => setDuration(Number(value));
   const onCloseErrorModal = () => setErrorMessage(undefined);
 
@@ -245,7 +242,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
       {isDesktopResolution && (
         <View style={styles.donationCurrencyHeader}>
           <View style={styles.donationAction}>
-            <View>
+            <View style={styles.actionBox}>
               <Text style={styles.title}>Donation Currency:</Text>
               <Text style={styles.description}>You can donate using any cryptocurrency. </Text>
             </View>
@@ -446,7 +443,10 @@ function DonateComponent({ collective }: DonateComponentProps) {
                       <Text style={styles.warningTitle}>Price impace warning!</Text>
                       <Text style={styles.warningLine}>
                         Due to low liquidity between your chosen currency and GoodDollar,
-                        <Text style={{ ...InterSemiBold }}>your donation amount will reduce by 36% </Text>
+                        <Text style={{ ...InterSemiBold }}>
+                          {' '}
+                          your donation amount will reduce by {priceImpact?.toFixed(2)}%{' '}
+                        </Text>
                         when swapped.
                       </Text>
                     </View>
@@ -485,7 +485,9 @@ function DonateComponent({ collective }: DonateComponentProps) {
           fontSize={18}
           seeType={false}
           onPress={handleDonate}
+          isLoading={swapRouteStatus === SwapRouteState.LOADING}
           disabled={
+            (currency !== 'G$' && swapRouteStatus !== SwapRouteState.READY) ||
             address === undefined ||
             chain?.id === undefined ||
             !(chain.id in SupportedNetwork) ||
@@ -497,7 +499,12 @@ function DonateComponent({ collective }: DonateComponentProps) {
       <ErrorModal openModal={!!errorMessage} setOpenModal={onCloseErrorModal} message={errorMessage ?? ''} />
       <ApproveSwapModal openModal={approveSwapModalVisible} setOpenModal={setApproveSwapModalVisible} />
       <CompleteDonationModal openModal={completeDonationModalVisible} setOpenModal={setCompleteDonationModalVisible} />
-      <ThankYouModal openModal={thankYouModalVisible} address={address} collective={collective} />
+      <ThankYouModal
+        openModal={thankYouModalVisible}
+        address={address}
+        collective={collective}
+        isStream={frequency !== Frequency.OneTime}
+      />
     </View>
   );
 }

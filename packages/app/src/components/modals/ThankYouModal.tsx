@@ -9,9 +9,10 @@ interface ThankYouModalProps {
   openModal: boolean;
   address?: `0x${string}`;
   collective: IpfsCollective;
+  isStream: boolean;
 }
 
-const ThankYouModal = ({ openModal, address, collective }: ThankYouModalProps) => {
+const ThankYouModal = ({ openModal, address, collective, isStream }: ThankYouModalProps) => {
   const { navigate } = useCrossNavigate();
   const onClick = () => navigate(`/profile/${address}`);
 
@@ -21,9 +22,11 @@ const ThankYouModal = ({ openModal, address, collective }: ThankYouModalProps) =
         <View style={styles.modalView}>
           <Text style={styles.title}>THANK YOU!</Text>
           <Text style={styles.paragraph}>{`You have just donated to ${collective.name} GoodCollective!`}</Text>
-          <Text style={styles.paragraph}>
-            {`To stop your donation, visit the ${collective.name} GoodCollective page.`}
-          </Text>
+          {isStream && (
+            <Text style={styles.paragraph}>
+              {`To stop your donation, visit the ${collective.name} GoodCollective page.`}
+            </Text>
+          )}
           <Image source={ThankYouImg} alt="woman" style={styles.image} />
           <TouchableOpacity style={styles.button} onPress={onClick}>
             <Text style={styles.buttonText}>GO TO PROFILE</Text>
