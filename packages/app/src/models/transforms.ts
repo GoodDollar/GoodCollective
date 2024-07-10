@@ -98,6 +98,7 @@ export function ipfsSubgraphCollectiveToModel(subgraphCollective: {
 export function subgraphClaimToModel(subgraphClaim: SubgraphClaim): ClaimTx {
   const stewards = subgraphClaim.events.flatMap((event) => event.contributors.map((contributor) => contributor.id));
   return {
+    type: subgraphClaim.collective.type,
     hash: subgraphClaim.txHash,
     networkFee: subgraphClaim.networkFee,
     collective: subgraphClaim.collective.id,
@@ -128,5 +129,6 @@ export function subgraphSupportEventToModel(subgraphSupportEvent: SubgraphSuppor
     isFlowUpdate: subgraphSupportEvent.isFlowUpdate,
     flowRate: subgraphSupportEvent.flowRate,
     previousFlowRate: subgraphSupportEvent.previousFlowRate,
+    rewardToken: subgraphSupportEvent.collective.settings?.rewardToken,
   };
 }

@@ -33,6 +33,7 @@ export type SubgraphStewardCollective = {
 
 export type SubgraphCollective = {
   id: string;
+  type?: 'directpayments' | 'ubi';
   ipfs: SubgraphIpfsCollective;
   settings?: SubgraphPoolSettings;
   limits?: SubgraphSafetyLimits;
@@ -100,19 +101,22 @@ export type SubgraphClaimEvent = {
 
 export type SubgraphClaim = {
   id: string;
-  collective: SubgraphCollective | { id: string };
+  collective: SubgraphCollective | { id: string; type?: 'directpayments' | 'ubi'; settings?: SubgraphPoolSettings };
   txHash: string;
   networkFee: string;
   totalRewards: string;
   events: SubgraphClaimEvent[];
   timestamp: number;
+  settings: {
+    rewardToken: string;
+  };
 };
 
 export type SubgraphSupportEvent = {
   id: string; // tx hash
   networkFee: string;
   donor: SubgraphDonor | { id: string };
-  collective: SubgraphCollective | { id: string };
+  collective: SubgraphCollective | { id: string; type?: 'directpayments' | 'ubi'; settings: SubgraphPoolSettings };
   donorCollective: SubgraphDonorCollective | { id: string };
   contribution: string;
   previousContribution: string;

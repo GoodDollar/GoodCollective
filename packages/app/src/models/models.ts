@@ -70,6 +70,7 @@ export interface Transaction {
 }
 
 export interface ClaimTx extends Transaction {
+  type?: 'directpayments' | 'ubi';
   stewards: string[];
   totalRewards: string;
 }
@@ -81,4 +82,5 @@ export interface SupportTx extends Transaction {
   isFlowUpdate: boolean;
   flowRate: string;
   previousFlowRate: string;
+  rewardToken?: string;
 }

@@ -34,6 +34,7 @@ import { useDeleteFlow } from '../hooks/useContractCalls/useDeleteFlow';
 import ErrorModal from './modals/ErrorModal';
 import FlowingCurrentPoolRowItem from './FlowingCurrentPoolRowItem';
 import { defaultInfoLabel, SUBGRAPH_POLL_INTERVAL } from '../models/constants';
+import env from '../lib/env';
 
 interface ViewCollectiveProps {
   collective: Collective;
@@ -113,7 +114,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                     <Image source={AtIcon} style={styles.rowIcon} />
                   </Link>
                 )}
-                <Link href={`https://explorer.celo.org/mainnet/address/${poolAddress}`} isExternal>
+                <Link href={`${env.REACT_APP_CELO_EXPLORER}/address/${poolAddress}`} isExternal>
                   <Image source={LastRowIcon} style={styles.rowIcon} />
                 </Link>
               </View>
@@ -270,7 +271,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 <Image source={AtIcon} style={styles.rowIcon} />
               </Link>
             )}
-            <Link href={`https://explorer.celo.org/mainnet/address/${poolAddress}`} isExternal>
+            <Link href={`${env.REACT_APP_CELO_EXPLORER}/address/${poolAddress}`} isExternal>
               <Image source={LastRowIcon} style={styles.rowIcon} />
             </Link>
           </View>
@@ -374,7 +375,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
         </View>
         <View style={styles.container}>
           <TransactionList collective={collective.address as `0x${string}`} />
-          <Link href={`https://explorer.celo.org/mainnet/address/${collective.address}`} isExternal>
+          <Link href={`${env.REACT_APP_CELO_EXPLORER}/address/${collective.address}`} isExternal>
             <RoundedButton
               title="See all transactions"
               backgroundColor={Colors.purple[100]}

@@ -1,19 +1,30 @@
 import { Image, Text, View } from 'react-native';
 import { Colors } from '../../utils/colors';
-import { ReceiveIcon, SendIcon } from '../../assets';
 import { Link } from 'native-base';
 import { styles } from './styles';
 import { formatEther } from 'viem';
+import env from '../../lib/env';
 
 interface TransactionListItemProps {
   userIdentifier: string;
   isDonation?: boolean;
+  isStream?: boolean;
   amount: JSX.Element;
   txHash: string;
+  explorerLink?: string;
   rawNetworkFee: string;
+  icon: any;
 }
 
-function TransactionListItem({ userIdentifier, isDonation, amount, txHash, rawNetworkFee }: TransactionListItemProps) {
+function TransactionListItem({
+  userIdentifier,
+  isDonation,
+  amount,
+  txHash,
+  explorerLink,
+  rawNetworkFee,
+  icon,
+}: TransactionListItemProps) {
   const formattedFee: string = formatEther(BigInt(rawNetworkFee ?? 0)).toString();
   const formattedHash = txHash.slice(0, 40) + '...';
 
@@ -25,9 +36,9 @@ function TransactionListItem({ userIdentifier, isDonation, amount, txHash, rawNe
         <View style={[styles.bar, { backgroundColor: Colors.orange[100] }]} />
       )}
       {isDonation ? (
-        <Image source={{ uri: ReceiveIcon }} style={styles.rowIcon} />
+        <Image source={{ uri: icon }} style={styles.rowIcon} />
       ) : (
-        <Image source={{ uri: SendIcon }} style={styles.rowIcon} />
+        <Image source={{ uri: icon }} style={styles.rowIcon} />
       )}
       <View style={{ flex: 1 }}>
         <View style={styles.txDetails}>
@@ -37,7 +48,7 @@ function TransactionListItem({ userIdentifier, isDonation, amount, txHash, rawNe
             {amount}
           </View>
         </View>
-        <Link href={`https://explorer.celo.org/mainnet/tx/${txHash}`} isExternal>
+        <Link href={explorerLink ?? `${env.REACT_APP_CELO_EXPLORER}/tx/${txHash}`} isExternal>
           <Text style={styles.hash}>{formattedHash}</Text>
         </Link>
         <View>

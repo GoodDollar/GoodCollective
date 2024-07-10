@@ -7,11 +7,18 @@ import { formatGoodDollarAmount } from '../../lib/calculateGoodDollarAmounts';
 import { Text } from 'react-native';
 import { useMemo } from 'react';
 import { styles } from './styles';
+import { ClaimTX, PayoutTX } from '../../assets';
 
 interface ClaimTransactionListItemProps {
   transaction: ClaimTx;
 }
 
+const getTxIcon = (transaction: ClaimTx) => {
+  if (transaction.type === 'ubi') {
+    return ClaimTX;
+  }
+  return PayoutTX;
+};
 export function ClaimTransactionListItem({ transaction }: ClaimTransactionListItemProps) {
   const { hash, networkFee, stewards, totalRewards } = transaction;
 
@@ -35,6 +42,7 @@ export function ClaimTransactionListItem({ transaction }: ClaimTransactionListIt
 
   return (
     <TransactionListItem
+      icon={getTxIcon(transaction)}
       userIdentifier={userIdentifier}
       isDonation={false}
       amount={amount}

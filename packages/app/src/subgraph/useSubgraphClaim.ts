@@ -8,6 +8,9 @@ const claimsByCollective = gql`
       id
       collective {
         id
+        settings {
+          rewardToken
+        }
       }
       txHash
       networkFee
