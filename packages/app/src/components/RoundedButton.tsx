@@ -37,9 +37,7 @@ function RoundedButton({
         disabled={disabled}
         style={[styles.button, { backgroundColor, maxWidth: maxWidth ?? 'auto' }]}
         onPress={onPress}>
-        {isLoading && <ActivityIndicator size="large" color={Colors.blue[200]} />}
-
-        {!isLoading && <Text style={[styles.nonSeeTypeText, dynamicTextStyle]}>{title}</Text>}
+        {isLoading ? (<ActivityIndicator size="large" color={Colors.blue[200]} />) :  (<Text style={[styles.nonSeeTypeText, dynamicTextStyle]}>{title}</Text>)}
       </TouchableOpacity>
     );
   }
