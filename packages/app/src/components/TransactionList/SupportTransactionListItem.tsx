@@ -7,15 +7,16 @@ import { useFetchFullName } from '../../hooks/useFetchFullName';
 import { formatGoodDollarAmount } from '../../lib/calculateGoodDollarAmounts';
 import { Text } from 'react-native';
 import { useMemo } from 'react';
-import { FlowingBalance } from '../FlowingBalance';
 import { styles } from './styles';
+import { totalDurationInSeconds } from '../../lib/totalDurationInSeconds';
+import { Frequency } from '../../models/constants';
 
 interface SupportTransactionListItemProps {
   transaction: SupportTx;
 }
 
 export function SupportTransactionListItem({ transaction }: SupportTransactionListItemProps) {
-  const { hash, networkFee, timestamp, donor } = transaction;
+  const { hash, networkFee, donor } = transaction;
 
   const userAddress = donor as `0x${string}`;
   const { data: ensName } = useEnsName({ address: userAddress, chainId: 1 });
@@ -24,13 +25,18 @@ export function SupportTransactionListItem({ transaction }: SupportTransactionLi
 
   const flowingAmount = useMemo(() => {
     return transaction.isFlowUpdate ? (
-      <FlowingBalance
-        balance={transaction.contribution}
-        balanceTimestamp={timestamp}
-        flowRate={transaction.flowRate}
-        tokenPrice={undefined}
-        style={styles.amount}
-      />
+      <Text style={styles.amount}>
+        {
+          // flowRate = 0, donation stream stopped, we show what was previously the donation.
+          formatGoodDollarAmount(
+            (
+              Number(transaction.flowRate === '0' ? transaction.previousFlowRate : transaction.flowRate) *
+              totalDurationInSeconds(1, Frequency.Monthly)
+            ).toString()
+          )
+        }{' '}
+        / Month
+      </Text>
     ) : (
       <Text style={styles.amount}>
         {formatGoodDollarAmount(
@@ -40,10 +46,10 @@ export function SupportTransactionListItem({ transaction }: SupportTransactionLi
     );
   }, [
     transaction.isFlowUpdate,
-    transaction.contribution,
     transaction.flowRate,
+    transaction.previousFlowRate,
+    transaction.contribution,
     transaction.previousContribution,
-    timestamp,
   ]);
 
   return (
