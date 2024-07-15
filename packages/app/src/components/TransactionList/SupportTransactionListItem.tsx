@@ -9,6 +9,8 @@ import { Text } from 'react-native';
 import { useMemo } from 'react';
 import { styles } from './styles';
 import { DonationTX, StreamStopTX, StreamTX } from '../../assets';
+import { totalDurationInSeconds } from '../../lib/totalDurationInSeconds';
+import { Frequency } from '../../models/constants';
 import env from '../../lib/env';
 
 interface SupportTransactionListItemProps {
@@ -33,15 +35,15 @@ export function SupportTransactionListItem({ transaction }: SupportTransactionLi
   const flowingAmount = useMemo(() => {
     return transaction.isFlowUpdate ? (
       <Text style={styles.amount}>
-        {formatGoodDollarAmount(
-          (
-            Number(transaction.flowRate === '0' ? transaction.previousFlowRate : transaction.flowRate) *
-            60 *
-            60 *
-            24 *
-            30
-          ).toString()
-        )}{' '}
+        {
+          // flowRate = 0, donation stream stopped, we show what was previously the donation.
+          formatGoodDollarAmount(
+            (
+              Number(transaction.flowRate === '0' ? transaction.previousFlowRate : transaction.flowRate) *
+              totalDurationInSeconds(1, Frequency.Monthly)
+            ).toString()
+          )
+        }{' '}
         / Month
       </Text>
     ) : (
@@ -51,7 +53,13 @@ export function SupportTransactionListItem({ transaction }: SupportTransactionLi
         )}
       </Text>
     );
-  }, [transaction]);
+  }, [
+    transaction.isFlowUpdate,
+    transaction.flowRate,
+    transaction.previousFlowRate,
+    transaction.contribution,
+    transaction.previousContribution,
+  ]);
 
   return (
     <TransactionListItem
