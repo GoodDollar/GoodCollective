@@ -90,8 +90,9 @@ export class GoodCollectiveSDK {
     const opts = {
       chainId: Number(chainId),
       provider: readProvider,
-      resolverAddress: SF_RESOLVERS[chainId],
-      protocolReleaseVersion: chainId === '31337' ? 'test' : undefined,
+      resolverAddress:
+        options.network === 'localhost' ? '0x02330b5Be8EBD0D4d354813a7BB535140A77C881' : SF_RESOLVERS[chainId],
+      protocolReleaseVersion: options.network === 'localhost' ? 'test' : undefined,
     };
 
     this.superfluidSDK = Framework.create(opts);
@@ -378,6 +379,22 @@ export class GoodCollectiveSDK {
     const op = flowAction;
 
     return op.exec(signer);
+  }
+
+  async getFlow(
+    signerOrProvider: ethers.Signer | ethers.providers.Provider,
+    poolAddress: string,
+    memberAddress: string
+  ) {
+    const sdk = await this.superfluidSDK;
+    const token = (await this.pool.attach(poolAddress).settings()).rewardToken;
+    const st = await sdk.loadSuperToken(token);
+    const hasFlow = await st.getFlow({
+      receiver: poolAddress,
+      sender: memberAddress,
+      providerOrSigner: signerOrProvider,
+    });
+    return hasFlow;
   }
 
   /**
