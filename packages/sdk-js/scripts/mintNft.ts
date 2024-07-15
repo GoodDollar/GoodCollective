@@ -6,13 +6,11 @@ import { config } from 'dotenv';
 config();
 const provider = new ethers.providers.JsonRpcProvider('https://forno.celo.org', 42220);
 
-const wallet = new ethers.Wallet('<private key here>').connect(provider);
-const sdk = new GoodCollectiveSDK('42220', provider, {
-  nftStorageKey: '<your nft storage key>',
-});
+const wallet = new ethers.Wallet(process.env.PRIVATE_KEY || '').connect(provider);
+const sdk = new GoodCollectiveSDK('42220', provider, {});
 
 const toMint = {
-  nftType: 12,
+  nftType: 2,
   version: 1,
   nftUri: 'ipfs://test' + Math.random(),
   events: [
@@ -21,20 +19,22 @@ const toMint = {
       timestamp: 1703201748,
       quantity: ethers.BigNumber.from(2),
       eventUri: 'ipfs://event2',
-      contributers: ['<array of stewards addresses here>'],
+      contributers: ['0xeb5F9154df027DE8A7417D58d5c2EFa311A440C9'],
       rewardOverride: ethers.BigNumber.from(0),
     },
   ],
 };
 
 const mintNft = async () => {
-  await sdk.mintNft(
+  const tx = await sdk.mintNft(
     wallet,
-    '<pool address, created with createPool>',
-    '<steward address>',
+    '0x5dd23da6e1635928fa7f4fa2d8d8d623aa9c89ee',
+    '0xeb5F9154df027DE8A7417D58d5c2EFa311A440C9',
     toMint,
-    '<should it automatically claim the reward for steward or not>'
+    true
   );
+  console.log(tx.hash);
+  console.log(await tx.wait());
 };
 
 mintNft();

@@ -10,7 +10,7 @@ export enum SupportedNetwork {
 }
 
 export const SupportedNetworkNames: Record<SupportedNetwork, string> = {
-  [SupportedNetwork.CELO]: env.REACT_APP_NETWORK || 'celo',
+  [SupportedNetwork.CELO]: env.REACT_APP_NETWORK,
 };
 
 // Uniswap V3 Router on Celo

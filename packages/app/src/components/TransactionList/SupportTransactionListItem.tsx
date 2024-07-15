@@ -8,13 +8,22 @@ import { formatGoodDollarAmount } from '../../lib/calculateGoodDollarAmounts';
 import { Text } from 'react-native';
 import { useMemo } from 'react';
 import { styles } from './styles';
+import { DonationTX, StreamStopTX, StreamTX } from '../../assets';
 import { totalDurationInSeconds } from '../../lib/totalDurationInSeconds';
 import { Frequency } from '../../models/constants';
+import env from '../../lib/env';
 
 interface SupportTransactionListItemProps {
   transaction: SupportTx;
 }
 
+const getTxIcon = (transaction: SupportTx) => {
+  if (transaction.isFlowUpdate) {
+    if (transaction.flowRate === '0') return StreamStopTX;
+    else return StreamTX;
+  }
+  return DonationTX;
+};
 export function SupportTransactionListItem({ transaction }: SupportTransactionListItemProps) {
   const { hash, networkFee, donor } = transaction;
 
@@ -54,6 +63,12 @@ export function SupportTransactionListItem({ transaction }: SupportTransactionLi
 
   return (
     <TransactionListItem
+      isStream={transaction.isFlowUpdate}
+      explorerLink={
+        // ? `${env.REACT_APP_SUPERFLUID_EXPLORER}/streams/${donor}-${transaction.collective}-${transaction.rewardToken}-0.0`
+        transaction.isFlowUpdate ? `${env.REACT_APP_SUPERFLUID_EXPLORER}/accounts/${donor}?tab=streams` : undefined
+      }
+      icon={getTxIcon(transaction)}
       userIdentifier={userIdentifier}
       isDonation={true}
       amount={flowingAmount}

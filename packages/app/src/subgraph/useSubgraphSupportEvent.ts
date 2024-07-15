@@ -12,6 +12,9 @@ const supportEventsByCollective = gql`
       }
       collective {
         id
+        settings {
+          rewardToken
+        }
       }
       donorCollective {
         id

@@ -9,6 +9,7 @@ import { isSupportTx } from '../../models/typeUtil';
 import { ClaimTransactionListItem } from './ClaimTransactionListItem';
 import { SupportTransactionListItem } from './SupportTransactionListItem';
 import { SUBGRAPH_POLL_INTERVAL } from '../../models/constants';
+import env from '../../lib/env';
 
 interface TransactionListProps {
   collective: `0x${string}`;
@@ -41,7 +42,7 @@ function TransactionList({ collective }: TransactionListProps) {
           )}
       </View>
       {isDesktopResolution && transactions.length > 5 && (
-        <Link href={`https://explorer.celo.org/mainnet/address/${collective}`} isExternal style={styles.showMoreButton}>
+        <Link href={`${env.REACT_APP_CELO_EXPLORER}/address/${collective}`} isExternal style={styles.showMoreButton}>
           <Text style={styles.showMoreText}>Show more</Text>
           <Image source={chevronDown} style={styles.showMoreIcon} />
         </Link>
