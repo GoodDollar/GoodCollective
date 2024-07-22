@@ -16,7 +16,7 @@ import DonatePage from './pages/DonatePage';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import { celo, mainnet } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
-import { infuraProvider } from 'wagmi/providers/infura';
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import { ApolloProvider } from '@apollo/client';
@@ -25,11 +25,18 @@ import { Colors } from './utils/colors';
 import { useCreateSubgraphApolloClient, useCreateMongoDbApolloClient } from './hooks/apollo';
 import { MongoDbApolloProvider } from './components/providers/MongoDbApolloProvider';
 
+const celoProvider = jsonRpcProvider({
+  rpc: (chain) => {
+    if (chain.id === 42220) {
+      return {
+        http: 'https://rpc.ankr.com/celo',
+      };
+    }
+    return null;
+  },
+});
 function App(): JSX.Element {
-  const { publicClient, webSocketPublicClient } = configureChains(
-    [celo, mainnet],
-    [publicProvider(), infuraProvider({ apiKey: '88284fbbacd3472ca3361d1317a48fa5' })]
-  );
+  const { publicClient, webSocketPublicClient } = configureChains([celo, mainnet], [publicProvider(), celoProvider]);
 
   const connectors = [
     new MetaMaskConnector({

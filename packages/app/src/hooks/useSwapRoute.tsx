@@ -1,4 +1,11 @@
-import { AlphaRouter, SwapRoute, SwapType, V3Route } from '@uniswap/smart-order-router';
+import {
+  AlphaRouter,
+  OnChainQuoteProvider,
+  SwapRoute,
+  SwapType,
+  UniswapMulticallProvider,
+  V3Route,
+} from '@uniswap/smart-order-router';
 import { CurrencyAmount, Percent, TradeType } from '@uniswap/sdk-core';
 import { useAccount, useNetwork } from 'wagmi';
 import { GDToken, SupportedNetwork } from '../models/constants';
@@ -53,6 +60,30 @@ export function useSwapRoute(
     const router = new AlphaRouter({
       chainId: chain.id as number,
       provider: provider,
+      onChainQuoteProvider: new OnChainQuoteProvider(
+        chain.id as number,
+        provider,
+        new UniswapMulticallProvider(chain.id as number, provider, 5_000_000),
+        {
+          retries: 2,
+          minTimeout: 100,
+          maxTimeout: 1000,
+        },
+        // this settings are required to solve multicall gas issue with forno
+        {
+          multicallChunk: 10,
+          gasLimitPerCall: 2_000_000,
+          quoteMinSuccessRate: 0.1,
+        },
+        {
+          gasLimitOverride: 2_000_000,
+          multicallChunk: 5,
+        },
+        {
+          gasLimitOverride: 6_250_000,
+          multicallChunk: 4,
+        }
+      ),
     });
 
     const rawAmountIn = calculateRawTotalDonation(decimalAmountIn, duration, tokenIn.decimals);
@@ -77,7 +108,7 @@ export function useSwapRoute(
         setRoute(swapRoute ?? undefined);
       })
       .catch((e) => {
-        console.error(e);
+        console.error('failed to get route:', e, { inputAmount, tokenIn, GDToken });
         setRoute(undefined);
       });
   }, [address, chain?.id, provider, tokenIn, decimalAmountIn, duration, slippageTolerance]);

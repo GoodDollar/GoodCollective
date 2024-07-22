@@ -41,6 +41,5 @@ export function useEthersSigner({ chainId }: { chainId?: number } = {}) {
 
 export function useEthersProvider({ chainId }: { chainId?: number } = {}) {
   const publicClient = usePublicClient({ chainId });
-  console.log({ chainId, publicClient });
   return useMemo(() => (publicClient ? clientToProvider(publicClient) : undefined), [publicClient]);
 }

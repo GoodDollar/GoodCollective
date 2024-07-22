@@ -1,3 +1,2 @@
-export default {
-  ...process.env,
-};
+import { defaults } from './defaults';
+export default { ...defaults, ...process.env };

@@ -14,7 +14,7 @@ export const useGetTokenBalance = (
   const token = useToken(currencySymbol);
 
   useEffect(() => {
-    if (!accountAddress || chainId !== SupportedNetwork.CELO) return;
+    if (!token || !accountAddress || chainId !== SupportedNetwork.CELO) return;
     fetchBalance({
       address: accountAddress,
       chainId: chainId,
@@ -27,7 +27,7 @@ export const useGetTokenBalance = (
       .catch((e) => {
         console.error(e);
       });
-  }, [currencySymbol, token.address, accountAddress, chainId, formatted]);
+  }, [currencySymbol, token, accountAddress, chainId, formatted]);
 
   return tokenBalance;
 };
