@@ -156,7 +156,8 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
             //start early cycle if daily pool size is +%5 previous pool or not enough until end of cycle
             uint256 nextDailyPool = currentBalance / cycleLength;
             bool shouldStartEarlyCycle = nextDailyPool > (status.dailyCyclePool * 105) / 100 ||
-                currentBalance < (status.dailyCyclePool * (cycleLength - currentDayInCycle()));
+                (currentDayInCycle() <= cycleLength &&
+                    currentBalance < (status.dailyCyclePool * (cycleLength - currentDayInCycle())));
 
             if (
                 currentDayInCycle() >= status.currentCycleLength || shouldStartEarlyCycle
@@ -335,7 +336,8 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         //start early cycle if we can increase the daily UBI pool
         uint256 nextDailyPool = currentBalance / ubiSettings.cycleLengthDays;
         bool shouldStartEarlyCycle = nextDailyPool > (status.dailyCyclePool * 105) / 100 ||
-            currentBalance < (status.dailyCyclePool * (status.currentCycleLength - currentDayInCycle()));
+            (currentDayInCycle() <= status.currentCycleLength &&
+                currentBalance < (status.dailyCyclePool * (status.currentCycleLength - currentDayInCycle())));
 
         uint256 _dailyCyclePool = status.dailyCyclePool;
         uint256 _dailyUbi;
