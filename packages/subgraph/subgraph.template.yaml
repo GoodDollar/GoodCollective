@@ -29,6 +29,32 @@ dataSources:
         - event: PoolVerifiedChanged(indexed address,bool)
           handler: handlePoolVerifiedChange
       file: ./src/mappings/poolFactory.ts
+  - kind: ethereum/contract
+    name: UBIPoolFactory
+    # prettier-ignore
+    network: {{network}}
+    source:
+      address: '{{UBIPoolFactoryAddress}}'
+      abi: UBIPoolFactory
+      startBlock: {{startBlockUbi}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Collective
+        - UBIPool
+      abis:
+        - name: UBIPoolFactory
+          file: ./abis/UBIPoolFactory.json
+      eventHandlers:
+        - event: PoolCreated(indexed address,indexed string,string,(address,address,address,address),(uint32,uint32,uint32,bool,uint256,uint32,bool))
+          handler: handleUBIPoolCreated
+        - event: PoolDetailsChanged(indexed address,string)
+          handler: handlePoolDetailsChanged
+        - event: PoolVerifiedChanged(indexed address,bool)
+          handler: handlePoolVerifiedChange
+      file: ./src/mappings/poolFactory.ts
 
   - kind: ethereum
     name: ProvableNFT
@@ -84,6 +110,36 @@ templates:
         - event: SupporterUpdated(indexed address,uint256,uint256,int96,int96,bool)
           handler: handleSupport
       file: ./src/mappings/pool.ts
+  - kind: ethereum/contract
+    name: UBIPool
+    # prettier-ignore
+    network: {{network}}
+    source:
+      abi: UBIPool
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - UBIPool
+        - UBILimits
+        - PoolSettings
+        - Claim
+        - Donor
+      abis:
+        - name: UBIPool
+          file: ./abis/UBIPool.json
+      eventHandlers:
+        - event: PoolSettingsChanged((address,address,address,address))
+          handler: handlePoolSettingsChange
+        - event: UBISettingsChanged((uint32,uint32,uint32,bool,uint256,uint32,bool))
+          handler: handleUBISettingsChange
+        - event: UBIClaimed(indexed address,indexed address,uint256)
+          handler: handleUBIClaim
+        - event: SupporterUpdated(indexed address,uint256,uint256,int96,int96,bool)
+          handler: handleSupport
+      file: ./src/mappings/ubipool.ts
+  
   - kind: file/ipfs
     name: IpfsMetaData
     mapping:

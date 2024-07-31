@@ -124,6 +124,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         registry = _registry;
         settings = _settings;
         ubiSettings = _ubiSettings;
+        _verifyPoolSettings(_settings);
         _verifyUBISettings(_ubiSettings);
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(MANAGER_ROLE, _settings.manager);
@@ -321,7 +322,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
      * @param _settings The new pool settings.
      */
     function setPoolSettings(PoolSettings memory _settings) public onlyRole(MANAGER_ROLE) {
-        if (_settings.manager == address(0)) revert EMPTY_MANAGER();
+        _verifyPoolSettings(_settings);
 
         if (_settings.manager != settings.manager) {
             _revokeRole(MANAGER_ROLE, settings.manager);
@@ -329,6 +330,14 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         }
         settings = _settings;
         emit PoolSettingsChanged(_settings);
+    }
+
+    function _verifyPoolSettings(PoolSettings memory _poolSettings) internal pure {
+        if (
+            _poolSettings.manager == address(0) ||
+            address(_poolSettings.uniquenessValidator) == address(0) ||
+            address(_poolSettings.rewardToken) == address(0)
+        ) revert INVALID_0_VALUE();
     }
 
     function estimateNextDailyUBI() public view returns (uint256) {

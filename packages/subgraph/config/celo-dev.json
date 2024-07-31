@@ -3,5 +3,6 @@
   "UBIPoolFactoryAddress": "0x4602C5F43A9961E430247D3Fb2d5450285080754",
   "DirectPaymentsFactoryAddress": "0xb1C7F09156d04BFf6F412447A73a0F72929b6ea4",
   "ProvableNFTAddress": "0x251EEBd7d9469bbcc02Ef23c95D902Cbb7fD73B3",
-  "startBlock": "26482890"
+  "startBlock": 26191405,
+  "startBlockUbi": 26191405
 }

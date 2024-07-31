@@ -16,7 +16,7 @@ import {
   StewardCollective,
 } from '../../generated/schema';
 
-export * from './superApp'
+export * from './superApp';
 
 export function handlePoolSettingsChange(event: PoolSettingsChanged): void {
   const poolSettings = event.params.settings;
@@ -138,6 +138,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
       steward = new Steward(stewardAddress);
       steward.actions = 0;
       steward.totalEarned = BigInt.fromI32(0);
+      steward.totalUBIEarned = BigInt.fromI32(0);
       steward.nfts = new Array<string>();
     }
     const stewardNfts = steward.nfts;

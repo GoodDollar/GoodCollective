@@ -42,6 +42,9 @@ type Steward @entity {
   """
   actions: Int!
   totalEarned: BigInt!
+
+  totalUBIEarned: BigInt!
+
   """
   NFT's minted to steward
   """
@@ -63,11 +66,18 @@ type StewardCollective @entity {
   totalEarned: BigInt!
 }
 
+enum PoolType {
+  DirectPayments
+  UBI
+}
+
 type Collective @entity {
   id: String! # pool address
+  pooltype: PoolType!
   ipfs: IpfsCollective
   settings: PoolSettings!
-  limits: SafetyLimits!
+  ubiLimits: UBILimits
+  limits: SafetyLimits
   donors: [DonorCollective!] @derivedFrom(field: "collective")
   stewards: [StewardCollective!] @derivedFrom(field: "collective")
   projectId: String!
@@ -84,6 +94,7 @@ type IpfsCollective @entity {
   id: String! # ipfs hash
   name: String!
   description: String!
+  rewardDescription: String
   email: String
   website: String
   twitter: String
@@ -102,6 +113,21 @@ type PoolSettings @entity {
   membersValidator: Bytes!
   uniquenessValidator: Bytes!
   rewardToken: Bytes!
+}
+
+type UBILimits @entity {
+  id: String! # collective address
+  # number of days of each UBI pool cycle
+  cycleLengthDays: BigInt!
+  # how often can someone claim their UBI
+  claimPeriodDays: BigInt!
+  # minimum amount of users to divide the pool for, renamed from defaultDailyUbi
+  minActiveUsers: BigInt!
+  # can you trigger claim for someone else
+  claimForEnabled: Boolean!
+  maxClaimAmount: BigInt!
+  maxClaimers: BigInt!
+  onlyMembers: Boolean!
 }
 
 type SafetyLimits @entity {

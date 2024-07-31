@@ -4,8 +4,11 @@ import {
   PoolDetailsChanged,
   PoolVerifiedChanged,
 } from '../../generated/DirectPaymentsFactory/DirectPaymentsFactory';
-import { Collective, PoolSettings, SafetyLimits } from '../../generated/schema';
-import { DirectPaymentsPool, IpfsMetaData } from '../../generated/templates';
+
+import { PoolCreated as UBIPoolCreated } from '../../generated/UBIPoolFactory/UBIPoolFactory';
+
+import { Collective, PoolSettings, SafetyLimits, UBILimits } from '../../generated/schema';
+import { DirectPaymentsPool, IpfsMetaData, UBIPool } from '../../generated/templates';
 
 export function handlePoolDetailsChanged(event: PoolDetailsChanged): void {
   const poolAddress = event.params.pool;
@@ -49,6 +52,7 @@ export function handlePoolCreated(event: PoolCreated): void {
     const directPaymentPoolLimits = new SafetyLimits(poolAddress);
 
     // Pool
+    directPaymentPool.pooltype = 'DirectPayments';
     directPaymentPool.ipfs = ipfsHash;
     directPaymentPool.projectId = projectID;
     directPaymentPool.isVerified = false;
@@ -78,6 +82,58 @@ export function handlePoolCreated(event: PoolCreated): void {
     directPaymentPoolLimits.save();
     directPaymentPool.save();
     DirectPaymentsPool.create(event.params.pool);
+    IpfsMetaData.create(ipfsHash);
+  }
+}
+
+export function handleUBIPoolCreated(event: UBIPoolCreated): void {
+  const poolAddress = event.params.pool.toHexString();
+  const projectID = event.params.projectId.toHexString();
+  const ipfsHash = event.params.ipfs;
+
+  const poolSettings = event.params.poolSettings;
+  const poolLimits = event.params.poolLimits;
+
+  let ubiPool = Collective.load(poolAddress);
+  if (ubiPool === null) {
+    ubiPool = new Collective(poolAddress);
+    const ubiPoolSettings = new PoolSettings(poolAddress);
+    const ubiPoolLimits = new UBILimits(poolAddress);
+
+    // Pool
+    ubiPool.pooltype = 'UBI';
+    ubiPool.ipfs = ipfsHash;
+    ubiPool.projectId = projectID;
+    ubiPool.isVerified = false;
+    ubiPool.poolFactory = event.address.toHexString();
+    ubiPool.timestamp = event.block.timestamp.toI32();
+    ubiPool.paymentsMade = 0;
+    ubiPool.totalDonations = new BigInt(0);
+    ubiPool.totalRewards = new BigInt(0);
+
+    // Pool Settings
+    ubiPoolSettings.nftType = BigInt.zero();
+    ubiPoolSettings.manager = poolSettings.manager;
+    ubiPoolSettings.membersValidator = poolSettings.membersValidator;
+    ubiPoolSettings.uniquenessValidator = poolSettings.uniquenessValidator;
+    ubiPoolSettings.rewardToken = poolSettings.rewardToken;
+
+    ubiPoolLimits.claimForEnabled = poolLimits.claimForEnabled;
+    ubiPoolLimits.claimPeriodDays = poolLimits.claimPeriodDays;
+    ubiPoolLimits.cycleLengthDays = poolLimits.cycleLengthDays;
+    ubiPoolLimits.maxClaimAmount = poolLimits.maxClaimAmount;
+    ubiPoolLimits.maxClaimers = poolLimits.maxClaimers;
+    ubiPoolLimits.minActiveUsers = poolLimits.minActiveUsers;
+    ubiPoolLimits.onlyMembers = poolLimits.onlyMembers;
+
+    // update and save pool
+    ubiPool.settings = ubiPoolSettings.id;
+    ubiPool.ubiLimits = ubiPoolLimits.id;
+
+    ubiPoolSettings.save();
+    ubiPoolLimits.save();
+    ubiPool.save();
+    UBIPool.create(event.params.pool);
     IpfsMetaData.create(ipfsHash);
   }
 }

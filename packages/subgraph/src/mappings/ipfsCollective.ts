@@ -22,6 +22,9 @@ export function handleCreateIpfsCollective(data: Bytes): void {
 
   ipfsCollective.name = jsonObject.isSet('name') ? jsonObject.get('name')!!.toString() : '';
   ipfsCollective.description = jsonObject.isSet('description') ? jsonObject.get('description')!!.toString() : '';
+  ipfsCollective.rewardDescription = jsonObject.isSet('rewardDescription')
+    ? jsonObject.get('rewardDescription')!!.toString()
+    : '';
   ipfsCollective.email = jsonObject.isSet('email') ? jsonObject.get('email')!!.toString() : null;
   ipfsCollective.website = jsonObject.isSet('website') ? jsonObject.get('website')!!.toString() : null;
   ipfsCollective.twitter = jsonObject.isSet('twitter') ? jsonObject.get('twitter')!!.toString() : null;
@@ -32,9 +35,9 @@ export function handleCreateIpfsCollective(data: Bytes): void {
   ipfsCollective.logo = jsonObject.isSet('logo') ? jsonObject.get('logo')!!.toString() : '';
   ipfsCollective.images = jsonObject.isSet('images')
     ? jsonObject
-      .get('images')!!
-      .toArray()
-      .map<string>((value) => value.toString())
+        .get('images')!!
+        .toArray()
+        .map<string>((value) => value.toString())
     : null;
 
   ipfsCollective.save();
