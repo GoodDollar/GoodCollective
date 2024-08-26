@@ -7,7 +7,7 @@ import { Colors } from '../../utils/colors';
 import { PlaceholderAvatar } from '../../assets';
 import { useGetTokenBalance } from '../../hooks/useGetTokenBalance';
 import { formatNumberWithCommas } from '../../lib/formatFiatCurrency';
-import { SupportedNetwork } from '../../models/constants';
+import { GDToken, SupportedNetwork } from '../../models/constants';
 
 interface ConnectedAccountDisplayProps {
   isDesktopResolution: boolean;
@@ -24,7 +24,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
     chainName = 'Unsupported Network';
   }
 
-  const tokenBalance = useGetTokenBalance('G$', address, chain?.id, true);
+  const tokenBalance = useGetTokenBalance(GDToken.address, address, chain?.id, true);
   const formattedTokenBalance = formatNumberWithCommas(tokenBalance);
   const { data: ensName } = useEnsName({ address, chainId: 1 });
 

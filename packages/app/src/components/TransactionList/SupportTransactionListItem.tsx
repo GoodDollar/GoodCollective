@@ -1,6 +1,6 @@
 import { SupportTx } from '../../models/models';
 import { formatAddress } from '../../lib/formatAddress';
-import { useEnsName } from 'wagmi';
+import { useEnsName, useWaitForTransaction } from 'wagmi';
 import Decimal from 'decimal.js';
 import TransactionListItem from './TransactionListItem';
 import { useFetchFullName } from '../../hooks/useFetchFullName';
@@ -31,6 +31,10 @@ export function SupportTransactionListItem({ transaction }: SupportTransactionLi
   const { data: ensName } = useEnsName({ address: userAddress, chainId: 1 });
   const userFullName = useFetchFullName(userAddress);
   const userIdentifier = userFullName ?? ensName ?? formatAddress(userAddress);
+  const flowUpdateLog = useWaitForTransaction({ hash: hash as `0x${string}`, chainId: 42220 });
+  const flowLogIndex = flowUpdateLog.data?.logs.find(
+    (_) => _.topics[0] === '0x57269d2ebcccecdcc0d9d2c0a0b80ead95f344e28ec20f50f709811f209d4e0e'
+  )?.logIndex;
 
   const flowingAmount = useMemo(() => {
     return transaction.isFlowUpdate ? (
@@ -66,7 +70,7 @@ export function SupportTransactionListItem({ transaction }: SupportTransactionLi
       isStream={transaction.isFlowUpdate}
       explorerLink={
         // ? `${env.REACT_APP_SUPERFLUID_EXPLORER}/streams/${donor}-${transaction.collective}-${transaction.rewardToken}-0.0`
-        transaction.isFlowUpdate ? `${env.REACT_APP_SUPERFLUID_EXPLORER}/accounts/${donor}?tab=streams` : undefined
+        transaction.isFlowUpdate ? `${env.REACT_APP_SUPERFLUID_EXPLORER}/${hash}-${flowLogIndex}` : undefined
       }
       icon={getTxIcon(transaction)}
       userIdentifier={userIdentifier}
