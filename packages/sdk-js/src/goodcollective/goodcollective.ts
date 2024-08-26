@@ -7,6 +7,8 @@ import {
   UBIPool,
   UBIPoolFactory,
 } from '@gooddollar/goodcollective-contracts/typechain-types';
+import { abi as UBIPoolAbi } from '@gooddollar/goodcollective-contracts/artifacts/contracts/UBI/UBIPool.sol/UBIPool.json';
+
 import { Framework } from '@superfluid-finance/sdk-core';
 import { HelperLibrary } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/GoodCollective/GoodCollectiveSuperApp.ts';
 // import * as W3Client from '@web3-storage/w3up-client';
@@ -59,6 +61,7 @@ export class GoodCollectiveSDK {
   ubifactory?: UBIPoolFactory;
   contracts: Contracts;
   pool: DirectPaymentsPool;
+  ubipool: UBIPool;
   superfluidSDK: Promise<Framework>;
   chainId: Key;
   // w3Storage: Promise<W3Client.Client | void>;
@@ -86,6 +89,12 @@ export class GoodCollectiveSDK {
       (this.contracts.DirectPaymentsPool?.abi || []).concat(nftEvents as []), //add events of nft so they are parsable
       readProvider
     ) as DirectPaymentsPool;
+    this.ubipool = new ethers.Contract(
+      ethers.constants.AddressZero,
+      this.contracts.UBIPool?.abi || UBIPoolAbi || [],
+      readProvider
+    ) as UBIPool;
+    console.log('ubi abi:', this.contracts.UBIPool?.abi);
     // initialize framework
     const opts = {
       chainId: Number(chainId),
@@ -120,8 +129,21 @@ export class GoodCollectiveSDK {
   async rewardToken(poolAddress: string) {
     // Get the superfluid sdk
     const sdk = await this.superfluidSDK;
+
+    const callResult = await this.pool.provider.call({
+      to: poolAddress,
+      data: this.pool.interface.encodeFunctionData('settings'),
+    });
+    let token = '';
     // Get the reward token from the pool
-    const token = (await this.pool.attach(poolAddress).settings()).rewardToken;
+    try {
+      const settings = this.pool.interface.decodeFunctionResult('settings', callResult);
+      token = settings.rewardToken;
+    } catch (e) {
+      const settings = this.ubipool.interface.decodeFunctionResult('settings', callResult);
+      token = settings.rewardToken;
+    }
+
     // Return the supertoken
     return sdk.loadSuperToken(token);
   }
@@ -365,9 +387,7 @@ export class GoodCollectiveSDK {
    */
   async supportFlow(signer: ethers.Signer, poolAddress: string, flowRate: string) {
     // call the superfluid core-sdk to start a flow using createflow
-    const sdk = await this.superfluidSDK;
-    const token = (await this.pool.attach(poolAddress).settings()).rewardToken;
-    const st = await sdk.loadSuperToken(token);
+    const st = await this.rewardToken(poolAddress);
     const signerAddress = await signer.getAddress();
 
     const flowAction = st.createFlow({
@@ -386,9 +406,7 @@ export class GoodCollectiveSDK {
     poolAddress: string,
     memberAddress: string
   ) {
-    const sdk = await this.superfluidSDK;
-    const token = (await this.pool.attach(poolAddress).settings()).rewardToken;
-    const st = await sdk.loadSuperToken(token);
+    const st = await this.rewardToken(poolAddress);
     const hasFlow = await st.getFlow({
       receiver: poolAddress,
       sender: memberAddress,
@@ -406,9 +424,7 @@ export class GoodCollectiveSDK {
    */
   async updateFlow(signer: ethers.Signer, poolAddress: string, flowRate: string) {
     // call the superfluid core-sdk to start a flow using createflow
-    const sdk = await this.superfluidSDK;
-    const token = (await this.pool.attach(poolAddress).settings()).rewardToken;
-    const st = await sdk.loadSuperToken(token);
+    const st = await this.rewardToken(poolAddress);
     const signerAddress = await signer.getAddress();
 
     const flowAction = st.updateFlow({
@@ -431,9 +447,7 @@ export class GoodCollectiveSDK {
    */
   async deleteFlow(signer: ethers.Signer, poolAddress: string, flowRate: string) {
     // call the superfluid core-sdk to start a flow using createflow
-    const sdk = await this.superfluidSDK;
-    const token = (await this.pool.attach(poolAddress).settings()).rewardToken;
-    const st = await sdk.loadSuperToken(token);
+    const st = await this.rewardToken(poolAddress);
     const signerAddress = await signer.getAddress();
 
     const flowAction = st.deleteFlow({
@@ -458,8 +472,7 @@ export class GoodCollectiveSDK {
   async supportFlowWithSwap(signer: ethers.Signer, poolAddress: string, flowRate: string, swap: SwapData) {
     // call the superfluid core-sdk to start a flow using createflow
     const sdk = await this.superfluidSDK;
-    const token = (await this.pool.attach(poolAddress).settings()).rewardToken;
-    const st = await sdk.loadSuperToken(token);
+    const st = await this.rewardToken(poolAddress);
     const signerAddress = await signer.getAddress();
 
     const appAction = this.pool.interface.encodeFunctionData('handleSwap', [swap, signerAddress, '0x']);
