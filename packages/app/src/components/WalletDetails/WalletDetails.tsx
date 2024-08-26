@@ -12,14 +12,10 @@ interface WalletDetailsProps {
 }
 
 function WalletDetails({ firstName, donor, steward, tokenPrice }: WalletDetailsProps) {
-  return (
-    <>
-      {donor === undefined && steward === undefined && <EmptyProfile />}
-      {!!donor && !!steward && <BothWalletDetails donor={donor} steward={steward} tokenPrice={tokenPrice} />}
-      {!!donor && <DonorWalletDetails donor={donor} firstName={firstName} tokenPrice={tokenPrice} />}
-      {!!steward && <StewardWalletDetails steward={steward} firstName={firstName} tokenPrice={tokenPrice} />}
-    </>
-  );
+  if (!!donor && !!steward) return <BothWalletDetails donor={donor} steward={steward} tokenPrice={tokenPrice} />;
+  else if (donor) return <DonorWalletDetails donor={donor} firstName={firstName} tokenPrice={tokenPrice} />;
+  else if (steward) return <StewardWalletDetails steward={steward} firstName={firstName} tokenPrice={tokenPrice} />;
+  return <EmptyProfile />;
 }
 
 export default WalletDetails;
