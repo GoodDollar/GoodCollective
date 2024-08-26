@@ -100,7 +100,7 @@
     "react-test-renderer": "18.2.0",
     "typechain": "^8.1.1",
     "typescript": "^5.1.3",
-    "vercel": "latest",
+    "vercel": "^37.1.1",
     "vite": "^4.5.0",
     "vite-plugin-dynamic-import": "^1.5.0",
     "vite-plugin-node-polyfills": "^0.16.0",
