@@ -94,7 +94,6 @@ export class GoodCollectiveSDK {
       this.contracts.UBIPool?.abi || UBIPoolAbi || [],
       readProvider
     ) as UBIPool;
-    console.log('ubi abi:', this.contracts.UBIPool?.abi);
     // initialize framework
     const opts = {
       chainId: Number(chainId),
@@ -542,7 +541,6 @@ export class GoodCollectiveSDK {
     const token = new ethers.Contract(await swap.swapFrom, tcabi, signer);
     const signerAddress = await signer.getAddress();
     const allowance = await token.allowance(signerAddress, poolAddress);
-    console.log({ allowance, amount: await swap.amount });
     if (allowance.lt(ethers.BigNumber.from(swap.amount))) {
       throw new Error('Not enough allowance');
     }

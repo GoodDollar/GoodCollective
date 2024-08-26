@@ -28,7 +28,6 @@ async function populateTokenList() {
     'https://raw.githubusercontent.com/celo-org/celo-token-list/main/celo.tokenlist.json'
   ).then((_) => _.json());
   if (isEqual(newList?.version, tokensJson?.version) === false) {
-    console.log({ a: JSON.stringify(newList), b: JSON.stringify(tokensJson) });
     await AsyncStorage.setItem('celo.tokenlist.json', JSON.stringify(newList));
     populateTokenList();
   }
