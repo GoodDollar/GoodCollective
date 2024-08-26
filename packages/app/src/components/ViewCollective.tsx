@@ -32,7 +32,7 @@ import {
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 import { useDeleteFlow } from '../hooks/useContractCalls/useDeleteFlow';
 import ErrorModal from './modals/ErrorModal';
-import FlowingCurrentPoolRowItem from './FlowingCurrentPoolRowItem';
+import FlowingDonationsRowItem from './FlowingDonationsRowItem';
 import { defaultInfoLabel, SUBGRAPH_POLL_INTERVAL } from '../models/constants';
 import env from '../lib/env';
 
@@ -189,13 +189,13 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               <RowItem imageUrl={ListGreenIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
             </View>
             <View style={{ flex: 1, gap: 16 }}>
-              <FlowingCurrentPoolRowItem
+              <FlowingDonationsRowItem
                 imageUrl={ReceiveLightIcon}
                 rowInfo="Total Donations Received"
                 collective={collective.address as `0x${string}`}
                 donorCollectives={donorCollectives}
                 tokenPrice={tokenPrice}
-                currency="G$"
+                currency={collective.rewardToken}
                 additionalBalance={totalRewards}
               />
               <RowItem
@@ -205,13 +205,13 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 currency="G$"
                 balance={totalRewardsUsdValue ?? 0}
               />
-              <FlowingCurrentPoolRowItem
+              <FlowingDonationsRowItem
                 imageUrl={SquaresIcon}
                 rowInfo="Current Pool"
                 collective={collective.address as `0x${string}`}
                 donorCollectives={donorCollectives}
                 tokenPrice={tokenPrice}
-                currency="G$"
+                currency={collective.rewardToken}
               />
             </View>
           </View>
@@ -284,13 +284,13 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
             <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
             <RowItem imageUrl={ListGreenIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
-            <FlowingCurrentPoolRowItem
+            <FlowingDonationsRowItem
               imageUrl={ReceiveLightIcon}
               rowInfo="Total Donations Received"
               collective={collective.address as `0x${string}`}
               donorCollectives={donorCollectives}
               tokenPrice={tokenPrice}
-              currency="G$"
+              currency={collective.rewardToken}
               additionalBalance={totalRewards}
             />
             <RowItem
@@ -300,13 +300,13 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               currency="G$"
               balance={totalRewardsUsdValue ?? 0}
             />
-            <FlowingCurrentPoolRowItem
+            <FlowingDonationsRowItem
               imageUrl={SquaresIcon}
               rowInfo="Current Pool"
               collective={collective.address as `0x${string}`}
               donorCollectives={donorCollectives}
               tokenPrice={tokenPrice}
-              currency="G$"
+              currency={collective.rewardToken}
             />
           </View>
 

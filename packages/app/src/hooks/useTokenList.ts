@@ -4,7 +4,10 @@ import { Token } from '@uniswap/sdk-core';
 import CeloTokenList from '../models/CeloTokenList.json';
 import { SupportedNetwork } from '../models/constants';
 
-const populatedTokenList: Record<string, Token> = {};
+const populatedTokenList: Record<string, Token> = {
+  'G$-Dev': new Token(42220, '0xFa51eFDc0910CCdA91732e6806912Fa12e2FD475', 18, 'G$-Dev'),
+  'G$-QA': new Token(42220, '0x61FA0fB802fd8345C06da558240E0651886fec69', 18, 'G$-QA'),
+};
 populateTokenList();
 
 async function populateTokenList() {
@@ -33,6 +36,12 @@ async function populateTokenList() {
 
 export function useToken(symbol: string): Token {
   return populatedTokenList[symbol] || {};
+}
+
+export function useTokenByAddress(address: string): Token {
+  return (
+    Object.values(populatedTokenList).find((_) => _.address.toLowerCase() === address.toLowerCase()) || ({} as Token)
+  );
 }
 
 export function useTokenList(): Record<string, Token> {

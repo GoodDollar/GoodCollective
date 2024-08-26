@@ -2,32 +2,43 @@ import { Image, Text, View, StyleSheet } from 'react-native';
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
 import { useMediaQuery } from 'native-base';
-import { useDonorCollectivesFlowingBalances } from '../hooks/useFlowingBalance';
+import { useDonorCollectivesFlowingBalancesWithAltStaticBalance } from '../hooks/useFlowingBalance';
 import { DonorCollective } from '../models/models';
+import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
+import { SupportedNetwork } from '../models/constants';
+import Decimal from 'decimal.js';
+import { useTokenByAddress } from '../hooks/useTokenList';
 
 interface FlowingDonationsRowItemProps {
   rowInfo: string;
+  collective: `0x${string}`;
   donorCollectives: DonorCollective[];
   tokenPrice: number | undefined;
-  currency?: string;
+  currency: string;
   imageUrl: string;
+  additionalBalance?: string;
 }
 
 function FlowingDonationsRowItem({
   rowInfo,
+  collective,
   donorCollectives,
   tokenPrice,
   currency,
   imageUrl,
+  additionalBalance,
 }: FlowingDonationsRowItemProps) {
+  const token = useTokenByAddress(currency);
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 920,
   });
 
-  const { formatted: formattedDonations, usdValue: donationsUsdValue } = useDonorCollectivesFlowingBalances(
-    donorCollectives,
-    tokenPrice
-  );
+  const currentBalance = useGetTokenBalance(currency, collective, SupportedNetwork.CELO);
+  const balanceUsed = additionalBalance
+    ? new Decimal(currentBalance).add(additionalBalance).toFixed(0, Decimal.ROUND_DOWN)
+    : currentBalance;
+  const { formatted: formattedCurrentPool, usdValue: usdValueCurrentPool } =
+    useDonorCollectivesFlowingBalancesWithAltStaticBalance(balanceUsed, donorCollectives, tokenPrice);
 
   return (
     <View style={styles.row}>
@@ -38,10 +49,10 @@ function FlowingDonationsRowItem({
       <Text style={styles.rowData}>
         <View style={{ gap: 2 }}>
           <Text>
-            <Text>{currency}</Text> <Text style={{ ...InterRegular }}>{formattedDonations}</Text>
-            {isDesktopResolution && currency && <Text style={styles.rowBalance}> = {donationsUsdValue} USD</Text>}
+            <Text>{token.symbol}</Text> <Text style={{ ...InterRegular }}>{formattedCurrentPool}</Text>
+            {isDesktopResolution && currency && <Text style={styles.rowBalance}> = {usdValueCurrentPool} USD</Text>}
           </Text>
-          {!isDesktopResolution && currency && <Text style={styles.rowBalance}>= {donationsUsdValue} USD</Text>}
+          {!isDesktopResolution && currency && <Text style={styles.rowBalance}>= {usdValueCurrentPool} USD</Text>}
         </View>
       </Text>
     </View>
