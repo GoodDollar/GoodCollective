@@ -66,12 +66,12 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const GDToken = GDEnvTokens[gdEnvSymbol];
 
   const currencyOptions: { value: string; label: string }[] = useMemo(() => {
-    let options = Object.keys(tokenList).reduce((acc, key) => {
-  if (!key.startsWith('G$') || key === gdEnvSymbol) {
-    acc.push({ value: key, label: key });
-  }
-  return acc;
-}, []);
+    let options = Object.keys(tokenList).reduce<Array<{ value: string; label: string }>>((acc, key) => {
+      if (!key.startsWith('G$') || key === gdEnvSymbol) {
+        acc.push({ value: key, label: key });
+      }
+      return acc;
+    }, []);
 
     return options;
   }, [tokenList, gdEnvSymbol]);
