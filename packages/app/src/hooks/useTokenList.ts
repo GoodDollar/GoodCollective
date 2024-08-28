@@ -2,11 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isEqual } from 'lodash';
 import { Token } from '@uniswap/sdk-core';
 import CeloTokenList from '../models/CeloTokenList.json';
-import { SupportedNetwork } from '../models/constants';
+import { GDDevToken, GDQAToken, GDToken, SupportedNetwork } from '../models/constants';
 
 const populatedTokenList: Record<string, Token> = {
-  'G$-Dev': new Token(42220, '0xFa51eFDc0910CCdA91732e6806912Fa12e2FD475', 18, 'G$-Dev'),
-  'G$-QA': new Token(42220, '0x61FA0fB802fd8345C06da558240E0651886fec69', 18, 'G$-QA'),
+  'G$-Dev': GDDevToken,
+  'G$-QA': GDQAToken,
+  G$: GDToken,
 };
 populateTokenList();
 

@@ -32,6 +32,7 @@ export function SupportTransactionListItem({ transaction }: SupportTransactionLi
   const userFullName = useFetchFullName(userAddress);
   const userIdentifier = userFullName ?? ensName ?? formatAddress(userAddress);
   const flowUpdateLog = useWaitForTransaction({ hash: hash as `0x${string}`, chainId: 42220 });
+  // super fluid event flowupdated event https://www.4byte.directory/event-signatures/?bytes_signature=0x57269d2ebcccecdcc0d9d2c0a0b80ead95f344e28ec20f50f709811f209d4e0e
   const flowLogIndex = flowUpdateLog.data?.logs.find(
     (_) => _.topics[0] === '0x57269d2ebcccecdcc0d9d2c0a0b80ead95f344e28ec20f50f709811f209d4e0e'
   )?.logIndex;
