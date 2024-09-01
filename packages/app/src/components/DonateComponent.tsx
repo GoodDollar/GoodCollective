@@ -9,9 +9,9 @@ import Dropdown from './Dropdown';
 import { getDonateStyles, getFrequencyPlural } from '../utils';
 import { useContractCalls, useGetTokenPrice } from '../hooks';
 import { useAccount, useNetwork } from 'wagmi';
-import { IpfsCollective } from '../models/models';
+import { Collective } from '../models/models';
 import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
-import { acceptablePriceImpact, Frequency, frequencyOptions, SupportedNetwork } from '../models/constants';
+import { acceptablePriceImpact, Frequency, frequencyOptions, GDEnvTokens, SupportedNetwork } from '../models/constants';
 import { InfoIconOrange } from '../assets';
 import { useParams } from 'react-router-native';
 import Decimal from 'decimal.js';
@@ -28,7 +28,7 @@ import ThankYouModal from './modals/ThankYouModal';
 import useCrossNavigate from '../routes/useCrossNavigate';
 
 interface DonateComponentProps {
-  collective: IpfsCollective;
+  collective: Collective;
 }
 
 function DonateComponent({ collective }: DonateComponentProps) {
@@ -51,26 +51,39 @@ function DonateComponent({ collective }: DonateComponentProps) {
     navigate(`/profile/${address}`);
   }
 
-  const [currency, setCurrency] = useState<string>('G$');
   const [frequency, setFrequency] = useState<Frequency>(Frequency.Monthly);
   const [duration, setDuration] = useState(12);
   const [decimalDonationAmount, setDecimalDonationAmount] = useState(0);
 
   const tokenList = useTokenList();
+  const gdEnvSymbol =
+    Object.keys(tokenList).find((key) => {
+      if (key.startsWith('G$')) {
+        return tokenList[key].address.toLowerCase() === collective.rewardToken.toLowerCase();
+      } else return false;
+    }) || 'G$';
+
+  const GDToken = GDEnvTokens[gdEnvSymbol];
+
   const currencyOptions: { value: string; label: string }[] = useMemo(() => {
-    let options = Object.keys(tokenList).map((key) => ({
-      value: key,
-      label: key,
-    }));
+    let options = Object.keys(tokenList).reduce<Array<{ value: string; label: string }>>((acc, key) => {
+      if (!key.startsWith('G$') || key === gdEnvSymbol) {
+        acc.push({ value: key, label: key });
+      }
+      return acc;
+    }, []);
+
     return options;
-  }, [tokenList]);
+  }, [tokenList, gdEnvSymbol]);
+
+  const [currency, setCurrency] = useState<string>(gdEnvSymbol || 'G$');
 
   const {
     path: swapPath,
     rawMinimumAmountOut,
     priceImpact,
     status: swapRouteStatus,
-  } = useSwapRoute(currency, decimalDonationAmount, duration);
+  } = useSwapRoute(currency, GDToken, decimalDonationAmount, duration);
 
   const { handleApproveToken, isRequireApprove } = useApproveSwapTokenCallback(
     currency,
@@ -79,7 +92,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
     (value: boolean) => setApproveSwapModalVisible(value),
     collectiveId as `0x${string}`
   );
-  const approvalNotReady = handleApproveToken === undefined && currency !== 'G$';
+  const approvalNotReady = handleApproveToken === undefined && currency.startsWith('G$') === false;
 
   const { supportFlowWithSwap, supportFlow, supportSingleTransferAndCall, supportSingleWithSwap } = useContractCalls(
     collectiveId,
@@ -97,12 +110,12 @@ function DonateComponent({ collective }: DonateComponentProps) {
 
   const handleDonate = useCallback(async () => {
     if (frequency === Frequency.OneTime) {
-      if (currency === 'G$') {
+      if (currency.startsWith('G$')) {
         return await supportSingleTransferAndCall();
       } else {
         return await supportSingleWithSwap();
       }
-    } else if (currency === 'G$') {
+    } else if (currency.startsWith('G$')) {
       return await supportFlow();
     }
 
@@ -143,8 +156,9 @@ function DonateComponent({ collective }: DonateComponentProps) {
     supportSingleWithSwap,
   ]);
 
-  const currencyDecimals = useToken(currency).decimals;
-  const donorCurrencyBalance = useGetTokenBalance(currency, address, chain?.id, true);
+  const token = useToken(currency);
+  const currencyDecimals = token.decimals;
+  const donorCurrencyBalance = useGetTokenBalance(token.address, address, chain?.id, true);
 
   const totalDecimalDonation = new Decimal(duration * decimalDonationAmount);
   const totalDonationFormatted = totalDecimalDonation.toDecimalPlaces(currencyDecimals, Decimal.ROUND_DOWN).toString();
@@ -152,9 +166,12 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const isNonZeroDonation = totalDecimalDonation.gt(0);
   const isInsufficientBalance =
     isNonZeroDonation && (!donorCurrencyBalance || totalDecimalDonation.gt(donorCurrencyBalance));
-  const isInsufficientLiquidity = isNonZeroDonation && currency !== 'G$' && swapRouteStatus === SwapRouteState.NO_ROUTE;
+  const isInsufficientLiquidity =
+    isNonZeroDonation && currency.startsWith('G$') === false && swapRouteStatus === SwapRouteState.NO_ROUTE;
   const isUnacceptablePriceImpact =
-    isNonZeroDonation && currency !== 'G$' && priceImpact ? priceImpact > acceptablePriceImpact : false;
+    isNonZeroDonation && currency.startsWith('G$') === false && priceImpact
+      ? priceImpact > acceptablePriceImpact
+      : false;
 
   const { price } = useGetTokenPrice(currency);
   const donationAmountUsdValue = price ? formatFiatCurrency(decimalDonationAmount * price) : undefined;
@@ -199,7 +216,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
       <View>
         <Text style={styles.title}>Donate</Text>
         <Text style={styles.description}>
-          Support {collective.name}{' '}
+          Support {collective.ipfs.name}{' '}
           {isDesktopResolution && (
             <>
               <br />
@@ -487,7 +504,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
           onPress={handleDonate}
           isLoading={swapRouteStatus === SwapRouteState.LOADING}
           disabled={
-            (currency !== 'G$' && swapRouteStatus !== SwapRouteState.READY) ||
+            (currency.startsWith('G$') === false && swapRouteStatus !== SwapRouteState.READY) ||
             address === undefined ||
             chain?.id === undefined ||
             !(chain.id in SupportedNetwork) ||
@@ -502,7 +519,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
       <ThankYouModal
         openModal={thankYouModalVisible}
         address={address}
-        collective={collective}
+        collective={collective.ipfs}
         isStream={frequency !== Frequency.OneTime}
       />
     </View>

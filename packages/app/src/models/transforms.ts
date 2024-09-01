@@ -71,6 +71,7 @@ export function subgraphCollectiveToModel(subgraphCollective: SubgraphCollective
     paymentsMade: subgraphCollective.paymentsMade,
     totalDonations: subgraphCollective.totalDonations,
     totalRewards: subgraphCollective.totalRewards,
+    rewardToken: subgraphCollective.settings?.rewardToken || '',
   };
 }
 

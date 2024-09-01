@@ -45,6 +45,9 @@ export const collectivesById = gql`
       paymentsMade
       totalDonations
       totalRewards
+      settings {
+        rewardToken
+      }
     }
   }
 `;

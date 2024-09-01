@@ -37,6 +37,7 @@ export interface Collective {
   paymentsMade: number;
   totalDonations: string;
   totalRewards: string;
+  rewardToken: string;
 }
 
 export interface IpfsCollective {

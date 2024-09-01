@@ -176,9 +176,9 @@ describe('GoodCollective SDK', () => {
   it('should support single with swap', async () => {
     const pool = await sdk.createPool(...testPoolSettings);
 
-    const balance = await gooddollar.balanceOf(wallet.address);
-    const routerBalance = await gooddollar.balanceOf(await pool.swapRouter());
-    console.log({ balance, router: await pool.swapRouter(), routerBalance });
+    // const balance = await gooddollar.balanceOf(wallet.address);
+    // const routerBalance = await gooddollar.balanceOf(await pool.swapRouter());
+    // console.log({ balance, router: await pool.swapRouter(), routerBalance });
     await (await gooddollar.connect(wallet).approve(pool.address, '1000')).wait();
     const tx = await sdk.supportSingleWithSwap(wallet, pool.address, {
       amount: 1000,
