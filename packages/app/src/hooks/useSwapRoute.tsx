@@ -6,9 +6,9 @@ import {
   UniswapMulticallProvider,
   V3Route,
 } from '@uniswap/smart-order-router';
-import { CurrencyAmount, Percent, TradeType } from '@uniswap/sdk-core';
+import { CurrencyAmount, Percent, Token, TradeType } from '@uniswap/sdk-core';
 import { useAccount, useNetwork } from 'wagmi';
-import { GDToken, SupportedNetwork } from '../models/constants';
+import { SupportedNetwork } from '../models/constants';
 import { useEthersProvider } from './useEthers';
 import { calculateRawTotalDonation } from '../lib/calculateRawTotalDonation';
 import Decimal from 'decimal.js';
@@ -27,6 +27,7 @@ const DEFAULT_SLIPPAGE_TOLERANCE = new Percent(100, 10_000);
 
 export function useSwapRoute(
   currencyIn: string,
+  GDToken: Token,
   decimalAmountIn: number,
   duration: number,
   slippageTolerance: Percent = DEFAULT_SLIPPAGE_TOLERANCE
@@ -51,7 +52,7 @@ export function useSwapRoute(
       !chain?.id ||
       chain.id !== SupportedNetwork.CELO ||
       !provider ||
-      tokenIn.symbol === 'G$'
+      tokenIn.symbol?.startsWith('G$')
     ) {
       return;
     }
@@ -69,12 +70,8 @@ export function useSwapRoute(
           minTimeout: 100,
           maxTimeout: 1000,
         },
+        undefined,
         // this settings are required to solve multicall gas issue with forno
-        {
-          multicallChunk: 10,
-          gasLimitPerCall: 2_000_000,
-          quoteMinSuccessRate: 0.1,
-        },
         {
           gasLimitOverride: 2_000_000,
           multicallChunk: 5,
@@ -111,7 +108,7 @@ export function useSwapRoute(
         console.error('failed to get route:', e, { inputAmount, tokenIn, GDToken });
         setRoute(undefined);
       });
-  }, [address, chain?.id, provider, tokenIn, decimalAmountIn, duration, slippageTolerance]);
+  }, [address, chain?.id, provider, tokenIn, decimalAmountIn, duration, slippageTolerance, GDToken]);
 
   if (route === 'loading') {
     return { status: SwapRouteState.LOADING };

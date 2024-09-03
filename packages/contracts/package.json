@@ -6,6 +6,7 @@
   "types": "./typechain-types/index.ts",
   "files": [
     "contracts",
+    "artifacts/contracts",
     "typechain-types",
     "releases"
   ],

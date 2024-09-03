@@ -25,18 +25,23 @@ import { Colors } from './utils/colors';
 import { useCreateSubgraphApolloClient, useCreateMongoDbApolloClient } from './hooks/apollo';
 import { MongoDbApolloProvider } from './components/providers/MongoDbApolloProvider';
 
-const celoProvider = jsonRpcProvider({
-  rpc: (chain) => {
-    if (chain.id === 42220) {
-      return {
-        http: 'https://rpc.ankr.com/celo',
-      };
-    }
-    return null;
-  },
-});
 function App(): JSX.Element {
-  const { publicClient, webSocketPublicClient } = configureChains([celo, mainnet], [publicProvider(), celoProvider]);
+  const { publicClient, webSocketPublicClient } = configureChains(
+    [celo, mainnet],
+    [
+      publicProvider(),
+      jsonRpcProvider({
+        rpc: (chain) => {
+          if (chain.id === 42220) {
+            return {
+              http: 'https://rpc.ankr.com/celo',
+            };
+          }
+          return null;
+        },
+      }),
+    ]
+  );
 
   const connectors = [
     new MetaMaskConnector({

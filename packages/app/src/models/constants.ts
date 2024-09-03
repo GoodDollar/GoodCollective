@@ -17,7 +17,19 @@ export const SupportedNetworkNames: Record<SupportedNetwork, string> = {
 export const UNISWAP_V3_ROUTER_ADDRESS = '0x5615CDAb10dc425a742d643d949a7F474C01abc4';
 
 export const GDToken: Token = new Token(SupportedNetwork.CELO, GdContracts['production-celo'].GoodDollar, 18, 'G$');
+export const GDDevToken: Token = new Token(
+  SupportedNetwork.CELO,
+  GdContracts['development-celo'].GoodDollar,
+  18,
+  'G$-Dev'
+);
+export const GDQAToken: Token = new Token(SupportedNetwork.CELO, GdContracts['staging-celo'].GoodDollar, 18, 'G$-QA');
 
+export const GDEnvTokens: { [key: string]: Token } = {
+  'G$-Dev': GDDevToken,
+  'G$-QA': GDQAToken,
+  G$: GDToken,
+};
 // if a token is not in this list, the address from the Celo Token List is used
 export const coingeckoTokenMapping: Record<string, `0x${string}`> = {
   WBTC: '0xD629eb00dEced2a080B7EC630eF6aC117e614f1b',
