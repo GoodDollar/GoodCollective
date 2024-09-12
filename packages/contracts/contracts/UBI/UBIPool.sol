@@ -394,6 +394,6 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     }
 
     function nextClaimTime() public view returns (uint256) {
-        return getCurrentDay() * (1 days) - (12 hours);
+        return (getCurrentDay() + 1) * (1 days)
     }
 }
