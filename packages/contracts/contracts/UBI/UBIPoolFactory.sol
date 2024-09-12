@@ -108,7 +108,7 @@ contract UBIPoolFactory is AccessControlUpgradeable, UUPSUpgradeable {
     ) internal returns (UBIPool pool) {
         //TODO: add check if msg.sender is whitelisted
 
-        bytes memory initCall = abi.encodeWithSelector(UBIPool.initialize.selector, _settings, _limits, address(this));
+        bytes memory initCall = abi.encodeCall(UBIPool.initialize, (_settings, _limits, this));
 
         if (useBeacon) {
             pool = UBIPool(address(new BeaconProxy(address(impl), initCall)));

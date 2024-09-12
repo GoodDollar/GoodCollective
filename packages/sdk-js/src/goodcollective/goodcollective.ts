@@ -315,9 +315,7 @@ export class GoodCollectiveSDK {
     const createMethod = isBeacon
       ? this.ubifactory.connect(signer).createManagedPool
       : this.ubifactory.connect(signer).createPool;
-    const tx = await (
-      await createMethod(projectId, poolIpfs, poolSettings as DirectPaymentsPool.PoolSettingsStruct, poolLimits)
-    ).wait();
+    const tx = await (await createMethod(projectId, poolIpfs, poolSettings, poolLimits)).wait();
     const created = tx.events?.find((_) => _.event === 'PoolCreated');
     return new ethers.Contract(created?.args?.[0], this.contracts.UBIPool?.abi as [], this.factory.provider) as UBIPool;
   }

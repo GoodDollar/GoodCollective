@@ -280,6 +280,10 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         return true;
     }
 
+    function removeMember(address member) external onlyRole(MANAGER_ROLE) {
+        _revokeRole(MEMBER_ROLE, member);
+    }
+
     function _grantRole(bytes32 role, address account) internal virtual override {
         if (role == MEMBER_ROLE && hasRole(MEMBER_ROLE, account) == false) {
             if (ubiSettings.maxClaimers > 0 && status.claimersCount > ubiSettings.maxClaimers)
@@ -390,6 +394,6 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     }
 
     function nextClaimTime() public view returns (uint256) {
-        return getCurrentDay() * (1 days) - (12 hours);
+        return (getCurrentDay() + 1) * (1 days)
     }
 }
