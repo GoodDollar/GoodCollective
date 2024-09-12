@@ -390,10 +390,10 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
 
     function hasClaimed(address _member) public view returns (bool) {
         address whitelistedRoot = IIdentityV2(settings.uniquenessValidator).getWhitelistedRoot(_member);
-        return status.lastClaimed[whitelistedRoot] == status.currentDay;
+        return status.lastClaimed[whitelistedRoot] == getCurrentDay();
     }
 
     function nextClaimTime() public view returns (uint256) {
-        return (getCurrentDay() + 1) * (1 days)
+        return (getCurrentDay() + 1) * (1 days);
     }
 }
