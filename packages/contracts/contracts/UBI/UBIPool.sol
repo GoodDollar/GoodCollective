@@ -280,6 +280,10 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         return true;
     }
 
+    function removeMember(address member) external onlyRole(MANAGER_ROLE) {
+        _revokeRole(MEMBER_ROLE, member);
+    }
+
     function _grantRole(bytes32 role, address account) internal virtual override {
         if (role == MEMBER_ROLE && hasRole(MEMBER_ROLE, account) == false) {
             if (ubiSettings.maxClaimers > 0 && status.claimersCount > ubiSettings.maxClaimers)

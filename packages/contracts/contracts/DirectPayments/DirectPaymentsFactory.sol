@@ -122,13 +122,7 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         //TODO: add check if msg.sender is whitelisted
 
         _settings.nftType = nextNftType;
-        bytes memory initCall = abi.encodeWithSelector(
-            DirectPaymentsPool.initialize.selector,
-            nft,
-            _settings,
-            _limits,
-            address(this)
-        );
+        bytes memory initCall = abi.encodeCall(DirectPaymentsPool.initialize, (nft, _settings, _limits, this));
 
         if (useBeacon) {
             pool = DirectPaymentsPool(address(new BeaconProxy(address(impl), initCall)));
