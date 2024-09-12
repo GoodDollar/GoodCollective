@@ -150,7 +150,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     function distributionFormula() internal returns (uint256) {
         // once every claim cycle
         uint256 currentDay = getCurrentDay();
-        if (currentDay > status.currentDay + ubiSettings.claimPeriodDays) {
+        if (currentDay >= status.currentDay + ubiSettings.claimPeriodDays) {
             status.currentDay = currentDay;
             uint32 cycleLength = ubiSettings.cycleLengthDays;
             uint256 currentBalance = settings.rewardToken.balanceOf(address(this));
