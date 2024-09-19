@@ -95,6 +95,7 @@ type IpfsCollective @entity {
   name: String!
   description: String!
   rewardDescription: String
+  goodidDescription: String
   email: String
   website: String
   twitter: String

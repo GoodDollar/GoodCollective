@@ -30,6 +30,8 @@ export type PoolAttributes = {
   description: string;
   headerImage: string;
   logo: string;
+  rewardDescription?: string;
+  gooidDescription?: string;
   twitter?: string;
   email?: string;
   instagram?: string;

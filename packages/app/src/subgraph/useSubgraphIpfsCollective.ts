@@ -11,6 +11,8 @@ const allIpfsCollectives = gql`
         id
         name
         description
+        rewardDescription
+        gooididDescription
         headerImage
         email
         website
@@ -31,6 +33,8 @@ const ipfsCollectivesById = gql`
         id
         name
         description
+        rewardDescription
+        goodidDescription
         headerImage
         email
         website

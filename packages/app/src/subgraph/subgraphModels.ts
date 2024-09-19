@@ -53,6 +53,8 @@ export type SubgraphIpfsCollective = {
   id: string; // ipfs hash
   name: string;
   description: string;
+  rewardDescription?: string;
+  goodidDescription?: string;
   email?: string;
   website?: string;
   twitter?: string;
