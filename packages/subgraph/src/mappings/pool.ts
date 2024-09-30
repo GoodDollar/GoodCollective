@@ -117,20 +117,14 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   }
   nft.collective = poolAddress;
 
-  claimEvent.contributors = new Array<string>();
+  const claimEventStewards = new Array<string>();
+
   for (let i = 0; i < contributors.length; i++) {
     const stewardAddress = contributors[i].toHexString();
     const stewardCollectiveId = `${stewardAddress} ${poolAddress}`;
 
-    // add steward to NFT
-    const nftStewards = nft.stewards;
-    nftStewards.push(stewardAddress);
-    nft.stewards = nftStewards;
-
     // adds steward to event data
-    const claimEventStewards = claimEvent.contributors;
     claimEventStewards.push(stewardAddress);
-    claimEvent.contributors = claimEventStewards;
 
     // update Steward
     let steward = Steward.load(stewardAddress);
@@ -166,6 +160,8 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
   // update pool
   pool.totalRewards = pool.totalRewards.plus(eventReward);
   pool.paymentsMade = pool.paymentsMade + contributors.length;
+  claimEvent.contributors = claimEventStewards;
+  nft.stewards = claimEventStewards;
 
   claim.save();
   nft.save();

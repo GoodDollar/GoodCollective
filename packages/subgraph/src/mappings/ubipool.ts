@@ -47,7 +47,8 @@ export function handleUBISettingsChange(event: UBISettingsChanged): void {
 }
 
 export function handleUBIClaim(event: UBIClaimed): void {
-  const contributors = [event.params.whitelistedRoot];
+  const contributors = new Array<string>()
+  contributors.push(event.params.whitelistedRoot.toHexString())
   const rewardPerContributor = event.params.amount;
 
   const poolAddress = event.address.toHexString();
@@ -60,7 +61,7 @@ export function handleUBIClaim(event: UBIClaimed): void {
 
   // handle claim
   let claimId = poolAddress + '_' + event.params.whitelistedRoot.toHexString() + '_' + event.block.timestamp.toString();
-  let claim = new Claim(claimId);
+  const claim = new Claim(claimId);
   // for ubi there's only 1 recipient
   claim.totalRewards = rewardPerContributor;
   claim.collective = pool.id;
@@ -68,8 +69,17 @@ export function handleUBIClaim(event: UBIClaimed): void {
   claim.timestamp = event.block.timestamp.toI32();
   claim.networkFee = event.transaction.gasLimit.times(event.transaction.gasPrice);
 
+  const claimEvent = new ClaimEvent(claimId);
+  claimEvent.claim = claimId;
+  claimEvent.eventType = 0;
+  claimEvent.timestamp = event.block.timestamp.toI32();
+  claimEvent.quantity = BigInt.fromI32(1);
+  claimEvent.rewardPerContributor = rewardPerContributor
+  claimEvent.contributors = contributors
+
+
   for (let i = 0; i < contributors.length; i++) {
-    const stewardAddress = contributors[i].toHexString();
+    const stewardAddress = contributors[i]
     const stewardCollectiveId = `${stewardAddress}_${poolAddress}`;
 
     // update Steward
@@ -105,5 +115,6 @@ export function handleUBIClaim(event: UBIClaimed): void {
   pool.paymentsMade = pool.paymentsMade + contributors.length;
 
   claim.save();
+  claimEvent.save()
   pool.save();
 }
