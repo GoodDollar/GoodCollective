@@ -12,7 +12,7 @@ const allIpfsCollectives = gql`
         name
         description
         rewardDescription
-        gooididDescription
+        goodidDescription
         headerImage
         email
         website

@@ -78,7 +78,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
 
-  const { formatted: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateGoodDollarAmounts(
+  const { wei: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateGoodDollarAmounts(
     totalRewards,
     tokenPrice
   );

@@ -3,6 +3,7 @@ import { InterRegular, InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
 import { formatFiatCurrency } from '../lib/formatFiatCurrency';
 import { useMediaQuery } from 'native-base';
+import { GoodDollarAmount } from './GoodDollarAmount';
 
 interface RowItemProps {
   rowInfo: string;
@@ -29,8 +30,14 @@ function RowItem({ rowInfo, rowData, balance, currency, imageUrl }: RowItemProps
         {!currency && <Text style={styles.rowData}>{rowData}</Text>}
         {currency ? (
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={styles.rowData}>{currency}</Text>
-            <Text style={[styles.rowData, { ...InterRegular }]}>{rowData}</Text>
+            <Text style={styles.rowData}>{currency} </Text>
+            <GoodDollarAmount
+              style={[styles.rowData, { ...InterRegular }]}
+              lastDigitsProps={{
+                style: [styles.rowData, { ...InterRegular, color: Colors.gray[200], fontWeight: 400 }],
+              }}
+              amount={String(rowData)}
+            />
             {isDesktopResolution ? <Text style={styles.rowBalance}> = {usdBalance} USD</Text> : null}
           </View>
         ) : null}

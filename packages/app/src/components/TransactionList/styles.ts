@@ -49,6 +49,13 @@ export const styles = StyleSheet.create({
     color: Colors.gray[100],
     textAlign: 'right',
   },
+  amountLastDigits: {
+    ...InterRegular,
+    fontSize: 14,
+    color: Colors.gray[200],
+    weight: 400,
+    textAlign: 'right',
+  },
   hash: {
     ...InterRegular,
     fontSize: 10,

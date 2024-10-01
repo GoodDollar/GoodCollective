@@ -7,5 +7,6 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/jsx-uses-react': 'off',
     '@typescript-eslint/no-unused-vars': 'warn',
+    'react-native/no-inline-styles': 'off',
   },
 };
