@@ -1,9 +1,11 @@
 import { Modal, StyleSheet, Text, View, Image, TouchableOpacity, Platform } from 'react-native';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { Colors } from '../../utils/colors';
-import { ThankYouImg } from '../../assets';
+import { CloseIcon, ThankYouImg } from '../../assets';
 import { IpfsCollective } from '../../models/models';
 import useCrossNavigate from '../../routes/useCrossNavigate';
+import { modalStyles } from '../shared';
+import { useEffect, useState } from 'react';
 
 interface ThankYouModalProps {
   openModal: boolean;
@@ -13,13 +15,21 @@ interface ThankYouModalProps {
 }
 
 const ThankYouModal = ({ openModal, address, collective, isStream }: ThankYouModalProps) => {
+  const [isOpen, setOpenModal] = useState(openModal);
   const { navigate } = useCrossNavigate();
   const onClick = () => navigate(`/profile/${address}`);
-
+  useEffect(() => {
+    setOpenModal(openModal);
+  }, [openModal]);
   return (
-    <Modal style={styles.centeredView} animationType="slide" transparent={true} visible={openModal}>
+    <Modal style={styles.centeredView} animationType="slide" transparent={true} visible={isOpen}>
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
+          <View style={modalStyles.modalCloseIconWrapper}>
+            <TouchableOpacity style={modalStyles.modalCloseIcon} onPress={() => setOpenModal(false)}>
+              <Image source={CloseIcon} style={styles.closeIcon} />
+            </TouchableOpacity>
+          </View>
           <Text style={styles.title}>THANK YOU!</Text>
           <Text style={styles.paragraph}>{`You have just donated to ${collective.name} GoodCollective!`}</Text>
           {isStream && (
