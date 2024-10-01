@@ -12,10 +12,10 @@ export const GoodDollarAmount: FC<FlowingBalanceProps> = ({ amount, lastDigitsPr
   const formatted = formatGoodDollarAmount(amount);
   return (
     <>
-      <Text style={styles.amount} {...props}>
+      <Text {...props} style={[styles.amount, props.style]}>
         {formatted.slice(0, -2)}
       </Text>
-      <Text style={styles.amountLastDigits} {...lastDigitsProps}>
+      <Text {...lastDigitsProps} style={[styles.amountLastDigits, lastDigitsProps?.style]}>
         {formatted.slice(-2)}
       </Text>
     </>

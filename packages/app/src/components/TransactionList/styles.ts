@@ -53,7 +53,7 @@ export const styles = StyleSheet.create({
     ...InterRegular,
     fontSize: 14,
     color: Colors.gray[200],
-    weight: 400,
+    fontWeight: 400,
     textAlign: 'right',
   },
   hash: {

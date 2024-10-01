@@ -6,6 +6,7 @@ import useCrossNavigate from '../../routes/useCrossNavigate';
 import { formatAddress } from '../../lib/formatAddress';
 import { useEnsName } from 'wagmi';
 import { useFlowingBalance } from '../../hooks/useFlowingBalance';
+import { GoodDollarAmount } from '../GoodDollarAmount';
 
 interface DonorsListItemProps {
   donor: DonorCollective;
@@ -16,12 +17,7 @@ interface DonorsListItemProps {
 export const DonorsListItem = ({ donor, rank, userFullName }: DonorsListItemProps) => {
   const { navigate } = useCrossNavigate();
 
-  const { formatted: formattedDonations } = useFlowingBalance(
-    donor.contribution,
-    donor.timestamp,
-    donor.flowRate,
-    undefined
-  );
+  const { wei: formattedDonations } = useFlowingBalance(donor.contribution, donor.timestamp, donor.flowRate, undefined);
 
   const { data: ensName } = useEnsName({ address: donor.donor as `0x${string}`, chainId: 1 });
   const userIdentifier = userFullName ?? ensName ?? formatAddress(donor.donor);
@@ -39,7 +35,8 @@ export const DonorsListItem = ({ donor, rank, userFullName }: DonorsListItemProp
           <Text style={[styles.title, { color: circleTextColor }]}>{userIdentifier}</Text>
         </View>
         <Text style={styles.totalDonated}>
-          <Text style={styles.currency}>G$</Text> {formattedDonations}
+          <Text style={styles.currency}>G$ </Text>
+          <GoodDollarAmount amount={formattedDonations || '0'} />
         </Text>
       </TouchableOpacity>
     );
@@ -52,7 +49,8 @@ export const DonorsListItem = ({ donor, rank, userFullName }: DonorsListItemProp
         <Text style={[styles.title, { color: Colors.black }]}>{userIdentifier}</Text>
       </View>
       <Text style={styles.totalDonated}>
-        <Text style={styles.currency}>G$</Text> {formattedDonations}
+        <Text style={styles.currency}>G$ </Text>
+        <GoodDollarAmount amount={formattedDonations || '0'} />
       </Text>
     </TouchableOpacity>
   );

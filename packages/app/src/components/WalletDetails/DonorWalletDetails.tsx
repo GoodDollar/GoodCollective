@@ -4,6 +4,7 @@ import { styles } from './styles';
 import { formatTime } from '../../lib/formatTime';
 import { useDonorCollectivesFlowingBalances } from '../../hooks/useFlowingBalance';
 import { useCountPeopleSupported } from '../../hooks/useCountPeopleSupported';
+import { GoodDollarAmount } from '../GoodDollarAmount';
 
 interface DonorWalletDetailsProps {
   firstName: string;
@@ -12,7 +13,7 @@ interface DonorWalletDetailsProps {
 }
 
 function DonorWalletDetails({ firstName, donor, tokenPrice }: DonorWalletDetailsProps) {
-  const { formatted: formattedDonations, usdValue } = useDonorCollectivesFlowingBalances(donor.collectives, tokenPrice);
+  const { wei: formattedDonations, usdValue } = useDonorCollectivesFlowingBalances(donor.collectives, tokenPrice);
 
   const peopleSupported = useCountPeopleSupported(donor.collectives) ?? 0;
 
@@ -23,8 +24,12 @@ function DonorWalletDetails({ firstName, donor, tokenPrice }: DonorWalletDetails
         <View style={[styles.rowContent]}>
           <Text style={styles.rowTitle}>{firstName} has donated a total of</Text>
           <View style={[styles.row]}>
-            <Text style={styles.rowBoldText}>G$</Text>
-            <Text style={styles.rowText}>{formattedDonations}</Text>
+            <Text style={styles.rowBoldText}>G$ </Text>
+            <GoodDollarAmount
+              style={styles.rowText}
+              lastDigitsProps={{ style: { fontSize: 18, lineHeight: 27, fontWeight: '300' } }}
+              amount={formattedDonations || '0'}
+            />
           </View>
           <Text style={styles.formattedUsd}>= {usdValue} USD</Text>
         </View>
