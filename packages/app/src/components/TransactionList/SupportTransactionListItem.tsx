@@ -7,7 +7,7 @@ import { useFetchFullName } from '../../hooks/useFetchFullName';
 import { Text } from 'react-native';
 import { useMemo } from 'react';
 import { styles } from './styles';
-import { DonationTX, StreamStopTX, StreamTX } from '../../assets';
+import { DonationTX, StreamStopTX, StreamTX, StreamUpdateTX } from '../../assets';
 import { totalDurationInSeconds } from '../../lib/totalDurationInSeconds';
 import { Frequency } from '../../models/constants';
 import env from '../../lib/env';
@@ -20,7 +20,8 @@ interface SupportTransactionListItemProps {
 const getTxIcon = (transaction: SupportTx) => {
   if (transaction.isFlowUpdate) {
     if (transaction.flowRate === '0') return StreamStopTX;
-    else return StreamTX;
+    if (transaction.previousFlowRate !== '0') return StreamUpdateTX;
+    return StreamTX;
   }
   return DonationTX;
 };

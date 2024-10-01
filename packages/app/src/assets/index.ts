@@ -56,6 +56,7 @@ export { default as WalletConnectLogo } from './WalletConnectLogo.svg';
 export { default as WalletConnectLogoWhite } from './WalletConnectLogoWhite.svg';
 export { default as StreamTX } from './StreamTX.svg';
 export { default as StreamStopTX } from './StreamStopTX.svg';
+export { default as StreamUpdateTX } from './StreamUpdateTX.svg';
 export { default as DonationTX } from './DonationTX.svg';
 export { default as ClaimTX } from './ClaimTX.svg';
 export { default as PayoutTX } from './PayoutTX.svg';
