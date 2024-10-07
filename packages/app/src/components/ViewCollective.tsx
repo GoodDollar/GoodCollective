@@ -83,7 +83,8 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   const { wei: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateGoodDollarAmounts(
     totalRewards,
-    tokenPrice
+    tokenPrice,
+    2
   );
 
   if (isDesktopResolution) {

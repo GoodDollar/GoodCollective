@@ -12,13 +12,13 @@ export const formatFiatCurrency = (
   }).format(number);
 };
 
-export const formatNumberWithCommas = (num: string): string => {
+export const formatNumberWithCommas = (num: string, decimals = 4): string => {
   const number = parseFloat(num);
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-    minimumFractionDigits: 4,
-    maximumFractionDigits: 4,
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
   })
     .format(number)
     .substring(1);

@@ -10,7 +10,7 @@ interface StewardWalletDetailsProps {
 }
 
 function StewardWalletDetails({ firstName, steward, tokenPrice }: StewardWalletDetailsProps) {
-  const { formatted: formattedRewards, usdValue } = calculateGoodDollarAmounts(steward.totalEarned, tokenPrice);
+  const { formatted: formattedRewards, usdValue } = calculateGoodDollarAmounts(steward.totalEarned, tokenPrice, 2);
 
   return (
     <View style={styles.walletDetailsContainer}>

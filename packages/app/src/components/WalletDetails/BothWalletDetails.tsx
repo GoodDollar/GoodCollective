@@ -22,7 +22,8 @@ function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProp
 
   const { formatted: formattedRewards, usdValue: rewardsUsdValue } = calculateGoodDollarAmounts(
     steward.totalEarned,
-    tokenPrice
+    tokenPrice,
+    2
   );
 
   const peopleSupported = useCountPeopleSupported(donor.collectives) ?? 0;
@@ -74,7 +75,7 @@ function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProp
         <View style={styles.rowContent}>
           <Text style={styles.rowTitle}>And received</Text>
           <View style={[styles.row]}>
-            <Text style={styles.rowBoldText}>G$</Text>
+            <Text style={styles.rowBoldText}>G$ </Text>
             <Text style={styles.rowText}>{formattedRewards}</Text>
           </View>
           <Text>= {rewardsUsdValue} USD</Text>

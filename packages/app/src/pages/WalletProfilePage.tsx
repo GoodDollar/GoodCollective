@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from '../components/Layout/Layout';
-import { useDonorById, useStewardById } from '../hooks';
+import { useDonorById, useIsStewardVerified, useStewardById } from '../hooks';
 import { useParams } from 'react-router-native';
 import WalletProfile from '../components/WalletProfile';
 import { useEnsName } from 'wagmi';
@@ -25,6 +25,7 @@ function WalletProfilePage() {
 
   const userIdentifier = firstName ? `${firstName} ${lastName}` : ensName ?? address ?? '0x';
 
+  const isWhitelisted = useIsStewardVerified(address || '');
   return (
     <Layout breadcrumbPath={[{ text: userIdentifier, route: `/profile/${address}` }]}>
       <WalletProfile
@@ -34,6 +35,7 @@ function WalletProfilePage() {
         lastName={lastName}
         donor={donor}
         steward={steward}
+        isWhitelisted={isWhitelisted}
       />
     </Layout>
   );
