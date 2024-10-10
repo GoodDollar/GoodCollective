@@ -4532,6 +4532,8 @@ __metadata:
     react-native-svg: ^15.1.0
     react-native-svg-web: ^1.0.9
     react-native-web: 0.18.*
+    react-native-web-webview: ^1.0.2
+    react-native-webview: ^13.12.3
     react-router-dom: ^6.14.1
     react-router-native: ^6.14.1
     react-test-renderer: 18.2.0
@@ -32359,6 +32361,19 @@ __metadata:
     react: ^17.0.2 || ^18.0.0
     react-dom: ^17.0.2 || ^18.0.0
   checksum: 69f0ebafafc4b04b845105646d0efc0cee10ed378377c621ac67a487d5508bb0dbd1c0ff3ea8d17f5cff0c0fb8d6355916f52f19ad3dad842b99b75c65ff4973
+  languageName: node
+  linkType: hard
+
+"react-native-webview@npm:^13.12.3":
+  version: 13.12.3
+  resolution: "react-native-webview@npm:13.12.3"
+  dependencies:
+    escape-string-regexp: ^4.0.0
+    invariant: 2.2.4
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 94d824fedc6b5c0402926b99a96f71f4752416e4f038be827552015c0bf6d595d71ba656079618402662aec5e2c539018b0bff2906b6f95261f70893e5dd5d80
   languageName: node
   linkType: hard
 

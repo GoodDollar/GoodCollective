@@ -10,6 +10,8 @@ export const collectivesById = gql`
         id
         name
         description
+        rewardDescription
+        goodidDescription
         headerImage
         email
         website

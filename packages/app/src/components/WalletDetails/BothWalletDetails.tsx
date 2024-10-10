@@ -6,6 +6,7 @@ import { countUniqueValuesInTwoArrays } from '../../lib/countUniqueValuesInTwoAr
 import { calculateGoodDollarAmounts } from '../../lib/calculateGoodDollarAmounts';
 import { useDonorCollectivesFlowingBalances } from '../../hooks/useFlowingBalance';
 import { useCountPeopleSupported } from '../../hooks/useCountPeopleSupported';
+import { GoodDollarAmount } from '../GoodDollarAmount';
 
 interface BothWalletDetailsProps {
   donor: Donor;
@@ -14,14 +15,15 @@ interface BothWalletDetailsProps {
 }
 
 function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProps) {
-  const { formatted: formattedDonations, usdValue: donationsUsdValue } = useDonorCollectivesFlowingBalances(
+  const { wei: formattedDonations, usdValue: donationsUsdValue } = useDonorCollectivesFlowingBalances(
     donor.collectives,
     tokenPrice
   );
 
   const { formatted: formattedRewards, usdValue: rewardsUsdValue } = calculateGoodDollarAmounts(
     steward.totalEarned,
-    tokenPrice
+    tokenPrice,
+    2
   );
 
   const peopleSupported = useCountPeopleSupported(donor.collectives) ?? 0;
@@ -38,8 +40,12 @@ function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProp
         <View style={styles.rowContent}>
           <Text style={styles.rowTitle}>This wallet has donated a total of</Text>
           <View style={[styles.row]}>
-            <Text style={styles.rowBoldText}>G$</Text>
-            <Text style={styles.rowText}>{formattedDonations}</Text>
+            <Text style={styles.rowBoldText}>G$ </Text>
+            <GoodDollarAmount
+              style={styles.rowText}
+              lastDigitsProps={{ style: { fontSize: 18, lineHeight: 27, fontWeight: '300' } }}
+              amount={formattedDonations || '0'}
+            />
           </View>
           <Text style={styles.formattedUsd}>= {donationsUsdValue} USD</Text>
         </View>
@@ -69,7 +75,7 @@ function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProp
         <View style={styles.rowContent}>
           <Text style={styles.rowTitle}>And received</Text>
           <View style={[styles.row]}>
-            <Text style={styles.rowBoldText}>G$</Text>
+            <Text style={styles.rowBoldText}>G$ </Text>
             <Text style={styles.rowText}>{formattedRewards}</Text>
           </View>
           <Text>= {rewardsUsdValue} USD</Text>

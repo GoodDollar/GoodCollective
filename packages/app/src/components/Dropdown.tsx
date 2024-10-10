@@ -35,7 +35,6 @@ function Dropdown({ onSelect, value, options }: DropdownProps) {
         style={[
           styles.button,
           styles.row,
-          // eslint-disable-next-line react-native/no-inline-styles
           {
             flexGrow: 1,
             backgroundColor: getDropdownBGC(open),

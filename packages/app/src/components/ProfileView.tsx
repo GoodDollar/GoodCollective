@@ -1,52 +1,44 @@
-import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
 import { Link } from 'native-base';
-import { ProfileTypes } from '../models/ProfileTypes';
 import { useMemo } from 'react';
-import { profilePictures } from '../utils/profilePictures';
 import { VerifiedIcon } from '../assets';
+import env from '../lib/env';
 
 interface ProfileViewProps {
   firstName?: string;
   lastName?: string;
   ensDomain?: string;
   userAddress?: string;
-  profileType: ProfileTypes;
+  isWhitelisted?: boolean;
 }
 
-function ProfileView({ firstName, lastName, ensDomain, userAddress, profileType }: ProfileViewProps) {
+function ProfileView({ firstName, lastName, ensDomain, userAddress, isWhitelisted = false }: ProfileViewProps) {
   const profileImage = useMemo(() => {
-    return profilePictures.sort(() => Math.random())[0];
-  }, []);
-
-  const profileLink = 'https://app.prosperity.global';
+    return { uri: `https://robohash.org/${userAddress}` };
+  }, [userAddress]);
 
   const formattedAddress = userAddress?.slice(0, 6) + '...' + userAddress?.slice(-4);
 
+  const displayName = firstName ? firstName + ' ' + lastName : ensDomain ?? formattedAddress;
+  const secondary = firstName ? ensDomain ?? formattedAddress : ensDomain ? formattedAddress : undefined;
   return (
-    <TouchableOpacity style={styles.profileView}>
-      <Image source={profileImage} style={styles.pfp} />
-      <View style={styles.profileText}>
-        {profileType === ProfileTypes.nameAndDomain && (
-          <>
-            <Text style={styles.title}>
-              {firstName} {lastName} <Image source={VerifiedIcon} style={styles.verifiedIcon} />
-            </Text>
-            <Text style={styles.line}>{ensDomain}</Text>
-          </>
-        )}
-        {profileType === ProfileTypes.domain && <Text style={styles.title}>{ensDomain}</Text>}
-        {profileType === ProfileTypes.claimDomain && (
-          <>
-            <Text style={styles.title}>{formattedAddress}</Text>
-            <Link style={styles.line} href={profileLink} isExternal>
-              Claim your .Celo domain.
-            </Link>
-          </>
-        )}
-      </View>
-    </TouchableOpacity>
+    <Link href={`${env.REACT_APP_CELO_EXPLORER}/address/${userAddress}`} isExternal>
+      <TouchableOpacity style={styles.profileView}>
+        <Image source={profileImage} style={styles.pfp} />
+        <View style={styles.profileText}>
+          {
+            <>
+              <Text style={styles.title}>
+                {displayName} {isWhitelisted ? <Image source={VerifiedIcon} style={styles.verifiedIcon} /> : null}
+              </Text>
+              {secondary ? <Text style={styles.line}>{secondary}</Text> : null}
+            </>
+          }
+        </View>
+      </TouchableOpacity>
+    </Link>
   );
 }
 

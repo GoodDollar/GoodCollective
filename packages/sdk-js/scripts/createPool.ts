@@ -99,11 +99,13 @@ const updatePool = async (pool: string) => {
   console.log('updated pool', res);
 };
 const createUbiPool = async () => {
-  const projectId = 'gc';
+  const projectId = 'testing';
   const poolAttributes = {
-    name: 'First Dev UBI Pool',
+    name: 'Test subgraph events UBI Pool (Dev token)',
     description:
       'This Collective directly supports smallholder farmers around Kenya’s Kakamega forest. These farmers are acting as nurseries, growing and nurturing native trees to maturity for subsequent reforestation. In partnership with Silvi.',
+    rewardDescription: 'Daily UBI',
+    goodidDescription: 'Verified women from kenya',
     email: 'myemail@gmail.com',
     website: 'https://www.gooddollar.org',
     twitter: 'https://twitter.com/SilviProtocol',
@@ -121,11 +123,11 @@ const createUbiPool = async () => {
   const poolSettings: UBIPoolSettings = {
     manager: wallet.address,
     membersValidator: ethers.constants.AddressZero,
-    uniquenessValidator: ethers.constants.AddressZero,
-    rewardToken:
-      network === 'development-celo'
-        ? '0xFa51eFDc0910CCdA91732e6806912Fa12e2FD475'
-        : '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A', //celo production token
+    uniquenessValidator: '0xF25fA0D4896271228193E782831F6f3CFCcF169C',
+    rewardToken: '0xFa51eFDc0910CCdA91732e6806912Fa12e2FD475',
+    // network === 'development-celo'
+    //   ? '0xFa51eFDc0910CCdA91732e6806912Fa12e2FD475'
+    //   : '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A', //celo production token
   };
 
   const ubiSettings: UBISettings = {

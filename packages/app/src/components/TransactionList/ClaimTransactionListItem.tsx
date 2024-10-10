@@ -3,11 +3,9 @@ import { formatAddress } from '../../lib/formatAddress';
 import { useEnsName } from 'wagmi';
 import TransactionListItem from './TransactionListItem';
 import { useFetchFullName } from '../../hooks/useFetchFullName';
-import { formatGoodDollarAmount } from '../../lib/calculateGoodDollarAmounts';
-import { Text } from 'react-native';
 import { useMemo } from 'react';
-import { styles } from './styles';
 import { ClaimTX, PayoutTX } from '../../assets';
+import { GoodDollarAmount } from '../GoodDollarAmount';
 
 interface ClaimTransactionListItemProps {
   transaction: ClaimTx;
@@ -37,7 +35,7 @@ export function ClaimTransactionListItem({ transaction }: ClaimTransactionListIt
     multipleStewardsText ?? userFullName ?? ensName ?? (userAddress ? formatAddress(userAddress) : 'Unknown');
 
   const amount = useMemo(() => {
-    return <Text style={styles.amount}>{formatGoodDollarAmount(totalRewards)}</Text>;
+    return <GoodDollarAmount amount={totalRewards} />;
   }, [totalRewards]);
 
   return (

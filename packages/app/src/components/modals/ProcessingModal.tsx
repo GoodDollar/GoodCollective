@@ -2,22 +2,16 @@ import { Modal, StyleSheet, Text, View, Image, TouchableOpacity, Platform } from
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { Colors } from '../../utils/colors';
 import { CloseIcon, ThankYouImg } from '../../assets';
-import { IpfsCollective } from '../../models/models';
-import useCrossNavigate from '../../routes/useCrossNavigate';
+
 import { modalStyles } from '../shared';
 import { useEffect, useState } from 'react';
 
-interface ThankYouModalProps {
+interface ProcessingModalProps {
   openModal: boolean;
-  address?: `0x${string}`;
-  collective: IpfsCollective;
-  isStream: boolean;
 }
 
-const ThankYouModal = ({ openModal, address, collective, isStream }: ThankYouModalProps) => {
+const ProcessingModal = ({ openModal }: ProcessingModalProps) => {
   const [isOpen, setOpenModal] = useState(openModal);
-  const { navigate } = useCrossNavigate();
-  const onClick = () => navigate(`/profile/${address}`);
   useEffect(() => {
     setOpenModal(openModal);
   }, [openModal]);
@@ -30,16 +24,12 @@ const ThankYouModal = ({ openModal, address, collective, isStream }: ThankYouMod
               <Image source={CloseIcon} style={styles.closeIcon} />
             </TouchableOpacity>
           </View>
-          <Text style={styles.title}>THANK YOU!</Text>
-          <Text style={styles.paragraph}>{`You have just donated to ${collective.name} GoodCollective!`}</Text>
-          {isStream && (
-            <Text style={styles.paragraph}>
-              {`To stop your donation, visit the ${collective.name} GoodCollective page.`}
-            </Text>
-          )}
+          <Text style={styles.title}>{`Your transaction is processing`}</Text>
+          <Text style={styles.paragraph}>{`You can close this window or wait`}</Text>
+
           <Image source={ThankYouImg} alt="woman" style={styles.image} />
-          <TouchableOpacity style={styles.button} onPress={onClick}>
-            <Text style={styles.buttonText}>GO TO PROFILE</Text>
+          <TouchableOpacity style={styles.button} onPress={() => setOpenModal(false)}>
+            <Text style={styles.buttonText}>CLOSE</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -130,4 +120,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ThankYouModal;
+export default ProcessingModal;

@@ -35,6 +35,7 @@ import ErrorModal from './modals/ErrorModal';
 import FlowingDonationsRowItem from './FlowingDonationsRowItem';
 import { defaultInfoLabel, SUBGRAPH_POLL_INTERVAL } from '../models/constants';
 import env from '../lib/env';
+import ProcessingModal from './modals/ProcessingModal';
 
 interface ViewCollectiveProps {
   collective: Collective;
@@ -67,20 +68,23 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const isDonating = maybeDonorCollective && maybeDonorCollective.flowRate !== '0';
 
   const [stopDonationModalVisible, setStopDonationModalVisible] = useState(false);
+  const [processingModalVisible, setProcessingModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
 
   const handleStopDonation = useDeleteFlow(
     collective.address,
     maybeDonorCollective?.flowRate,
     (error) => setErrorMessage(error),
-    (value: boolean) => setStopDonationModalVisible(value)
+    (value: boolean) => setStopDonationModalVisible(value),
+    (value: boolean) => setProcessingModalVisible(value)
   );
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
 
-  const { formatted: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateGoodDollarAmounts(
+  const { wei: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateGoodDollarAmounts(
     totalRewards,
-    tokenPrice
+    tokenPrice,
+    2
   );
 
   if (isDesktopResolution) {
@@ -239,6 +243,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
           message={errorMessage ?? ''}
         />
         <StopDonationModal openModal={stopDonationModalVisible} setOpenModal={setStopDonationModalVisible} />
+        <ProcessingModal openModal={processingModalVisible} />
       </View>
     );
   }

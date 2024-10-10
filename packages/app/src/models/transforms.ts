@@ -84,6 +84,8 @@ export function ipfsSubgraphCollectiveToModel(subgraphCollective: {
     collective: subgraphCollective.id,
     name: subgraphCollective.ipfs?.name || '',
     description: subgraphCollective.ipfs?.description || '',
+    rewardDescription: subgraphCollective.ipfs?.rewardDescription || '',
+    goodidDescription: subgraphCollective.ipfs?.goodidDescription || '',
     email: subgraphCollective.ipfs?.email,
     twitter: subgraphCollective.ipfs?.twitter,
     instagram: subgraphCollective.ipfs?.instagram,

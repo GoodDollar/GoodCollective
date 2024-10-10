@@ -45,6 +45,8 @@ export interface IpfsCollective {
   collective: string; // collective address
   name: string;
   description: string;
+  rewardDescription?: string;
+  goodidDescription?: string;
   email?: string;
   website?: string;
   twitter?: string;

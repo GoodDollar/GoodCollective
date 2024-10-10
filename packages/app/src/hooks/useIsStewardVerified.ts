@@ -1,20 +1,17 @@
-import { ClaimSDK, useSDK } from '@gooddollar/web3sdk-v2';
-import { useEffect, useState } from 'react';
-import { SupportedNetwork } from '../models/constants';
+import { G$ContractAddresses, CONTRACT_TO_ABI } from '@gooddollar/web3sdk-v2';
+import { useContractRead, useNetwork } from 'wagmi';
 
 export const useIsStewardVerified = (address: string): boolean => {
-  const sdk = useSDK(false, 'claim', SupportedNetwork.CELO) as ClaimSDK;
-  const [isVerified, setIsVerified] = useState<boolean>(false);
+  const chain = useNetwork();
+  const idAddress = G$ContractAddresses('Identity', 'production-celo') as `0x{string}`;
+  const abi = CONTRACT_TO_ABI.Identity.abi;
+  const result = useContractRead({
+    chainId: chain.chain?.id,
+    abi,
+    address: idAddress,
+    args: [address],
+    functionName: 'isWhitelisted',
+  });
 
-  useEffect(() => {
-    const verify = async () => {
-      if (address && sdk) {
-        setIsVerified(await sdk.isAddressVerified(address));
-      }
-      return setIsVerified(false);
-    };
-    verify();
-  }, [address, sdk]);
-
-  return isVerified;
+  return result.data as any as boolean;
 };

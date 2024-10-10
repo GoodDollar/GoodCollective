@@ -1,1 +1,1 @@
-export { NativeRouter as Router, Route, Routes, Link, useNavigate as useMobileNavigate } from 'react-router-native';
+export { NativeRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-native';

@@ -8,6 +8,7 @@ import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
 import { SupportedNetwork } from '../models/constants';
 import Decimal from 'decimal.js';
 import { useTokenByAddress } from '../hooks/useTokenList';
+import { GoodDollarAmount } from './GoodDollarAmount';
 
 interface FlowingDonationsRowItemProps {
   rowInfo: string;
@@ -37,8 +38,11 @@ function FlowingDonationsRowItem({
   const balanceUsed = additionalBalance
     ? new Decimal(currentBalance).add(additionalBalance).toFixed(0, Decimal.ROUND_DOWN)
     : currentBalance;
-  const { formatted: formattedCurrentPool, usdValue: usdValueCurrentPool } =
-    useDonorCollectivesFlowingBalancesWithAltStaticBalance(balanceUsed, donorCollectives, tokenPrice);
+  const { wei, usdValue: usdValueCurrentPool } = useDonorCollectivesFlowingBalancesWithAltStaticBalance(
+    balanceUsed,
+    donorCollectives,
+    tokenPrice
+  );
 
   return (
     <View style={styles.row}>
@@ -49,7 +53,12 @@ function FlowingDonationsRowItem({
       <Text style={styles.rowData}>
         <View style={{ gap: 2 }}>
           <Text>
-            <Text>{token.symbol}</Text> <Text style={{ ...InterRegular }}>{formattedCurrentPool}</Text>
+            <Text>{token.symbol}</Text>{' '}
+            <GoodDollarAmount
+              style={{ ...InterRegular }}
+              lastDigitsProps={{ style: { ...InterRegular, color: Colors.gray[200], fontWeight: 400 } }}
+              amount={wei || '0'}
+            />
             {isDesktopResolution && currency && <Text style={styles.rowBalance}> = {usdValueCurrentPool} USD</Text>}
           </Text>
           {!isDesktopResolution && currency && <Text style={styles.rowBalance}>= {usdValueCurrentPool} USD</Text>}

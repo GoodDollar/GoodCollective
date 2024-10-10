@@ -1,6 +1,5 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { ProfileTypes } from '../models/ProfileTypes';
 import { Colors } from '../utils/colors';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import ProfileView from './ProfileView';
@@ -19,14 +18,14 @@ interface WalletProfileProps {
   lastName?: string;
   donor?: Donor;
   steward?: Steward;
+  isWhitelisted?: boolean;
 }
 
-function WalletProfile({ address, ensName, firstName, lastName, donor, steward }: WalletProfileProps) {
+function WalletProfile({ address, ensName, firstName, lastName, donor, steward, isWhitelisted }: WalletProfileProps) {
   const [isDesktopResolution] = useMediaQuery({
     minWidth: 920,
   });
 
-  const profileType = ensName ? ProfileTypes.nameAndDomain : ProfileTypes.claimDomain;
   const userIdentifier = firstName
     ? `${firstName} ${lastName}`
     : ensName
@@ -55,7 +54,7 @@ function WalletProfile({ address, ensName, firstName, lastName, donor, steward }
               lastName={lastName}
               ensDomain={ensName ?? undefined}
               userAddress={address}
-              profileType={profileType}
+              isWhitelisted={isWhitelisted}
             />
             <View style={styles.row}>
               <Image style={styles.lIcon} source={LightningIcon} />
@@ -85,7 +84,7 @@ function WalletProfile({ address, ensName, firstName, lastName, donor, steward }
             lastName={lastName}
             ensDomain={ensName ?? undefined}
             userAddress={address}
-            profileType={profileType}
+            isWhitelisted={isWhitelisted}
           />
           <View style={styles.row}>
             <Image style={styles.lIcon} source={LightningIcon} />

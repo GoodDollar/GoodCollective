@@ -95,6 +95,7 @@ type IpfsCollective @entity {
   name: String!
   description: String!
   rewardDescription: String
+  goodidDescription: String
   email: String
   website: String
   twitter: String
@@ -152,7 +153,8 @@ type ClaimEvent @entity {
   quantity: BigInt!
   rewardPerContributor: BigInt!
   contributors: [Steward!]!
-  nft: ProvableNFT!
+  # for ubi events nft is not required
+  nft: ProvableNFT
   claim: Claim!
 }
 

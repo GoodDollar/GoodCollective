@@ -71,12 +71,22 @@ export const DropdownMenu = (props: DropdownMenuProps) => {
             <Text style={styles.dropdownText}>About GoodCollective</Text>
           </TouchableOpacity>
           <View style={styles.dropdownSeparator} />
-          <TouchableOpacity style={styles.dropdownItem}>
+          <TouchableOpacity
+            style={styles.dropdownItem}
+            onPress={() => {
+              setOpenDropdown(false);
+              navigate('/tandc');
+            }}>
             <Image source={{ uri: termsUri }} resizeMode="contain" style={{ width: 20, height: 20 }} />
             <Text style={styles.dropdownText}>Terms & Conditions</Text>
           </TouchableOpacity>
           <View style={styles.dropdownSeparator} />
-          <TouchableOpacity style={styles.dropdownItem}>
+          <TouchableOpacity
+            style={styles.dropdownItem}
+            onPress={() => {
+              setOpenDropdown(false);
+              navigate('/privacy');
+            }}>
             <Image source={{ uri: privacyUri }} resizeMode="contain" style={{ width: 20, height: 20 }} />
             <Text style={styles.dropdownText}>Privacy Policy</Text>
           </TouchableOpacity>

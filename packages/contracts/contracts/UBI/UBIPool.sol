@@ -150,7 +150,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     function distributionFormula() internal returns (uint256) {
         // once every claim cycle
         uint256 currentDay = getCurrentDay();
-        if (currentDay > status.currentDay + ubiSettings.claimPeriodDays) {
+        if (currentDay >= status.currentDay + ubiSettings.claimPeriodDays) {
             status.currentDay = currentDay;
             uint32 cycleLength = ubiSettings.cycleLengthDays;
             uint256 currentBalance = settings.rewardToken.balanceOf(address(this));
@@ -390,10 +390,10 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
 
     function hasClaimed(address _member) public view returns (bool) {
         address whitelistedRoot = IIdentityV2(settings.uniquenessValidator).getWhitelistedRoot(_member);
-        return status.lastClaimed[whitelistedRoot] == status.currentDay;
+        return status.lastClaimed[whitelistedRoot] == getCurrentDay();
     }
 
     function nextClaimTime() public view returns (uint256) {
-        return (getCurrentDay() + 1) * (1 days)
+        return (getCurrentDay() + 1) * (1 days);
     }
 }

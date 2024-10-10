@@ -28,7 +28,8 @@ function StewardCollectiveCard({
 
   const { formatted: rewardsFormatted, usdValue: rewardsUsdValue } = calculateGoodDollarAmounts(
     collective.totalEarned,
-    tokenPrice
+    tokenPrice,
+    2
   );
 
   const dynamicContainerStyle = isDesktopResolution ? { width: '48%' } : {};

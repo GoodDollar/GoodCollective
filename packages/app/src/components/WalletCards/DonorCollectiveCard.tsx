@@ -7,6 +7,7 @@ import { DonorGreenIcon, InfoIcon } from '../../assets';
 import { useFlowingBalance } from '../../hooks/useFlowingBalance';
 import { useCountPeopleSupported } from '../../hooks/useCountPeopleSupported';
 import { defaultInfoLabel } from '../../models/constants';
+import { GoodDollarAmount } from '../GoodDollarAmount';
 
 interface DonorCollectiveCardProps {
   donorCollective: DonorCollective;
@@ -29,7 +30,7 @@ function DonorCollectiveCard({
 
   const peopleSupported = useCountPeopleSupported([donorCollective]) ?? 0;
 
-  const { formatted: donationsFormatted, usdValue: donationsUsdValue } = useFlowingBalance(
+  const { wei: donationsFormatted, usdValue: donationsUsdValue } = useFlowingBalance(
     donorCollective.contribution,
     donorCollective.timestamp, // Timestamp in Subgraph's UTC.
     donorCollective.flowRate,
@@ -54,7 +55,11 @@ function DonorCollectiveCard({
             <Text style={styles.info}>{userName} has donated</Text>
             <View style={styles.row}>
               <Text style={styles.bold}>G$ </Text>
-              <Text style={styles.totalReceived}>{donationsFormatted}</Text>
+              <GoodDollarAmount
+                style={styles.totalReceived}
+                lastDigitsProps={{ style: { fontSize: 18, fontWeight: '300' } }}
+                amount={donationsFormatted || '0'}
+              />
             </View>
             <Text style={styles.formattedUsd}>= {donationsUsdValue} USD</Text>
           </View>

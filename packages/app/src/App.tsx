@@ -1,4 +1,4 @@
-import { Platform, SafeAreaView, StyleSheet, Text } from 'react-native';
+import { SafeAreaView, StyleSheet, Text } from 'react-native';
 
 import AboutPage from './pages/AboutPage';
 import HomePage from './pages/HomePage';
@@ -6,9 +6,10 @@ import ViewCollectivePage from './pages/ViewCollectivePage';
 import ViewDonorsPage from './pages/ViewDonorsPage';
 import ViewStewardsPage from './pages/ViewStewardsPage';
 import WalletProfilePage from './pages/WalletProfilePage';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
 
-import * as MobileRoute from './routes/routing.native';
-import * as WebRoute from './routes/routing.web';
+import * as Routing from './routes/routing';
 
 import ActivityLogPage from './pages/ActivityLogPage';
 import { Providers } from './Providers';
@@ -75,36 +76,21 @@ function App(): JSX.Element {
         <ApolloProvider client={subgraphApolloClient}>
           <MongoDbApolloProvider client={mongoDbApolloClient}>
             <SafeAreaView style={styles.body}>
-              {Platform.OS !== 'web' && (
-                <MobileRoute.Router>
-                  <MobileRoute.Routes>
-                    <MobileRoute.Route path="/" element={<HomePage />} />
-                    <MobileRoute.Route path="/about" element={<AboutPage />} />
-                    <MobileRoute.Route path="/collective/:id" element={<ViewCollectivePage />} />
-                    <MobileRoute.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
-                    <MobileRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
-                    <MobileRoute.Route path="/profile/:id" element={<WalletProfilePage />} />
-                    <MobileRoute.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
-                    <MobileRoute.Route path="/donate" element={<DonatePage />} />
-                  </MobileRoute.Routes>
-                </MobileRoute.Router>
-              )}
-
-              {Platform.OS === 'web' && (
-                <WebRoute.Router>
-                  <WebRoute.Routes>
-                    <WebRoute.Route path="/" element={<HomePage />} />
-                    <WebRoute.Route path="/about" element={<AboutPage />} />
-                    <WebRoute.Route path="/collective/:id" element={<ViewCollectivePage />} />
-                    <WebRoute.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
-                    <WebRoute.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
-                    <WebRoute.Route path="/profile/:id" element={<WalletProfilePage />} />
-                    <WebRoute.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
-                    <WebRoute.Route path="/profile/" element={<WalletProfilePage />} />
-                    <WebRoute.Route path="/donate/:id" element={<DonatePage />} />
-                  </WebRoute.Routes>
-                </WebRoute.Router>
-              )}
+              <Routing.Router>
+                <Routing.Routes>
+                  <Routing.Route path="/" element={<HomePage />} />
+                  <Routing.Route path="/about" element={<AboutPage />} />
+                  <Routing.Route path="/collective/:id" element={<ViewCollectivePage />} />
+                  <Routing.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
+                  <Routing.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />
+                  <Routing.Route path="/profile/:id" element={<WalletProfilePage />} />
+                  <Routing.Route path="/profile/:id/activity" element={<ActivityLogPage />} />
+                  <Routing.Route path="/profile/" element={<WalletProfilePage />} />
+                  <Routing.Route path="/donate/:id" element={<DonatePage />} />
+                  <Routing.Route path="/privacy/" element={<PrivacyPage />} />
+                  <Routing.Route path="/tandc/" element={<TermsPage />} />
+                </Routing.Routes>
+              </Routing.Router>
             </SafeAreaView>
           </MongoDbApolloProvider>
         </ApolloProvider>
