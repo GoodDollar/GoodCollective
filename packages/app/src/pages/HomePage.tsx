@@ -1,13 +1,12 @@
 import { useRef } from 'react';
-import { withTheme } from '@gooddollar/good-design';
-import { Box, HStack, Text, useMediaQuery, VStack, ScrollView, Spinner } from 'native-base';
+import { useScreenSize, withTheme } from '@gooddollar/good-design';
+import { Box, HStack, ScrollView, Spinner, Text, useBreakpointValue, VStack } from 'native-base';
 
 import { useTotalStats } from '../hooks';
 
 import ActionButton from '../components/ActionButton';
 import CollectiveHomeCard from '../components/CollectiveHomeCard';
 import Layout from '../components/Layout/Layout';
-import { InterSemiBold } from '../utils/webFonts';
 
 import { IpfsCollective } from '../models/models';
 import { useCollectivesMetadata } from '../hooks';
@@ -40,56 +39,29 @@ export const theme = {
         paddingLeft: 15,
         paddingRight: 15,
       },
-      sectionContainerDesktop: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        gap: 24,
-      },
-    },
-    buttonStyles: {
-      buttonContainer: {
-        // flex: 1,
-        justifyContent: 'space-evenly',
-        marginTop: 8,
-      },
-      button: {
-        width: '100%',
-        height: 47,
-        flex: 1,
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingRight: 10,
-        paddingLeft: 10,
-        paddingTop: 1,
-        paddingBottom: 1,
-        fontSize: 'md',
-        fontWeight: 700,
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        borderRadius: 50,
-      },
-      buttonText: {
-        ...InterSemiBold,
-        fontSize: 'md',
-      },
-      forwardIcon: {
-        width: 18,
-        height: 18,
-      },
     },
   },
 };
 
-const HomePage = withTheme({ name: 'HomePage' })(({ containerStyles, buttonStyles }: HomePageProps) => {
+const HomePage = withTheme({ name: 'HomePage' })(({ containerStyles }: HomePageProps) => {
   const collectives = useCollectivesMetadata();
   const totalStats = useTotalStats();
 
-  const { body, sectionContainer, sectionContainerDesktop } = containerStyles ?? {};
+  const { body, sectionContainer } = containerStyles ?? {};
+  const { isTabletView } = useScreenSize();
 
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 920,
+  const collectivesContainer = useBreakpointValue({
+    base: {
+      ...sectionContainer,
+    },
+    md: {
+      ...sectionContainer,
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      alignItems: 'flex-start',
+      gap: 24,
+    },
   });
 
   const collectivesSectionRef = useRef<any>(null);
@@ -114,47 +86,49 @@ const HomePage = withTheme({ name: 'HomePage' })(({ containerStyles, buttonStyle
               <Text variant="md-grey" textAlign="center">{`GoodCollective is committed to empowering
 individuals and communities by providing direct digital payments to those who need it most.`}</Text>
             </VStack>
-            <VStack space={4}>
-              <Text variant="2xl-grey" textAlign="center" fontWeight="700">
-                Impact to Date
-              </Text>
-              <HStack space={0} justifyContent="space-evenly">
-                {Object.values(totalStats).map(({ amount, copy }) => (
-                  <VStack key={copy} space={0} textAlign="center" minWidth="220">
-                    <Text variant="3xl-grey" color="goodPurple.400" fontWeight="700" fontFamily="heading">
-                      {amount}
-                    </Text>
-                    <Text variant="md-grey">{copy}</Text>
-                  </VStack>
-                ))}
-              </HStack>
-            </VStack>
-            <VStack space={0}>
-              <HStack space={2} justifyContent="center">
-                <ActionButton
-                  href="https://gooddollar.org/goodcollective-how-it-works"
-                  text="How it works"
-                  bg="goodPurple.400"
-                  textColor="white"
-                  buttonStyles={buttonStyles}
-                />
-              </HStack>
-              <HStack space={2} justifyContent="center">
-                <ActionButton
-                  text="Donate to a GoodCollective"
-                  bg="goodGreen.200"
-                  textColor="goodGreen.400"
-                  onPress={scrollToCollectives}
-                  buttonStyles={buttonStyles}
-                />
-                <ActionButton
-                  href="https://gooddollar.typeform.com/creategood"
-                  text="Create a GoodCollective"
-                  bg="goodPurple.100"
-                  textColor="goodPurple.400"
-                  buttonStyles={buttonStyles}
-                />
-              </HStack>
+            <VStack space={isTabletView ? 8 : 0} flexDirection={isTabletView ? 'column' : 'column-reverse'}>
+              <VStack space={isTabletView ? 4 : 0} paddingTop={4}>
+                <Text variant="2xl-grey" textAlign="center" fontWeight="700">
+                  Impact to Date
+                </Text>
+                <HStack space={0} justifyContent="space-evenly" flexDir={isTabletView ? 'row' : 'column'}>
+                  {Object.values(totalStats).map(({ amount, copy }) => (
+                    <VStack key={copy} space={0} paddingTop={2} textAlign="center" minWidth="220">
+                      <Text variant="3xl-grey" color="goodPurple.400" fontWeight="700" fontFamily="heading">
+                        {amount}
+                      </Text>
+                      <Text variant="md-grey">{copy}</Text>
+                    </VStack>
+                  ))}
+                </HStack>
+              </VStack>
+              <VStack
+                space={0}
+                {...(isTabletView ? {} : { borderBottomWidth: 0.5, borderBottomColor: 'borderGrey' })}
+                paddingBottom={4}>
+                <HStack space={2} justifyContent="center" minWidth="100%">
+                  <ActionButton
+                    href="https://gooddollar.org/goodcollective-how-it-works"
+                    text="How it works"
+                    bg="goodPurple.400"
+                    textColor="white"
+                  />
+                </HStack>
+                <HStack space={2} justifyContent="center" flexDir={isTabletView ? 'row' : 'column'}>
+                  <ActionButton
+                    text="Donate to a GoodCollective"
+                    bg="goodGreen.200"
+                    textColor="goodGreen.400"
+                    onPress={scrollToCollectives}
+                  />
+                  <ActionButton
+                    href="https://gooddollar.typeform.com/creategood"
+                    text="Create a GoodCollective"
+                    bg="goodPurple.100"
+                    textColor="goodPurple.400"
+                  />
+                </HStack>
+              </VStack>
             </VStack>
           </VStack>
           <VStack space={10}>
@@ -171,7 +145,7 @@ individuals and communities by providing direct digital payments to those who ne
                   textAlign="center">{`Check out existing GoodCollective pools and support existing members, or start your own!`}</Text>
               </VStack>
             </VStack>
-            <VStack space={0} style={[sectionContainer, isDesktopResolution ? sectionContainerDesktop : {}]}>
+            <VStack space={0} {...collectivesContainer}>
               {!collectives ? (
                 <Text>Loading...</Text>
               ) : (
