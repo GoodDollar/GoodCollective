@@ -126,7 +126,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         ubiSettings = _ubiSettings;
         _verifyPoolSettings(_settings);
         _verifyUBISettings(_ubiSettings);
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender); // when using factory this gives factory role which then set role to the real msg.sender
         _setupRole(MANAGER_ROLE, _settings.manager);
         setSuperToken(ISuperToken(address(settings.rewardToken)));
     }
@@ -394,6 +394,6 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     }
 
     function nextClaimTime() public view returns (uint256) {
-        return (getCurrentDay() + 1) * (1 days);
+        return (getCurrentDay() + ubiSettings.claimPeriodDays) * (1 days) + 12 hours;
     }
 }
