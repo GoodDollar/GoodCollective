@@ -8,7 +8,7 @@ export const nbTheme = extendTheme({
   fontConfig: getPlatformFamilies(fontConfig),
   colors: {
     /* g$ design system */
-    primary: '#00AFFF',
+    gdPrimary: '#00AFFF',
     primaryHoverDark: '#0075AC',
     white: '#FFFFFF',
     black: '#000000',
@@ -81,6 +81,15 @@ export const nbTheme = extendTheme({
   components: {
     ...components,
     ...pages,
+    Spinner: {
+      variants: {
+        'page-loader': () => ({
+          borderWidth: '0',
+          color: 'gdPrimary',
+          paddingBottom: 4,
+        }),
+      },
+    },
     Text: {
       baseStyle: {
         color: 'goodGrey.600',

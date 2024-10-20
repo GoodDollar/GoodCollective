@@ -1,8 +1,10 @@
 import { useRef } from 'react';
 import { withTheme } from '@gooddollar/good-design';
+import { Box, HStack, Text, useMediaQuery, VStack, ScrollView, Spinner } from 'native-base';
 
-import { Box, HStack, Link, Text, Pressable, useMediaQuery, VStack, ScrollView } from 'native-base';
+import { useTotalStats } from '../hooks';
 
+import ActionButton from '../components/ActionButton';
 import CollectiveHomeCard from '../components/CollectiveHomeCard';
 import Layout from '../components/Layout/Layout';
 import { InterSemiBold } from '../utils/webFonts';
@@ -80,24 +82,10 @@ export const theme = {
   },
 };
 
-const placeHolderTotalStats = {
-  pools: {
-    amount: 'G$ 230',
-    copy: 'GoodCollective pools',
-  },
-  totalDonations: {
-    amount: 'G$ 2,300.000',
-    copy: 'Total donations',
-  },
-  totalMembers: {
-    amount: 'G$ 230',
-    copy: 'Total members',
-  },
-};
-
 const HomePage = withTheme({ name: 'HomePage' })(({ containerStyles, buttonStyles }: HomePageProps) => {
   const collectives = useCollectivesMetadata();
-  const { buttonContainer, button, buttonText } = buttonStyles ?? {};
+  const totalStats = useTotalStats();
+
   const { body, sectionContainer, sectionContainerDesktop } = containerStyles ?? {};
 
   const [isDesktopResolution] = useMediaQuery({
@@ -111,6 +99,8 @@ const HomePage = withTheme({ name: 'HomePage' })(({ containerStyles, buttonStyle
       collectivesSectionRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  if (!totalStats) return <Spinner variant="page-loader" size="lg" />;
 
   return (
     <Layout>
@@ -129,8 +119,8 @@ individuals and communities by providing direct digital payments to those who ne
                 Impact to Date
               </Text>
               <HStack space={0} justifyContent="space-evenly">
-                {Object.values(placeHolderTotalStats).map(({ amount, copy }) => (
-                  <VStack key={copy} space={0} textAlign="center">
+                {Object.values(totalStats).map(({ amount, copy }) => (
+                  <VStack key={copy} space={0} textAlign="center" minWidth="220">
                     <Text variant="3xl-grey" color="goodPurple.400" fontWeight="700" fontFamily="heading">
                       {amount}
                     </Text>
@@ -141,29 +131,29 @@ individuals and communities by providing direct digital payments to those who ne
             </VStack>
             <VStack space={0}>
               <HStack space={2} justifyContent="center">
-                <Link href="https://gooddollar.typeform.com/creategood" isExternal {...buttonContainer} marginTop="0">
-                  <Pressable {...button} backgroundColor="goodPurple.400">
-                    <Text {...buttonText} color="white">
-                      How it works
-                    </Text>
-                  </Pressable>
-                </Link>
+                <ActionButton
+                  href="https://gooddollar.org/goodcollective-how-it-works"
+                  text="How it works"
+                  bg="goodPurple.400"
+                  textColor="white"
+                  buttonStyles={buttonStyles}
+                />
               </HStack>
               <HStack space={2} justifyContent="center">
-                <Box {...buttonContainer}>
-                  <Pressable onPress={scrollToCollectives} {...button} backgroundColor={'goodGreen.200'}>
-                    <Text {...buttonText} color={'goodGreen.400'}>
-                      Donate to a GoodCollective
-                    </Text>
-                  </Pressable>
-                </Box>
-                <Link href={'https://gooddollar.typeform.com/creategood'} {...buttonContainer}>
-                  <Pressable onPress={scrollToCollectives} {...button} backgroundColor={'goodPurple.100'}>
-                    <Text {...buttonText} color={'goodPurple.400'}>
-                      Create a GoodCollective
-                    </Text>
-                  </Pressable>
-                </Link>
+                <ActionButton
+                  text="Donate to a GoodCollective"
+                  bg="goodGreen.200"
+                  textColor="goodGreen.400"
+                  onPress={scrollToCollectives}
+                  buttonStyles={buttonStyles}
+                />
+                <ActionButton
+                  href="https://gooddollar.typeform.com/creategood"
+                  text="Create a GoodCollective"
+                  bg="goodPurple.100"
+                  textColor="goodPurple.400"
+                  buttonStyles={buttonStyles}
+                />
               </HStack>
             </VStack>
           </VStack>
