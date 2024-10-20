@@ -4,7 +4,6 @@ import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import ActivityLog from '../components/ActivityLog';
 import { Colors } from '../utils/colors';
 import ProfileView from '../components/ProfileView';
-import { ProfileTypes } from '../models/ProfileTypes';
 import { LightningIcon } from '../assets';
 
 function ActivityLogPage() {
@@ -18,7 +17,6 @@ function ActivityLogPage() {
               lastName={'Doe'}
               ensDomain={'John.CELO'}
               userAddress={'q827tbc1386..134c'}
-              profileType={ProfileTypes.domain}
             />
           </View>
 

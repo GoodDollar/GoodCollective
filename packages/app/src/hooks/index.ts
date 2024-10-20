@@ -6,3 +6,4 @@ export * from './useContractCalls';
 export * from './useGetTokenPrice';
 export * from './useIsStewardVerified';
 export * from './useEthers';
+export * from './useTotalStats';
