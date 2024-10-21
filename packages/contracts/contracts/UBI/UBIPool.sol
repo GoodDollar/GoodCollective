@@ -28,6 +28,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
 
     error CLAIMFOR_DISABLED();
     error NOT_MEMBER(address claimer);
+    error NOT_MANAGER(address manager);
     error NOT_WHITELISTED(address whitelistedRoot);
     error ALREADY_CLAIMED(address whitelistedRoot);
     error INVALID_0_VALUE();
@@ -273,7 +274,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         }
         // if no members validator then if members only only manager can add members
         else if (ubiSettings.onlyMembers && hasRole(MANAGER_ROLE, msg.sender) == false) {
-            revert NOT_MEMBER(member);
+            revert NOT_MANAGER(member);
         }
 
         _grantRole(MEMBER_ROLE, member);
