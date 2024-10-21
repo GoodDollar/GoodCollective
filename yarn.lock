@@ -4489,7 +4489,7 @@ __metadata:
     "@celo-tools/celo-ethers-wrapper": ^0.4.0
     "@ethersproject/shims": ^5.7.0
     "@gooddollar/good-design": ^0.1.57
-    "@gooddollar/goodcollective-sdk": ^1.1.1
+    "@gooddollar/goodcollective-sdk": ^1.1.2
     "@gooddollar/web3sdk-v2": ^0.2.34
     "@nerdwallet/apollo-cache-policies": ^3.2.0
     "@react-native-aria/interactions": 0.2.3
@@ -4615,7 +4615,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@gooddollar/goodcollective-sdk@^1.1.1, @gooddollar/goodcollective-sdk@workspace:packages/sdk-js":
+"@gooddollar/goodcollective-sdk@^1.1.2, @gooddollar/goodcollective-sdk@workspace:packages/sdk-js":
   version: 0.0.0-use.local
   resolution: "@gooddollar/goodcollective-sdk@workspace:packages/sdk-js"
   dependencies:
