@@ -99,7 +99,7 @@ describe('DirectPaymentsFactory', () => {
     expect(await factory.hasRole(factory.DEFAULT_ADMIN_ROLE(), signer.address)).to.be.true;
 
     expect(await nft.hasRole(nft.DEFAULT_ADMIN_ROLE(), signer.address)).to.be.true;
-    expect(await nft.hasRole(await nft.getManagerRole('1'), signers[1].address)).to.be.true;
+    expect(await nft.hasRole(await nft.getManagerRole('1'), signers[1].address)).to.be.false;
     expect(await nft.hasRole(await nft.getManagerRole('1'), pool.address)).to.be.true;
 
     expect(await pool.hasRole(pool.DEFAULT_ADMIN_ROLE(), signer.address)).to.be.true;
