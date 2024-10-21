@@ -2,7 +2,6 @@ import { extendTheme } from 'native-base';
 import { fontConfig, getPlatformFamilies } from '@gooddollar/good-design';
 
 import * as components from '../components/theme';
-import * as pages from '../pages/theme';
 
 export const nbTheme = extendTheme({
   fontConfig: getPlatformFamilies(fontConfig),
@@ -80,7 +79,6 @@ export const nbTheme = extendTheme({
   },
   components: {
     ...components,
-    ...pages,
     Spinner: {
       variants: {
         'page-loader': () => ({
