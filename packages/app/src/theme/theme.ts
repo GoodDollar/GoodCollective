@@ -7,7 +7,7 @@ export const nbTheme = extendTheme({
   fontConfig: getPlatformFamilies(fontConfig),
   colors: {
     /* g$ design system */
-    gdPrimary: '#00AFFF',
+    primary: '#00AEFF',
     primaryHoverDark: '#0075AC',
     white: '#FFFFFF',
     black: '#000000',
@@ -55,8 +55,8 @@ export const nbTheme = extendTheme({
     // custom keys for breakpoints cannot be used in useBreakpoint hook so we override defaults
     base: 0,
     sm: 375,
-    md: 720,
-    lg: 976,
+    md: 580,
+    lg: 920,
     xl: 1280,
     '2xl': 1440,
   },
@@ -83,7 +83,7 @@ export const nbTheme = extendTheme({
       variants: {
         'page-loader': () => ({
           borderWidth: '0',
-          color: 'gdPrimary',
+          color: 'primary',
           paddingBottom: 4,
         }),
       },

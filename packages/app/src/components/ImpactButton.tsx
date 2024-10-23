@@ -1,8 +1,9 @@
 import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
-import { useMediaQuery } from 'native-base';
 import { chevronRight } from '../assets';
+import { useScreenSize } from '../theme/hooks';
 
 interface ImpactButtonProps {
   title: string;
@@ -10,13 +11,11 @@ interface ImpactButtonProps {
 }
 
 function ImpactButton({ title, onClick }: ImpactButtonProps) {
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 920,
-  });
+  const { isDesktopView } = useScreenSize();
 
   return (
-    <TouchableOpacity style={[styles.button, isDesktopResolution && styles.desktopButton]} onPress={onClick}>
-      <View style={[styles.buttonContent, isDesktopResolution && styles.buttonDesktopContent]}>
+    <TouchableOpacity style={[styles.button, isDesktopView && styles.desktopButton]} onPress={onClick}>
+      <View style={[styles.buttonContent, isDesktopView && styles.buttonDesktopContent]}>
         <Text style={styles.buttonText}>{title}</Text>
         <Image source={chevronRight} style={styles.icon} />
       </View>

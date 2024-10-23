@@ -1,15 +1,17 @@
 import { ReactNode } from 'react';
-import Header from '../Header/Header';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
-import ImpactButton from '../ImpactButton';
 import { useLocation } from 'react-router-native';
-import { Colors } from '../../utils/colors';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { useAccount } from 'wagmi';
-import { useMediaQuery } from 'native-base';
+
+import ImpactButton from '../ImpactButton';
+import { Colors } from '../../utils/colors';
+import Header from '../Header/Header';
+
+import { useScreenSize } from '../../theme/hooks';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import Breadcrumb, { BreadcrumbPathEntry } from './Breadcrumb';
 import { DesktopPageContentContainer } from './DesktopPageContentContainer';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 interface LayoutProps {
   children: ReactNode;
@@ -21,9 +23,7 @@ function Layout({ children, breadcrumbPath }: LayoutProps) {
   const scrollViewHeight = safeAreaHeight - 105;
 
   const { address } = useAccount();
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 920,
-  });
+  const { isDesktopView } = useScreenSize();
 
   const location = useLocation();
   const { navigate } = useCrossNavigate();
@@ -33,7 +33,7 @@ function Layout({ children, breadcrumbPath }: LayoutProps) {
 
   const bodyStyles = {
     ...styles.body,
-    backgroundColor: isDesktopResolution ? Colors.brown[200] : Colors.gray[400],
+    backgroundColor: isDesktopView ? Colors.brown[200] : Colors.gray[400],
   };
 
   const scrollViewStyles = [
@@ -45,7 +45,7 @@ function Layout({ children, breadcrumbPath }: LayoutProps) {
   return (
     <View style={bodyStyles}>
       <Header />
-      {isDesktopResolution ? (
+      {isDesktopView ? (
         <View style={styles.desktopScrollView}>
           {breadcrumbPath && <Breadcrumb path={breadcrumbPath} />}
           <DesktopPageContentContainer>
@@ -58,9 +58,7 @@ function Layout({ children, breadcrumbPath }: LayoutProps) {
       ) : (
         <ScrollView style={scrollViewStyles}>{children}</ScrollView>
       )}
-      {isCollectivePage && !isDesktopResolution && (
-        <ImpactButton title="SEE YOUR IMPACT" onClick={onClickImpactButton} />
-      )}
+      {isCollectivePage && !isDesktopView && <ImpactButton title="SEE YOUR IMPACT" onClick={onClickImpactButton} />}
     </View>
   );
 }

@@ -1,63 +1,61 @@
 import { Text, View } from 'native-base';
-import { withTheme } from '@gooddollar/good-design';
 
-export const theme = {
-  baseStyle: {
-    fontStyles: {
-      title: {
-        fontWeight: 700,
-        color: 'black',
-        fontFamily: 'heading',
-        fontSize: 'md',
-      },
-      subTitle: {
-        color: 'goodGrey.500',
-        fontWeight: 700,
-        lineHeight: 24,
-        fontFamily: 'heading',
-        fontSize: 'sm',
-      },
-      paragraph: {
-        color: 'goodGrey.500',
-        width: '100%',
-        lineHeight: 24,
-        fontWeight: 400,
-        fontSize: 'sm',
-      },
+export const aboutCardStyles = {
+  font: {
+    title: {
+      fontWeight: 700,
+      color: 'black',
+      fontFamily: 'heading',
+      fontSize: 'md',
     },
-    styles: {
-      aboutContainer: {
-        padding: 15,
-        marginBottom: 10,
+    subTitle: {
+      color: 'goodGrey.500',
+      fontWeight: 700,
+      lineHeight: 24,
+      fontFamily: 'heading',
+      fontSize: 'sm',
+    },
+    paragraph: {
+      color: 'goodGrey.500',
+      width: '100%',
+      lineHeight: 24,
+      fontWeight: 400,
+      fontSize: 'sm',
+    },
+  },
+  container: {
+    aboutContainer: {
+      padding: 15,
+      marginBottom: 10,
+    },
+    mainContainer: {
+      width: '100%',
+      backgroundColor: 'white',
+      paddingVertical: 16,
+      paddingHorizontal: 12,
+      borderRadius: 20,
+      gap: 24,
+    },
+    elevation: {
+      shadowColor: 'black',
+      shadowOffset: {
+        width: 0,
+        height: 12,
       },
-      mainContainer: {
-        width: '100%',
-        backgroundColor: 'white',
-        paddingVertical: 16,
-        paddingHorizontal: 12,
-        borderRadius: 20,
-        gap: 24,
-      },
-      elevation: {
-        shadowColor: 'black',
-        shadowOffset: {
-          width: 0,
-          height: 12,
-        },
-        shadowOpacity: 0.15,
-        shadowRadius: 15,
-        elevation: 24,
-      },
+      shadowOpacity: 0.15,
+      shadowRadius: 15,
+      elevation: 24,
     },
   },
 };
 
-const AboutCard = withTheme({ name: 'AboutCard' })(({ styles, fontStyles, ...props }: any) => {
-  const { title, subTitle, paragraph } = fontStyles;
+const AboutCard = () => {
+  const { font, container } = aboutCardStyles;
+  const { title, subTitle, paragraph } = font;
 
   return (
-    <View style={styles.aboutContainer}>
-      <View style={[styles.mainContainer, styles.elevation]}>
+    <View style={container.aboutContainer}>
+      <View style={[container.mainContainer, container.elevation]}>
         <Text {...title}>About Collective</Text>
         <Text {...paragraph}>
           GoodCollective makes visible the climate stewardship activities of individuals, and provides a direct channel
@@ -103,6 +101,6 @@ const AboutCard = withTheme({ name: 'AboutCard' })(({ styles, fontStyles, ...pro
       </View>
     </View>
   );
-});
+};
 
 export default AboutCard;

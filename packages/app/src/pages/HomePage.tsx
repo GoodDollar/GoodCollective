@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren, useRef } from 'react';
 import { useScreenSize } from '@gooddollar/good-design';
-import { Box, Factory, HStack, ScrollView, Spinner, Text, useBreakpointValue, VStack } from 'native-base';
+import { Box, HStack, ScrollView, Spinner, Text, useBreakpointValue, VStack } from 'native-base';
 
 import { useTotalStats } from '../hooks';
 
@@ -11,59 +11,51 @@ import Layout from '../components/Layout/Layout';
 import { IpfsCollective } from '../models/models';
 import { useCollectivesMetadata } from '../hooks';
 
-//@ts-ignore
-const HomePageContainer = Factory(VStack, {
-  baseStyle: () => ({
-    flex: 1,
-    paddingY: 5,
-    minHeight: 'auto',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    shadow: 1,
-    padding: 4,
-    width: '100%',
-    backgroundColor: 'white',
-    borderRadius: 16,
-    maxWidth: 1312,
-  }),
-});
+const homeContainerStyles = {
+  flex: 1,
+  paddingY: 5,
+  minHeight: 'auto',
+  marginLeft: 'auto',
+  marginRight: 'auto',
+  shadow: 1,
+  padding: 4,
+  width: '100%',
+  backgroundColor: 'white',
+  borderRadius: 16,
+  maxWidth: 1312,
+};
 
 const CollectivesContainer: FC<PropsWithChildren> = ({ children }) => {
-  const styles = {
+  const collectiveStyles = {
     marginBottom: 20,
     paddingTop: 0,
     paddingLeft: 15,
     paddingRight: 15,
   };
 
-  const containerStyles = useBreakpointValue({
+  const container = useBreakpointValue({
     base: {
-      ...styles,
+      ...collectiveStyles,
+      space: 0,
     },
-    md: {
-      ...styles,
+    lg: {
+      ...collectiveStyles,
       flexDirection: 'row',
       flexWrap: 'wrap',
       justifyContent: 'center',
       alignItems: 'flex-start',
-      gap: 6,
+      space: 6,
     },
   });
 
-  const Container = Factory(VStack);
-
-  return (
-    <Container space={0} {...containerStyles}>
-      {children}
-    </Container>
-  );
+  return <VStack {...container}>{children}</VStack>;
 };
 
 const HomePage = () => {
   const collectives = useCollectivesMetadata();
   const totalStats = useTotalStats();
 
-  const { isTabletView } = useScreenSize();
+  const { isDesktopView } = useScreenSize();
 
   const collectivesSectionRef = useRef<any>(null);
 
@@ -78,7 +70,7 @@ const HomePage = () => {
   return (
     <Layout>
       <ScrollView>
-        <HomePageContainer space={4}>
+        <VStack {...homeContainerStyles} space={4}>
           <VStack space={8}>
             <VStack space={2}>
               <Text variant="3xl-grey" textAlign="center" fontWeight="700">
@@ -87,12 +79,12 @@ const HomePage = () => {
               <Text variant="md-grey" textAlign="center">{`GoodCollective is committed to empowering
 individuals and communities by providing direct digital payments to those who need it most.`}</Text>
             </VStack>
-            <VStack space={isTabletView ? 8 : 0} flexDirection={isTabletView ? 'column' : 'column-reverse'}>
-              <VStack space={isTabletView ? 4 : 0} paddingTop={4}>
+            <VStack space={isDesktopView ? 8 : 0} flexDirection={isDesktopView ? 'column' : 'column-reverse'}>
+              <VStack space={isDesktopView ? 4 : 0} paddingTop={4}>
                 <Text variant="2xl-grey" textAlign="center" fontWeight="700">
                   Impact to Date
                 </Text>
-                <HStack space={0} justifyContent="space-evenly" flexDir={isTabletView ? 'row' : 'column'}>
+                <HStack space={0} justifyContent="space-evenly" flexDir={isDesktopView ? 'row' : 'column'}>
                   {Object.values(totalStats).map(({ amount, copy }) => (
                     <VStack key={copy} space={0} paddingTop={2} textAlign="center" minWidth="220">
                       <Text variant="3xl-grey" color="goodPurple.400" fontWeight="700" fontFamily="heading">
@@ -105,7 +97,7 @@ individuals and communities by providing direct digital payments to those who ne
               </VStack>
               <VStack
                 space={0}
-                {...(isTabletView ? {} : { borderBottomWidth: 0.5, borderBottomColor: 'borderGrey' })}
+                {...(isDesktopView ? {} : { borderBottomWidth: 0.5, borderBottomColor: 'borderGrey' })}
                 paddingBottom={4}>
                 <HStack space={2} justifyContent="center" minWidth="100%">
                   <ActionButton
@@ -115,7 +107,7 @@ individuals and communities by providing direct digital payments to those who ne
                     textColor="white"
                   />
                 </HStack>
-                <HStack space={2} justifyContent="center" flexDir={isTabletView ? 'row' : 'column'}>
+                <HStack space={2} justifyContent="center" flexDir={isDesktopView ? 'row' : 'column'}>
                   <ActionButton
                     text="Donate to a GoodCollective"
                     bg="goodGreen.200"
@@ -162,7 +154,7 @@ individuals and communities by providing direct digital payments to those who ne
               )}
             </CollectivesContainer>
           </VStack>
-        </HomePageContainer>
+        </VStack>
       </ScrollView>
     </Layout>
   );
