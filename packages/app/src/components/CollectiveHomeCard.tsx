@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, TouchableOpacityProps, View } from 'react-native';
 
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
@@ -16,7 +16,7 @@ interface CollectiveHomeCardProps {
 
 function CollectiveHomeCard({ name, description, headerImage, route }: CollectiveHomeCardProps) {
   const { navigate } = useCrossNavigate();
-  const { isDesktopView } = useScreenSize();
+  const { isDesktopView, isTabletView } = useScreenSize();
 
   const headerImg = headerImage ? { uri: headerImage } : Ocean;
 
@@ -29,6 +29,7 @@ function CollectiveHomeCard({ name, description, headerImage, route }: Collectiv
         styles.elevation,
         isDesktopView ? styles.cardContainerDesktop : {},
         isParagraphExpanded ? { height: 'auto' } : {},
+        isTabletView ? { marginBottom: 20 } : {},
       ]}
       onPress={() => navigate(`/collective/${route}`)}>
       <Image source={headerImg} style={styles.sectionImage} />

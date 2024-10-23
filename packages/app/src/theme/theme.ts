@@ -1,8 +1,6 @@
 import { extendTheme } from 'native-base';
 import { fontConfig, getPlatformFamilies } from '@gooddollar/good-design';
 
-import * as components from '../components/theme';
-
 export const nbTheme = extendTheme({
   fontConfig: getPlatformFamilies(fontConfig),
   colors: {
@@ -11,16 +9,16 @@ export const nbTheme = extendTheme({
     primaryHoverDark: '#0075AC',
     white: '#FFFFFF',
     black: '#000000',
-    defaultGrey: '#F3F3F3',
+
     // text
     goodGrey: {
-      50: '#F4F4F4',
-      100: '#E6E6E6',
-      200: '#CCCCCC',
-      300: '#B0B0B0',
-      400: '#1F2937',
-      500: '#5A5A5A',
-      600: '#000000',
+      50: '#F3F3F3',
+      100: '#F4F4F4',
+      200: '#E6E6E6',
+      300: '#CCCCCC',
+      400: '#B0B0B0',
+      500: '#1F2937',
+      600: '#5A5A5A',
     },
     goodPurple: {
       100: '#E2EAFF',
@@ -78,12 +76,11 @@ export const nbTheme = extendTheme({
     '4xl': 60,
   },
   components: {
-    ...components,
     Spinner: {
       variants: {
         'page-loader': () => ({
           borderWidth: '0',
-          color: 'primary',
+          color: 'goodPurple.400',
           paddingBottom: 4,
         }),
       },

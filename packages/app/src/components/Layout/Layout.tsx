@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
       native: 'scroll',
       default: 'auto',
     }),
-    backgroundColor: 'defaultGrey',
+    backgroundColor: 'goodGrey.50',
   },
 });
 
