@@ -3,6 +3,7 @@ import { Box, HStack, ScrollView, Spinner, Text, useBreakpointValue, VStack } fr
 import { Platform } from 'react-native';
 
 import { useTotalStats } from '../hooks';
+import type { TotalStats } from '../hooks';
 import { useScreenSize } from '../theme/hooks';
 
 import ActionButton from '../components/ActionButton';
@@ -53,7 +54,7 @@ const CollectivesContainer: FC<PropsWithChildren> = ({ children }) => {
   );
 };
 
-const statsCopy = {
+const statsCopy: { [K in keyof TotalStats]: { copy: string } } = {
   totalPools: {
     copy: 'GoodCollective pools',
   },
