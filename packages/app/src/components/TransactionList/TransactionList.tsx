@@ -1,8 +1,11 @@
 import { Image, Text, View, Platform, StyleSheet } from 'react-native';
+import { Link } from 'native-base';
+
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { Colors } from '../../utils/colors';
-import { Link, useMediaQuery } from 'native-base';
 import { chevronDown, TransactionIcon } from '../../assets';
+import { useScreenSize } from '../../theme/hooks';
+
 import { ClaimTx, Transaction } from '../../models/models';
 import { useRecentTransactions } from '../../hooks/useRecentTransactions';
 import { isSupportTx } from '../../models/typeUtil';
@@ -16,9 +19,7 @@ interface TransactionListProps {
 }
 
 function TransactionList({ collective }: TransactionListProps) {
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 920,
-  });
+  const { isDesktopView } = useScreenSize();
 
   const transactions: Transaction[] = useRecentTransactions(collective, 6, SUBGRAPH_POLL_INTERVAL);
 
@@ -29,7 +30,7 @@ function TransactionList({ collective }: TransactionListProps) {
         <Image source={{ uri: TransactionIcon }} style={styles.firstIcon} />
         <Text style={styles.rowText}>Recent Transactions</Text>
       </View>
-      {isDesktopResolution && <View style={styles.horizontalDivider} />}
+      {isDesktopView && <View style={styles.horizontalDivider} />}
       <View style={[styles.list, overflowStyle.overflow]}>
         {transactions
           .slice(0, 5)
@@ -41,7 +42,7 @@ function TransactionList({ collective }: TransactionListProps) {
             )
           )}
       </View>
-      {isDesktopResolution && transactions.length > 5 && (
+      {isDesktopView && transactions.length > 5 && (
         <Link href={`${env.REACT_APP_CELO_EXPLORER}/address/${collective}`} isExternal style={styles.showMoreButton}>
           <Text style={styles.showMoreText}>Show more</Text>
           <Image source={chevronDown} style={styles.showMoreIcon} />

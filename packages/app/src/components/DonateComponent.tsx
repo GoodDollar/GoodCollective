@@ -1,27 +1,30 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Link } from 'native-base';
+import { useAccount, useNetwork } from 'wagmi';
+import { useParams } from 'react-router-native';
+import Decimal from 'decimal.js';
+import { waitForTransaction } from '@wagmi/core';
+import { TransactionReceipt } from 'viem';
+
 import { InterRegular, InterSemiBold, InterSmall } from '../utils/webFonts';
 import RoundedButton from './RoundedButton';
 import CompleteDonationModal from './modals/CompleteDonationModal';
 import { Colors } from '../utils/colors';
-import { Link, useMediaQuery } from 'native-base';
+import { useScreenSize } from '../theme/hooks';
+
 import Dropdown from './Dropdown';
 import { getDonateStyles, getFrequencyPlural } from '../utils';
 import { useContractCalls, useGetTokenPrice } from '../hooks';
-import { useAccount, useNetwork } from 'wagmi';
 import { Collective } from '../models/models';
 import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
 import { acceptablePriceImpact, Frequency, frequencyOptions, GDEnvTokens, SupportedNetwork } from '../models/constants';
 import { InfoIconOrange } from '../assets';
-import { useParams } from 'react-router-native';
-import Decimal from 'decimal.js';
 import { formatFiatCurrency } from '../lib/formatFiatCurrency';
 import ErrorModal from './modals/ErrorModal';
 import { SwapRouteState, useSwapRoute } from '../hooks/useSwapRoute';
 import { useApproveSwapTokenCallback } from '../hooks/useApproveSwapTokenCallback';
 import ApproveSwapModal from './modals/ApproveSwapModal';
-import { waitForTransaction } from '@wagmi/core';
-import { TransactionReceipt } from 'viem';
 import { useToken, useTokenList } from '../hooks/useTokenList';
 import { formatDecimalStringInput } from '../lib/formatDecimalStringInput';
 import ThankYouModal from './modals/ThankYouModal';
@@ -32,9 +35,7 @@ interface DonateComponentProps {
 }
 
 function DonateComponent({ collective }: DonateComponentProps) {
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 920,
-  });
+  const { isDesktopView } = useScreenSize();
   const { id: collectiveId = '0x' } = useParams();
 
   const { address, isConnected } = useAccount();
@@ -212,12 +213,12 @@ function DonateComponent({ collective }: DonateComponentProps) {
   const onCloseErrorModal = () => setErrorMessage(undefined);
 
   return (
-    <View style={[styles.body, isDesktopResolution && styles.bodyDesktop]}>
+    <View style={[styles.body, isDesktopView && styles.bodyDesktop]}>
       <View>
         <Text style={styles.title}>Donate</Text>
         <Text style={styles.description}>
           Support {collective.ipfs.name}{' '}
-          {isDesktopResolution && (
+          {isDesktopView && (
             <>
               <br />
             </>
@@ -227,7 +228,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
       </View>
       <View style={styles.divider} />
 
-      {!isDesktopResolution && (
+      {!isDesktopView && (
         <>
           <View>
             <Text style={styles.title}>Donation Currency:</Text>
@@ -256,7 +257,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
         </>
       )}
 
-      {isDesktopResolution && (
+      {isDesktopView && (
         <View style={styles.donationCurrencyHeader}>
           <View style={styles.donationAction}>
             <View style={styles.actionBox}>
@@ -289,7 +290,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
             <View style={styles.actionBox}>
               <Text style={styles.title}>Donation Frequency</Text>
               <Text style={styles.description}>
-                How often do you want to donate this {!isDesktopResolution && <br />} amount?
+                How often do you want to donate this {!isDesktopView && <br />} amount?
               </Text>
             </View>
             <Dropdown value={frequency} onSelect={onChangeFrequency} options={frequencyOptions} />
@@ -319,7 +320,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
 
       <View style={styles.frequencyWrapper}>
         <>
-          {!isDesktopResolution && (
+          {!isDesktopView && (
             <>
               <Dropdown value={frequency} onSelect={onChangeFrequency} options={frequencyOptions} />
               {frequency !== 'One-Time' && (
@@ -495,7 +496,7 @@ function DonateComponent({ collective }: DonateComponentProps) {
         )}
 
         <RoundedButton
-          maxWidth={isDesktopResolution ? 343 : undefined}
+          maxWidth={isDesktopView ? 343 : undefined}
           title={buttonCopy}
           backgroundColor={buttonBgColor}
           color={buttonTextColor}

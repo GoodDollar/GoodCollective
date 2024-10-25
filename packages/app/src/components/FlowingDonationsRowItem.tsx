@@ -1,12 +1,14 @@
 import { Image, Text, View, StyleSheet } from 'react-native';
+import Decimal from 'decimal.js';
+
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
-import { useMediaQuery } from 'native-base';
+import { useScreenSize } from '../theme/hooks';
+
 import { useDonorCollectivesFlowingBalancesWithAltStaticBalance } from '../hooks/useFlowingBalance';
 import { DonorCollective } from '../models/models';
 import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
 import { SupportedNetwork } from '../models/constants';
-import Decimal from 'decimal.js';
 import { useTokenByAddress } from '../hooks/useTokenList';
 import { GoodDollarAmount } from './GoodDollarAmount';
 
@@ -30,9 +32,7 @@ function FlowingDonationsRowItem({
   additionalBalance,
 }: FlowingDonationsRowItemProps) {
   const token = useTokenByAddress(currency);
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 920,
-  });
+  const { isDesktopView } = useScreenSize();
 
   const currentBalance = useGetTokenBalance(currency, collective, SupportedNetwork.CELO);
   const balanceUsed = additionalBalance
@@ -59,9 +59,9 @@ function FlowingDonationsRowItem({
               lastDigitsProps={{ style: { ...InterRegular, color: Colors.gray[200], fontWeight: 400 } }}
               amount={wei || '0'}
             />
-            {isDesktopResolution && currency && <Text style={styles.rowBalance}> = {usdValueCurrentPool} USD</Text>}
+            {isDesktopView && currency && <Text style={styles.rowBalance}> = {usdValueCurrentPool} USD</Text>}
           </Text>
-          {!isDesktopResolution && currency && <Text style={styles.rowBalance}>= {usdValueCurrentPool} USD</Text>}
+          {!isDesktopView && currency && <Text style={styles.rowBalance}>= {usdValueCurrentPool} USD</Text>}
         </View>
       </Text>
     </View>

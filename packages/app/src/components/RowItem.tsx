@@ -1,8 +1,10 @@
 import { Image, Text, View, StyleSheet } from 'react-native';
+
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
+import { useScreenSize } from '../theme/hooks';
+
 import { formatFiatCurrency } from '../lib/formatFiatCurrency';
-import { useMediaQuery } from 'native-base';
 import { GoodDollarAmount } from './GoodDollarAmount';
 
 interface RowItemProps {
@@ -14,9 +16,7 @@ interface RowItemProps {
 }
 
 function RowItem({ rowInfo, rowData, balance, currency, imageUrl }: RowItemProps) {
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 920,
-  });
+  const { isDesktopView } = useScreenSize();
 
   const usdBalance = balance ? formatFiatCurrency(balance) : '0.00';
 
@@ -38,10 +38,10 @@ function RowItem({ rowInfo, rowData, balance, currency, imageUrl }: RowItemProps
               }}
               amount={String(rowData)}
             />
-            {isDesktopResolution ? <Text style={styles.rowBalance}> = {usdBalance} USD</Text> : null}
+            {isDesktopView ? <Text style={styles.rowBalance}> = {usdBalance} USD</Text> : null}
           </View>
         ) : null}
-        {!isDesktopResolution && currency ? <Text style={styles.rowBalance}>= {usdBalance} USD</Text> : null}
+        {!isDesktopView && currency ? <Text style={styles.rowBalance}>= {usdBalance} USD</Text> : null}
       </View>
     </View>
   );

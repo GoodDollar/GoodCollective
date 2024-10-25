@@ -1,23 +1,24 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { useMediaQuery } from 'native-base';
+import { useParams } from 'react-router-native';
+import React from 'react';
 
 import Layout from '../components/Layout/Layout';
 import StewardList from '../components/StewardsList/StewardsList';
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
-import { useParams } from 'react-router-native';
+import { useScreenSize } from '../theme/hooks';
+
 import { useCollectiveById } from '../hooks';
-import React from 'react';
 import { Ocean } from '../assets';
 
 function ViewStewardsPage() {
-  const [isDesktopResolution] = useMediaQuery({ minWidth: 612 });
+  const { isTabletView } = useScreenSize();
 
   const { id: collectiveId = '' } = useParams();
   const collective = useCollectiveById(collectiveId);
   const headerImage = collective?.ipfs.headerImage ? { uri: collective.ipfs.headerImage } : Ocean;
 
-  if (isDesktopResolution) {
+  if (isTabletView) {
     return (
       <Layout
         breadcrumbPath={[

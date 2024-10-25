@@ -1,10 +1,12 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
+
 import { Colors } from '../utils/colors';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
+import { useScreenSize } from '../theme/hooks';
+
 import ProfileView from './ProfileView';
 import WalletDetails from './WalletDetails/WalletDetails';
-import { useMediaQuery } from 'native-base';
 import { Donor, Steward } from '../models/models';
 import { useCollectivesMetadataById, useGetTokenPrice } from '../hooks';
 import { LightningIcon } from '../assets';
@@ -22,9 +24,7 @@ interface WalletProfileProps {
 }
 
 function WalletProfile({ address, ensName, firstName, lastName, donor, steward, isWhitelisted }: WalletProfileProps) {
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 920,
-  });
+  const { isDesktopView } = useScreenSize();
 
   const userIdentifier = firstName
     ? `${firstName} ${lastName}`
@@ -44,7 +44,7 @@ function WalletProfile({ address, ensName, firstName, lastName, donor, steward, 
     donor?.collectives.map((collective) => collective.collective) ?? []
   );
 
-  if (isDesktopResolution) {
+  if (isDesktopView) {
     return (
       <View style={styles.profileContentBox}>
         <View style={[styles.container, styles.desktopContainer]}>
