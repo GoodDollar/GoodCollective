@@ -102,8 +102,9 @@ describe('DirectPaymentsFactory', () => {
     expect(await nft.hasRole(await nft.getManagerRole('1'), signers[1].address)).to.be.true;
     expect(await nft.hasRole(await nft.getManagerRole('1'), pool.address)).to.be.true;
 
-    expect(await pool.hasRole(nft.DEFAULT_ADMIN_ROLE(), signers[1].address)).to.be.true;
-    expect(await pool.hasRole(nft.DEFAULT_ADMIN_ROLE(), factory.address)).to.be.false;
+    expect(await pool.hasRole(pool.DEFAULT_ADMIN_ROLE(), signer.address)).to.be.true;
+    expect(await pool.hasRole(pool.MANAGER_ROLE(), signers[1].address)).to.be.true;
+    expect(await pool.hasRole(pool.DEFAULT_ADMIN_ROLE(), factory.address)).to.be.false;
 
     // datastructures
     expect(await factory.projectIdToControlPool(ethers.utils.keccak256(ethers.utils.toUtf8Bytes('test')))).to.be.equal(
@@ -119,7 +120,7 @@ describe('DirectPaymentsFactory', () => {
   });
 
   it("should not be able to create pool if not project's manager", async () => {
-    const tx = await factory.createPool('test', 'pool1', poolSettings, poolLimits);
+    const tx = await factory.connect(signers[1]).createPool('test', 'pool1', poolSettings, poolLimits);
 
     // signer 1 is the pool manager so it should not revert
     await expect(factory.connect(signers[1]).createPool('test', 'pool2', poolSettings, poolLimits)).not.reverted;

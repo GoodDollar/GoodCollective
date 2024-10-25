@@ -281,7 +281,7 @@ describe('DirectPaymentsPool Superapp', () => {
       path: '0x',
     }, '0x')
 
-    console.log((await tx.wait()).events)
+    // console.log((await tx.wait()).events)
 
     expect(await mockToken.balanceOf(signer.address)).eq(0);
     expect(await gdframework.GoodDollar.balanceOf(signer.address)).eq(0);
