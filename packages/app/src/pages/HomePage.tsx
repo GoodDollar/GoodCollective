@@ -1,110 +1,190 @@
-import { Image, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
+import { FC, PropsWithChildren, useRef } from 'react';
+import { Box, HStack, ScrollView, Spinner, Text, useBreakpointValue, VStack } from 'native-base';
+import { Platform } from 'react-native';
+
+import { useTotalStats } from '../hooks';
+import type { TotalStats } from '../hooks';
+import { useScreenSize } from '../theme/hooks';
+
+import ActionButton from '../components/ActionButton';
 import CollectiveHomeCard from '../components/CollectiveHomeCard';
 import Layout from '../components/Layout/Layout';
-import { Colors } from '../utils/colors';
-import { InterSemiBold } from '../utils/webFonts';
-import { Link, useMediaQuery } from 'native-base';
+
 import { IpfsCollective } from '../models/models';
 import { useCollectivesMetadata } from '../hooks';
-import { ForwardIcon } from '../assets';
 
-function HomePage() {
-  const collectives = useCollectivesMetadata();
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 920,
+const homeContainerStyles = {
+  flex: 1,
+  paddingY: 5,
+  minHeight: 'auto',
+  marginLeft: 'auto',
+  marginRight: 'auto',
+  shadow: 1,
+  padding: 4,
+  width: '100%',
+  backgroundColor: 'white',
+  borderRadius: 16,
+  maxWidth: 1312,
+};
+
+const CollectivesContainer: FC<PropsWithChildren> = ({ children }) => {
+  const { isDesktopView } = useScreenSize();
+  const collectiveStyles = {
+    marginBottom: 20,
+    paddingTop: 0,
+  };
+
+  const container = useBreakpointValue({
+    base: {
+      ...collectiveStyles,
+    },
+    lg: {
+      ...collectiveStyles,
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      alignItems: 'flex-start',
+    },
   });
 
   return (
+    <VStack {...container} {...Platform.select({ web: { style: { gap: isDesktopView ? 12 : 0 } } })}>
+      {children}
+    </VStack>
+  );
+};
+
+const statsCopy: { [K in keyof TotalStats]: { copy: string } } = {
+  totalPools: {
+    copy: 'GoodCollective pools',
+  },
+  totalDonations: {
+    copy: 'Total Donations',
+  },
+  totalMembers: {
+    copy: 'GoodCollective Members Paid',
+  },
+};
+
+const HomePage = () => {
+  const collectives = useCollectivesMetadata();
+  const totalStats = useTotalStats();
+
+  const { isDesktopView } = useScreenSize();
+
+  const collectivesSectionRef = useRef<any>(null);
+
+  const scrollToCollectives = () => {
+    if (collectivesSectionRef.current) {
+      collectivesSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const stats = totalStats
+    ? Object.keys(statsCopy).map((keys) => {
+        const key = keys as keyof typeof totalStats;
+        return {
+          amount: totalStats[key].amount,
+          copy: statsCopy[key].copy,
+        };
+      })
+    : [];
+
+  return (
     <Layout>
-      <View style={styles.body}>
-        <View style={[styles.sectionContainer, isDesktopResolution ? styles.sectionContainerDesktop : {}]}>
-          {!collectives ? (
-            <Text>Loading...</Text>
-          ) : (
-            collectives?.map((ipfsCollective: IpfsCollective) => (
-              <CollectiveHomeCard
-                key={ipfsCollective.collective}
-                name={ipfsCollective.name}
-                description={ipfsCollective.description}
-                headerImage={ipfsCollective.headerImage}
-                route={ipfsCollective.collective}
-              />
-            ))
-          )}
-        </View>
-        <Link
-          href="https://gooddollar.typeform.com/creategood"
-          isExternal
-          style={[styles.buttonContainer, isDesktopResolution && styles.buttonDesktopContainer]}>
-          <TouchableOpacity style={[styles.button, isDesktopResolution ? styles.buttonDesktop : {}]}>
-            <Text style={styles.buttonText}>Create a GoodCollective</Text>
-            <Image source={ForwardIcon} resizeMode="contain" style={styles.forwardIcon} />
-          </TouchableOpacity>
-        </Link>
-      </View>
+      {!totalStats ? (
+        <Spinner variant="page-loader" size="lg" />
+      ) : (
+        <ScrollView>
+          <VStack {...homeContainerStyles} space={4}>
+            <VStack space={8}>
+              <VStack space={2}>
+                <Text variant="3xl-grey" textAlign="center" fontWeight="700">
+                  Empower Communities. Maximize Impact.
+                </Text>
+                <Text variant="md-grey" textAlign="center">{`GoodCollective is committed to empowering
+individuals and communities by providing direct digital payments to those who need it most.`}</Text>
+              </VStack>
+              <VStack space={isDesktopView ? 8 : 0} flexDirection={isDesktopView ? 'column' : 'column-reverse'}>
+                <VStack space={isDesktopView ? 4 : 0} paddingTop={4}>
+                  <Text variant="2xl-grey" textAlign="center" fontWeight="700">
+                    Impact to Date
+                  </Text>
+                  <HStack space={0} justifyContent="space-evenly" flexDir={isDesktopView ? 'row' : 'column'}>
+                    {Object.values(stats).map(({ amount, copy }) => (
+                      <VStack key={copy} space={0} paddingTop={2} textAlign="center" minWidth="220">
+                        <Text variant="3xl-grey" color="goodPurple.400" fontWeight="700" fontFamily="heading">
+                          {amount}
+                        </Text>
+                        <Text variant="md-grey">{copy}</Text>
+                      </VStack>
+                    ))}
+                  </HStack>
+                </VStack>
+                <VStack
+                  space={0}
+                  {...(isDesktopView ? {} : { borderBottomWidth: 0.5, borderBottomColor: 'borderGrey' })}
+                  paddingBottom={4}>
+                  <HStack space={2} justifyContent="center" minWidth="100%">
+                    <ActionButton
+                      href="https://gooddollar.org/goodcollective-how-it-works"
+                      text="How it works"
+                      bg="goodPurple.400"
+                      textColor="white"
+                    />
+                  </HStack>
+                  <HStack space={2} justifyContent="center" flexDir={isDesktopView ? 'row' : 'column'}>
+                    <ActionButton
+                      text="Donate to a GoodCollective"
+                      bg="goodGreen.200"
+                      textColor="goodGreen.400"
+                      onPress={scrollToCollectives}
+                    />
+                    <ActionButton
+                      href="https://gooddollar.typeform.com/creategood"
+                      text="Create a GoodCollective"
+                      bg="goodPurple.100"
+                      textColor="goodPurple.400"
+                    />
+                  </HStack>
+                </VStack>
+              </VStack>
+            </VStack>
+            <VStack space={10}>
+              <VStack space={0}>
+                <VStack paddingTop={4} paddingBottom={4}>
+                  <Box borderWidth="1" borderColor="borderGrey" />
+                </VStack>
+                <VStack space={2} ref={collectivesSectionRef}>
+                  <Text variant="3xl-grey" textAlign="center" fontWeight="700">
+                    Explore GoodCollective Pools
+                  </Text>
+                  <Text
+                    variant="md-grey"
+                    textAlign="center">{`Check out existing GoodCollective pools and support existing members, or start your own!`}</Text>
+                </VStack>
+              </VStack>
+              <CollectivesContainer>
+                {!collectives ? (
+                  <Text>Loading...</Text>
+                ) : (
+                  collectives?.map((ipfsCollective: IpfsCollective) => (
+                    <CollectiveHomeCard
+                      key={ipfsCollective.collective}
+                      name={ipfsCollective.name}
+                      description={ipfsCollective.description}
+                      headerImage={ipfsCollective.headerImage}
+                      route={ipfsCollective.collective}
+                    />
+                  ))
+                )}
+              </CollectivesContainer>
+            </VStack>
+          </VStack>
+        </ScrollView>
+      )}
     </Layout>
   );
-}
-
-const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-    paddingTop: 20,
-    paddingBottom: 20,
-    minHeight: 'auto',
-  },
-  sectionContainer: {
-    marginBottom: 20,
-    paddingTop: 0,
-    paddingLeft: 15,
-    paddingRight: 15,
-  },
-  sectionContainerDesktop: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    gap: 24,
-  },
-  buttonContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    margin: 20,
-  },
-  buttonDesktopContainer: {
-    flex: 0,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  button: {
-    width: '100%',
-    height: 47,
-    backgroundColor: Colors.purple[100],
-    flex: 1,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingRight: 20,
-    paddingLeft: 20,
-    fontSize: 18,
-    fontWeight: 700,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    borderRadius: 50,
-    marginBottom: 10,
-  },
-  buttonDesktop: {
-    maxWidth: 350,
-  },
-  buttonText: {
-    color: Colors.purple[200],
-    ...InterSemiBold,
-    fontSize: 18,
-  },
-  forwardIcon: {
-    width: 18,
-    height: 18,
-  },
-});
+};
 
 export default HomePage;

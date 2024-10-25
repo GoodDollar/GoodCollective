@@ -1,10 +1,11 @@
+import React from 'react';
 import { Donor, IpfsCollective, Steward } from '../../models/models';
-import { useMediaQuery } from 'native-base';
 import { View } from 'react-native';
+
 import StewardCollectiveCard from './StewardCollectiveCard';
 import DonorCollectiveCard from './DonorCollectiveCard';
-import React from 'react';
 import { styles } from './styles';
+import { useScreenSize } from '../../theme/hooks';
 
 interface WalletCardsProps {
   donor?: Donor;
@@ -23,11 +24,9 @@ function WalletCards({
   ensName,
   tokenPrice,
 }: WalletCardsProps) {
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 920,
-  });
+  const { isDesktopView } = useScreenSize();
 
-  const dynamicContainerStyle: Record<string, any> = isDesktopResolution
+  const dynamicContainerStyle: Record<string, any> = isDesktopView
     ? {
         marginTop: 0,
         flexDirection: 'row',
@@ -50,7 +49,7 @@ function WalletCards({
             ipfsCollective={stewardIpfsCollectives[i]}
             ensName={ensName ?? undefined}
             tokenPrice={tokenPrice}
-            isDesktopResolution={isDesktopResolution}
+            isDesktopResolution={isDesktopView}
           />
         ))}
       {donor &&
@@ -62,7 +61,7 @@ function WalletCards({
             ipfsCollective={donorIpfsCollectives[i]}
             ensName={ensName ?? undefined}
             tokenPrice={tokenPrice}
-            isDesktopResolution={isDesktopResolution}
+            isDesktopResolution={isDesktopView}
           />
         ))}
     </View>

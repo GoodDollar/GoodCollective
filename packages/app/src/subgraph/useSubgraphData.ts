@@ -17,6 +17,11 @@ export type StewardsSubgraphResponse = { stewards?: SubgraphSteward[] };
 export type DonorCollectiveSubgraphResponse = { donorCollectives?: SubgraphDonorCollective[] };
 export type ClaimsSubgraphResponse = { claims?: SubgraphClaim[] };
 export type SupportEventsSubgraphResponse = { supportEvents?: SubgraphSupportEvent[] };
+export type TotalStatsCollectivesResponse = {
+  activeCollectives: { id: string }[];
+  collectives: { totalDonations: string }[];
+  stewards: { id: string }[];
+};
 
 export function useSubgraphData<T>(
   query: DocumentNode | TypedDocumentNode<any, OperationVariables>,

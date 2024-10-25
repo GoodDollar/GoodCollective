@@ -1,10 +1,11 @@
+import { useState } from 'react';
 import { Image, StyleSheet, Text, TextStyle, TouchableOpacity, View } from 'react-native';
 import { useConnect } from 'wagmi';
+
 import { Colors } from '../../utils/colors';
-import { useState } from 'react';
 import { RotatingArrowIcon } from './RotatingArrowIcon';
 import { MetaMaskLogo, WalletConnectLogo, WalletConnectLogoWhite, WebIcon } from '../../assets';
-import { useMediaQuery } from 'native-base';
+import { useScreenSize } from '../../theme/hooks';
 
 const supportedConnectors = {
   metaMask: 'MetaMask',
@@ -16,7 +17,7 @@ interface ConnectWalletMenuProps {
 }
 
 export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
-  const [isDesktopResolution] = useMediaQuery({ minWidth: 920 });
+  const { isDesktopView } = useScreenSize();
   const { dropdownOffset } = props;
   const { connect, connectors, isLoading, pendingConnector } = useConnect();
 
@@ -34,7 +35,7 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
   }
 
   const onClickConnectWallet = () => {
-    if (isDesktopResolution) {
+    if (isDesktopView) {
       setOpenDropdown(!openDropdown);
     } else {
       const connector = connectors.find((conn) => conn.name === supportedConnectors.walletConnect);
@@ -47,13 +48,13 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
   return (
     <>
       <TouchableOpacity style={styles.walletConnectButton} onPress={onClickConnectWallet}>
-        <View style={isDesktopResolution ? {} : styles.mobileButtonContentContainer}>
-          {!isDesktopResolution && (
+        <View style={isDesktopView ? {} : styles.mobileButtonContentContainer}>
+          {!isDesktopView && (
             <Image source={WalletConnectLogoWhite} resizeMode="contain" style={[styles.walletConnectorLogo]} />
           )}
           <Text style={styles.walletConnectButtonText}>Connect Wallet</Text>
         </View>
-        {isDesktopResolution && <RotatingArrowIcon openDropdown={openDropdown} />}
+        {isDesktopView && <RotatingArrowIcon openDropdown={openDropdown} />}
       </TouchableOpacity>
       {openDropdown && (
         <View style={[styles.dropdownContainer, dropdownOffset]}>
