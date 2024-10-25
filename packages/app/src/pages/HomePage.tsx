@@ -53,6 +53,18 @@ const CollectivesContainer: FC<PropsWithChildren> = ({ children }) => {
   );
 };
 
+const statsCopy = {
+  totalPools: {
+    copy: 'GoodCollective pools',
+  },
+  totalDonations: {
+    copy: 'Total Donations',
+  },
+  totalMembers: {
+    copy: 'GoodCollective Members Paid',
+  },
+};
+
 const HomePage = () => {
   const collectives = useCollectivesMetadata();
   const totalStats = useTotalStats();
@@ -66,6 +78,16 @@ const HomePage = () => {
       collectivesSectionRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  const stats = totalStats
+    ? Object.keys(statsCopy).map((keys) => {
+        const key = keys as keyof typeof totalStats;
+        return {
+          amount: totalStats[key].amount,
+          copy: statsCopy[key].copy,
+        };
+      })
+    : [];
 
   return (
     <Layout>
@@ -88,7 +110,7 @@ individuals and communities by providing direct digital payments to those who ne
                     Impact to Date
                   </Text>
                   <HStack space={0} justifyContent="space-evenly" flexDir={isDesktopView ? 'row' : 'column'}>
-                    {Object.values(totalStats).map(({ amount, copy }) => (
+                    {Object.values(stats).map(({ amount, copy }) => (
                       <VStack key={copy} space={0} paddingTop={2} textAlign="center" minWidth="220">
                         <Text variant="3xl-grey" color="goodPurple.400" fontWeight="700" fontFamily="heading">
                           {amount}

@@ -5,7 +5,6 @@ import { formatGoodDollarAmount } from '../lib/calculateGoodDollarAmounts';
 
 type StatsFormatted = {
   amount: string;
-  copy: string;
 };
 type TotalStats = {
   totalDonations: StatsFormatted;
