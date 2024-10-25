@@ -28,6 +28,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
 
     error CLAIMFOR_DISABLED();
     error NOT_MEMBER(address claimer);
+    error NOT_MANAGER(address manager);
     error NOT_WHITELISTED(address whitelistedRoot);
     error ALREADY_CLAIMED(address whitelistedRoot);
     error INVALID_0_VALUE();
@@ -126,7 +127,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         ubiSettings = _ubiSettings;
         _verifyPoolSettings(_settings);
         _verifyUBISettings(_ubiSettings);
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender); // when using factory this gives factory role which then set role to the real msg.sender
         _setupRole(MANAGER_ROLE, _settings.manager);
         setSuperToken(ISuperToken(address(settings.rewardToken)));
     }
@@ -273,7 +274,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         }
         // if no members validator then if members only only manager can add members
         else if (ubiSettings.onlyMembers && hasRole(MANAGER_ROLE, msg.sender) == false) {
-            revert NOT_MEMBER(member);
+            revert NOT_MANAGER(member);
         }
 
         _grantRole(MEMBER_ROLE, member);
@@ -394,6 +395,6 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     }
 
     function nextClaimTime() public view returns (uint256) {
-        return (getCurrentDay() + 1) * (1 days);
+        return (getCurrentDay() + ubiSettings.claimPeriodDays) * (1 days) + 12 hours;
     }
 }

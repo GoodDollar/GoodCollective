@@ -1,0 +1,8 @@
+{
+  "network": "celo",
+  "UBIPoolFactoryAddress": "0x7af4A611FFA07644C3FE93aA49230e2BD2Ec8dBf",
+  "DirectPaymentsFactoryAddress": "0x55B06783023D8bfAB28ddb823098f1485b15Bf22",
+  "ProvableNFTAddress": "0x62AFaF745425fd2b67b358083068d3802e9EF04d",
+  "startBlock": 28352452,
+  "startBlockUbi": 28352452
+}
