@@ -1,7 +1,7 @@
 {
   "name": "@gooddollar/goodcollective-sdk",
   "license": "MIT",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "main": "./dist/sdk",
   "types": "./types/index.d.ts",
   "type": "module",
@@ -41,7 +41,7 @@
     "ethers": "^5.*"
   },
   "dependencies": {
-    "@gooddollar/goodcollective-contracts": "^1.1.0",
+    "@gooddollar/goodcollective-contracts": "^1.2.0",
     "@superfluid-finance/sdk-core": "^0.6.12",
     "@web3-storage/w3up-client": "^15.0.0",
     "ethereum-multicall": "^2.24.0",
