@@ -1,22 +1,24 @@
+import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
+import { useParams } from 'react-router-native';
+
 import Layout from '../components/Layout/Layout';
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
 import { DonorBlue, Ocean } from '../assets';
-import { useParams } from 'react-router-native';
+import { useScreenSize } from '../theme/hooks';
+
 import { useCollectiveById } from '../hooks';
-import React from 'react';
-import { useMediaQuery } from 'native-base';
 import DonorList from '../components/DonorsList/DonorsList';
 
 function ViewDonorsPage() {
-  const [isDesktopResolution] = useMediaQuery({ minWidth: 612 });
+  const { isTabletView } = useScreenSize();
 
   const { id: collectiveId = '' } = useParams();
   const collective = useCollectiveById(collectiveId);
   const headerImage = collective?.ipfs.headerImage ? { uri: collective.ipfs.headerImage } : Ocean;
 
-  if (isDesktopResolution) {
+  if (isTabletView) {
     return (
       <Layout
         breadcrumbPath={[

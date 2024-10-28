@@ -1,23 +1,23 @@
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useMediaQuery } from 'native-base';
 import { useAccount } from 'wagmi';
+
 import { ConnectedAccountDisplay } from './ConnectedAccountDisplay';
 import { ConnectWalletMenu } from './ConnectWalletMenu';
 import { DropdownMenu } from './DropdownMenu';
+
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { Colors } from '../../utils/colors';
 import { BackIcon, HeaderLogo } from '../../assets';
+import { useScreenSize } from '../../theme/hooks';
 
 function Header(): JSX.Element {
   const { address } = useAccount();
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 920,
-  });
+  const { isDesktopView } = useScreenSize();
   const { navigate } = useCrossNavigate();
 
   return (
     <View style={styles.headerOverlay}>
-      {isDesktopResolution && (
+      {isDesktopView && (
         <View style={[styles.headerMobileContainer, styles.desktopWrapper]}>
           <View style={[styles.logoContainerImage, styles.logoContainerImageDesktop]}>
             <TouchableOpacity onPress={() => navigate('/')}>
@@ -25,23 +25,23 @@ function Header(): JSX.Element {
             </TouchableOpacity>
           </View>
           <View style={[styles.walletInfoContainer, styles.walletInfoContainerDesktop]}>
-            {address && <ConnectedAccountDisplay isDesktopResolution={isDesktopResolution} address={address} />}
+            {address && <ConnectedAccountDisplay isDesktopResolution={isDesktopView} address={address} />}
             {!address && <ConnectWalletMenu dropdownOffset={{ top: 40, right: 50 }} />}
             <DropdownMenu
-              isDesktopResolution={isDesktopResolution}
+              isDesktopResolution={isDesktopView}
               address={address}
               dropdownOffset={{ top: 50, right: -15 }}
             />
           </View>
         </View>
       )}
-      {!isDesktopResolution && (
+      {!isDesktopView && (
         <View style={styles.headerMobileContainer}>
           <View style={[styles.walletInfoContainer, styles.desktopWrapper]}>
-            {address && <ConnectedAccountDisplay isDesktopResolution={isDesktopResolution} address={address} />}
+            {address && <ConnectedAccountDisplay isDesktopResolution={isDesktopView} address={address} />}
             {!address && <ConnectWalletMenu dropdownOffset={{ top: 37, left: 0 }} />}
             <DropdownMenu
-              isDesktopResolution={isDesktopResolution}
+              isDesktopResolution={isDesktopView}
               address={address}
               dropdownOffset={{ top: 40, right: -15 }}
             />

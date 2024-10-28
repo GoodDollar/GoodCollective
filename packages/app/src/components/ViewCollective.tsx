@@ -1,5 +1,8 @@
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { useState } from 'react';
+import { Link } from 'native-base';
+import { useAccount } from 'wagmi';
+
 import RowItem from './RowItem';
 import RoundedButton from './RoundedButton';
 import StewardList from './StewardsList/StewardsList';
@@ -7,12 +10,13 @@ import TransactionList from './TransactionList/TransactionList';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
 import StopDonationModal from './modals/StopDonationModal';
+
 import { Colors } from '../utils/colors';
-import { Link, useMediaQuery } from 'native-base';
+import { useScreenSize } from '../theme/hooks';
+
 import { formatTime } from '../lib/formatTime';
 import { Collective } from '../models/models';
 import { useDonorCollectiveByAddresses, useGetTokenPrice } from '../hooks';
-import { useAccount } from 'wagmi';
 import {
   AtIcon,
   CalendarIcon,
@@ -43,9 +47,7 @@ interface ViewCollectiveProps {
 
 function ViewCollective({ collective }: ViewCollectiveProps) {
   const { navigate } = useCrossNavigate();
-  const [isDesktopResolution] = useMediaQuery({
-    minWidth: 920,
-  });
+  const { isDesktopView } = useScreenSize();
 
   const {
     address: poolAddress,
@@ -58,7 +60,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   } = collective;
 
   // default to oceanUri if headerImage is undefined
-  const headerImg = { uri: ipfs.headerImage } ?? Ocean;
+  const headerImg = ipfs?.headerImage ? { uri: ipfs.headerImage } : Ocean;
 
   const stewardsPaid = stewardCollectives.length;
   const infoLabel = collective.ipfs.infoLabel ?? defaultInfoLabel;
@@ -87,7 +89,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
     2
   );
 
-  if (isDesktopResolution) {
+  if (isDesktopView) {
     return (
       <View style={{ gap: 24 }}>
         <View style={styles.collectiveDesktopBox}>
@@ -132,7 +134,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
               {isDonating ? (
                 <View style={styles.collectiveDonateBox}>
-                  {!isDesktopResolution && (
+                  {!isDesktopView && (
                     <>
                       <Image source={SupportImage} style={styles.supportImg} />
                       <Text style={styles.supportText}>You Support this GoodCollective!!</Text>

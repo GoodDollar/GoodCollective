@@ -132,7 +132,6 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
 
         nft.grantRole(nft.getManagerRole(nextNftType), _settings.manager);
         nft.grantRole(nft.getManagerRole(nextNftType), address(pool));
-        pool.grantRole(pool.MINTER_ROLE(), _settings.manager);
 
         //access control to project is determinted by the first pool access control rules
         if (address(projectIdToControlPool[keccak256(bytes(_projectId))]) == address(0))
@@ -140,6 +139,7 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         registry[address(pool)].ipfs = _ipfs;
         registry[address(pool)].projectId = _projectId;
 
+        pool.grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         pool.renounceRole(DEFAULT_ADMIN_ROLE, address(this));
         pools.push(address(pool));
 

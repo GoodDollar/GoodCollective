@@ -140,8 +140,10 @@ contract DirectPaymentsPool is
         settings = _settings;
         limits = _limits;
         nft = _nft;
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(DEFAULT_ADMIN_ROLE, _settings.manager);
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender); // when using factory this gives factory role which then set role to the real msg.sender
+        _setupRole(MANAGER_ROLE, _settings.manager);
+        _setupRole(MINTER_ROLE, _settings.manager);
+
         setSuperToken(ISuperToken(address(settings.rewardToken)));
     }
 
@@ -398,7 +400,7 @@ contract DirectPaymentsPool is
      * @dev Sets the safety limits for the pool.
      * @param _limits The new safety limits.
      */
-    function setPoolLimits(SafetyLimits memory _limits) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setPoolLimits(SafetyLimits memory _limits) public onlyRole(MANAGER_ROLE) {
         limits = _limits;
         emit PoolLimitsChanged(_limits);
     }
@@ -407,7 +409,7 @@ contract DirectPaymentsPool is
      * @dev Sets the settings for the pool.
      * @param _settings The new pool settings.
      */
-    function setPoolSettings(PoolSettings memory _settings) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setPoolSettings(PoolSettings memory _settings) public onlyRole(MANAGER_ROLE) {
         if (_settings.nftType != settings.nftType) revert NFTTYPE_CHANGED();
         if (_settings.manager == address(0)) revert EMPTY_MANAGER();
 
