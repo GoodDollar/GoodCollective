@@ -95,7 +95,7 @@ const HomePage = () => {
       {!totalStats ? (
         <Spinner variant="page-loader" size="lg" />
       ) : (
-        <ScrollView>
+        <ScrollView nestedScrollEnabled={true}>
           <VStack {...homeContainerStyles} space={4}>
             <VStack space={8}>
               <VStack space={2}>

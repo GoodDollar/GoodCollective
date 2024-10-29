@@ -74,7 +74,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 64,
     paddingTop: 12,
     paddingBottom: 90,
-    height: '100vh',
     // @ts-ignore
     overflowY: Platform.select({
       native: 'scroll',
