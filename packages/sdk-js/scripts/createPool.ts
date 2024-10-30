@@ -26,7 +26,9 @@ const main = async () => {
   if (process.argv[2] === 'update') {
     return updatePool('0xDd1c12f197E6D1E2FBA15487AaAE500eF6e07BCA');
   }
-  return createPool();
+  if (process.argv[2] === 'direct') {
+    return createPool();
+  }
 };
 
 const getMemberPools = async (address: string) => {
@@ -35,15 +37,15 @@ const getMemberPools = async (address: string) => {
 };
 
 const createPool = async () => {
-  const projectId = 'gc';
+  const projectId = 'silvi';
   const poolAttributes = {
-    name: 'Test single donation with swap (Real G$)',
+    name: 'Silvi - Kenya’s Kakamega forest',
     description:
       'This Collective directly supports smallholder farmers around Kenya’s Kakamega forest. These farmers are acting as nurseries, growing and nurturing native trees to maturity for subsequent reforestation. In partnership with Silvi.',
-    email: 'myemail@gmail.com',
+    email: '',
     website: 'https://www.silvi.earth',
     twitter: 'https://twitter.com/SilviProtocol',
-    instagram: 'https://instagram.com/x',
+    instagram: '',
     threads: '',
     headerImage:
       'https://uploads-ssl.webflow.com/639e611ba0716a170111fe96/65032c75ac7830faf70f9469_FooterBackground.jpg',
@@ -56,8 +58,8 @@ const createPool = async () => {
 
   const poolSettings = {
     validEvents: [1, 2],
-    rewardPerEvent: [ethers.constants.WeiPerEther.mul(1), ethers.constants.WeiPerEther.mul(2)],
-    manager: wallet.address,
+    rewardPerEvent: [ethers.utils.parseEther('1'), ethers.utils.parseEther('2')],
+    manager: '0x564193644236F6D9f3D3a3209975E51D32050612',
     membersValidator: ethers.constants.AddressZero,
     uniquenessValidator: ethers.constants.AddressZero,
     rewardToken: '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A',
@@ -65,9 +67,9 @@ const createPool = async () => {
   };
 
   const poolLimits = {
-    maxTotalPerMonth: ethers.constants.WeiPerEther.mul(1000),
-    maxMemberPerMonth: ethers.constants.WeiPerEther.mul(10),
-    maxMemberPerDay: ethers.constants.WeiPerEther.mul(5),
+    maxTotalPerMonth: ethers.utils.parseEther('55000'),
+    maxMemberPerMonth: ethers.utils.parseEther('55000'),
+    maxMemberPerDay: ethers.utils.parseEther('55000'),
   };
 
   const pool = await sdk.createPoolWithAttributes(wallet, projectId, poolAttributes, poolSettings, poolLimits, true);
