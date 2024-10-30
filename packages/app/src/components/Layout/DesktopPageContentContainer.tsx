@@ -21,6 +21,5 @@ const styles = StyleSheet.create({
   },
   desktopContentBody: {
     width: '100%',
-    maxWidth: 1280,
   },
 });

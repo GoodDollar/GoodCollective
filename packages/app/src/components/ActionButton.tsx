@@ -17,9 +17,10 @@ export const buttonStyles = {
   },
   button: {
     width: '100%',
-    height: 47,
+    minHeight: 47,
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    textAlign: 'center',
     alignItems: 'center',
     paddingRight: 10,
     paddingLeft: 10,
@@ -33,6 +34,7 @@ export const buttonStyles = {
   buttonText: {
     ...InterSemiBold,
     fontSize: 'md',
+    textAlign: 'center',
   },
 };
 
@@ -45,7 +47,7 @@ const ActionButton = ({ href, text, bg, textColor, onPress }: ActionButtonProps)
       },
       buttonText: {
         ...buttonStyles.buttonText,
-        height: 47,
+        minHeight: 47,
         display: 'flex',
         alignItems: 'center',
       },

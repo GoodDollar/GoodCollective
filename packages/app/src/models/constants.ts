@@ -3,7 +3,7 @@ import GdContracts from '@gooddollar/goodprotocol/releases/deployment.json';
 import env from '../lib/env';
 
 // 5%
-export const acceptablePriceImpact = 5;
+export const acceptablePriceImpact = 2;
 
 export enum SupportedNetwork {
   CELO = 42220,
@@ -38,7 +38,7 @@ export const coingeckoTokenMapping: Record<string, `0x${string}`> = {
 
 export enum Frequency {
   OneTime = 'One-Time',
-  Monthly = 'Monthly',
+  Monthly = 'Monthly', // streaming
 }
 
 // constructed from Frequency

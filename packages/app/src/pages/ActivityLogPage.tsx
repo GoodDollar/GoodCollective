@@ -42,7 +42,6 @@ const styles = StyleSheet.create({
   body: {
     gap: 24,
     backgroundColor: Colors.white,
-    maxWidth: 1280,
   },
 
   container: {

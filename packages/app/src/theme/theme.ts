@@ -12,6 +12,7 @@ export const nbTheme = extendTheme({
 
     // text
     goodGrey: {
+      25: '#959090',
       50: '#F3F3F3',
       100: '#F4F4F4',
       200: '#E6E6E6',
@@ -94,6 +95,13 @@ export const nbTheme = extendTheme({
         lineHeight: '150%' /* 15px */,
       },
       variants: {
+        bold: () => ({
+          fontFamily: 'Inter',
+          fontSize: 'sm',
+          fontStyle: 'normal',
+          fontWeight: 700,
+          lineHeight: '150%' /* 30px */,
+        }),
         // title/heading fontsize variants
         '2xs-grey': () => ({
           fontSize: 10,
