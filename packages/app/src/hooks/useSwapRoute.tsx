@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
   AlphaRouter,
   OnChainQuoteProvider,
@@ -8,14 +9,16 @@ import {
 } from '@uniswap/smart-order-router';
 import { CurrencyAmount, Percent, Token, TradeType } from '@uniswap/sdk-core';
 import { useAccount, useNetwork } from 'wagmi';
+import { encodeRouteToPath } from '@uniswap/v3-sdk';
+import { Protocol } from '@uniswap/router-sdk';
+import Decimal from 'decimal.js';
+import { ethers } from 'ethers';
+
 import { SupportedNetwork } from '../models/constants';
 import { useEthersProvider } from './useEthers';
 import { calculateRawTotalDonation } from '../lib/calculateRawTotalDonation';
-import Decimal from 'decimal.js';
-import { useEffect, useState } from 'react';
-import { encodeRouteToPath } from '@uniswap/v3-sdk';
+
 import { useToken } from './useTokenList';
-import { Protocol } from '@uniswap/router-sdk';
 
 export enum SwapRouteState {
   LOADING,
@@ -37,6 +40,7 @@ export function useSwapRoute(
   rawMinimumAmountOut?: string;
   priceImpact?: number;
   status: SwapRouteState;
+  gasEstimate?: string;
 } {
   const { address } = useAccount();
   const { chain } = useNetwork();
@@ -121,6 +125,8 @@ export function useSwapRoute(
     const quote = new Decimal(route.quote.toFixed(18));
     const rawMinimumAmountOut = route.trade.minimumAmountOut(slippageTolerance).numerator.toString();
     const priceImpact = parseFloat(route.trade.priceImpact.toFixed(4));
-    return { path, quote, rawMinimumAmountOut, priceImpact, status: SwapRouteState.READY };
+    const gasEstimate = ethers.utils.formatUnits(route.estimatedGasUsed, 'gwei');
+
+    return { path, quote, rawMinimumAmountOut, priceImpact, status: SwapRouteState.READY, gasEstimate };
   }
 }

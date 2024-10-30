@@ -9,7 +9,8 @@ import StewardList from './StewardsList/StewardsList';
 import TransactionList from './TransactionList/TransactionList';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
-import StopDonationModal from './modals/StopDonationModal';
+
+import BaseModal from './modals/BaseModal';
 
 import { Colors } from '../utils/colors';
 import { useScreenSize } from '../theme/hooks';
@@ -25,6 +26,7 @@ import {
   LastRowIcon,
   ListGreenIcon,
   Ocean,
+  QuestionImg,
   ReceiveLightIcon,
   SendIcon,
   SquaresIcon,
@@ -35,7 +37,6 @@ import {
 } from '../assets/';
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 import { useDeleteFlow } from '../hooks/useContractCalls/useDeleteFlow';
-import ErrorModal from './modals/ErrorModal';
 import FlowingDonationsRowItem from './FlowingDonationsRowItem';
 import { defaultInfoLabel, SUBGRAPH_POLL_INTERVAL } from '../models/constants';
 import env from '../lib/env';
@@ -239,12 +240,22 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             <TransactionList collective={collective.address as `0x${string}`} />
           </View>
         </View>
-        <ErrorModal
+        <BaseModal
+          type="error"
           openModal={!!errorMessage}
           setOpenModal={() => setErrorMessage(undefined)}
-          message={errorMessage ?? ''}
+          onConfirm={() => setErrorMessage(undefined)}
         />
-        <StopDonationModal openModal={stopDonationModalVisible} setOpenModal={setStopDonationModalVisible} />
+        <BaseModal
+          openModal={stopDonationModalVisible}
+          setOpenModal={setStopDonationModalVisible}
+          title="Are you sure you want to stop your donation?"
+          paragraphs={[
+            'If so, please sign with your wallet. If not, please click below to return to the GoodCollective you support.',
+          ]}
+          image={QuestionImg}
+          confirmButtonText="GO BACK"
+        />
         <ProcessingModal openModal={processingModalVisible} />
       </View>
     );
@@ -392,12 +403,23 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             />
           </Link>
         </View>
-        <ErrorModal
+        <BaseModal
+          type="error"
           openModal={!!errorMessage}
           setOpenModal={() => setErrorMessage(undefined)}
-          message={errorMessage ?? ''}
+          errorMessage={errorMessage ?? ''}
+          onConfirm={() => setErrorMessage(undefined)}
         />
-        <StopDonationModal openModal={stopDonationModalVisible} setOpenModal={setStopDonationModalVisible} />
+        <BaseModal
+          openModal={stopDonationModalVisible}
+          setOpenModal={setStopDonationModalVisible}
+          title="Are you sure you want to stop your donation?"
+          paragraphs={[
+            'If so, please sign with your wallet. If not, please click below to return to the GoodCollective you support.',
+          ]}
+          image={QuestionImg}
+          confirmButtonText="GO BACK"
+        />
       </View>
     </View>
   );
