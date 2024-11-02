@@ -17,7 +17,7 @@ export const useTotalStats = (): TotalStats | undefined => {
 
   return useMemo(() => {
     const totalDonations = stats?.collectives?.reduce((acc, collective) => acc + Number(collective.totalDonations), 0);
-    const donationsFormatted = formatGoodDollarAmount(totalDonations?.toString() ?? '0');
+    const donationsFormatted = formatGoodDollarAmount(totalDonations?.toString() ?? '0', 2);
 
     return {
       totalPools: {

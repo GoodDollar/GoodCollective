@@ -127,7 +127,7 @@ individuals and communities by providing direct digital payments to those who ne
                   paddingBottom={4}>
                   <HStack space={2} justifyContent="center" minWidth="100%">
                     <ActionButton
-                      href="https://gooddollar.org/goodcollective-how-it-works"
+                      href="https://gooddollar.org/goodcollective-how-it-work"
                       text="How it works"
                       bg="goodPurple.400"
                       textColor="white"
