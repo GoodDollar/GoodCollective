@@ -130,7 +130,6 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
             pool = DirectPaymentsPool(address(new ERC1967Proxy(impl.implementation(), initCall)));
         }
 
-        nft.grantRole(nft.getManagerRole(nextNftType), _settings.manager);
         nft.grantRole(nft.getManagerRole(nextNftType), address(pool));
 
         //access control to project is determinted by the first pool access control rules
