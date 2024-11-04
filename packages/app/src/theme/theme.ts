@@ -87,7 +87,7 @@ export const nbTheme = extendTheme({
     },
     Text: {
       baseStyle: {
-        color: 'goodGrey.600',
+        color: 'black',
         fontFamily: 'Inter',
         fontstyle: 'normal',
         fontWeight: 400,
