@@ -27707,6 +27707,11 @@
                       "internalType": "bool",
                       "name": "allowRewardOverride",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
                   "indexed": false,
@@ -27964,6 +27969,11 @@
                       "internalType": "bool",
                       "name": "allowRewardOverride",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
                   "internalType": "struct DirectPaymentsPool.PoolSettings",
@@ -28057,6 +28067,11 @@
                       "internalType": "bool",
                       "name": "allowRewardOverride",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
                   "internalType": "struct DirectPaymentsPool.PoolSettings",
@@ -28527,7 +28542,7 @@
           ]
         },
         "DirectPaymentsFactory_Implementation": {
-          "address": "0x1eFE82eFcf82F67d94e0deD879ba0568aF8b5B6D",
+          "address": "0xB25801A0E679c987ea49A1C201979081407139C6",
           "abi": [
             {
               "inputs": [],
@@ -28652,6 +28667,11 @@
                       "internalType": "bool",
                       "name": "allowRewardOverride",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
                   "indexed": false,
@@ -28922,6 +28942,11 @@
                       "internalType": "bool",
                       "name": "allowRewardOverride",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
                   "internalType": "struct DirectPaymentsPool.PoolSettings",
@@ -29015,6 +29040,11 @@
                       "internalType": "bool",
                       "name": "allowRewardOverride",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
                   "internalType": "struct DirectPaymentsPool.PoolSettings",
@@ -29543,7 +29573,7 @@
           ]
         },
         "DirectPaymentsPool": {
-          "address": "0xAd78035708FB3912bEb6481583d4E7ff452b03d4",
+          "address": "0xF7f70A3CfCfE5884a617b9CA11E28Bc08eb88C7f",
           "abi": [
             {
               "inputs": [
@@ -29886,6 +29916,11 @@
                       "internalType": "bool",
                       "name": "allowRewardOverride",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
                   "indexed": false,
@@ -29994,6 +30029,11 @@
                       "internalType": "bool",
                       "name": "allowRewardOverride",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
                   "indexed": false,
@@ -30586,6 +30626,24 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "getManagerFee",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "feeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "feeBps",
+                  "type": "uint32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -30619,6 +30677,16 @@
                   "type": "uint256"
                 },
                 {
+                  "internalType": "uint256",
+                  "name": "protocolFees",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "managerFees",
+                  "type": "uint256"
+                },
+                {
                   "internalType": "int96",
                   "name": "incomeFlowRate",
                   "type": "int96"
@@ -30626,6 +30694,11 @@
                 {
                   "internalType": "int96",
                   "name": "feeRate",
+                  "type": "int96"
+                },
+                {
+                  "internalType": "int96",
+                  "name": "managerFeeRate",
                   "type": "int96"
                 }
               ],
@@ -30856,6 +30929,11 @@
                       "internalType": "bool",
                       "name": "allowRewardOverride",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
                   "internalType": "struct DirectPaymentsPool.PoolSettings",
@@ -31264,6 +31342,11 @@
                       "internalType": "bool",
                       "name": "allowRewardOverride",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
                   "internalType": "struct DirectPaymentsPool.PoolSettings",
@@ -31309,6 +31392,11 @@
                   "internalType": "bool",
                   "name": "allowRewardOverride",
                   "type": "bool"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "managerFeeBps",
+                  "type": "uint32"
                 }
               ],
               "stateMutability": "view",
@@ -31342,6 +31430,21 @@
                   "internalType": "int96",
                   "name": "lastIncomeRate",
                   "type": "int96"
+                },
+                {
+                  "internalType": "address",
+                  "name": "lastManagerFeeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "protocolFees",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "managerFees",
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -31553,7 +31656,7 @@
           ]
         },
         "HelperLibrary": {
-          "address": "0xbc67CA6E216b37C3496Aa9Aa091a648b575755a4",
+          "address": "0xA9E671fB33a0Bb36D50607ddd72E7e1519A2B02E",
           "abi": [
             {
               "inputs": [
@@ -31583,6 +31686,21 @@
                       "internalType": "int96",
                       "name": "lastIncomeRate",
                       "type": "int96"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "lastManagerFeeRecipient",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "protocolFees",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "managerFees",
+                      "type": "uint256"
                     }
                   ],
                   "internalType": "struct IGoodCollectiveSuperApp.Stats",
@@ -31608,6 +31726,16 @@
                   "type": "uint256"
                 },
                 {
+                  "internalType": "uint256",
+                  "name": "protocolFees",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "managerFees",
+                  "type": "uint256"
+                },
+                {
                   "internalType": "int96",
                   "name": "incomeFlowRate",
                   "type": "int96"
@@ -31615,6 +31743,11 @@
                 {
                   "internalType": "int96",
                   "name": "feeRate",
+                  "type": "int96"
+                },
+                {
+                  "internalType": "int96",
+                  "name": "managerFeeRate",
                   "type": "int96"
                 }
               ],
@@ -34176,7 +34309,7 @@
           ]
         },
         "UBIPool": {
-          "address": "0x02B23d4c563a29A4D9C87C8bb1fCc6CeC25e41Ed",
+          "address": "0x8142417D8200757BF29686511F7E0861f2b5c929",
           "abi": [
             {
               "inputs": [
@@ -34238,7 +34371,18 @@
             },
             {
               "inputs": [],
-              "name": "MAX_CLAIMERS_REACHED",
+              "name": "MAX_MEMBERS_REACHED",
+              "type": "error"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "claimers",
+                  "type": "uint256"
+                }
+              ],
+              "name": "MAX_PERIOD_CLAIMERS_REACHED",
               "type": "error"
             },
             {
@@ -34395,10 +34539,15 @@
                       "internalType": "contract IERC20Upgradeable",
                       "name": "rewardToken",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
                   "indexed": false,
-                  "internalType": "struct UBIPool.PoolSettings",
+                  "internalType": "struct PoolSettings",
                   "name": "settings",
                   "type": "tuple"
                 }
@@ -34649,13 +34798,23 @@
                     },
                     {
                       "internalType": "uint32",
-                      "name": "maxClaimers",
+                      "name": "maxMembers",
                       "type": "uint32"
                     },
                     {
                       "internalType": "bool",
                       "name": "onlyMembers",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "maxPeriodClaimers",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "minClaimAmount",
+                      "type": "uint256"
                     }
                   ],
                   "indexed": false,
@@ -35112,7 +35271,7 @@
               "outputs": [
                 {
                   "internalType": "uint256",
-                  "name": "",
+                  "name": "nextDailyUbi",
                   "type": "uint256"
                 }
               ],
@@ -35127,6 +35286,24 @@
                   "internalType": "uint256",
                   "name": "",
                   "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getManagerFee",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "feeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "feeBps",
+                  "type": "uint32"
                 }
               ],
               "stateMutability": "view",
@@ -35166,6 +35343,16 @@
                   "type": "uint256"
                 },
                 {
+                  "internalType": "uint256",
+                  "name": "protocolFees",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "managerFees",
+                  "type": "uint256"
+                },
+                {
                   "internalType": "int96",
                   "name": "incomeFlowRate",
                   "type": "int96"
@@ -35173,6 +35360,11 @@
                 {
                   "internalType": "int96",
                   "name": "feeRate",
+                  "type": "int96"
+                },
+                {
+                  "internalType": "int96",
+                  "name": "managerFeeRate",
                   "type": "int96"
                 }
               ],
@@ -35364,9 +35556,14 @@
                       "internalType": "contract IERC20Upgradeable",
                       "name": "rewardToken",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
-                  "internalType": "struct UBIPool.PoolSettings",
+                  "internalType": "struct PoolSettings",
                   "name": "_settings",
                   "type": "tuple"
                 },
@@ -35399,13 +35596,23 @@
                     },
                     {
                       "internalType": "uint32",
-                      "name": "maxClaimers",
+                      "name": "maxMembers",
                       "type": "uint32"
                     },
                     {
                       "internalType": "bool",
                       "name": "onlyMembers",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "maxPeriodClaimers",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "minClaimAmount",
+                      "type": "uint256"
                     }
                   ],
                   "internalType": "struct UBIPool.UBISettings",
@@ -35582,9 +35789,14 @@
                       "internalType": "contract IERC20Upgradeable",
                       "name": "rewardToken",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
-                  "internalType": "struct UBIPool.PoolSettings",
+                  "internalType": "struct PoolSettings",
                   "name": "_settings",
                   "type": "tuple"
                 }
@@ -35625,13 +35837,23 @@
                     },
                     {
                       "internalType": "uint32",
-                      "name": "maxClaimers",
+                      "name": "maxMembers",
                       "type": "uint32"
                     },
                     {
                       "internalType": "bool",
                       "name": "onlyMembers",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "maxPeriodClaimers",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "minClaimAmount",
+                      "type": "uint256"
                     }
                   ],
                   "internalType": "struct UBIPool.UBISettings",
@@ -35667,6 +35889,11 @@
                   "internalType": "contract IERC20Upgradeable",
                   "name": "rewardToken",
                   "type": "address"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "managerFeeBps",
+                  "type": "uint32"
                 }
               ],
               "stateMutability": "view",
@@ -35700,6 +35927,21 @@
                   "internalType": "int96",
                   "name": "lastIncomeRate",
                   "type": "int96"
+                },
+                {
+                  "internalType": "address",
+                  "name": "lastManagerFeeRecipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "protocolFees",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "managerFees",
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -35746,7 +35988,7 @@
                 },
                 {
                   "internalType": "uint32",
-                  "name": "claimersCount",
+                  "name": "membersCount",
                   "type": "uint32"
                 }
               ],
@@ -35943,13 +36185,23 @@
                 },
                 {
                   "internalType": "uint32",
-                  "name": "maxClaimers",
+                  "name": "maxMembers",
                   "type": "uint32"
                 },
                 {
                   "internalType": "bool",
                   "name": "onlyMembers",
                   "type": "bool"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "maxPeriodClaimers",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "minClaimAmount",
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -36122,10 +36374,15 @@
                       "internalType": "contract IERC20Upgradeable",
                       "name": "rewardToken",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
                   "indexed": false,
-                  "internalType": "struct UBIPool.PoolSettings",
+                  "internalType": "struct PoolSettings",
                   "name": "poolSettings",
                   "type": "tuple"
                 },
@@ -36158,13 +36415,23 @@
                     },
                     {
                       "internalType": "uint32",
-                      "name": "maxClaimers",
+                      "name": "maxMembers",
                       "type": "uint32"
                     },
                     {
                       "internalType": "bool",
                       "name": "onlyMembers",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "maxPeriodClaimers",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "minClaimAmount",
+                      "type": "uint256"
                     }
                   ],
                   "indexed": false,
@@ -36379,9 +36646,14 @@
                       "internalType": "contract IERC20Upgradeable",
                       "name": "rewardToken",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
-                  "internalType": "struct UBIPool.PoolSettings",
+                  "internalType": "struct PoolSettings",
                   "name": "_settings",
                   "type": "tuple"
                 },
@@ -36414,13 +36686,23 @@
                     },
                     {
                       "internalType": "uint32",
-                      "name": "maxClaimers",
+                      "name": "maxMembers",
                       "type": "uint32"
                     },
                     {
                       "internalType": "bool",
                       "name": "onlyMembers",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "maxPeriodClaimers",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "minClaimAmount",
+                      "type": "uint256"
                     }
                   ],
                   "internalType": "struct UBIPool.UBISettings",
@@ -36472,9 +36754,14 @@
                       "internalType": "contract IERC20Upgradeable",
                       "name": "rewardToken",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
-                  "internalType": "struct UBIPool.PoolSettings",
+                  "internalType": "struct PoolSettings",
                   "name": "_settings",
                   "type": "tuple"
                 },
@@ -36507,13 +36794,23 @@
                     },
                     {
                       "internalType": "uint32",
-                      "name": "maxClaimers",
+                      "name": "maxMembers",
                       "type": "uint32"
                     },
                     {
                       "internalType": "bool",
                       "name": "onlyMembers",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "maxPeriodClaimers",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "minClaimAmount",
+                      "type": "uint256"
                     }
                   ],
                   "internalType": "struct UBIPool.UBISettings",
@@ -36950,7 +37247,7 @@
           ]
         },
         "UBIPoolFactory_Implementation": {
-          "address": "0x745AE2e7eFD6Cb2b79F16D5dCFD51FF1105708C0",
+          "address": "0x05e9bE6B03A64c6A0fF48b5bBC1D36fa058A7f5e",
           "abi": [
             {
               "inputs": [],
@@ -37049,10 +37346,15 @@
                       "internalType": "contract IERC20Upgradeable",
                       "name": "rewardToken",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
                   "indexed": false,
-                  "internalType": "struct UBIPool.PoolSettings",
+                  "internalType": "struct PoolSettings",
                   "name": "poolSettings",
                   "type": "tuple"
                 },
@@ -37085,13 +37387,23 @@
                     },
                     {
                       "internalType": "uint32",
-                      "name": "maxClaimers",
+                      "name": "maxMembers",
                       "type": "uint32"
                     },
                     {
                       "internalType": "bool",
                       "name": "onlyMembers",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "maxPeriodClaimers",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "minClaimAmount",
+                      "type": "uint256"
                     }
                   ],
                   "indexed": false,
@@ -37319,9 +37631,14 @@
                       "internalType": "contract IERC20Upgradeable",
                       "name": "rewardToken",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
-                  "internalType": "struct UBIPool.PoolSettings",
+                  "internalType": "struct PoolSettings",
                   "name": "_settings",
                   "type": "tuple"
                 },
@@ -37354,13 +37671,23 @@
                     },
                     {
                       "internalType": "uint32",
-                      "name": "maxClaimers",
+                      "name": "maxMembers",
                       "type": "uint32"
                     },
                     {
                       "internalType": "bool",
                       "name": "onlyMembers",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "maxPeriodClaimers",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "minClaimAmount",
+                      "type": "uint256"
                     }
                   ],
                   "internalType": "struct UBIPool.UBISettings",
@@ -37412,9 +37739,14 @@
                       "internalType": "contract IERC20Upgradeable",
                       "name": "rewardToken",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "managerFeeBps",
+                      "type": "uint32"
                     }
                   ],
-                  "internalType": "struct UBIPool.PoolSettings",
+                  "internalType": "struct PoolSettings",
                   "name": "_settings",
                   "type": "tuple"
                 },
@@ -37447,13 +37779,23 @@
                     },
                     {
                       "internalType": "uint32",
-                      "name": "maxClaimers",
+                      "name": "maxMembers",
                       "type": "uint32"
                     },
                     {
                       "internalType": "bool",
                       "name": "onlyMembers",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "maxPeriodClaimers",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "minClaimAmount",
+                      "type": "uint256"
                     }
                   ],
                   "internalType": "struct UBIPool.UBISettings",
