@@ -53,7 +53,8 @@ describe('UBIPoolFactory', () => {
       uniquenessValidator: '0xF25fA0D4896271228193E782831F6f3CFCcF169C',
       manager: signers[1].address,
       membersValidator: ethers.constants.AddressZero,
-      rewardToken: '0x03d3daB843e6c03b3d271eff9178e6A96c28D25f'
+      rewardToken: '0x03d3daB843e6c03b3d271eff9178e6A96c28D25f',
+      managerFeeBps: 0,
     };
 
     poolLimits = {
@@ -62,8 +63,10 @@ describe('UBIPoolFactory', () => {
       minActiveUsers: ethers.BigNumber.from(100),
       claimForEnabled: true,
       maxClaimAmount: ethers.utils.parseEther('100'),
-      maxClaimers: 500,
+      maxMembers: 500,
       onlyMembers: true,
+      maxPeriodClaimers: 500,
+      minClaimAmount: ethers.utils.parseEther('1'),
     };
   });
 

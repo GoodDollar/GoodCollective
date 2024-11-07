@@ -76,6 +76,7 @@ describe('DirectPaymentsFactory', () => {
       membersValidator: ethers.constants.AddressZero,
       rewardToken: '0x03d3daB843e6c03b3d271eff9178e6A96c28D25f',
       allowRewardOverride: false,
+      managerFeeBps: 0
     };
 
     poolLimits = {

@@ -9,19 +9,7 @@ import { IERC721ReceiverUpgradeable } from "@openzeppelin/contracts-upgradeable/
 
 import "../GoodCollective/GoodCollectiveSuperApp.sol";
 import "./UBIPoolFactory.sol";
-
-interface IMembersValidator {
-    function isMemberValid(
-        address pool,
-        address operator,
-        address member,
-        bytes memory extraData
-    ) external returns (bool);
-}
-
-interface IIdentityV2 {
-    function getWhitelistedRoot(address member) external view returns (address);
-}
+import "../Interfaces.sol";
 
 contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -33,7 +21,8 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     error ALREADY_CLAIMED(address whitelistedRoot);
     error INVALID_0_VALUE();
     error EMPTY_MANAGER();
-    error MAX_CLAIMERS_REACHED();
+    error MAX_MEMBERS_REACHED();
+    error MAX_PERIOD_CLAIMERS_REACHED(uint256 claimers);
 
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
     bytes32 public constant MEMBER_ROLE = keccak256("MEMBER_ROLE");
@@ -53,13 +42,6 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     event UBICycleCalculated(uint256 day, uint256 pool, uint256 cycleLength, uint256 dailyUBIPool);
 
     event UBIClaimed(address indexed whitelistedRoot, address indexed claimer, uint256 amount);
-    // Define functions
-    struct PoolSettings {
-        address manager;
-        IMembersValidator membersValidator;
-        IIdentityV2 uniquenessValidator;
-        IERC20Upgradeable rewardToken;
-    }
 
     struct UBISettings {
         //number of days of each UBI pool cycle
@@ -70,9 +52,15 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         uint32 minActiveUsers;
         // can you trigger claim for someone else
         bool claimForEnabled;
+        // max daily claim amount
         uint maxClaimAmount;
-        uint32 maxClaimers;
+        // max number of members in a pool
+        uint32 maxMembers;
         bool onlyMembers;
+        // max number of members that can claim in a day maxPeriodClaimers <= maxMembers
+        uint32 maxPeriodClaimers;
+        // min daily claim amount, daily amount will be 0 if <minClaimAmount
+        uint minClaimAmount;
     }
 
     struct PoolStatus {
@@ -90,7 +78,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         uint256 periodClaimers;
         uint256 periodDistributed;
         mapping(address => uint256) lastClaimed;
-        uint32 claimersCount;
+        uint32 membersCount;
     }
 
     PoolSettings public settings;
@@ -110,6 +98,10 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
 
     function getRegistry() public view override returns (IRegistry) {
         return IRegistry(address(registry));
+    }
+
+    function getManagerFee() public view override returns (address feeRecipient, uint32 feeBps) {
+        return (settings.manager, settings.managerFeeBps);
     }
 
     /**
@@ -152,32 +144,18 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         // once every claim cycle
         uint256 currentDay = getCurrentDay();
         if (currentDay >= status.currentDay + ubiSettings.claimPeriodDays) {
-            status.currentDay = currentDay;
-            uint32 cycleLength = ubiSettings.cycleLengthDays;
-            uint256 currentBalance = settings.rewardToken.balanceOf(address(this));
-            //start early cycle if daily pool size is +%5 previous pool or not enough until end of cycle
-            uint256 nextDailyPool = currentBalance / cycleLength;
-            bool shouldStartEarlyCycle = nextDailyPool > (status.dailyCyclePool * 105) / 100 ||
-                (currentDayInCycle() <= cycleLength &&
-                    currentBalance < (status.dailyCyclePool * (cycleLength - currentDayInCycle())));
-
-            if (
-                currentDayInCycle() >= status.currentCycleLength || shouldStartEarlyCycle
-            ) //start of cycle or first time
-            {
+            (uint256 nextDailyPool, uint256 nextDailyUbi, bool newCycle) = _calcNextDailyUBI();
+            if (newCycle) {
+                uint256 currentBalance = settings.rewardToken.balanceOf(address(this));
                 status.dailyCyclePool = nextDailyPool;
-                status.currentCycleLength = cycleLength;
+                status.currentCycleLength = ubiSettings.cycleLengthDays;
                 status.startOfCycle = currentDay;
-                emit UBICycleCalculated(currentDay, currentBalance, cycleLength, nextDailyPool);
+                emit UBICycleCalculated(currentDay, currentBalance, ubiSettings.cycleLengthDays, nextDailyPool);
             }
 
             uint256 prevPeriodClaimers = status.periodClaimers;
-            status.dailyUbi = min(
-                ubiSettings.maxClaimAmount,
-                status.dailyCyclePool / max((prevPeriodClaimers * 10500) / 10000, ubiSettings.minActiveUsers)
-            );
-            //update minActiveUsers as claimers grow
-            ubiSettings.minActiveUsers = uint32(max(prevPeriodClaimers / 2, ubiSettings.minActiveUsers));
+            status.dailyUbi = nextDailyUbi;
+            if (status.dailyUbi <= ubiSettings.minClaimAmount) status.dailyUbi = 0;
 
             emit UBICalculated(
                 currentDay,
@@ -191,6 +169,32 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         }
 
         return status.dailyUbi;
+    }
+
+    function _calcNextDailyUBI() internal view returns (uint256 nextPeriodPool, uint256 nextDailyUbi, bool newCycle) {
+        uint256 currentBalance = settings.rewardToken.balanceOf(address(this));
+        //start early cycle if we can increase the daily UBI pool
+        uint256 nextDailyPool = currentBalance / ubiSettings.cycleLengthDays;
+        bool shouldStartEarlyCycle = nextDailyPool > (status.dailyCyclePool * 105) / 100 ||
+            (currentDayInCycle() <= status.currentCycleLength &&
+                currentBalance < (status.dailyCyclePool * (status.currentCycleLength - currentDayInCycle())));
+
+        nextPeriodPool = status.dailyCyclePool;
+        nextDailyUbi;
+        if (
+            (currentDayInCycle() + 1) >= status.currentCycleLength || shouldStartEarlyCycle
+        ) //start of cycle or first time
+        {
+            nextPeriodPool = currentBalance / ubiSettings.cycleLengthDays;
+            newCycle = true;
+        }
+
+        nextDailyUbi = min(
+            ubiSettings.maxClaimAmount,
+            nextPeriodPool / max((status.periodClaimers * 10500) / 10000, ubiSettings.minActiveUsers)
+        );
+
+        if (nextDailyUbi < ubiSettings.minClaimAmount) nextDailyUbi = 0;
     }
 
     /**
@@ -231,11 +235,14 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         if (whitelistedRoot == address(0)) revert NOT_WHITELISTED(claimer);
 
         // if open for anyone but has limits, we add the first claimers as members to handle the max claimers
-        if ((ubiSettings.maxClaimers > 0 && ubiSettings.onlyMembers == false)) _grantRole(MEMBER_ROLE, claimer);
+        if ((ubiSettings.maxMembers > 0 && ubiSettings.onlyMembers == false)) _grantRole(MEMBER_ROLE, claimer);
 
         // check membership if has claimers limits or limited to members only
-        if ((ubiSettings.maxClaimers > 0 || ubiSettings.onlyMembers) && hasRole(MEMBER_ROLE, claimer) == false)
+        if ((ubiSettings.maxMembers > 0 || ubiSettings.onlyMembers) && hasRole(MEMBER_ROLE, claimer) == false)
             revert NOT_MEMBER(claimer);
+
+        if (ubiSettings.maxPeriodClaimers > 0 && status.periodClaimers >= ubiSettings.maxPeriodClaimers)
+            revert MAX_PERIOD_CLAIMERS_REACHED(status.periodClaimers);
 
         // calculats the formula up today ie on day 0 there are no active users, on day 1 any user
         // (new or active) will trigger the calculation with the active users count of the day before
@@ -287,17 +294,17 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
 
     function _grantRole(bytes32 role, address account) internal virtual override {
         if (role == MEMBER_ROLE && hasRole(MEMBER_ROLE, account) == false) {
-            if (ubiSettings.maxClaimers > 0 && status.claimersCount > ubiSettings.maxClaimers)
-                revert MAX_CLAIMERS_REACHED();
+            if (ubiSettings.maxMembers > 0 && status.membersCount > ubiSettings.maxMembers)
+                revert MAX_MEMBERS_REACHED();
             registry.addMember(account);
-            status.claimersCount += 1;
+            status.membersCount += 1;
         }
         super._grantRole(role, account);
     }
 
     function _revokeRole(bytes32 role, address account) internal virtual override {
         if (role == MEMBER_ROLE && hasRole(MEMBER_ROLE, account)) {
-            status.claimersCount -= 1;
+            status.membersCount -= 1;
             registry.removeMember(account);
         }
         super._revokeRole(role, account);
@@ -345,28 +352,8 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         ) revert INVALID_0_VALUE();
     }
 
-    function estimateNextDailyUBI() public view returns (uint256) {
-        uint256 currentBalance = settings.rewardToken.balanceOf(address(this));
-        //start early cycle if we can increase the daily UBI pool
-        uint256 nextDailyPool = currentBalance / ubiSettings.cycleLengthDays;
-        bool shouldStartEarlyCycle = nextDailyPool > (status.dailyCyclePool * 105) / 100 ||
-            (currentDayInCycle() <= status.currentCycleLength &&
-                currentBalance < (status.dailyCyclePool * (status.currentCycleLength - currentDayInCycle())));
-
-        uint256 _dailyCyclePool = status.dailyCyclePool;
-        uint256 _dailyUbi;
-        if (
-            (currentDayInCycle() + 1) >= status.currentCycleLength || shouldStartEarlyCycle
-        ) //start of cycle or first time
-        {
-            _dailyCyclePool = currentBalance / ubiSettings.cycleLengthDays;
-        }
-
-        _dailyUbi = min(
-            ubiSettings.maxClaimAmount,
-            _dailyCyclePool / max((status.periodClaimers * 10500) / 10000, ubiSettings.minActiveUsers)
-        );
-        return _dailyUbi;
+    function estimateNextDailyUBI() public view returns (uint256 nextDailyUbi) {
+        (, nextDailyUbi, ) = _calcNextDailyUBI();
     }
 
     function checkEntitlement() public view returns (uint256) {
@@ -384,6 +371,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         // current day has already been updated which means
         // that the dailyUbi has been updated
         if (status.currentDay == getCurrentDay() && status.dailyUbi > 0) {
+            if (ubiSettings.maxPeriodClaimers > 0 && status.periodClaimers >= ubiSettings.maxPeriodClaimers) return 0;
             return hasClaimed(_member) ? 0 : status.dailyUbi;
         }
         return estimateNextDailyUBI();

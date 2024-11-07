@@ -9,6 +9,7 @@ import { IERC721ReceiverUpgradeable } from "@openzeppelin/contracts-upgradeable/
 
 import { ProvableNFT } from "./ProvableNFT.sol";
 import { DirectPaymentsFactory } from "./DirectPaymentsFactory.sol";
+import { DirectPayemntsLibrary } from "./DirectPaymentsLibrary.sol";
 import "../GoodCollective/GoodCollectiveSuperApp.sol";
 
 interface IMembersValidator {
@@ -85,6 +86,7 @@ contract DirectPaymentsPool is
         IIdentityV2 uniquenessValidator;
         IERC20Upgradeable rewardToken;
         bool allowRewardOverride;
+        uint32 managerFeeBps;
     }
 
     struct SafetyLimits {
@@ -122,6 +124,10 @@ contract DirectPaymentsPool is
 
     function getRegistry() public view override returns (IRegistry) {
         return IRegistry(address(registry));
+    }
+
+    function getManagerFee() public view override returns (address feeRecipient, uint32 feeBps) {
+        return (settings.manager, settings.managerFeeBps);
     }
 
     /**
@@ -259,24 +265,7 @@ contract DirectPaymentsPool is
             return false;
         }
 
-        uint64 curMonth = _month();
-        if (memberLimits[member].lastReward + 60 * 60 * 24 < block.timestamp) //more than a day passed since last reward
-        {
-            memberLimits[member].daily = reward;
-        } else {
-            memberLimits[member].daily += reward;
-        }
-
-        if (memberLimits[member].lastMonth < curMonth) //month switched
-        {
-            memberLimits[member].monthly = reward;
-        } else {
-            memberLimits[member].monthly += reward;
-        }
-
-        memberLimits[member].total += reward;
-        memberLimits[member].lastReward = uint64(block.timestamp);
-        memberLimits[member].lastMonth = curMonth;
+        DirectPayemntsLibrary._updateMemberLimits(memberLimits[member], reward, _month());
 
         if (
             memberLimits[member].daily > limits.maxMemberPerDay ||
@@ -291,25 +280,7 @@ contract DirectPaymentsPool is
      * @param reward The amount of rewards to enforce and update limits for.
      */
     function _enforceAndUpdateGlobalLimits(uint128 reward) internal {
-        uint64 curMonth = _month();
-
-        if (globalLimits.lastReward + 60 * 60 * 24 < block.timestamp) //more than a day passed since last reward
-        {
-            globalLimits.daily = reward;
-        } else {
-            globalLimits.daily += reward;
-        }
-
-        if (globalLimits.lastMonth < curMonth) //month switched
-        {
-            globalLimits.monthly = reward;
-        } else {
-            globalLimits.monthly += reward;
-        }
-
-        globalLimits.total += reward;
-        globalLimits.lastReward = uint64(block.timestamp);
-        globalLimits.lastMonth = curMonth;
+        DirectPayemntsLibrary._updateGlobalLimits(globalLimits, reward, _month());
 
         if (globalLimits.monthly > limits.maxTotalPerMonth) revert OVER_GLOBAL_LIMITS();
     }

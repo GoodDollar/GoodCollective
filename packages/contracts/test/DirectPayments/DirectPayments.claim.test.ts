@@ -55,6 +55,7 @@ describe('DirectPaymentsPool Claim', () => {
       membersValidator: ethers.constants.AddressZero,
       rewardToken: gdframework.GoodDollar.address,
       allowRewardOverride: false,
+      managerFeeBps: 0
     };
 
     poolLimits = {

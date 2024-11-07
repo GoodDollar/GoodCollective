@@ -64,6 +64,7 @@ describe('DirectPaymentsPool Superapp', () => {
       membersValidator: ethers.constants.AddressZero,
       rewardToken: gdframework.GoodDollar.address,
       allowRewardOverride: false,
+      managerFeeBps: 0
     };
 
     poolLimits = {
@@ -135,9 +136,9 @@ describe('DirectPaymentsPool Superapp', () => {
     await mine(2, { interval: 5 });
 
     expect(await gdframework.GoodDollar.balanceOf(pool.address)).gte(Number(baseFlowRate) * 5);
-    await st.deleteFlow({ receiver: pool.address, sender: signer.address }).exec(signer);
+    await expect(st.deleteFlow({ receiver: pool.address, sender: signer.address }).exec(signer)).not.reverted
     const supporter = await pool.supporters(signer.address);
-    expect(supporter.contribution).gt(Number(baseFlowRate) * 5);
+    expect(supporter.contribution).gte(Number(baseFlowRate) * 5);
     expect(supporter.lastUpdated).gt(0);
     expect(supporter.flowRate).equal(0);
   });

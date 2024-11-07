@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 
 contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
     error NOT_PROJECT_OWNER();

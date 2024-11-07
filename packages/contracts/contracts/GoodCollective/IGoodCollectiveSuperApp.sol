@@ -14,5 +14,10 @@ interface IGoodCollectiveSuperApp {
         uint256 lastUpdate;
         address lastFeeRecipient;
         int96 lastIncomeRate;
+        address lastManagerFeeRecipient;
+        uint256 protocolFees;
+        uint256 managerFees;
     }
+
+    function getAdminFee() external view returns (address admin, uint32 feeBps);
 }
