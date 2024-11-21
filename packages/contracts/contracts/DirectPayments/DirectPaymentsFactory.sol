@@ -98,18 +98,20 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         string memory _projectId,
         string memory _ipfs,
         DirectPaymentsPool.PoolSettings memory _settings,
-        DirectPaymentsPool.SafetyLimits memory _limits
+        DirectPaymentsPool.SafetyLimits memory _limits,
+        uint32 _managerFeeBps
     ) external onlyProjectOwnerOrNon(_projectId) returns (DirectPaymentsPool pool) {
-        return _createPool(_projectId, _ipfs, _settings, _limits, true);
+        return _createPool(_projectId, _ipfs, _settings, _limits, _managerFeeBps, true);
     }
 
     function createPool(
         string memory _projectId,
         string memory _ipfs,
         DirectPaymentsPool.PoolSettings memory _settings,
-        DirectPaymentsPool.SafetyLimits memory _limits
+        DirectPaymentsPool.SafetyLimits memory _limits,
+        uint32 _managerFeeBps
     ) external onlyProjectOwnerOrNon(_projectId) returns (DirectPaymentsPool pool) {
-        return _createPool(_projectId, _ipfs, _settings, _limits, false);
+        return _createPool(_projectId, _ipfs, _settings, _limits, _managerFeeBps, false);
     }
 
     function _createPool(
@@ -117,12 +119,16 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         string memory _ipfs,
         DirectPaymentsPool.PoolSettings memory _settings,
         DirectPaymentsPool.SafetyLimits memory _limits,
+        uint32 _managerFeeBps,
         bool useBeacon
     ) internal returns (DirectPaymentsPool pool) {
         //TODO: add check if msg.sender is whitelisted
 
         _settings.nftType = nextNftType;
-        bytes memory initCall = abi.encodeCall(DirectPaymentsPool.initialize, (nft, _settings, _limits, this));
+        bytes memory initCall = abi.encodeCall(
+            DirectPaymentsPool.initialize,
+            (nft, _settings, _limits, _managerFeeBps, this)
+        );
 
         if (useBeacon) {
             pool = DirectPaymentsPool(address(new BeaconProxy(address(impl), initCall)));

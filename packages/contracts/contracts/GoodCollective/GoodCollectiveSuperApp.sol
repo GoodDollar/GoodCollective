@@ -68,7 +68,7 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
 
     IGoodCollectiveSuperApp.Stats public stats;
 
-    uint256[48] private _reserved;
+    uint256[45] private _reserved;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(ISuperfluid _host, IV3SwapRouter _swapRouter) SuperAppBaseFlow(_host) {

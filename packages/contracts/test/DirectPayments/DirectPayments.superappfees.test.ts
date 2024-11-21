@@ -64,7 +64,6 @@ describe('DirectPaymentsPool Superapp with Fees', () => {
       membersValidator: ethers.constants.AddressZero,
       rewardToken: gdframework.GoodDollar.address,
       allowRewardOverride: false,
-      managerFeeBps: 0
     };
 
     poolLimits = {
@@ -95,9 +94,9 @@ describe('DirectPaymentsPool Superapp with Fees', () => {
   });
 
   const fixture = async () => {
-    const tx = await factory.createPool('testfees', 'ipfs', poolSettings, poolLimits);
+    const tx = await factory.createPool('testfees', 'ipfs', poolSettings, poolLimits, 0);
     const poolAddr = (await tx.wait()).events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
-    pool = await ethers.getContractAt('DirectPaymentsPool', poolAddr);
+    pool = await ethers.getContractAt('DirectPaymentsPool', poolAddr) as DirectPaymentsPool;
   };
 
   beforeEach(async function () {

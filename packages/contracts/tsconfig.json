@@ -8,5 +8,7 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "baseUrl": "."
-  }
+  },
+  "exclude": ["typechain-types"],
+  "include": ["test"]
 }

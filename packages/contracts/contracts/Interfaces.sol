@@ -22,5 +22,4 @@ struct PoolSettings {
     IMembersValidator membersValidator;
     IIdentityV2 uniquenessValidator;
     IERC20Upgradeable rewardToken;
-    uint32 managerFeeBps;
 }

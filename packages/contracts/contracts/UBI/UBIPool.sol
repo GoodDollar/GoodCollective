@@ -57,10 +57,6 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         // max number of members in a pool
         uint32 maxMembers;
         bool onlyMembers;
-        // max number of members that can claim in a day maxPeriodClaimers <= maxMembers
-        uint32 maxPeriodClaimers;
-        // min daily claim amount, daily amount will be 0 if <minClaimAmount
-        uint minClaimAmount;
     }
 
     struct PoolStatus {
@@ -81,11 +77,21 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         uint32 membersCount;
     }
 
+    struct ExtendedSettings {
+        // max number of members that can claim in a day maxPeriodClaimers <= maxMembers
+        uint32 maxPeriodClaimers;
+        // min daily claim amount, daily amount will be 0 if <minClaimAmount
+        uint minClaimAmount;
+        // fees taken from income to the pool manager
+        uint32 managerFeeBps;
+    }
+
     PoolSettings public settings;
     UBISettings public ubiSettings;
     PoolStatus public status;
 
     UBIPoolFactory public registry;
+    ExtendedSettings public extendedSettings;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(ISuperfluid _host, IV3SwapRouter _swapRouter) GoodCollectiveSuperApp(_host, _swapRouter) {}
@@ -101,7 +107,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     }
 
     function getManagerFee() public view override returns (address feeRecipient, uint32 feeBps) {
-        return (settings.manager, settings.managerFeeBps);
+        return (settings.manager, extendedSettings.managerFeeBps);
     }
 
     /**
@@ -112,11 +118,13 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     function initialize(
         PoolSettings memory _settings,
         UBISettings memory _ubiSettings,
+        ExtendedSettings memory _extendedSettings,
         UBIPoolFactory _registry
     ) external initializer {
         registry = _registry;
         settings = _settings;
         ubiSettings = _ubiSettings;
+        extendedSettings = _extendedSettings;
         _verifyPoolSettings(_settings);
         _verifyUBISettings(_ubiSettings);
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender); // when using factory this gives factory role which then set role to the real msg.sender
@@ -140,7 +148,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
      * the daily balance is determined by dividing current pool by the cycle length
      * @return The amount of GoodDollar the user can claim
      */
-    function distributionFormula() internal returns (uint256) {
+    function distributionFormula() public returns (uint256) {
         // once every claim cycle
         uint256 currentDay = getCurrentDay();
         if (currentDay >= status.currentDay + ubiSettings.claimPeriodDays) {
@@ -155,7 +163,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
 
             uint256 prevPeriodClaimers = status.periodClaimers;
             status.dailyUbi = nextDailyUbi;
-            if (status.dailyUbi <= ubiSettings.minClaimAmount) status.dailyUbi = 0;
+            if (status.dailyUbi <= extendedSettings.minClaimAmount) status.dailyUbi = 0;
 
             emit UBICalculated(
                 currentDay,
@@ -194,7 +202,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
             nextPeriodPool / max((status.periodClaimers * 10500) / 10000, ubiSettings.minActiveUsers)
         );
 
-        if (nextDailyUbi < ubiSettings.minClaimAmount) nextDailyUbi = 0;
+        if (nextDailyUbi < extendedSettings.minClaimAmount) nextDailyUbi = 0;
     }
 
     /**
@@ -241,7 +249,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         if ((ubiSettings.maxMembers > 0 || ubiSettings.onlyMembers) && hasRole(MEMBER_ROLE, claimer) == false)
             revert NOT_MEMBER(claimer);
 
-        if (ubiSettings.maxPeriodClaimers > 0 && status.periodClaimers >= ubiSettings.maxPeriodClaimers)
+        if (extendedSettings.maxPeriodClaimers > 0 && status.periodClaimers >= extendedSettings.maxPeriodClaimers)
             revert MAX_PERIOD_CLAIMERS_REACHED(status.periodClaimers);
 
         // calculats the formula up today ie on day 0 there are no active users, on day 1 any user
@@ -314,9 +322,13 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
      * @dev Sets the safety limits for the pool.
      * @param _ubiSettings The new safety limits.
      */
-    function setUBISettings(UBISettings memory _ubiSettings) public onlyRole(MANAGER_ROLE) {
+    function setUBISettings(
+        UBISettings memory _ubiSettings,
+        ExtendedSettings memory _extendedSettings
+    ) public onlyRole(MANAGER_ROLE) {
         _verifyUBISettings(_ubiSettings);
         ubiSettings = _ubiSettings;
+        extendedSettings = _extendedSettings;
         emit UBISettingsChanged(_ubiSettings);
     }
 
@@ -371,7 +383,8 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         // current day has already been updated which means
         // that the dailyUbi has been updated
         if (status.currentDay == getCurrentDay() && status.dailyUbi > 0) {
-            if (ubiSettings.maxPeriodClaimers > 0 && status.periodClaimers >= ubiSettings.maxPeriodClaimers) return 0;
+            if (extendedSettings.maxPeriodClaimers > 0 && status.periodClaimers >= extendedSettings.maxPeriodClaimers)
+                return 0;
             return hasClaimed(_member) ? 0 : status.dailyUbi;
         }
         return estimateNextDailyUBI();

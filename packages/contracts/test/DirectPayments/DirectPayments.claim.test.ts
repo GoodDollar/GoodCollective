@@ -54,8 +54,7 @@ describe('DirectPaymentsPool Claim', () => {
       manager: signer.address,
       membersValidator: ethers.constants.AddressZero,
       rewardToken: gdframework.GoodDollar.address,
-      allowRewardOverride: false,
-      managerFeeBps: 0
+      allowRewardOverride: false
     };
 
     poolLimits = {
@@ -96,13 +95,14 @@ describe('DirectPaymentsPool Claim', () => {
     const poolTx = await (await poolFactory.createPool("xx", "ipfs",
       { ...poolSettings, membersValidator: membersValidator.address },
       poolLimits,
+      0
     )).wait()
     // console.log("created pool:", poolTx.events)
     const poolAddress = poolTx.events?.find(_ => _.event === "PoolCreated")?.args?.[0]
-    pool = Pool.attach(poolAddress)
+    pool = Pool.attach(poolAddress) as DirectPaymentsPool
 
     const tx = await nft.mintPermissioned(signers[0].address, nftSample, true, []).then((_) => _.wait());
-    await gdframework.GoodDollar.mint(pool.address, ethers.constants.WeiPerEther.mul(100000)).then((_) => _.wait());
+    await gdframework.GoodDollar.mint(pool.address, ethers.constants.WeiPerEther.mul(100000)).then((_: any) => _.wait());
     nftSampleId = tx.events?.find((e) => e.event === 'Transfer')?.args?.tokenId;
     // return { pool, nft, membersValidator };
   };
@@ -118,7 +118,7 @@ describe('DirectPaymentsPool Claim', () => {
       ]);
       membersValidator.mock['isMemberValid'].returns(false);
 
-      await pool.setPoolSettings({ ...poolSettings, membersValidator: membersValidator.address });
+      await pool.setPoolSettings({ ...poolSettings, membersValidator: membersValidator.address }, 0);
       await expect(pool['claim(uint256)'](nftSampleId)).not.reverted;
       const contributer = nftSample.events[0].contributers[0];
       const initialBalance = await gdframework.GoodDollar.balanceOf(contributer);

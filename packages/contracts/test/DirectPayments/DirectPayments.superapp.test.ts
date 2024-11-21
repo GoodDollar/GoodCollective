@@ -64,7 +64,6 @@ describe('DirectPaymentsPool Superapp', () => {
       membersValidator: ethers.constants.AddressZero,
       rewardToken: gdframework.GoodDollar.address,
       allowRewardOverride: false,
-      managerFeeBps: 0
     };
 
     poolLimits = {
@@ -83,7 +82,7 @@ describe('DirectPaymentsPool Superapp', () => {
       libraries: { HelperLibrary: helper.address },
     });
 
-    pool = (await upgrades.deployProxy(Pool, [nft.address, poolSettings, poolLimits, ethers.constants.AddressZero], {
+    pool = (await upgrades.deployProxy(Pool, [nft.address, poolSettings, poolLimits, 0, ethers.constants.AddressZero], {
       unsafeAllowLinkedLibraries: true,
       constructorArgs: [await gdframework.GoodDollar.getHost(), swaprouter.address],
     })) as DirectPaymentsPool;

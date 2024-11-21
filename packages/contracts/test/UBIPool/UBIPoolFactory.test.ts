@@ -4,6 +4,7 @@ import { deployTestFramework } from '@superfluid-finance/ethereum-contracts/dev-
 import { expect } from 'chai';
 import { UBIPoolFactory, UBIPool, ProvableNFT } from 'typechain-types';
 import { ethers, upgrades } from 'hardhat';
+import { PoolSettingsStruct } from 'typechain-types/contracts/UBI/UBIPool';
 
 type SignerWithAddress = Awaited<ReturnType<typeof ethers.getSigner>>;
 
@@ -11,7 +12,8 @@ describe('UBIPoolFactory', () => {
   let factory: UBIPoolFactory;
   let signer: SignerWithAddress;
   let signers: SignerWithAddress[];
-  let poolSettings: UBIPool.PoolSettingsStruct;
+  let poolSettings: PoolSettingsStruct;
+  let extendedPoolSettings: UBIPool.ExtendedSettingsStruct;
   let poolLimits: UBIPool.UBISettingsStruct;
   let gdframework: Awaited<ReturnType<typeof deploySuperGoodDollar>>;
   let sfFramework: { [key: string]: string };
@@ -54,9 +56,12 @@ describe('UBIPoolFactory', () => {
       manager: signers[1].address,
       membersValidator: ethers.constants.AddressZero,
       rewardToken: '0x03d3daB843e6c03b3d271eff9178e6A96c28D25f',
-      managerFeeBps: 0,
     };
-
+    extendedPoolSettings = {
+      maxPeriodClaimers: 500,
+      minClaimAmount: ethers.utils.parseEther('1'),
+      managerFeeBps: 0,
+    }
     poolLimits = {
       cycleLengthDays: ethers.BigNumber.from(60),
       claimPeriodDays: ethers.BigNumber.from(1),
@@ -65,13 +70,12 @@ describe('UBIPoolFactory', () => {
       maxClaimAmount: ethers.utils.parseEther('100'),
       maxMembers: 500,
       onlyMembers: true,
-      maxPeriodClaimers: 500,
-      minClaimAmount: ethers.utils.parseEther('1'),
+
     };
   });
 
   it('should create pool correctly', async () => {
-    const tx = factory.createPool('test', 'pool1', poolSettings, poolLimits);
+    const tx = factory.createPool('test', 'pool1', poolSettings, poolLimits, extendedPoolSettings);
     await expect(tx).not.reverted;
     await expect(tx).emit(factory, 'PoolCreated');
     const poolAddr = (await (await tx).wait()).events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
@@ -93,12 +97,12 @@ describe('UBIPoolFactory', () => {
   });
 
   it("should not be able to create pool if not project's manager", async () => {
-    const tx = await factory.createPool('test', 'pool1', poolSettings, poolLimits);
+    const tx = await factory.createPool('test', 'pool1', poolSettings, poolLimits, extendedPoolSettings);
 
     // signer 1 is the pool manager so it should not revert
-    await expect(factory.createPool('test', 'pool2', poolSettings, poolLimits)).not.reverted;
+    await expect(factory.createPool('test', 'pool2', poolSettings, poolLimits, extendedPoolSettings)).not.reverted;
 
-    await expect(factory.connect(signers[1]).createPool('test', 'pool3', poolSettings, poolLimits)).revertedWithCustomError(
+    await expect(factory.connect(signers[1]).createPool('test', 'pool3', poolSettings, poolLimits, extendedPoolSettings)).revertedWithCustomError(
       factory,
       'NOT_PROJECT_OWNER'
     );

@@ -87,18 +87,20 @@ contract UBIPoolFactory is AccessControlUpgradeable, UUPSUpgradeable {
         string memory _projectId,
         string memory _ipfs,
         PoolSettings memory _settings,
-        UBIPool.UBISettings memory _limits
+        UBIPool.UBISettings memory _limits,
+        UBIPool.ExtendedSettings memory _extendedSettings
     ) external onlyProjectOwnerOrNon(_projectId) returns (UBIPool pool) {
-        return _createPool(_projectId, _ipfs, _settings, _limits, true);
+        return _createPool(_projectId, _ipfs, _settings, _limits, _extendedSettings, true);
     }
 
     function createPool(
         string memory _projectId,
         string memory _ipfs,
         PoolSettings memory _settings,
-        UBIPool.UBISettings memory _limits
+        UBIPool.UBISettings memory _limits,
+        UBIPool.ExtendedSettings memory _extendedSettings
     ) external onlyProjectOwnerOrNon(_projectId) returns (UBIPool pool) {
-        return _createPool(_projectId, _ipfs, _settings, _limits, false);
+        return _createPool(_projectId, _ipfs, _settings, _limits, _extendedSettings, false);
     }
 
     function _createPool(
@@ -106,11 +108,12 @@ contract UBIPoolFactory is AccessControlUpgradeable, UUPSUpgradeable {
         string memory _ipfs,
         PoolSettings memory _settings,
         UBIPool.UBISettings memory _limits,
+        UBIPool.ExtendedSettings memory _extendedSettings,
         bool useBeacon
     ) internal returns (UBIPool pool) {
         //TODO: add check if msg.sender is whitelisted
 
-        bytes memory initCall = abi.encodeCall(UBIPool.initialize, (_settings, _limits, this));
+        bytes memory initCall = abi.encodeCall(UBIPool.initialize, (_settings, _limits, _extendedSettings, this));
 
         if (useBeacon) {
             pool = UBIPool(address(new BeaconProxy(address(impl), initCall)));

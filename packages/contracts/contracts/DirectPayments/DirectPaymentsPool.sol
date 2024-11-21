@@ -86,7 +86,6 @@ contract DirectPaymentsPool is
         IIdentityV2 uniquenessValidator;
         IERC20Upgradeable rewardToken;
         bool allowRewardOverride;
-        uint32 managerFeeBps;
     }
 
     struct SafetyLimits {
@@ -113,6 +112,8 @@ contract DirectPaymentsPool is
     LimitsData public globalLimits;
     DirectPaymentsFactory public registry;
 
+    uint32 public managerFeeBps;
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(ISuperfluid _host, IV3SwapRouter _swapRouter) GoodCollectiveSuperApp(_host, _swapRouter) {}
 
@@ -127,7 +128,7 @@ contract DirectPaymentsPool is
     }
 
     function getManagerFee() public view override returns (address feeRecipient, uint32 feeBps) {
-        return (settings.manager, settings.managerFeeBps);
+        return (settings.manager, managerFeeBps);
     }
 
     /**
@@ -140,12 +141,14 @@ contract DirectPaymentsPool is
         ProvableNFT _nft,
         PoolSettings memory _settings,
         SafetyLimits memory _limits,
+        uint32 _managerFeeBps,
         DirectPaymentsFactory _registry
     ) external initializer {
         registry = _registry;
         settings = _settings;
         limits = _limits;
         nft = _nft;
+        managerFeeBps = _managerFeeBps;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender); // when using factory this gives factory role which then set role to the real msg.sender
         _setupRole(MANAGER_ROLE, _settings.manager);
         _setupRole(MINTER_ROLE, _settings.manager);
@@ -380,7 +383,8 @@ contract DirectPaymentsPool is
      * @dev Sets the settings for the pool.
      * @param _settings The new pool settings.
      */
-    function setPoolSettings(PoolSettings memory _settings) public onlyRole(MANAGER_ROLE) {
+    function setPoolSettings(PoolSettings memory _settings, uint32 _managerFeeBps) public onlyRole(MANAGER_ROLE) {
+        managerFeeBps = _managerFeeBps;
         if (_settings.nftType != settings.nftType) revert NFTTYPE_CHANGED();
         if (_settings.manager == address(0)) revert EMPTY_MANAGER();
 

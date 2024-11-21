@@ -36,6 +36,7 @@ describe('Superapp with Manager Fees', () => {
       },
     ],
   };
+  const managerFeeBps = 200;
 
   before(async () => {
     const { frameworkDeployer } = await deployTestFramework();
@@ -64,9 +65,7 @@ describe('Superapp with Manager Fees', () => {
       membersValidator: ethers.constants.AddressZero,
       rewardToken: gdframework.GoodDollar.address,
       allowRewardOverride: false,
-      managerFeeBps: 200
     };
-
     poolLimits = {
       maxMemberPerDay: 300,
       maxMemberPerMonth: 1000,
@@ -95,9 +94,9 @@ describe('Superapp with Manager Fees', () => {
   });
 
   const fixture = async () => {
-    const tx = await factory.createPool('testfees', 'ipfs', poolSettings, poolLimits);
+    const tx = await factory.createPool('testfees', 'ipfs', poolSettings, poolLimits, managerFeeBps);
     const poolAddr = (await tx.wait()).events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
-    pool = await ethers.getContractAt('DirectPaymentsPool', poolAddr);
+    pool = await ethers.getContractAt('DirectPaymentsPool', poolAddr) as DirectPaymentsPool;
   };
 
   beforeEach(async function () {
@@ -108,7 +107,7 @@ describe('Superapp with Manager Fees', () => {
 
     const expectedProtocolFee =
       (Number(baseFlowRate) * (await factory.feeBps())) / 10000;
-    const expectedManagerFee = (Number(baseFlowRate) * Number(poolSettings.managerFeeBps)) / 10000;
+    const expectedManagerFee = (Number(baseFlowRate) * Number(managerFeeBps)) / 10000;
 
 
     await gdframework.GoodDollar.mint(signer.address, ethers.constants.WeiPerEther);
@@ -143,7 +142,7 @@ describe('Superapp with Manager Fees', () => {
   it('should decrease fee when stopped streaming', async () => {
     const expectedProtocolFee =
       (Number(baseFlowRate) * (await factory.feeBps())) / 10000;
-    const expectedManagerFee = (Number(baseFlowRate) * Number(poolSettings.managerFeeBps)) / 10000;
+    const expectedManagerFee = (Number(baseFlowRate) * Number(managerFeeBps)) / 10000;
 
     await gdframework.GoodDollar.mint(signer.address, ethers.constants.WeiPerEther.mul(10000));
     const st = await sf.loadSuperToken(gdframework.GoodDollar.address);
@@ -181,7 +180,7 @@ describe('Superapp with Manager Fees', () => {
 
     const expectedProtocolFee =
       (Number(baseFlowRate) * (await factory.feeBps())) / 10000;
-    const expectedManagerFee = (Number(baseFlowRate) * Number(poolSettings.managerFeeBps)) / 10000;
+    const expectedManagerFee = (Number(baseFlowRate) * Number(managerFeeBps)) / 10000;
 
     const updatedFlowRate = ethers.utils.parseEther("0.000001")
 
@@ -227,7 +226,7 @@ describe('Superapp with Manager Fees', () => {
     });
     expect(manaerAfterFeeFlow.flowRate).eq(
       updatedFlowRate
-        .mul(Number(poolSettings.managerFeeBps))
+        .mul(Number(managerFeeBps))
         .div(10000)
     );
 
@@ -245,7 +244,7 @@ describe('Superapp with Manager Fees', () => {
 
     const expectedUpdatedProtocolFee =
       (Number(updatedFlowRate) * (await factory.feeBps())) / 10000;
-    const expectedUpdatedManagerFee = (Number(updatedFlowRate) * Number(poolSettings.managerFeeBps)) / 10000;
+    const expectedUpdatedManagerFee = (Number(updatedFlowRate) * Number(managerFeeBps)) / 10000;
     expect(stats.totalFees).gte((expectedManagerFee + expectedProtocolFee) * 10 + (expectedUpdatedManagerFee + expectedUpdatedProtocolFee) * 10);
     expect(stats.protocolFees).gte(expectedProtocolFee * 10 + expectedUpdatedProtocolFee * 10)
     expect(stats.managerFees).gte(expectedManagerFee * 10 + expectedUpdatedManagerFee * 10)
@@ -257,17 +256,17 @@ describe('Superapp with Manager Fees', () => {
     await gdframework.GoodDollar.mint(signer.address, ethers.constants.WeiPerEther);
     const st = gdframework.GoodDollar;
     await st.transferAndCall(pool.address, 10000000, '0x');
-    expect(await gdframework.GoodDollar.balanceOf(pool.address)).eq(10000000 * (10000 - await factory.feeBps() - Number(poolSettings.managerFeeBps)) / 10000);
+    expect(await gdframework.GoodDollar.balanceOf(pool.address)).eq(10000000 * (10000 - await factory.feeBps() - Number(managerFeeBps)) / 10000);
     expect(await gdframework.GoodDollar.balanceOf(await factory.feeRecipient())).eq(
       (10000000 * (await factory.feeBps())) / 10000
     );
     expect(await gdframework.GoodDollar.balanceOf(poolSettings.manager)).eq(
-      (10000000 * Number(poolSettings.managerFeeBps)) / 10000
+      (10000000 * Number(managerFeeBps)) / 10000
     );
     const stats = await pool.stats();
-    expect(stats.netIncome).eq(10000000 * (10000 - await factory.feeBps() - Number(poolSettings.managerFeeBps)) / 10000);
-    expect(stats.totalFees).eq(((10000000 * (await factory.feeBps())) / 10000) + (10000000 * Number(poolSettings.managerFeeBps)) / 10000);
-    expect(stats.managerFees).eq((10000000 * Number(poolSettings.managerFeeBps)) / 10000);
+    expect(stats.netIncome).eq(10000000 * (10000 - await factory.feeBps() - Number(managerFeeBps)) / 10000);
+    expect(stats.totalFees).eq(((10000000 * (await factory.feeBps())) / 10000) + (10000000 * Number(managerFeeBps)) / 10000);
+    expect(stats.managerFees).eq((10000000 * Number(managerFeeBps)) / 10000);
     expect(stats.protocolFees).eq((10000000 * (await factory.feeBps())) / 10000);
 
     await mine(2, { interval: 5 });
@@ -285,17 +284,17 @@ describe('Superapp with Manager Fees', () => {
     const st = gdframework.GoodDollar;
     const transferAction = await st.approve(pool.address, 10000000);
     const supportAction = await pool.support(signer.address, 10000000, '0x');
-    expect(await gdframework.GoodDollar.balanceOf(pool.address)).eq(10000000 * (10000 - await factory.feeBps() - Number(poolSettings.managerFeeBps)) / 10000);
+    expect(await gdframework.GoodDollar.balanceOf(pool.address)).eq(10000000 * (10000 - await factory.feeBps() - Number(managerFeeBps)) / 10000);
     expect(await gdframework.GoodDollar.balanceOf(await factory.feeRecipient())).eq(
       (10000000 * (await factory.feeBps())) / 10000
     );
     expect(await gdframework.GoodDollar.balanceOf(poolSettings.manager)).eq(
-      (10000000 * Number(poolSettings.managerFeeBps)) / 10000
+      (10000000 * Number(managerFeeBps)) / 10000
     );
     const stats = await pool.stats();
-    expect(stats.netIncome).eq(10000000 * (10000 - await factory.feeBps() - Number(poolSettings.managerFeeBps)) / 10000);
-    expect(stats.totalFees).eq(((10000000 * (await factory.feeBps())) / 10000) + (10000000 * Number(poolSettings.managerFeeBps)) / 10000);
-    expect(stats.managerFees).eq((10000000 * Number(poolSettings.managerFeeBps)) / 10000);
+    expect(stats.netIncome).eq(10000000 * (10000 - await factory.feeBps() - Number(managerFeeBps)) / 10000);
+    expect(stats.totalFees).eq(((10000000 * (await factory.feeBps())) / 10000) + (10000000 * Number(managerFeeBps)) / 10000);
+    expect(stats.managerFees).eq((10000000 * Number(managerFeeBps)) / 10000);
     expect(stats.protocolFees).eq((10000000 * (await factory.feeBps())) / 10000);
 
     await mine(2, { interval: 5 });
