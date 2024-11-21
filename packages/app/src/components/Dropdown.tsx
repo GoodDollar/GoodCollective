@@ -40,7 +40,7 @@ const Dropdown = ({ onSelect, value, options }: DropdownProps) => {
         <Text style={styles.buttonText}>{value}</Text>
         <Image source={chevronDown} style={styles.downIcon} />
       </Pressable>
-      {open && (
+      {open ? (
         <View style={styles.dropdownContainer}>
           {options.map((option) => (
             <TouchableOpacity
@@ -54,7 +54,7 @@ const Dropdown = ({ onSelect, value, options }: DropdownProps) => {
             </TouchableOpacity>
           ))}
         </View>
-      )}
+      ) : null}
     </HStack>
   );
 };

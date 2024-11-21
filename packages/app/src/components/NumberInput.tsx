@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { Box, HStack, Input, Text, VStack } from 'native-base';
 import { noop } from 'lodash';
 
@@ -11,6 +11,7 @@ const NumberInput = ({
   onChangeAmount,
   options = [],
   isWarning = false,
+  defaultInput = undefined,
 }: {
   type: string;
   value: string;
@@ -18,18 +19,16 @@ const NumberInput = ({
   onChangeAmount: (v: string) => void;
   options?: { value: string; label: string }[];
   isWarning?: boolean;
+  defaultInput?: string | undefined;
 }) => {
-  const [inputValue, setInputValue] = useState<any>(0);
-
   const onChange = useCallback(
     (v: string) => {
       if (!/^\d+(\.\d{0,18})?$/.test(v)) {
         console.error('Invalid input', v);
-        setInputValue((prev: any) => (v === '' ? 0 : prev));
         onChangeAmount(v);
         return;
       }
-      setInputValue(Number(v));
+
       onChangeAmount(v);
     },
     [onChangeAmount]
@@ -50,6 +49,7 @@ const NumberInput = ({
         <HStack alignItems="center" flexGrow={1} justifyContent="flex-end">
           <HStack justifyContent="flex-end">
             <Input
+              defaultValue=""
               keyboardType="decimal-pad"
               multiline={false}
               placeholder={'0.00'}
@@ -67,7 +67,7 @@ const NumberInput = ({
                 borderColor: 'white',
                 bgColor: 'white',
               }}
-              value={inputValue}
+              value={defaultInput ?? ''}
               maxLength={9}
               onChangeText={onChange}
             />
