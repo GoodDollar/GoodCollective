@@ -487,8 +487,8 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
               </VStack>
               <NumberInput
                 type="token"
-                value={currency}
-                defaultInput={inputAmount?.toString()}
+                dropdownValue={currency}
+                inputValue={inputAmount?.toString()}
                 onSelect={onChangeCurrency}
                 onChangeAmount={onChangeAmount}
                 options={currencyOptions}
@@ -507,8 +507,8 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                   </VStack>
                   <NumberInput
                     type="duration"
-                    value={currency}
-                    defaultInput={streamRate.toString()}
+                    dropdownValue={currency}
+                    inputValue={streamRate.toString()}
                     onSelect={onChangeCurrency}
                     onChangeAmount={onChangeRate}
                   />{' '}

@@ -1,25 +1,25 @@
 import { useCallback } from 'react';
 import { Box, HStack, Input, Text, VStack } from 'native-base';
-import { noop } from 'lodash';
+import { drop, noop } from 'lodash';
 
 import Dropdown from './Dropdown';
 
 const NumberInput = ({
   type,
-  value,
+  dropdownValue,
   onSelect = noop,
   onChangeAmount,
   options = [],
   isWarning = false,
-  defaultInput = undefined,
+  inputValue = undefined,
 }: {
   type: string;
-  value: string;
+  dropdownValue: string;
   onSelect?: (v: string) => void;
   onChangeAmount: (v: string) => void;
   options?: { value: string; label: string }[];
   isWarning?: boolean;
-  defaultInput?: string | undefined;
+  inputValue?: string | undefined;
 }) => {
   const onChange = useCallback(
     (v: string) => {
@@ -45,7 +45,7 @@ const NumberInput = ({
         padding={2}
         paddingRight={4}
         space={4}>
-        {type === 'token' ? <Dropdown value={value} onSelect={onSelect} options={options} /> : <Box />}
+        {type === 'token' ? <Dropdown value={dropdownValue} onSelect={onSelect} options={options} /> : <Box />}
         <HStack alignItems="center" flexGrow={1} justifyContent="flex-end">
           <HStack justifyContent="flex-end">
             <Input
@@ -67,7 +67,7 @@ const NumberInput = ({
                 borderColor: 'white',
                 bgColor: 'white',
               }}
-              value={defaultInput ?? ''}
+              value={inputValue ?? ''}
               maxLength={9}
               onChangeText={onChange}
             />
