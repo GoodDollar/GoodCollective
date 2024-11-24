@@ -162,7 +162,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   }
 
   const [frequency, setFrequency] = useState<Frequency>(Frequency.OneTime);
-  const [streamRate, setRate] = useState(0);
+  const [streamRate, setRate] = useState<number | undefined>(undefined);
   const [duration, setDuration] = useState(12);
   const [decimalDonationAmount, setDecimalDonationAmount] = useState<any | number>(0);
 
@@ -341,6 +341,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     const estimatedEndDate = moment().add(estDuration, 'months').format('DD.MM.YY HH:mm');
 
     setEstimatedDuration({ duration: estDuration, endDate: estimatedEndDate });
+    setDuration(estDuration);
   }, []);
 
   const onChangeAmount = useCallback(
@@ -356,7 +357,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
         const estDuration = parseFloat(donorCurrencyBalance) / parseFloat(v);
         estimateDuration(estDuration);
       } else if (frequency === Frequency.Monthly) {
-        const estDuration = parseFloat(v) / streamRate;
+        const estDuration = parseFloat(v) / (streamRate as number);
         estimateDuration(estDuration);
 
         const gdValue = parseFloat(v) / tokenPrice;
@@ -442,7 +443,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       />
 
       <VStack space={6}>
-        {/* Modals */}
         <VStack space={2}>
           <Text variant="bold" fontSize="xl">
             Donate
@@ -508,7 +508,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                   <NumberInput
                     type="duration"
                     dropdownValue={currency}
-                    inputValue={streamRate.toString()}
+                    inputValue={streamRate?.toString() ?? '1'}
                     onSelect={onChangeCurrency}
                     onChangeAmount={onChangeRate}
                   />{' '}
