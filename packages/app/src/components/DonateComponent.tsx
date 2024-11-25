@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Image, View } from 'react-native';
-import { Box, HStack, Link, Text, VStack } from 'native-base';
+import { Box, HStack, Link, Text, useBreakpointValue, VStack } from 'native-base';
 import { useAccount, useNetwork } from 'wagmi';
 import { useParams } from 'react-router-native';
 import Decimal from 'decimal.js';
@@ -137,7 +137,7 @@ const WarningBox = ({ content, explanationProps = {} }: any) => {
 };
 
 const DonateComponent = ({ collective }: DonateComponentProps) => {
-  const { isDesktopView } = useScreenSize();
+  const { isDesktopView, isMobileView } = useScreenSize();
   const { id: collectiveId = '0x' } = useParams();
 
   const { address } = useAccount();
@@ -162,11 +162,43 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   }
 
   const [frequency, setFrequency] = useState<Frequency>(Frequency.OneTime);
-  const [streamRate, setRate] = useState<number | undefined>(undefined);
+  const [streamRate, setRate] = useState<string | number>(1);
   const [duration, setDuration] = useState(12);
   const [decimalDonationAmount, setDecimalDonationAmount] = useState<any | number>(0);
 
   const [inputAmount, setInputAmount] = useState<string | undefined>(undefined);
+
+  const container = useBreakpointValue({
+    base: {
+      width: '343',
+      paddingLeft: 2,
+      paddingRight: 2,
+    },
+    sm: {
+      minWidth: '100%',
+      paddingLeft: 2,
+      paddingRight: 2,
+    },
+    md: {
+      maxWidth: 800,
+      width: '100%',
+      paddingLeft: 4,
+      paddingRight: 4,
+    },
+    xl: {
+      maxWidth: '100%',
+    },
+  });
+
+  const direction = useBreakpointValue({
+    base: {
+      flexDirection: 'column',
+    },
+    lg: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+    },
+  });
 
   const tokenList = useTokenList();
   const gdEnvSymbol =
@@ -337,34 +369,53 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     onReset();
   };
 
-  const estimateDuration = useCallback((estDuration: number) => {
-    const estimatedEndDate = moment().add(estDuration, 'months').format('DD.MM.YY HH:mm');
+  const estimateDuration = useCallback(
+    (v: string, altDuration?: number) => {
+      const calculateEstDuration = (value: number, rate: number) => value / (rate === 0 ? 1 : rate);
 
-    setEstimatedDuration({ duration: estDuration, endDate: estimatedEndDate });
-    setDuration(estDuration);
-  }, []);
+      let estDuration = altDuration ?? 0;
+
+      if (frequency === Frequency.Monthly && !altDuration) {
+        if (currency.includes('G$')) {
+          estDuration = parseFloat(donorCurrencyBalance) / parseFloat(v);
+        } else {
+          estDuration = calculateEstDuration(parseFloat(v), parseFloat(streamRate.toString()));
+        }
+      }
+
+      if (!altDuration && !currency.includes('G$')) {
+        const gdValue = parseFloat(v) / tokenPrice;
+        setSwapValue(gdValue);
+      }
+
+      const estimatedEndDate = moment().add(estDuration, 'months').format('DD.MM.YY HH:mm');
+
+      setEstimatedDuration({ duration: estDuration, endDate: estimatedEndDate });
+      setDuration(Math.max(1, estDuration));
+    },
+    [currency, donorCurrencyBalance, streamRate, frequency, tokenPrice]
+  );
+
+  const onChangeRate = (value: string) => {
+    setRate(value.endsWith('.') ? value : Number(value));
+
+    if (!Number(value)) return;
+    const estDuration = parseFloat(decimalDonationAmount) / Math.max(parseFloat(value), 1);
+    estimateDuration(value, estDuration);
+  };
 
   const onChangeAmount = useCallback(
     (v: string) => {
       setInputAmount(v);
 
       if (![''].includes(v)) setConfirmNoAmount(false);
-      if (v.substring(v.length - 1) === '.' || v === '0') return;
+      if (v.endsWith('.') || ['0', ''].includes(v)) return;
 
       setDecimalDonationAmount(formatDecimalStringInput(v));
 
-      if (frequency === Frequency.Monthly && currency.includes('G$')) {
-        const estDuration = parseFloat(donorCurrencyBalance) / parseFloat(v);
-        estimateDuration(estDuration);
-      } else if (frequency === Frequency.Monthly) {
-        const estDuration = parseFloat(v) / (streamRate as number);
-        estimateDuration(estDuration);
-
-        const gdValue = parseFloat(v) / tokenPrice;
-        setSwapValue(gdValue);
-      }
+      estimateDuration(v);
     },
-    [currency, donorCurrencyBalance, streamRate, estimateDuration, frequency, tokenPrice]
+    [estimateDuration]
   );
 
   const onChangeFrequency = (value: string) => {
@@ -373,13 +424,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     }
     setFrequency(value as Frequency);
     onReset();
-  };
-
-  const onChangeRate = (value: string) => {
-    setRate(Number(value));
-
-    const estDuration = parseFloat(decimalDonationAmount) / parseFloat(value);
-    estimateDuration(estDuration);
   };
 
   const onCloseErrorModal = () => setErrorMessage(undefined);
@@ -391,7 +435,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   const isWarning = isInsufficientBalance || isInsufficientLiquidity || isUnacceptablePriceImpact || confirmNoAmount;
 
   return (
-    <Box height="100vh">
+    <Box height="100vh" paddingBottom={8}>
       {/* todo: find simpler solution to render different modals */}
       <BaseModal
         type="error"
@@ -452,10 +496,10 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
             <Text>by donating any amount you want either one time or streaming at a monthly rate.</Text>
           </VStack>
         </VStack>
-        <VStack space={8} backgroundColor="white" shadow="1" padding={4} borderRadius={16}>
-          <HStack space={8}>
+        <VStack space={8} backgroundColor="white" shadow="1" paddingY={4} borderRadius={16} {...container}>
+          <HStack space={8} {...direction}>
             {/* Donation frequency */}
-            <VStack space={2} w="320" maxW="320">
+            <VStack space={2} width={isDesktopView ? '320' : 'auto'} maxW="320" mb={8}>
               <VStack space={2}>
                 <Text variant="bold" fontSize="lg">
                   Donation Frequency
@@ -478,8 +522,8 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
               )}
             </VStack>
             {/* Amount and token */}
-            <VStack space={2} maxW="320">
-              <VStack space={2}>
+            <VStack space={2} maxW="320" mb={8}>
+              <VStack space={2} zIndex={1}>
                 <Text variant="bold" fontSize="lg">
                   How much?
                 </Text>
@@ -496,7 +540,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
               />
             </VStack>
 
-            <VStack space={2} minW="343">
+            <VStack space={2} {...(isMobileView ? { maxWidth: '343' } : { minWidth: '343', maxWidth: '10%' })}>
               {frequency !== 'One-Time' && !currency.includes('G$') ? (
                 <>
                   <VStack space={2}>

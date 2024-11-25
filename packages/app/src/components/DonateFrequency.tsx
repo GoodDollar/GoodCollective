@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Box, HStack, Radio } from 'native-base';
 
+import { useScreenSize } from '../theme/hooks';
+
 interface DropdownProps {
   onSelect: (value: string) => void;
   options?: string[];
@@ -10,9 +12,10 @@ const WhiteDot = () => <Box color="blue" backgroundColor="white" width={3} heigh
 
 const FrequencySelector = ({ onSelect, options = ['One-Time', 'Monthly'] }: DropdownProps) => {
   const [value, setValue] = useState('One-Time');
+  const { isTabletView } = useScreenSize();
 
   return (
-    <HStack justifyContent={'space-between'} width="100%" flexDir="row">
+    <HStack justifyContent={'space-between'} w={isTabletView ? '100%' : '90%'} m="auto">
       <Radio.Group
         name="donationFrequency"
         value={value}
