@@ -45,7 +45,7 @@ const NumberInput = ({
         padding={2}
         paddingRight={4}
         space={4}
-        maxWidth={290}>
+        maxWidth={type === 'duration' ? 290 : '100%'}>
         {type === 'token' ? <Dropdown value={dropdownValue} onSelect={onSelect} options={options} /> : <Box />}
         <HStack alignItems="center" flexGrow={1} justifyContent="flex-end">
           <HStack justifyContent="flex-end">

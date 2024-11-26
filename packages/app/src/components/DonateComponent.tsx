@@ -187,6 +187,8 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     },
     xl: {
       maxWidth: '100%',
+      paddingLeft: 4,
+      paddingRight: 4,
     },
   });
 
@@ -522,7 +524,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
               )}
             </VStack>
             {/* Amount and token */}
-            <VStack space={2} maxW="320" mb={8}>
+            <VStack space={2} maxW="320" mb={8} zIndex={1}>
               <VStack space={2} zIndex={1}>
                 <Text variant="bold" fontSize="lg">
                   How much?
@@ -616,7 +618,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 return whichWarning ? (
                   <WarningBox
                     key={key}
-                    explanationProps={priceImpact}
+                    explanationProps={key === 'priceImpact' ? { priceImpact: priceImpact } : { type: key }}
                     content={warningProps[key as keyof typeof warningProps]}
                   />
                 ) : null;
