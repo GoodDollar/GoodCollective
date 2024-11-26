@@ -14,6 +14,8 @@ import "@uniswap/swap-router-contracts/contracts/interfaces/IV3SwapRouter.sol";
 import "../DirectPayments/DirectPaymentsFactory.sol";
 import "../utils/HelperLibrary.sol";
 
+// import "hardhat/console.sol";
+
 abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
     int96 public constant MIN_FLOW_RATE = 386e9;
 
@@ -66,7 +68,7 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
 
     IGoodCollectiveSuperApp.Stats public stats;
 
-    uint256[48] private _reserved;
+    uint256[45] private _reserved;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(ISuperfluid _host, IV3SwapRouter _swapRouter) SuperAppBaseFlow(_host) {
@@ -75,6 +77,8 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
     }
 
     function getRegistry() public view virtual returns (IRegistry);
+
+    function getManagerFee() public view virtual returns (address admin, uint32 feeBps);
 
     /**
      * @dev Sets the address of the super token and registers the app with the host
@@ -114,7 +118,15 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
     function getRealtimeStats()
         public
         view
-        returns (uint256 netIncome, uint256 totalFees, int96 incomeFlowRate, int96 feeRate)
+        returns (
+            uint256 netIncome,
+            uint256 totalFees,
+            uint256 protocolFees,
+            uint256 managerFees,
+            int96 incomeFlowRate,
+            int96 feeRate,
+            int96 managerFeeRate
+        )
     {
         return HelperLibrary.getRealtimeStats(stats, superToken);
     }
@@ -249,6 +261,7 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         bytes calldata _ctx
     ) internal virtual override returns (bytes memory /*newCtx*/) {
         // Update the supporter's information
+
         return _updateSupporter(_sender, _previousFlowRate, _lastUpdated, _ctx);
     }
 
@@ -267,10 +280,18 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
     ) internal returns (bytes memory newCtx) {
         newCtx = _ctx;
         bool _isFlow = _ctx.length > 0;
-        HelperLibrary.updateStats(stats, superToken, getRegistry(), _isFlow ? 0 : uint256(_previousFlowRateOrAmount));
+        (address feeRecipient, uint32 feeBps) = getManagerFee();
+        HelperLibrary.updateStats(
+            stats,
+            superToken,
+            getRegistry(),
+            feeBps,
+            _isFlow ? 0 : uint256(_previousFlowRateOrAmount)
+        );
         // Get the current flow rate for the supporter
         int96 flowRate = superToken.getFlowRate(_supporter, address(this));
         uint256 prevContribution = supporters[_supporter].contribution;
+
         if (_isFlow) {
             //enforce minimal flow rate
             if (flowRate > 0 && flowRate < MIN_FLOW_RATE) revert MIN_FLOWRATE(flowRate);
@@ -278,21 +299,54 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
             supporters[_supporter].lastUpdated = uint128(block.timestamp);
             supporters[_supporter].flowRate = flowRate;
             supporters[_supporter].contribution +=
-                uint96(int96(_previousFlowRateOrAmount)) *
+                uint256(_previousFlowRateOrAmount) *
                 (block.timestamp - _lastUpdated);
+
+            // address feeRecipient;
+            // uint32 feeBps;
+            if (address(getRegistry()) != address(0)) {
+                feeRecipient = getRegistry().feeRecipient();
+                feeBps = getRegistry().feeBps();
+                // console.log("taking fees %s %s", feeRecipient, feeBps);
+
+                newCtx = HelperLibrary.takeFeeFlow(
+                    cfaV1,
+                    superToken,
+                    stats.lastFeeRecipient,
+                    feeRecipient,
+                    feeBps,
+                    flowRate - int96(_previousFlowRateOrAmount), // we use diff, because manager takes fee from many streams not just this one
+                    newCtx
+                );
+                stats.lastFeeRecipient = feeRecipient;
+            }
+            // console.log("protocol fee stream ok");
+            (feeRecipient, feeBps) = getManagerFee();
+
             newCtx = HelperLibrary.takeFeeFlow(
                 cfaV1,
-                stats,
                 superToken,
-                getRegistry(),
-                flowRate - int96(_previousFlowRateOrAmount),
-                _ctx
+                stats.lastManagerFeeRecipient,
+                feeRecipient,
+                feeBps,
+                flowRate - int96(_previousFlowRateOrAmount), // we use diff, because manager takes fee from many streams not just this one
+                newCtx
             );
+
+            stats.lastManagerFeeRecipient = feeRecipient;
+            // console.log("admin fee stream ok");
             // we update the last rate after we do all changes to our own flows
             stats.lastIncomeRate = superToken.getNetFlowRate(address(this));
         } else {
+            if (address(getRegistry()) != address(0)) {
+                feeRecipient = getRegistry().feeRecipient();
+                feeBps = getRegistry().feeBps();
+                _takeFeeSingle(feeRecipient, feeBps, uint256(_previousFlowRateOrAmount));
+            }
+            (feeRecipient, feeBps) = getManagerFee();
+            _takeFeeSingle(feeRecipient, feeBps, uint256(_previousFlowRateOrAmount));
+
             supporters[_supporter].contribution += uint256(_previousFlowRateOrAmount);
-            _takeFeeSingle(uint256(_previousFlowRateOrAmount));
         }
 
         emit SupporterUpdated(
@@ -305,12 +359,10 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         );
     }
 
-    function _takeFeeSingle(uint256 _amount) internal {
-        if (address(getRegistry()) == address(0)) return;
-        address recipient = getRegistry().feeRecipient();
+    function _takeFeeSingle(address recipient, uint32 feeBps, uint256 _amount) internal {
         if (recipient == address(0)) return;
 
-        uint256 fee = (_amount * getRegistry().feeBps()) / 10000;
+        uint256 fee = (_amount * feeBps) / 10000;
         TransferHelper.safeTransfer(address(superToken), recipient, fee);
     }
 

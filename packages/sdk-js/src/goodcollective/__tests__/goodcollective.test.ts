@@ -48,6 +48,7 @@ const testPoolSettings = [
     maxMemberPerMonth: 10000,
     maxTotalPerMonth: 100000,
   },
+  0, //manager fee
   false,
 ];
 describe('GoodCollective SDK', () => {
@@ -102,7 +103,8 @@ describe('GoodCollective SDK', () => {
         maxMemberPerDay: 1000,
         maxMemberPerMonth: 10000,
         maxTotalPerMonth: 100000,
-      }
+      },
+      0
     );
     const assignedType = (await pool.settings()).nftType;
     const toMint = {

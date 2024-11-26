@@ -16,15 +16,16 @@ import { HelperLibrary } from '@gooddollar/goodcollective-contracts/typechain-ty
 // import * as Proof from '@web3-storage/w3up-client/proof';
 // import { Signer } from '@web3-storage/w3up-client/principal/ed25519';
 import { Multicall, ContractCallResults, ContractCallContext } from 'ethereum-multicall';
+import { PoolSettingsStruct } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/UBI/UBIPool.ts';
 
 export type NFTData = ProvableNFT.NFTDataStruct;
 export type EventData = ProvableNFT.EventDataStruct;
 export type PoolSettings = Omit<DirectPaymentsPool.PoolSettingsStruct, 'nftType'> & { nftType?: BigNumberish };
 export type PoolLimits = DirectPaymentsPool.SafetyLimitsStruct;
 export type SwapData = HelperLibrary.SwapDataStruct;
-export type UBIPoolSettings = UBIPool.PoolSettingsStruct;
+export type UBIPoolSettings = PoolSettingsStruct;
 export type UBISettings = UBIPool.UBISettingsStruct;
-
+export type ExtendedUBISettings = UBIPool.ExtendedSettingsStruct;
 export type PoolAttributes = {
   name: string;
   description: string;
@@ -223,10 +224,11 @@ export class GoodCollectiveSDK {
     poolAttributes: PoolAttributes,
     poolSettings: PoolSettings,
     poolLimits: PoolLimits,
+    managerFee: number,
     isBeacon: boolean
   ) {
     const uri = await this.savePoolToIPFS(poolAttributes);
-    return this.createPool(signer, projectId, uri, poolSettings, poolLimits, isBeacon);
+    return this.createPool(signer, projectId, uri, poolSettings, poolLimits, managerFee, isBeacon);
   }
 
   /**
@@ -244,6 +246,7 @@ export class GoodCollectiveSDK {
     poolIpfs: string,
     poolSettings: PoolSettings,
     poolLimits: PoolLimits,
+    managerFee: number,
     isBeacon = true
   ) {
     poolSettings.nftType = 0; // force some type, this will be re-assigned by the factory
@@ -251,7 +254,13 @@ export class GoodCollectiveSDK {
       ? this.factory.connect(signer).createBeaconPool
       : this.factory.connect(signer).createPool;
     const tx = await (
-      await createMethod(projectId, poolIpfs, poolSettings as DirectPaymentsPool.PoolSettingsStruct, poolLimits)
+      await createMethod(
+        projectId,
+        poolIpfs,
+        poolSettings as DirectPaymentsPool.PoolSettingsStruct,
+        poolLimits,
+        managerFee
+      )
     ).wait();
     const created = tx.events?.find((_) => _.event === 'PoolCreated');
     return this.pool.attach(created?.args?.[0]);
@@ -267,10 +276,11 @@ export class GoodCollectiveSDK {
   async setPoolSettings(
     signer: ethers.Signer,
     poolAddress: string,
-    poolSettings: DirectPaymentsPool.PoolSettingsStruct
+    poolSettings: DirectPaymentsPool.PoolSettingsStruct,
+    managerFee: number
   ) {
     const connected = this.pool.attach(poolAddress).connect(signer);
-    return connected.setPoolSettings(poolSettings, { ...CHAIN_OVERRIDES[this.chainId] });
+    return connected.setPoolSettings(poolSettings, managerFee, { ...CHAIN_OVERRIDES[this.chainId] });
   }
 
   /**
@@ -288,10 +298,11 @@ export class GoodCollectiveSDK {
     poolAttributes: PoolAttributes,
     poolSettings: UBIPoolSettings,
     poolLimits: UBISettings,
+    poolExtendedSettings: ExtendedUBISettings,
     isBeacon: boolean
   ) {
     const uri = await this.savePoolToIPFS(poolAttributes);
-    return this.createUbiPool(signer, projectId, uri, poolSettings, poolLimits, isBeacon);
+    return this.createUbiPool(signer, projectId, uri, poolSettings, poolLimits, poolExtendedSettings, isBeacon);
   }
 
   /**
@@ -309,6 +320,7 @@ export class GoodCollectiveSDK {
     poolIpfs: string,
     poolSettings: UBIPoolSettings,
     poolLimits: UBISettings,
+    poolExtendedSettings: ExtendedUBISettings,
     isBeacon: boolean
   ) {
     if (!this.ubifactory) {
@@ -317,7 +329,7 @@ export class GoodCollectiveSDK {
     const createMethod = isBeacon
       ? this.ubifactory.connect(signer).createManagedPool
       : this.ubifactory.connect(signer).createPool;
-    const tx = await (await createMethod(projectId, poolIpfs, poolSettings, poolLimits)).wait();
+    const tx = await (await createMethod(projectId, poolIpfs, poolSettings, poolLimits, poolExtendedSettings)).wait();
     const created = tx.events?.find((_) => _.event === 'PoolCreated');
     return new ethers.Contract(created?.args?.[0], this.contracts.UBIPool?.abi as [], this.factory.provider) as UBIPool;
   }

@@ -88,7 +88,6 @@ describe('HelperLibrary Swap E2E (Celo fork)', () => {
   });
 
   it('should create stream and swap', async () => {
-    console.log('network:', await trader.provider?.getNetwork());
     const opts = {
       chainId: Number(42220),
       provider: ethers.provider,
@@ -133,7 +132,6 @@ describe('HelperLibrary Swap E2E (Celo fork)', () => {
     const op = sf.batchCall([swapAction, flowOp]);
 
     const tx = op.exec(trader);
-    console.log(await (await tx).wait());
 
     await expect(tx).not.reverted;
   });

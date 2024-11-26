@@ -1,17 +1,36 @@
-import { G$ContractAddresses, CONTRACT_TO_ABI } from '@gooddollar/web3sdk-v2';
+import { G$ContractAddresses } from '@gooddollar/web3sdk-v2';
+import { isAddress, zeroAddress } from 'viem';
 import { useContractRead, useNetwork } from 'wagmi';
 
 export const useIsStewardVerified = (address: string): boolean => {
   const chain = useNetwork();
   const idAddress = G$ContractAddresses('Identity', 'production-celo') as `0x{string}`;
-  const abi = CONTRACT_TO_ABI.Identity.abi;
   const result = useContractRead({
     chainId: chain.chain?.id,
-    abi,
+    abi: [
+      {
+        inputs: [
+          {
+            internalType: 'address',
+            name: 'account',
+            type: 'address',
+          },
+        ],
+        name: 'getWhitelistedRoot',
+        outputs: [
+          {
+            internalType: 'address',
+            name: 'whitelisted',
+            type: 'address',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+    ],
     address: idAddress,
     args: [address],
-    functionName: 'isWhitelisted',
+    functionName: 'getWhitelistedRoot',
   });
-
-  return result.data as any as boolean;
+  return result.data !== zeroAddress && isAddress(result.data as any);
 };

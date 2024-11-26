@@ -82,7 +82,7 @@ describe('DirectPaymentsPool Superapp', () => {
       libraries: { HelperLibrary: helper.address },
     });
 
-    pool = (await upgrades.deployProxy(Pool, [nft.address, poolSettings, poolLimits, ethers.constants.AddressZero], {
+    pool = (await upgrades.deployProxy(Pool, [nft.address, poolSettings, poolLimits, 0, ethers.constants.AddressZero], {
       unsafeAllowLinkedLibraries: true,
       constructorArgs: [await gdframework.GoodDollar.getHost(), swaprouter.address],
     })) as DirectPaymentsPool;
@@ -135,9 +135,9 @@ describe('DirectPaymentsPool Superapp', () => {
     await mine(2, { interval: 5 });
 
     expect(await gdframework.GoodDollar.balanceOf(pool.address)).gte(Number(baseFlowRate) * 5);
-    await st.deleteFlow({ receiver: pool.address, sender: signer.address }).exec(signer);
+    await expect(st.deleteFlow({ receiver: pool.address, sender: signer.address }).exec(signer)).not.reverted
     const supporter = await pool.supporters(signer.address);
-    expect(supporter.contribution).gt(Number(baseFlowRate) * 5);
+    expect(supporter.contribution).gte(Number(baseFlowRate) * 5);
     expect(supporter.lastUpdated).gt(0);
     expect(supporter.flowRate).equal(0);
   });

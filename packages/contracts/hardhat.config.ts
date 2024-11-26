@@ -10,6 +10,8 @@ import { HardhatUserConfig } from 'hardhat/config';
 dotenv.config();
 
 const mnemonic = process.env.MNEMONIC || '';
+const privateKey = process.env.PRIVATE_KEY || '0x0000000000000000000000000000000000000000000000000000000000000000';
+
 const config: HardhatUserConfig = {
   contractSizer: {
     alphaSort: true,
@@ -81,9 +83,7 @@ const config: HardhatUserConfig = {
       chainId: 42220,
       url: `https://forno.celo.org`,
       gasPrice: 5000000000,
-      accounts: {
-        mnemonic,
-      },
+      accounts: [privateKey],
       verify: {
         etherscan: {
           apiKey: process.env.CELOSCAN_KEY,

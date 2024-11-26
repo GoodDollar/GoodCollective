@@ -86,7 +86,7 @@ describe('DirectPaymentsFactory', () => {
   });
 
   it('should create pool correctly', async () => {
-    const tx = factory.createPool('test', 'pool1', poolSettings, poolLimits);
+    const tx = factory.createPool('test', 'pool1', poolSettings, poolLimits, 0);
     await expect(tx).not.reverted;
     await expect(tx).emit(factory, 'PoolCreated');
     const poolAddr = (await (await tx).wait()).events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
@@ -120,19 +120,19 @@ describe('DirectPaymentsFactory', () => {
   });
 
   it("should not be able to create pool if not project's manager", async () => {
-    const tx = await factory.connect(signers[1]).createPool('test', 'pool1', poolSettings, poolLimits);
+    const tx = await factory.connect(signers[1]).createPool('test', 'pool1', poolSettings, poolLimits, 0);
 
     // signer 1 is the pool manager so it should not revert
-    await expect(factory.connect(signers[1]).createPool('test', 'pool2', poolSettings, poolLimits)).not.reverted;
+    await expect(factory.connect(signers[1]).createPool('test', 'pool2', poolSettings, poolLimits, 0)).not.reverted;
 
-    await expect(factory.createPool('test', 'pool3', poolSettings, poolLimits)).revertedWithCustomError(
+    await expect(factory.createPool('test', 'pool3', poolSettings, poolLimits, 0)).revertedWithCustomError(
       factory,
       'NOT_PROJECT_OWNER'
     );
   });
 
   it("should be able to mint NFT from pool's minter", async () => {
-    const tx = await factory.createPool('test', 'pool1', poolSettings, poolLimits);
+    const tx = await factory.createPool('test', 'pool1', poolSettings, poolLimits, 0);
     const poolAddr = (await (await tx).wait()).events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
     const pool = (await ethers.getContractAt('DirectPaymentsPool', poolAddr)) as DirectPaymentsPool;
     await expect(pool.connect(signers[1]).mintNFT(pool.address, nftSample, false)).not.reverted;

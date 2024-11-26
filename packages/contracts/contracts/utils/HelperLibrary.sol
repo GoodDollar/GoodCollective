@@ -10,6 +10,8 @@ import { CFAv1Library } from "@superfluid-finance/ethereum-contracts/contracts/a
 
 import "../GoodCollective/IGoodCollectiveSuperApp.sol";
 
+// import "hardhat/console.sol";
+
 library HelperLibrary {
     using SuperTokenV1Library for ISuperToken;
     using CFAv1Library for CFAv1Library.InitData;
@@ -81,14 +83,33 @@ library HelperLibrary {
     function getRealtimeStats(
         IGoodCollectiveSuperApp.Stats memory stats,
         ISuperToken superToken
-    ) external view returns (uint256 netIncome, uint256 totalFees, int96 incomeFlowRate, int96 feeRate) {
+    )
+        external
+        view
+        returns (
+            uint256 netIncome,
+            uint256 totalFees,
+            uint256 protocolFees,
+            uint256 managerFees,
+            int96 incomeFlowRate,
+            int96 feeRate,
+            int96 managerFeeRate
+        )
+    {
         incomeFlowRate = stats.lastIncomeRate;
         netIncome = stats.netIncome + uint96(stats.lastIncomeRate) * (block.timestamp - stats.lastUpdate);
         feeRate = superToken.getFlowRate(address(this), stats.lastFeeRecipient);
-        totalFees =
-            stats.totalFees +
+        managerFeeRate = superToken.getFlowRate(address(this), stats.lastManagerFeeRecipient);
+
+        protocolFees =
+            stats.protocolFees +
             uint96(superToken.getFlowRate(address(this), stats.lastFeeRecipient)) *
             (block.timestamp - stats.lastUpdate);
+        managerFees =
+            stats.managerFees +
+            uint96(superToken.getFlowRate(address(this), stats.lastManagerFeeRecipient)) *
+            (block.timestamp - stats.lastUpdate);
+        totalFees = protocolFees + managerFees;
     }
 
     // this should be called before any flow rate changes
@@ -96,54 +117,66 @@ library HelperLibrary {
         IGoodCollectiveSuperApp.Stats storage stats,
         ISuperToken superToken,
         IRegistry registry,
+        uint32 managerFeeBps,
         uint256 _amount
     ) external {
-        //use last rate before the current possible rate update
-        stats.netIncome += uint96(stats.lastIncomeRate) * (block.timestamp - stats.lastUpdate);
         uint feeBps;
         if (address(registry) != address(0)) {
             feeBps = registry.feeBps();
+        }
+        //use last rate before the current possible rate update
+        stats.netIncome += uint96(stats.lastIncomeRate) * (block.timestamp - stats.lastUpdate);
+        if (stats.lastFeeRecipient != address(0)) {
             //fees sent to last recipient, the flowRate to recipient still wasnt updated.
-            stats.totalFees +=
+            stats.protocolFees +=
                 uint96(superToken.getFlowRate(address(this), stats.lastFeeRecipient)) *
                 (block.timestamp - stats.lastUpdate);
         }
-        if (_amount > 0) {
-            stats.netIncome += (_amount * (10000 - feeBps)) / 10000;
-            stats.totalFees += (_amount * feeBps) / 10000;
+        if (stats.lastManagerFeeRecipient != address(0)) {
+            //fees sent to last recipient, the flowRate to recipient still wasnt updated.
+            stats.managerFees +=
+                uint96(superToken.getFlowRate(address(this), stats.lastManagerFeeRecipient)) *
+                (block.timestamp - stats.lastUpdate);
         }
+
+        if (_amount > 0) {
+            stats.netIncome += (_amount * (10000 - feeBps - managerFeeBps)) / 10000;
+            stats.protocolFees += (_amount * feeBps) / 10000;
+            stats.managerFees += (_amount * managerFeeBps) / 10000;
+        }
+        stats.totalFees = stats.managerFees + stats.protocolFees;
         stats.lastUpdate = block.timestamp;
     }
 
     function takeFeeFlow(
         CFAv1Library.InitData storage cfaV1,
-        IGoodCollectiveSuperApp.Stats storage stats,
         ISuperToken superToken,
-        IRegistry registry,
+        address prevRecipient,
+        address recipient,
+        uint32 feeBps,
         int96 _diffRate,
         bytes memory _ctx
     ) public returns (bytes memory newCtx) {
         newCtx = _ctx;
-        if (address(registry) == address(0)) return newCtx;
-        address recipient = registry.feeRecipient();
-        int96 curFeeRate = superToken.getFlowRate(address(this), stats.lastFeeRecipient);
+        if (address(recipient) == address(0)) return newCtx;
+        int96 curFeeRate = superToken.getFlowRate(address(this), prevRecipient);
         bool newRecipient;
-        if (recipient != stats.lastFeeRecipient) {
+        if (recipient != prevRecipient) {
             newRecipient = true;
-            if (stats.lastFeeRecipient != address(0)) {
+            if (prevRecipient != address(0)) {
                 //delete old recipient flow
-                if (curFeeRate > 0)
-                    newCtx = cfaV1.deleteFlowWithCtx(newCtx, address(this), stats.lastFeeRecipient, superToken); //passing in the ctx which is sent to the callback here
+                if (curFeeRate > 0) newCtx = cfaV1.deleteFlowWithCtx(newCtx, address(this), prevRecipient, superToken); //passing in the ctx which is sent to the callback here
             }
-            stats.lastFeeRecipient = recipient;
         }
         if (recipient == address(0)) return newCtx;
 
-        int96 newFeeRate = curFeeRate + (_diffRate * int32(registry.feeBps())) / 10000;
-        if (newFeeRate <= 0 && newRecipient == false) {
-            newCtx = cfaV1.deleteFlowWithCtx(newCtx, address(this), recipient, superToken); //passing in the ctx which is sent to the callback here
-        } else if (curFeeRate > 0 && newRecipient == false) {
-            newCtx = cfaV1.updateFlowWithCtx(newCtx, recipient, superToken, newFeeRate); //passing in the ctx which is sent to the callback here
+        int96 newFeeRate = curFeeRate + (_diffRate * int32(feeBps)) / 10000;
+        if (newRecipient == false && curFeeRate > 0) {
+            if (newFeeRate <= 0) {
+                newCtx = cfaV1.deleteFlowWithCtx(newCtx, address(this), recipient, superToken); //passing in the ctx which is sent to the callback here
+            } else {
+                newCtx = cfaV1.updateFlowWithCtx(newCtx, recipient, superToken, newFeeRate); //passing in the ctx which is sent to the callback here
+            }
         } else if (newFeeRate > 0) newCtx = cfaV1.createFlowWithCtx(newCtx, recipient, superToken, newFeeRate); //passing in the ctx which is sent to the callback here
     }
 }

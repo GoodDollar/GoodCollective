@@ -9,6 +9,7 @@ import { IERC721ReceiverUpgradeable } from "@openzeppelin/contracts-upgradeable/
 
 import { ProvableNFT } from "./ProvableNFT.sol";
 import { DirectPaymentsFactory } from "./DirectPaymentsFactory.sol";
+import { DirectPayemntsLibrary } from "./DirectPaymentsLibrary.sol";
 import "../GoodCollective/GoodCollectiveSuperApp.sol";
 
 interface IMembersValidator {
@@ -111,6 +112,8 @@ contract DirectPaymentsPool is
     LimitsData public globalLimits;
     DirectPaymentsFactory public registry;
 
+    uint32 public managerFeeBps;
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(ISuperfluid _host, IV3SwapRouter _swapRouter) GoodCollectiveSuperApp(_host, _swapRouter) {}
 
@@ -124,6 +127,10 @@ contract DirectPaymentsPool is
         return IRegistry(address(registry));
     }
 
+    function getManagerFee() public view override returns (address feeRecipient, uint32 feeBps) {
+        return (settings.manager, managerFeeBps);
+    }
+
     /**
      * @dev Initializes the contract with the given settings and limits.
      * @param _nft The ProvableNFT contract address.
@@ -134,12 +141,14 @@ contract DirectPaymentsPool is
         ProvableNFT _nft,
         PoolSettings memory _settings,
         SafetyLimits memory _limits,
+        uint32 _managerFeeBps,
         DirectPaymentsFactory _registry
     ) external initializer {
         registry = _registry;
         settings = _settings;
         limits = _limits;
         nft = _nft;
+        managerFeeBps = _managerFeeBps;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender); // when using factory this gives factory role which then set role to the real msg.sender
         _setupRole(MANAGER_ROLE, _settings.manager);
         _setupRole(MINTER_ROLE, _settings.manager);
@@ -259,24 +268,7 @@ contract DirectPaymentsPool is
             return false;
         }
 
-        uint64 curMonth = _month();
-        if (memberLimits[member].lastReward + 60 * 60 * 24 < block.timestamp) //more than a day passed since last reward
-        {
-            memberLimits[member].daily = reward;
-        } else {
-            memberLimits[member].daily += reward;
-        }
-
-        if (memberLimits[member].lastMonth < curMonth) //month switched
-        {
-            memberLimits[member].monthly = reward;
-        } else {
-            memberLimits[member].monthly += reward;
-        }
-
-        memberLimits[member].total += reward;
-        memberLimits[member].lastReward = uint64(block.timestamp);
-        memberLimits[member].lastMonth = curMonth;
+        DirectPayemntsLibrary._updateMemberLimits(memberLimits[member], reward, _month());
 
         if (
             memberLimits[member].daily > limits.maxMemberPerDay ||
@@ -291,25 +283,7 @@ contract DirectPaymentsPool is
      * @param reward The amount of rewards to enforce and update limits for.
      */
     function _enforceAndUpdateGlobalLimits(uint128 reward) internal {
-        uint64 curMonth = _month();
-
-        if (globalLimits.lastReward + 60 * 60 * 24 < block.timestamp) //more than a day passed since last reward
-        {
-            globalLimits.daily = reward;
-        } else {
-            globalLimits.daily += reward;
-        }
-
-        if (globalLimits.lastMonth < curMonth) //month switched
-        {
-            globalLimits.monthly = reward;
-        } else {
-            globalLimits.monthly += reward;
-        }
-
-        globalLimits.total += reward;
-        globalLimits.lastReward = uint64(block.timestamp);
-        globalLimits.lastMonth = curMonth;
+        DirectPayemntsLibrary._updateGlobalLimits(globalLimits, reward, _month());
 
         if (globalLimits.monthly > limits.maxTotalPerMonth) revert OVER_GLOBAL_LIMITS();
     }
@@ -409,7 +383,8 @@ contract DirectPaymentsPool is
      * @dev Sets the settings for the pool.
      * @param _settings The new pool settings.
      */
-    function setPoolSettings(PoolSettings memory _settings) public onlyRole(MANAGER_ROLE) {
+    function setPoolSettings(PoolSettings memory _settings, uint32 _managerFeeBps) public onlyRole(MANAGER_ROLE) {
+        managerFeeBps = _managerFeeBps;
         if (_settings.nftType != settings.nftType) revert NFTTYPE_CHANGED();
         if (_settings.manager == address(0)) revert EMPTY_MANAGER();
 
