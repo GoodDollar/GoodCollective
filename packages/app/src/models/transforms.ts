@@ -14,7 +14,6 @@ import {
   SubgraphCollective,
   SubgraphDonor,
   SubgraphDonorCollective,
-  SubgraphIpfsCollective,
   SubgraphProvableNFT,
   SubgraphSteward,
   SubgraphStewardCollective,
@@ -64,6 +63,7 @@ export function subgraphDonorToModel(subgraphDonor: SubgraphDonor): Donor {
 export function subgraphCollectiveToModel(subgraphCollective: SubgraphCollective): Collective {
   return {
     address: subgraphCollective.id,
+    pooltype: subgraphCollective.pooltype,
     ipfs: subgraphCollective.ipfs as IpfsCollective,
     donorCollectives: subgraphCollective.donors?.map(subgraphDonorCollectiveToModel) ?? [],
     stewardCollectives: subgraphCollective.stewards?.map(subgraphStewardCollectiveToModel) ?? [],
@@ -75,17 +75,15 @@ export function subgraphCollectiveToModel(subgraphCollective: SubgraphCollective
   };
 }
 
-export function ipfsSubgraphCollectiveToModel(subgraphCollective: {
-  id: string;
-  ipfs?: SubgraphIpfsCollective;
-}): IpfsCollective {
+export function ipfsSubgraphCollectiveToModel(subgraphCollective: SubgraphCollective): IpfsCollective {
   return {
     id: subgraphCollective.ipfs?.id || '',
+    pooltype: subgraphCollective.pooltype,
     collective: subgraphCollective.id,
     name: subgraphCollective.ipfs?.name || '',
     description: subgraphCollective.ipfs?.description || '',
-    rewardDescription: subgraphCollective.ipfs?.rewardDescription || '',
-    goodidDescription: subgraphCollective.ipfs?.goodidDescription || '',
+    rewardDescription: subgraphCollective.ipfs?.rewardDescription, //needs to stay null for ?? operator default text to work
+    goodidDescription: subgraphCollective.ipfs?.goodidDescription,
     email: subgraphCollective.ipfs?.email,
     twitter: subgraphCollective.ipfs?.twitter,
     instagram: subgraphCollective.ipfs?.instagram,
