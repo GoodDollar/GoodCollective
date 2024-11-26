@@ -1,5 +1,5 @@
 import React from 'react';
-import { VStack, HStack, Text, Button } from 'native-base';
+import { VStack, HStack, Text } from 'native-base';
 import { styles } from './WalletCards/styles';
 import { StopDonationActionButton } from './StopDonationActionButton';
 import { DonorCollective } from '../models/models';

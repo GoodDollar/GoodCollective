@@ -29,7 +29,7 @@ export const WalletDonatedCard: React.FC<WalletDonatedCardProps> = ({ donorColle
           amount={donationsFormatted || '0'}
         />
       </View>
-      <Text style={styles.formattedUsd}>= {donationsUsdValue} USD</Text>
+      <Text style={styles.formattedUsd}>= {donationsUsdValue || 0} USD</Text>
     </View>
   );
 };
