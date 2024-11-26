@@ -12,7 +12,7 @@ interface ClaimTransactionListItemProps {
 }
 
 const getTxIcon = (transaction: ClaimTx) => {
-  if (transaction.type === 'ubi') {
+  if (transaction.pooltype === 'UBI') {
     return ClaimTX;
   }
   return PayoutTX;

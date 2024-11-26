@@ -75,7 +75,7 @@ export interface Transaction {
 }
 
 export interface ClaimTx extends Transaction {
-  type?: 'directpayments' | 'ubi';
+  pooltype: string;
   stewards: string[];
   totalRewards: string;
 }

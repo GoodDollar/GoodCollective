@@ -14,6 +14,7 @@ import {
   SubgraphCollective,
   SubgraphDonor,
   SubgraphDonorCollective,
+  SubgraphIpfsCollective,
   SubgraphProvableNFT,
   SubgraphSteward,
   SubgraphStewardCollective,
@@ -75,31 +76,39 @@ export function subgraphCollectiveToModel(subgraphCollective: SubgraphCollective
   };
 }
 
-export function ipfsSubgraphCollectiveToModel(subgraphCollective: SubgraphCollective): IpfsCollective {
+export function ipfsSubgraphCollectiveToModel({
+  id,
+  ipfs,
+  pooltype,
+}: {
+  id: string;
+  ipfs: SubgraphIpfsCollective;
+  pooltype: string;
+}): IpfsCollective {
   return {
-    id: subgraphCollective.ipfs?.id || '',
-    pooltype: subgraphCollective.pooltype,
-    collective: subgraphCollective.id,
-    name: subgraphCollective.ipfs?.name || '',
-    description: subgraphCollective.ipfs?.description || '',
-    rewardDescription: subgraphCollective.ipfs?.rewardDescription, //needs to stay null for ?? operator default text to work
-    goodidDescription: subgraphCollective.ipfs?.goodidDescription,
-    email: subgraphCollective.ipfs?.email,
-    twitter: subgraphCollective.ipfs?.twitter,
-    instagram: subgraphCollective.ipfs?.instagram,
-    website: subgraphCollective.ipfs?.website,
-    infoLabel: subgraphCollective.ipfs?.infoLabel,
-    headerImage: subgraphCollective.ipfs?.headerImage || '',
-    logo: subgraphCollective.ipfs?.logo || '',
-    threads: subgraphCollective.ipfs?.threads,
-    images: subgraphCollective.ipfs?.images,
+    id: ipfs.id || '',
+    pooltype: pooltype,
+    collective: id,
+    name: ipfs.name || '',
+    description: ipfs.description || '',
+    rewardDescription: ipfs.rewardDescription, //needs to stay null for ?? operator default text to work
+    goodidDescription: ipfs.goodidDescription,
+    email: ipfs.email,
+    twitter: ipfs.twitter,
+    instagram: ipfs.instagram,
+    website: ipfs.website,
+    infoLabel: ipfs.infoLabel,
+    headerImage: ipfs.headerImage || '',
+    logo: ipfs.logo || '',
+    threads: ipfs.threads,
+    images: ipfs.images,
   };
 }
 
 export function subgraphClaimToModel(subgraphClaim: SubgraphClaim): ClaimTx {
   const stewards = subgraphClaim.events.flatMap((event) => event.contributors.map((contributor) => contributor.id));
   return {
-    type: subgraphClaim.collective.type,
+    pooltype: subgraphClaim.collective.pooltype,
     hash: subgraphClaim.txHash,
     networkFee: subgraphClaim.networkFee,
     collective: subgraphClaim.collective.id,

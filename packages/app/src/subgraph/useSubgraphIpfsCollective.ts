@@ -49,12 +49,14 @@ const ipfsCollectivesById = gql`
   }
 `;
 
-export function useSubgraphIpfsCollectives(): { id: string; ipfs: SubgraphIpfsCollective }[] {
+export function useSubgraphIpfsCollectives(): { id: string; pooltype: string; ipfs: SubgraphIpfsCollective }[] {
   const response = useSubgraphData(allIpfsCollectives);
   return (response as IpfsCollectivesSubgraphResponse).collectives ?? [];
 }
 
-export function useSubgraphIpfsCollectivesById(ids: string[]): { id: string; ipfs: SubgraphIpfsCollective }[] {
+export function useSubgraphIpfsCollectivesById(
+  ids: string[]
+): { id: string; pooltype: string; ipfs: SubgraphIpfsCollective }[] {
   const response = useSubgraphData(ipfsCollectivesById, {
     variables: {
       ids: ids,

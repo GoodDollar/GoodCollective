@@ -12,6 +12,7 @@ const supportEventsByCollective = gql`
       }
       collective {
         id
+        pooltype
         settings {
           rewardToken
         }
