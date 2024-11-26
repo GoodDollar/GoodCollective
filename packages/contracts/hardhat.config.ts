@@ -10,7 +10,7 @@ import { HardhatUserConfig } from 'hardhat/config';
 dotenv.config();
 
 const mnemonic = process.env.MNEMONIC || '';
-const privateKey = process.env.PRIVATE_KEY || '';
+const privateKey = process.env.PRIVATE_KEY || '0x0000000000000000000000000000000000000000000000000000000000000000';
 
 const config: HardhatUserConfig = {
   contractSizer: {
