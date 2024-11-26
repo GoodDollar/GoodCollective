@@ -7,6 +7,7 @@ import RoundedButton from './RoundedButton';
 import { Colors } from '../utils/colors';
 import { DonorCollective } from '../models/models';
 import { useAccount } from 'wagmi';
+import { View } from 'native-base';
 
 export const StopDonationActionButton = ({ donorCollective }: { donorCollective: DonorCollective }) => {
   const { address: maybeAddress } = useAccount();
@@ -22,7 +23,7 @@ export const StopDonationActionButton = ({ donorCollective }: { donorCollective:
   );
   if (maybeAddress?.toLowerCase() !== donorCollective.donor.toLowerCase()) return null;
   return (
-    <>
+    <View flex={1}>
       <RoundedButton
         title="Stop Your Donation Stream"
         backgroundColor={Colors.orange[100]}
@@ -36,6 +37,6 @@ export const StopDonationActionButton = ({ donorCollective }: { donorCollective:
       />
       <StopDonationModal openModal={stopDonationModalVisible} setOpenModal={setStopDonationModalVisible} />
       <ProcessingModal openModal={processingModalVisible} />
-    </>
+    </View>
   );
 };

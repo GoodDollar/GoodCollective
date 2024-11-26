@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
-import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet } from 'react-native';
+import { View } from 'native-base';
 import { useLocation } from 'react-router-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { useAccount } from 'wagmi';
@@ -46,9 +47,9 @@ function Layout({ children, breadcrumbPath }: LayoutProps) {
     <View style={bodyStyles}>
       <Header />
       {isDesktopView ? (
-        <View style={styles.desktopScrollView}>
-          {breadcrumbPath && <Breadcrumb path={breadcrumbPath} />}
+        <View style={styles.desktopScrollView} flex={1}>
           <DesktopPageContentContainer>
+            {breadcrumbPath && <Breadcrumb path={breadcrumbPath} />}
             {children}
             {location.pathname.includes('collective') && (
               <ImpactButton title="SEE YOUR IMPACT" onClick={onClickImpactButton} />
@@ -65,12 +66,15 @@ function Layout({ children, breadcrumbPath }: LayoutProps) {
 
 const styles = StyleSheet.create({
   body: {
+    height: '100%',
+    minHeight: '100vh',
     flex: 1,
   },
   scrollView: {
     flex: 1,
   },
   desktopScrollView: {
+    flex: 1,
     paddingHorizontal: 64,
     paddingTop: 12,
     paddingBottom: 90,

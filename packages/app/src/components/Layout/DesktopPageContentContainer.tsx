@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { View } from 'native-base';
 import { ReactNode } from 'react';
 
 interface DesktopPageContentContainerProps {
@@ -7,20 +7,10 @@ interface DesktopPageContentContainerProps {
 
 export const DesktopPageContentContainer = ({ children }: DesktopPageContentContainerProps) => {
   return (
-    <View style={styles.desktopContentContainer}>
-      <View style={styles.desktopContentBody}>{children}</View>
+    <View width={'100%'} flexDirection={'column'}>
+      <View maxWidth={1280} width={'100%'} alignSelf={'center'}>
+        {children}
+      </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  desktopContentContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    width: '100%',
-  },
-  desktopContentBody: {
-    width: '100%',
-    maxWidth: 1280,
-  },
-});

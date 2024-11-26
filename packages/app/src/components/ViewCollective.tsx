@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View, Image } from 'react-native';
-import { Link } from 'native-base';
+import { StyleSheet, Text, Image } from 'react-native';
+import { Link, View } from 'native-base';
 import { useAccount, useEnsName } from 'wagmi';
 
 import RowItem from './RowItem';
@@ -79,14 +79,14 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   if (isDesktopView) {
     return (
-      <View style={{ gap: 24 }}>
+      <View style={{ gap: 24, flex: 1 }}>
         <View style={styles.collectiveDesktopBox}>
           <View style={styles.collectiveDetailsDesktop}>
             <Image source={headerImg} style={styles.imageDesktop} />
             <View style={styles.collectiveDesktopData}>
               <Text style={[styles.title, styles.titleMobile]}>{ipfs.name}</Text>
               <Text style={styles.description}>{ipfs.description}</Text>
-              <View style={[styles.icons, { position: 'absolute', bottom: 0, left: 25 }]}>
+              <View style={[styles.icons]}>
                 {collective.ipfs.website && (
                   <Link href={collective.ipfs.website} isExternal>
                     <Image source={WebIcon} style={styles.rowIcon} />
@@ -113,7 +113,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               </View>
             </View>
 
-            <View style={styles.collectiveDescription}>
+            <View style={styles.collectiveDescription} flex={1}>
               <View style={styles.infoLabelDesktop}>
                 <Image source={InfoIcon} style={styles.infoIcon} />
                 <Text style={styles.informationLabel}>{infoLabel}</Text>
@@ -400,7 +400,28 @@ const styles = StyleSheet.create({
     shadowRadius: 30,
     elevation: 15,
   },
-  collectiveDetailsDesktop: { width: '100%', flexDirection: 'row', gap: 32 },
+  collectiveDetailsDesktop: {
+    flex: 1,
+    width: '100%',
+    flexDirection: 'row',
+    gap: 32,
+  },
+  collectiveDesktopBox: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: Colors.white,
+    padding: 16,
+    borderRadius: 16,
+  },
+  collectiveDesktopTimeline: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+    gap: 30,
+    marginTop: 35,
+  },
   image: {
     width: '100%',
     height: 192,
@@ -417,7 +438,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
-    height: 290,
     width: '100%',
     minWidth: 150,
     maxWidth: 352,
@@ -455,10 +475,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   icons: {
-    marginTop: 5,
+    marginTop: 20,
     flex: 1,
     flexDirection: 'row',
-    alignSelf: 'center',
     gap: 24,
   },
   rowIcon: {
@@ -484,28 +503,12 @@ const styles = StyleSheet.create({
     color: Colors.purple[400],
     ...InterSemiBold,
   },
-  collectiveDesktopBox: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: Colors.white,
-    padding: 16,
-    borderRadius: 16,
-  },
-  collectiveDesktopTimeline: {
-    flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'space-between',
-    gap: 30,
-    marginTop: 35,
-  },
-  collectiveDonateBox: { gap: 24, height: 230 },
+  collectiveDonateBox: { gap: 24, flex: 1 },
   collectiveInformation: { flex: 1, flexDirection: 'row', gap: 8 },
   desktopContainer: {
     flex: 1,
     justifyContent: 'space-between',
     maxWidth: '50%',
-    height: 540,
     borderRadius: 16,
   },
   collectiveDesktopActions: { flex: 1, flexDirection: 'row', justifyContent: 'center', gap: 32 },
