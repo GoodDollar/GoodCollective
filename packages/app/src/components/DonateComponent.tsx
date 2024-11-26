@@ -57,7 +57,7 @@ const warningProps = {
   priceImpact: {
     title: 'Price impact warning!',
     Explanation: PriceImpact,
-    suggestion: ['Proceed, and accept the price slip', 'Select another Donation Currency above'],
+    suggestion: ['Proceed, and accept the price impact', 'Select another donation currency above'],
     href: 'https://gooddollar.notion.site/How-do-I-buy-GoodDollars-94e821e06f924f6ea739df7db02b5a2d',
   },
   liquidity: {
