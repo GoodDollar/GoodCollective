@@ -97,6 +97,17 @@ const shouldWarning = (
   return { isNonZeroDonation, isInsufficientBalance, isInsufficientLiquidity, isUnacceptablePriceImpact };
 };
 
+const SwapValue = ({ swapValue }: { swapValue: number }) => (
+  <Text textAlign="right" fontSize="sm " color="goodGrey.25">
+    =
+    <Text variant="bold" fontWeight="700">
+      {' '}
+      G${' '}
+    </Text>
+    {swapValue.toFixed(4)}
+  </Text>
+);
+
 const WarningBox = ({ content, explanationProps = {} }: any) => {
   const Explanation = content.Explanation;
 
@@ -540,6 +551,9 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 options={currencyOptions}
                 isWarning={isWarning}
               />
+              {frequency === 'One-Time' && currency === 'CELO' && isNonZeroDonation && swapValue ? (
+                <SwapValue {...{ swapValue }} />
+              ) : null}
             </VStack>
 
             <VStack space={2} {...(isMobileView ? { maxWidth: '343' } : { minWidth: '343', maxWidth: '10%' })}>
@@ -591,14 +605,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 <Text variant="bold" color="goodPurple.400" fontSize="2xl" textAlign="right">
                   CELO {decimalDonationAmount}
                 </Text>
-                <Text textAlign="right" fontSize="sm " color="goodGrey.25">
-                  =
-                  <Text variant="bold" fontWeight="700">
-                    {' '}
-                    G${' '}
-                  </Text>
-                  {swapValue.toFixed(4)}
-                </Text>
+                <SwapValue {...{ swapValue }} />
               </VStack>
             </VStack>
           ) : null}
