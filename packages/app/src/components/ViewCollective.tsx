@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View, Image } from 'react-native';
-import { useState } from 'react';
 import { Link } from 'native-base';
-import { useAccount } from 'wagmi';
+import { useAccount, useEnsName } from 'wagmi';
 
 import RowItem from './RowItem';
 import RoundedButton from './RoundedButton';
@@ -9,7 +8,6 @@ import StewardList from './StewardsList/StewardsList';
 import TransactionList from './TransactionList/TransactionList';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
-import StopDonationModal from './modals/StopDonationModal';
 
 import { Colors } from '../utils/colors';
 import { useScreenSize } from '../theme/hooks';
@@ -34,12 +32,11 @@ import {
   WebIcon,
 } from '../assets/';
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
-import { useDeleteFlow } from '../hooks/useContractCalls/useDeleteFlow';
-import ErrorModal from './modals/ErrorModal';
 import FlowingDonationsRowItem from './FlowingDonationsRowItem';
 import { defaultInfoLabel, SUBGRAPH_POLL_INTERVAL } from '../models/constants';
 import env from '../lib/env';
-import ProcessingModal from './modals/ProcessingModal';
+import { ActiveStreamCard } from './ActiveStreamCard';
+import { WalletDonatedCard } from './WalletCards/WalletDonatedCard';
 
 interface ViewCollectiveProps {
   collective: Collective;
@@ -63,23 +60,14 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const headerImg = ipfs?.headerImage ? { uri: ipfs.headerImage } : Ocean;
 
   const stewardsPaid = stewardCollectives.length;
-  const infoLabel = collective.ipfs.infoLabel ?? defaultInfoLabel;
+  const infoLabel = collective.ipfs.rewardDescription ?? defaultInfoLabel;
 
   const { address } = useAccount();
+  const { data: ensName } = useEnsName({ address, chainId: 1 });
+  const userName = ensName ?? 'This wallet';
   const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress, SUBGRAPH_POLL_INTERVAL);
   const isDonating = maybeDonorCollective && maybeDonorCollective.flowRate !== '0';
-
-  const [stopDonationModalVisible, setStopDonationModalVisible] = useState(false);
-  const [processingModalVisible, setProcessingModalVisible] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
-
-  const handleStopDonation = useDeleteFlow(
-    collective.address,
-    maybeDonorCollective?.flowRate,
-    (error) => setErrorMessage(error),
-    (value: boolean) => setStopDonationModalVisible(value),
-    (value: boolean) => setProcessingModalVisible(value)
-  );
+  const hasDonated = isDonating || (maybeDonorCollective && maybeDonorCollective.contribution !== '0');
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
 
@@ -95,7 +83,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
         <View style={styles.collectiveDesktopBox}>
           <View style={styles.collectiveDetailsDesktop}>
             <Image source={headerImg} style={styles.imageDesktop} />
-
             <View style={styles.collectiveDesktopData}>
               <Text style={[styles.title, styles.titleMobile]}>{ipfs.name}</Text>
               <Text style={styles.description}>{ipfs.description}</Text>
@@ -132,29 +119,39 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 <Text style={styles.informationLabel}>{infoLabel}</Text>
               </View>
 
-              {isDonating ? (
+              {hasDonated ? (
                 <View style={styles.collectiveDonateBox}>
                   {!isDesktopView && (
                     <>
                       <Image source={SupportImage} style={styles.supportImg} />
-                      <Text style={styles.supportText}>You Support this GoodCollective!!</Text>
+                      <Text style={styles.supportText}>
+                        You {isDonating ? 'Support' : 'Supported'} this GoodCollective!!
+                      </Text>
                     </>
                   )}
                   <View style={{ gap: 16 }}>
-                    <RoundedButton
-                      title="Stop your donation"
-                      backgroundColor={Colors.orange[100]}
-                      color={Colors.orange[200]}
-                      fontSize={16}
-                      seeType={false}
-                      onPress={handleStopDonation}
+                    <WalletDonatedCard
+                      donorCollective={maybeDonorCollective}
+                      tokenPrice={tokenPrice || 0}
+                      userName={userName}
                     />
+                    {isDonating ? (
+                      <ActiveStreamCard donorCollective={maybeDonorCollective} />
+                    ) : (
+                      <RoundedButton
+                        title="Donate"
+                        backgroundColor={Colors.green[100]}
+                        color={Colors.green[200]}
+                        seeType={false}
+                        onPress={() => {
+                          navigate(`/donate/${poolAddress}`);
+                        }}
+                      />
+                    )}{' '}
                     <RoundedButton
                       title="See all donors"
                       backgroundColor={Colors.purple[100]}
                       color={Colors.purple[200]}
-                      fontSize={16}
-                      seeType={true}
                       onPress={() => {
                         navigate(`/collective/${poolAddress}/donors`);
                       }}
@@ -167,7 +164,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                     title="Donate"
                     backgroundColor={Colors.green[100]}
                     color={Colors.green[200]}
-                    fontSize={16}
                     seeType={false}
                     onPress={() => {
                       navigate(`/donate/${poolAddress}`);
@@ -177,8 +173,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                     title="See all donors"
                     backgroundColor={Colors.purple[100]}
                     color={Colors.purple[200]}
-                    fontSize={16}
-                    seeType={true}
                     onPress={() => {
                       navigate(`/collective/${poolAddress}/donors`);
                     }}
@@ -230,8 +224,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               title="See all stewards"
               backgroundColor={Colors.purple[100]}
               color={Colors.purple[200]}
-              fontSize={18}
-              seeType={true}
               onPress={() => navigate(`/collective/${poolAddress}/stewards`)}
             />
           </View>
@@ -239,13 +231,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             <TransactionList collective={collective.address as `0x${string}`} />
           </View>
         </View>
-        <ErrorModal
-          openModal={!!errorMessage}
-          setOpenModal={() => setErrorMessage(undefined)}
-          message={errorMessage ?? ''}
-        />
-        <StopDonationModal openModal={stopDonationModalVisible} setOpenModal={setStopDonationModalVisible} />
-        <ProcessingModal openModal={processingModalVisible} />
       </View>
     );
   }
@@ -317,26 +302,33 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             />
           </View>
 
-          {isDonating ? (
+          {hasDonated ? (
             <View style={{ gap: 24 }}>
               <Image source={SupportImage} style={styles.supportImg} />
-              <Text style={styles.supportText}>You Support this GoodCollective!!</Text>
-
+              <Text style={styles.supportText}>You {isDonating ? 'Support' : 'Supported'} this GoodCollective!!</Text>
               <View style={{ gap: 16 }}>
-                <RoundedButton
-                  title="Stop your donation"
-                  backgroundColor={Colors.orange[100]}
-                  color={Colors.orange[200]}
-                  fontSize={18}
-                  seeType={false}
-                  onPress={handleStopDonation}
+                <WalletDonatedCard
+                  donorCollective={maybeDonorCollective}
+                  tokenPrice={tokenPrice || 0}
+                  userName={userName}
                 />
+                {isDonating ? (
+                  <ActiveStreamCard donorCollective={maybeDonorCollective} />
+                ) : (
+                  <RoundedButton
+                    title="Donate"
+                    backgroundColor={Colors.green[100]}
+                    color={Colors.green[200]}
+                    seeType={false}
+                    onPress={() => {
+                      navigate(`/donate/${poolAddress}`);
+                    }}
+                  />
+                )}
                 <RoundedButton
                   title="See all donors"
                   backgroundColor={Colors.purple[100]}
                   color={Colors.purple[200]}
-                  fontSize={18}
-                  seeType={true}
                   onPress={() => {
                     navigate(`/collective/${poolAddress}/donors`);
                   }}
@@ -349,7 +341,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 title="Donate"
                 backgroundColor={Colors.green[100]}
                 color={Colors.green[200]}
-                fontSize={18}
                 seeType={false}
                 onPress={() => {
                   navigate(`/donate/${poolAddress}`);
@@ -360,7 +351,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 backgroundColor={Colors.purple[100]}
                 color={Colors.purple[200]}
                 fontSize={18}
-                seeType={true}
                 onPress={() => {
                   navigate(`/collective/${poolAddress}/donors`);
                 }}
@@ -376,7 +366,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             backgroundColor={Colors.purple[100]}
             color={Colors.purple[200]}
             fontSize={18}
-            seeType={true}
             onPress={() => navigate(`/collective/${poolAddress}/stewards`)}
           />
         </View>
@@ -388,16 +377,9 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               backgroundColor={Colors.purple[100]}
               color={Colors.purple[200]}
               fontSize={18}
-              seeType={true}
             />
           </Link>
         </View>
-        <ErrorModal
-          openModal={!!errorMessage}
-          setOpenModal={() => setErrorMessage(undefined)}
-          message={errorMessage ?? ''}
-        />
-        <StopDonationModal openModal={stopDonationModalVisible} setOpenModal={setStopDonationModalVisible} />
       </View>
     </View>
   );

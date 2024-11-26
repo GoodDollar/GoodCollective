@@ -3,12 +3,10 @@ import { SupportedNetwork, SupportedNetworkNames } from '../../models/constants'
 import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
 import { useAccount, useNetwork } from 'wagmi';
 import { useEthersSigner } from '../useEthers';
-import Decimal from 'decimal.js';
 import { printAndParseSupportError, validateConnection } from './util';
 
 export function useDeleteFlow(
   collective: string,
-  flowRate: string | undefined,
   onError: (error: string) => void,
   toggleStopDonationModal: (value: boolean) => void,
   toggleProcessingModal: (value: boolean) => void
@@ -24,11 +22,6 @@ export function useDeleteFlow(
       return;
     }
     const { chainId, signer } = validation;
-
-    if (!flowRate || new Decimal(flowRate).toString() === '0') {
-      onError('Flow rate must be greater than 0.');
-      return;
-    }
 
     const chainIdString = chainId.toString() as `${SupportedNetwork}`;
     const network = SupportedNetworkNames[chainId as SupportedNetwork];
@@ -47,14 +40,5 @@ export function useDeleteFlow(
       const message = printAndParseSupportError(error);
       onError(message);
     }
-  }, [
-    maybeAddress,
-    chain?.id,
-    collective,
-    flowRate,
-    onError,
-    maybeSigner,
-    toggleStopDonationModal,
-    toggleProcessingModal,
-  ]);
+  }, [maybeAddress, chain?.id, collective, onError, maybeSigner, toggleStopDonationModal, toggleProcessingModal]);
 }

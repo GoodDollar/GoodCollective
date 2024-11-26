@@ -33,7 +33,7 @@ export type SubgraphStewardCollective = {
 
 export type SubgraphCollective = {
   id: string;
-  type?: 'directpayments' | 'ubi';
+  pooltype: string;
   ipfs: SubgraphIpfsCollective;
   settings?: SubgraphPoolSettings;
   limits?: SubgraphSafetyLimits;
@@ -51,6 +51,7 @@ export type SubgraphCollective = {
 
 export type SubgraphIpfsCollective = {
   id: string; // ipfs hash
+  pooltype: string;
   name: string;
   description: string;
   rewardDescription?: string;

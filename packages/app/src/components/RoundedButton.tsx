@@ -7,8 +7,8 @@ interface RoundedButtonProps {
   title: string;
   backgroundColor: string;
   color: string;
-  fontSize: number;
-  seeType: boolean;
+  fontSize?: number;
+  seeType?: boolean;
   onPress?: () => void;
   maxWidth?: number | string;
   disabled?: boolean;
@@ -20,7 +20,7 @@ function RoundedButton({
   backgroundColor,
   color,
   fontSize,
-  seeType,
+  seeType = false,
   onPress,
   maxWidth,
   disabled,
@@ -58,10 +58,10 @@ const styles = StyleSheet.create({
   button: {
     width: '100%',
     borderRadius: 30,
-    paddingTop: 12,
-    paddingRight: 22,
-    paddingBottom: 12,
-    paddingLeft: 20,
+    paddingTop: 10,
+    paddingRight: 16,
+    paddingBottom: 10,
+    paddingLeft: 16,
     gap: 8,
     alignContent: 'center',
     borderWidth: 0,
@@ -77,11 +77,15 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginTop: 0,
     marginBottom: 0,
+    lineHeight: 27,
+    fontSize: 18,
   },
   nonSeeTypeText: {
     ...InterSemiBold,
     textAlign: 'center',
     width: '100%',
+    lineHeight: 27,
+    fontSize: 18,
   },
   seeTypeRow: {
     flexDirection: 'row',

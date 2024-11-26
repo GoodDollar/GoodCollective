@@ -6,6 +6,7 @@ export const collectivesById = gql`
   query COLLECTIVES_BY_ID($ids: [String!]) {
     collectives(where: { id_in: $ids, ipfs_: { name_not: null } }) {
       id
+      pooltype
       ipfs {
         id
         name

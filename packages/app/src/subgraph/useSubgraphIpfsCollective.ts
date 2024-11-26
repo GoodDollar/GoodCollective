@@ -7,6 +7,7 @@ const allIpfsCollectives = gql`
   query IPFS_COLLECTIVES {
     collectives(where: { ipfs_: { name_not: null } }) {
       id
+      pooltype
       ipfs {
         id
         name
@@ -29,6 +30,7 @@ const ipfsCollectivesById = gql`
   query IPFS_COLLECTIVES_BY_ID($ids: [String!]) {
     collectives(where: { id_in: $ids }) {
       id
+      pooltype
       ipfs {
         id
         name
