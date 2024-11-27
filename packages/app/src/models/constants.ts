@@ -3,7 +3,7 @@ import GdContracts from '@gooddollar/goodprotocol/releases/deployment.json';
 import env from '../lib/env';
 
 // 5%
-export const acceptablePriceImpact = 2;
+export const acceptablePriceImpact = 5;
 
 export enum SupportedNetwork {
   CELO = 42220,
