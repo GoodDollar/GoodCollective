@@ -49,7 +49,7 @@ export function useFetchFullNames(addresses: string[]): any {
 
   const hashedAddresses = Object.keys(addressToHashMapping);
 
-  const { data, error } = useMongoDbQuery<UserProfilesResponse>(findProfiles, {
+  const { data } = useMongoDbQuery<UserProfilesResponse>(findProfiles, {
     variables: {
       query: {
         index: { walletAddress: { hash_in: hashedAddresses } },

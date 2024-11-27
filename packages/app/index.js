@@ -1,4 +1,3 @@
-import React from 'react';
 // Import the crypto getRandomValues shim (**BEFORE** the shims)
 import 'react-native-get-random-values';
 
