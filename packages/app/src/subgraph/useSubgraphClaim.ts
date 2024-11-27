@@ -8,6 +8,7 @@ const claimsByCollective = gql`
       id
       collective {
         id
+        pooltype
         settings {
           rewardToken
         }

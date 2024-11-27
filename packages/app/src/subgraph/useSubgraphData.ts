@@ -10,7 +10,9 @@ import {
   SubgraphSupportEvent,
 } from './subgraphModels';
 
-export type IpfsCollectivesSubgraphResponse = { collectives?: { id: string; ipfs: SubgraphIpfsCollective }[] };
+export type IpfsCollectivesSubgraphResponse = {
+  collectives?: { id: string; pooltype: string; ipfs: SubgraphIpfsCollective }[];
+};
 export type CollectivesSubgraphResponse = { collectives?: SubgraphCollective[] };
 export type DonorsSubgraphResponse = { donors?: SubgraphDonor[] };
 export type StewardsSubgraphResponse = { stewards?: SubgraphSteward[] };

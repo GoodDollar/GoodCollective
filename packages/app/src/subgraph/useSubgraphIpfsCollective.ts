@@ -7,6 +7,7 @@ const allIpfsCollectives = gql`
   query IPFS_COLLECTIVES {
     collectives(where: { ipfs_: { name_not: null } }) {
       id
+      pooltype
       ipfs {
         id
         name
@@ -29,6 +30,7 @@ const ipfsCollectivesById = gql`
   query IPFS_COLLECTIVES_BY_ID($ids: [String!]) {
     collectives(where: { id_in: $ids }) {
       id
+      pooltype
       ipfs {
         id
         name
@@ -47,12 +49,14 @@ const ipfsCollectivesById = gql`
   }
 `;
 
-export function useSubgraphIpfsCollectives(): { id: string; ipfs: SubgraphIpfsCollective }[] {
+export function useSubgraphIpfsCollectives(): { id: string; pooltype: string; ipfs: SubgraphIpfsCollective }[] {
   const response = useSubgraphData(allIpfsCollectives);
   return (response as IpfsCollectivesSubgraphResponse).collectives ?? [];
 }
 
-export function useSubgraphIpfsCollectivesById(ids: string[]): { id: string; ipfs: SubgraphIpfsCollective }[] {
+export function useSubgraphIpfsCollectivesById(
+  ids: string[]
+): { id: string; pooltype: string; ipfs: SubgraphIpfsCollective }[] {
   const response = useSubgraphData(ipfsCollectivesById, {
     variables: {
       ids: ids,

@@ -30,6 +30,7 @@ export interface Donor {
 
 export interface Collective {
   address: string;
+  pooltype: string;
   ipfs: IpfsCollective;
   donorCollectives: DonorCollective[];
   stewardCollectives: StewardCollective[];
@@ -42,6 +43,7 @@ export interface Collective {
 
 export interface IpfsCollective {
   id: string; // ipfs hash
+  pooltype: string;
   collective: string; // collective address
   name: string;
   description: string;
@@ -73,7 +75,7 @@ export interface Transaction {
 }
 
 export interface ClaimTx extends Transaction {
-  type?: 'directpayments' | 'ubi';
+  pooltype: string;
   stewards: string[];
   totalRewards: string;
 }
