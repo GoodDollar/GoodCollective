@@ -67,16 +67,30 @@ export const styles = StyleSheet.create({
   performedActions: {
     fontSize: 18,
     color: Colors.gray[100],
+    lineHeight: 33,
     ...InterSmall,
   },
   totalReceived: {
     fontSize: 18,
     color: Colors.gray[100],
+    lineHeight: 33,
     ...InterSmall,
+  },
+  text: {
+    fontSize: 16,
+    color: Colors.gray[100],
+    ...InterRegular,
+  },
+  orangeBoldUnderline: {
+    fontSize: 22,
+    color: Colors.orange[200],
+    textDecorationLine: 'underline',
+    ...InterSemiBold,
   },
   bold: {
     fontSize: 18,
     color: Colors.gray[100],
+    lineHeight: 33,
     ...InterRegular,
   },
   row: {

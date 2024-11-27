@@ -16,7 +16,6 @@ function EmptyProfile() {
         title="Support a Collective"
         backgroundColor={Colors.green[100]}
         color={Colors.green[200]}
-        fontSize={16}
         seeType={false}
         onPress={() => navigate('/')}
       />

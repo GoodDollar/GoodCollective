@@ -11,6 +11,7 @@ const donorCollectiveByEntities = gql`
       }
       collective {
         id
+        pooltype
       }
       contribution
       flowRate
