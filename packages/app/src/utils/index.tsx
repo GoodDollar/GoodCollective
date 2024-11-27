@@ -44,7 +44,7 @@ const BUTTON_STATE = {
     textColor: Colors.gray[300],
   },
   isZeroDonation: {
-    copy: 'Donation amount is zero',
+    copy: 'Confirm',
     bgColor: Colors.gray[1000],
     textColor: Colors.gray[300],
   },

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import ErrorModal from './modals/ErrorModal';
-import StopDonationModal from './modals/StopDonationModal';
+import { QuestionImg } from '../assets';
+import BaseModal from './modals/BaseModal';
 import ProcessingModal from './modals/ProcessingModal';
 import { useDeleteFlow } from '../hooks/useContractCalls/useDeleteFlow';
 import RoundedButton from './RoundedButton';
@@ -30,12 +30,23 @@ export const StopDonationActionButton = ({ donorCollective }: { donorCollective:
         color={Colors.orange[300]}
         onPress={handleStopDonation}
       />
-      <ErrorModal
+      <BaseModal
+        type="error"
         openModal={!!errorMessage}
         setOpenModal={() => setErrorMessage(undefined)}
-        message={errorMessage ?? ''}
+        errorMessage={errorMessage ?? ''}
+        onConfirm={() => setErrorMessage(undefined)}
       />
-      <StopDonationModal openModal={stopDonationModalVisible} setOpenModal={setStopDonationModalVisible} />
+      <BaseModal
+        openModal={stopDonationModalVisible}
+        setOpenModal={setStopDonationModalVisible}
+        title="Are you sure you want to stop your donation?"
+        paragraphs={[
+          'If so, please sign with your wallet. If not, please click below to return to the GoodCollective you support.',
+        ]}
+        image={QuestionImg}
+        confirmButtonText="GO BACK"
+      />
       <ProcessingModal openModal={processingModalVisible} />
     </View>
   );

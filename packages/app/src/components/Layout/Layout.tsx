@@ -24,7 +24,7 @@ function Layout({ children, breadcrumbPath }: LayoutProps) {
   const scrollViewHeight = safeAreaHeight - 105;
 
   const { address } = useAccount();
-  const { isDesktopView } = useScreenSize();
+  const { isDesktopView, isMobileView, isTabletView } = useScreenSize();
 
   const location = useLocation();
   const { navigate } = useCrossNavigate();
@@ -39,8 +39,9 @@ function Layout({ children, breadcrumbPath }: LayoutProps) {
 
   const scrollViewStyles = [
     styles.scrollView,
-    { maxHeight: scrollViewHeight, minHeight: scrollViewHeight },
+    { ...(!isMobileView && { maxHeight: scrollViewHeight, minHeight: scrollViewHeight }) },
     { paddingBottom: isCollectivePage ? 61 : 0 },
+    { paddingHorizontal: isTabletView ? 48 : isMobileView ? 8 : 24 },
   ];
 
   return (

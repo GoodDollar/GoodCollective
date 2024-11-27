@@ -38,7 +38,7 @@ export const coingeckoTokenMapping: Record<string, `0x${string}`> = {
 
 export enum Frequency {
   OneTime = 'One-Time',
-  Monthly = 'Monthly',
+  Monthly = 'Monthly', // streaming
 }
 
 // constructed from Frequency

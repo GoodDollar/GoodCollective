@@ -1,7 +1,6 @@
 import { SupportedNetwork } from '../models/constants';
 import { useEffect, useState } from 'react';
 import { fetchBalance } from 'wagmi/actions';
-import { useToken } from './useTokenList';
 
 export const useGetTokenBalance = (
   currencyAddress: string,

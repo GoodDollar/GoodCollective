@@ -1,24 +1,18 @@
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useState } from 'react';
+import { HStack, Pressable } from 'native-base';
+
 import { Colors } from '../utils/colors';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import { chevronDown } from '../assets';
 
-function renderDropdownItemText(current: string, selection: string) {
+const renderDropdownItemText = (current: string, selection: string) => {
   if (current === selection) {
     return <Text style={[styles.dropdownText, { ...InterSemiBold }]}>{selection}</Text>;
   } else {
     return <Text style={[styles.dropdownText]}>{selection}</Text>;
   }
-}
-
-function getDropdownBGC(openModal: boolean) {
-  if (openModal) {
-    return Colors.blue[100];
-  } else {
-    return Colors.purple[100];
-  }
-}
+};
 
 interface DropdownProps {
   onSelect: (value: string) => void;
@@ -26,27 +20,27 @@ interface DropdownProps {
   options: { value: string; label: string }[];
 }
 
-function Dropdown({ onSelect, value, options }: DropdownProps) {
+const Dropdown = ({ onSelect, value, options }: DropdownProps) => {
   const [open, setOpen] = useState<boolean>(false);
 
   return (
-    <View style={styles.dropdown}>
-      <TouchableOpacity
-        style={[
-          styles.button,
-          styles.row,
-          {
-            flexGrow: 1,
-            backgroundColor: getDropdownBGC(open),
-          },
-        ]}
+    <HStack>
+      <Pressable
+        flexDir="row"
+        justifyContent="space-between"
+        alignItems="center"
+        bgColor="goodPurple.100"
+        paddingX={4}
+        paddingY={2.5}
+        minWidth="105"
+        borderRadius={12}
         onPress={() => {
           setOpen(!open);
         }}>
         <Text style={styles.buttonText}>{value}</Text>
         <Image source={chevronDown} style={styles.downIcon} />
-      </TouchableOpacity>
-      {open && (
+      </Pressable>
+      {open ? (
         <View style={styles.dropdownContainer}>
           {options.map((option) => (
             <TouchableOpacity
@@ -60,43 +54,12 @@ function Dropdown({ onSelect, value, options }: DropdownProps) {
             </TouchableOpacity>
           ))}
         </View>
-      )}
-    </View>
+      ) : null}
+    </HStack>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  body: {
-    gap: 24,
-    paddingBottom: 32,
-    paddingTop: 32,
-    paddingHorizontal: 16,
-    backgroundColor: Colors.white,
-  },
-  title: {
-    lineHeight: 25,
-    fontSize: 20,
-    textAlign: 'left',
-    ...InterSemiBold,
-  },
-  form: {
-    alignItems: 'center',
-    width: '70%',
-    justifyContent: 'center',
-  },
-  row: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  button: {
-    gap: 2,
-    borderRadius: 12,
-    padding: 16,
-    minWidth: 105,
-    width: '100%',
-    height: 59,
-    justifyContent: 'space-between',
-  },
   buttonText: {
     color: Colors.purple[400],
     fontSize: 18,
@@ -121,7 +84,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     position: 'absolute',
     zIndex: 2,
-    top: 60,
+    top: 50,
     left: 0,
     borderRadius: 12,
     shadowColor: Colors.black,
@@ -141,13 +104,6 @@ const styles = StyleSheet.create({
     minHeight: 60,
     alignItems: 'center',
   },
-  dropdownSeparator: {
-    width: '100%',
-    height: 2,
-    backgroundColor: Colors.gray[600],
-    marginTop: 5,
-    marginBottom: 5,
-  },
   dropdownMyProfileText: {
     fontSize: 18,
     marginLeft: 15,
@@ -159,7 +115,6 @@ const styles = StyleSheet.create({
     color: Colors.purple[400],
     textAlign: 'center',
   },
-  dropdown: { position: 'relative' },
 });
 
 export default Dropdown;
