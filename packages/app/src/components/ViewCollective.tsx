@@ -1,5 +1,5 @@
 import { StyleSheet, Image } from 'react-native';
-import { Link, useBreakpointValue, Text, View, VStack, HStack } from 'native-base';
+import { Link, useBreakpointValue, Text, View, VStack } from 'native-base';
 import { useAccount, useEnsName } from 'wagmi';
 
 import RowItem from './RowItem';
@@ -35,14 +35,12 @@ import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 import FlowingDonationsRowItem from './FlowingDonationsRowItem';
 import { defaultInfoLabel, GDToken, SUBGRAPH_POLL_INTERVAL } from '../models/constants';
 import env from '../lib/env';
-import { ActiveStreamCard } from './ActiveStreamCard';
 import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
 import { useFlowingBalance } from '../hooks/useFlowingBalance';
 import { GoodDollarAmount } from './GoodDollarAmount';
 import { styles as walletCardStyles } from '../components/WalletCards/styles';
 import { formatFlowRate } from '../lib/formatFlowRate';
 import { StopDonationActionButton } from './StopDonationActionButton';
-import { V } from '../../dist/assets/transactionRequest-be6a8ea9-6f2aa5fb';
 
 const HasDonatedCard = ({
   donorCollective,
