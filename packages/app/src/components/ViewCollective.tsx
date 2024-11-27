@@ -106,31 +106,51 @@ const HasDonatedCard = ({
             />
           </VStack>
           <Text style={walletCardStyles.formattedUsd}>= {donationsUsdValue || 0} USD</Text>
-          <VStack space={1} marginTop={4}>
-            <Text {...walletCardStyles.description}>Donation Streaming Rate</Text>
-            <Text {...walletCardStyles.text}>G$ {formatFlowRate(donorCollective.flowRate)} / Monthly</Text>
-          </VStack>
+          {isDonating && (
+            <VStack space={1} marginTop={4}>
+              <Text {...walletCardStyles.description}>Donation Streaming Rate</Text>
+              <Text {...walletCardStyles.text}>G$ {formatFlowRate(donorCollective.flowRate)} / Monthly</Text>
+            </VStack>
+          )}
         </VStack>
         {/* Stream Rate */}
 
         {/* Dates */}
         <VStack
+          display={{ base: isDonating ? 'flex' : 'none', xl: 'flex' }}
           justifyContent={'space-between'}
           flexGrow={{ xl: 1, base: 0 }}
           flexDirection={{ xl: 'column', base: 'row' }}>
-          <VStack>
-            <Text {...walletCardStyles.description}>Date Initiated</Text>
-            <Text {...walletCardStyles.text}>{formatTime(donorCollective.timestamp)}</Text>
-          </VStack>
-          <VStack marginTop={{ xl: 4, base: 0 }}>
-            <Text {...walletCardStyles.description}>Estimated End Date</Text>
-            <Text {...walletCardStyles.text}>{endDate}</Text>
-          </VStack>
+          {isDonating && (
+            <>
+              <VStack>
+                <Text {...walletCardStyles.description}>Date Initiated</Text>
+                <Text {...walletCardStyles.text}>{formatTime(donorCollective.timestamp)}</Text>
+              </VStack>
+
+              <VStack marginTop={{ xl: 4, base: 0 }}>
+                <Text {...walletCardStyles.description}>Estimated End Date</Text>
+                <Text {...walletCardStyles.text}>{endDate}</Text>
+              </VStack>
+            </>
+          )}
         </VStack>
 
         {/* Buttons */}
-        <View justifyContent={'right'} flexDirection={'column'} flexGrow={1} marginTop={{ xl: 0, base: 8 }}>
-          <StopDonationActionButton donorCollective={donorCollective} />
+        <View justifyContent={'right'} flexDirection={'column'} flexGrow={1} marginTop={{ xl: 0, base: 4 }}>
+          {isDonating ? (
+            <StopDonationActionButton donorCollective={donorCollective} />
+          ) : (
+            <RoundedButton
+              title="Donate"
+              backgroundColor={Colors.green[100]}
+              color={Colors.green[200]}
+              seeType={false}
+              onPress={() => {
+                navigate(`/donate/${donorCollective.collective}`);
+              }}
+            />
+          )}
           <View flex={1} marginTop={{ xl: 0, base: 4 }}>
             <RoundedButton
               title="See all donors"
