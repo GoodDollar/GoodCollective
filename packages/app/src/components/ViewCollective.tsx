@@ -119,7 +119,7 @@ const HasDonatedCard = ({
           justifyContent={'space-between'}
           flexGrow={{ xl: 1, base: 0 }}
           flexDirection={{ xl: 'column', base: 'row' }}>
-          {isDonating && (
+          {isDonating ? (
             <>
               <VStack>
                 <Text {...walletCardStyles.description}>Date Initiated</Text>
@@ -131,7 +131,7 @@ const HasDonatedCard = ({
                 <Text {...walletCardStyles.text}>{endDate}</Text>
               </VStack>
             </>
-          )}
+          ) : null}
         </VStack>
 
         {/* Buttons */}
