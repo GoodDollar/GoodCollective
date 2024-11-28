@@ -104,12 +104,12 @@ const HasDonatedCard = ({
             />
           </VStack>
           <Text style={walletCardStyles.formattedUsd}>= {donationsUsdValue || 0} USD</Text>
-          {isDonating && (
+          {isDonating ? (
             <VStack space={1} marginTop={4}>
               <Text {...walletCardStyles.description}>Donation Streaming Rate</Text>
               <Text {...walletCardStyles.text}>G$ {formatFlowRate(donorCollective.flowRate)} / Monthly</Text>
             </VStack>
-          )}
+          ) : null}
         </VStack>
         {/* Stream Rate */}
 
