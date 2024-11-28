@@ -1,4 +1,4 @@
-import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import { Image, Platform, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 
 import { InterSemiBold } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
@@ -14,7 +14,13 @@ function ImpactButton({ title, onClick }: ImpactButtonProps) {
   const { isDesktopView } = useScreenSize();
 
   return (
-    <TouchableOpacity style={[styles.button, isDesktopView && styles.desktopButton]} onPress={onClick}>
+    <TouchableOpacity
+      style={[
+        styles.button,
+        isDesktopView && styles.desktopButton,
+        !isDesktopView ? Platform.select({ web: { position: 'fixed' } }) : {},
+      ]}
+      onPress={onClick}>
       <View style={[styles.buttonContent, isDesktopView && styles.buttonDesktopContent]}>
         <Text style={styles.buttonText}>{title}</Text>
         <Image source={chevronRight} style={styles.icon} />
