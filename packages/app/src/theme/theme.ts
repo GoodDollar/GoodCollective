@@ -19,7 +19,7 @@ export const nbTheme = extendTheme({
       300: '#CCCCCC',
       400: '#B0B0B0',
       500: '#1F2937',
-      600: '#5A5A5A',
+      600: '#D4D4D4',
     },
     goodPurple: {
       100: '#E2EAFF',

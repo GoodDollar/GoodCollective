@@ -1,5 +1,5 @@
-import { StyleSheet, Text, Image } from 'react-native';
-import { Link, View } from 'native-base';
+import { StyleSheet, Image } from 'react-native';
+import { Link, useBreakpointValue, Text, View, VStack } from 'native-base';
 import { useAccount, useEnsName } from 'wagmi';
 
 import RowItem from './RowItem';
@@ -13,7 +13,7 @@ import { Colors } from '../utils/colors';
 import { useScreenSize } from '../theme/hooks';
 
 import { formatTime } from '../lib/formatTime';
-import { Collective } from '../models/models';
+import { Collective, DonorCollective } from '../models/models';
 import { useDonorCollectiveByAddresses, useGetTokenPrice } from '../hooks';
 import {
   AtIcon,
@@ -33,11 +33,138 @@ import {
 } from '../assets/';
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 import FlowingDonationsRowItem from './FlowingDonationsRowItem';
-import { defaultInfoLabel, SUBGRAPH_POLL_INTERVAL } from '../models/constants';
+import { defaultInfoLabel, GDToken, SUBGRAPH_POLL_INTERVAL } from '../models/constants';
 import env from '../lib/env';
-import { ActiveStreamCard } from './ActiveStreamCard';
-import { WalletDonatedCard } from './WalletCards/WalletDonatedCard';
+import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
+import { useFlowingBalance } from '../hooks/useFlowingBalance';
+import { GoodDollarAmount } from './GoodDollarAmount';
+import { styles as walletCardStyles } from '../components/WalletCards/styles';
+import { formatFlowRate } from '../lib/formatFlowRate';
+import { StopDonationActionButton } from './StopDonationActionButton';
 
+const HasDonatedCard = ({
+  donorCollective,
+  tokenPrice,
+}: {
+  donorCollective?: DonorCollective;
+  tokenPrice?: number;
+}) => {
+  const { address } = useAccount();
+  const { data: ensName } = useEnsName({ address, chainId: 1 });
+  const userName = ensName ?? 'This wallet';
+  const { navigate } = useCrossNavigate();
+  const isDonating = donorCollective && donorCollective.flowRate !== '0';
+  const hasDonated = isDonating || (donorCollective && donorCollective.contribution !== '0');
+  const donorBalance = useGetTokenBalance(GDToken.address, donorCollective?.donor as any);
+  const secondsLeft = isDonating ? Number(BigInt(donorBalance) / BigInt(donorCollective?.flowRate || 1)) : 0;
+  const endDate = formatTime(Date.now() / 1000 + secondsLeft);
+
+  const { wei: donationsFormatted, usdValue: donationsUsdValue } = useFlowingBalance(
+    donorCollective?.contribution || '0',
+    donorCollective?.timestamp || 0, // Timestamp in Subgraph's UTC.
+    donorCollective?.flowRate || '0',
+    tokenPrice
+  );
+  const container = useBreakpointValue({
+    base: {
+      flexDirection: 'column',
+      borderTopWidth: 1,
+      borderColor: 'goodGrey.600',
+      gap: 4,
+      marginTop: 8,
+    },
+    xl: {
+      gap: 8,
+      flexDirection: 'row',
+      borderTopWidth: 1,
+      borderColor: 'goodGrey.600',
+      marginTop: 8,
+      paddingTop: 8,
+      marginBottom: 8,
+      justifyContent: 'space-between',
+    },
+  });
+  if (!donorCollective || !hasDonated) return null;
+  return (
+    <View width={'100%'}>
+      <View {...container} flexGrow={1}>
+        <View flexGrow={0}>
+          <Image source={SupportImage} style={styles.supportImg} />
+          <Text style={styles.supportText}>You {isDonating ? 'Support' : 'Supported'} this GoodCollective!!</Text>
+        </View>
+
+        <VStack flexGrow={{ xl: 1, base: 0 }} borderRightWidth={{ xl: 1, base: 0 }} borderColor={'goodGrey.600'}>
+          <Text style={walletCardStyles.info}>{userName} has donated</Text>
+          <VStack style={walletCardStyles.row}>
+            <Text style={walletCardStyles.bold}>G$ </Text>
+            <GoodDollarAmount
+              style={walletCardStyles.totalReceived}
+              lastDigitsProps={{ style: { fontSize: 18, fontWeight: '300', lineHeight: 33 } }}
+              amount={donationsFormatted || '0'}
+            />
+          </VStack>
+          <Text style={walletCardStyles.formattedUsd}>= {donationsUsdValue || 0} USD</Text>
+          {isDonating ? (
+            <VStack space={1} marginTop={4}>
+              <Text {...walletCardStyles.description}>Donation Streaming Rate</Text>
+              <Text {...walletCardStyles.text}>G$ {formatFlowRate(donorCollective.flowRate)} / Monthly</Text>
+            </VStack>
+          ) : null}
+        </VStack>
+        {/* Stream Rate */}
+
+        {/* Dates */}
+        <VStack
+          display={{ base: isDonating ? 'flex' : 'none', xl: 'flex' }}
+          justifyContent={'space-between'}
+          flexGrow={{ xl: 1, base: 0 }}
+          flexDirection={{ xl: 'column', base: 'row' }}>
+          {isDonating ? (
+            <>
+              <VStack>
+                <Text {...walletCardStyles.description}>Date Initiated</Text>
+                <Text {...walletCardStyles.text}>{formatTime(donorCollective.timestamp)}</Text>
+              </VStack>
+
+              <VStack marginTop={{ xl: 4, base: 0 }}>
+                <Text {...walletCardStyles.description}>Estimated End Date</Text>
+                <Text {...walletCardStyles.text}>{endDate}</Text>
+              </VStack>
+            </>
+          ) : null}
+        </VStack>
+
+        {/* Buttons */}
+        <View justifyContent={'right'} flexDirection={'column'} flexGrow={1} marginTop={{ xl: 0, base: 4 }}>
+          {isDonating ? (
+            <StopDonationActionButton donorCollective={donorCollective} />
+          ) : (
+            <RoundedButton
+              title="Donate"
+              backgroundColor={Colors.green[100]}
+              color={Colors.green[200]}
+              seeType={false}
+              onPress={() => {
+                navigate(`/donate/${donorCollective.collective}`);
+              }}
+            />
+          )}
+          <View flex={1} marginTop={{ xl: 0, base: 4 }}>
+            <RoundedButton
+              title="See all donors"
+              backgroundColor={Colors.purple[100]}
+              color={Colors.purple[200]}
+              seeType={true}
+              onPress={() => {
+                navigate(`/collective/${donorCollective.collective}/donors`);
+              }}
+            />
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+};
 interface ViewCollectiveProps {
   collective: Collective;
 }
@@ -63,11 +190,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const infoLabel = collective.ipfs.rewardDescription ?? defaultInfoLabel;
 
   const { address } = useAccount();
-  const { data: ensName } = useEnsName({ address, chainId: 1 });
-  const userName = ensName ?? 'This wallet';
   const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress, SUBGRAPH_POLL_INTERVAL);
-  const isDonating = maybeDonorCollective && maybeDonorCollective.flowRate !== '0';
-  const hasDonated = isDonating || (maybeDonorCollective && maybeDonorCollective.contribution !== '0');
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
 
@@ -76,7 +199,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
     tokenPrice,
     2
   );
-
   if (isDesktopView) {
     return (
       <View style={{ gap: 24, flex: 1 }}>
@@ -119,66 +241,25 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 <Text style={styles.informationLabel}>{infoLabel}</Text>
               </View>
 
-              {hasDonated ? (
-                <View style={styles.collectiveDonateBox}>
-                  {!isDesktopView && (
-                    <>
-                      <Image source={SupportImage} style={styles.supportImg} />
-                      <Text style={styles.supportText}>
-                        You {isDonating ? 'Support' : 'Supported'} this GoodCollective!!
-                      </Text>
-                    </>
-                  )}
-                  <View style={{ gap: 16 }}>
-                    <WalletDonatedCard
-                      donorCollective={maybeDonorCollective}
-                      tokenPrice={tokenPrice || 0}
-                      userName={userName}
-                    />
-                    {isDonating ? (
-                      <ActiveStreamCard donorCollective={maybeDonorCollective} />
-                    ) : (
-                      <RoundedButton
-                        title="Donate"
-                        backgroundColor={Colors.green[100]}
-                        color={Colors.green[200]}
-                        seeType={false}
-                        onPress={() => {
-                          navigate(`/donate/${poolAddress}`);
-                        }}
-                      />
-                    )}{' '}
-                    <RoundedButton
-                      title="See all donors"
-                      backgroundColor={Colors.purple[100]}
-                      color={Colors.purple[200]}
-                      onPress={() => {
-                        navigate(`/collective/${poolAddress}/donors`);
-                      }}
-                    />
-                  </View>
-                </View>
-              ) : (
-                <View style={styles.collectiveDonateBox}>
-                  <RoundedButton
-                    title="Donate"
-                    backgroundColor={Colors.green[100]}
-                    color={Colors.green[200]}
-                    seeType={false}
-                    onPress={() => {
-                      navigate(`/donate/${poolAddress}`);
-                    }}
-                  />
-                  <RoundedButton
-                    title="See all donors"
-                    backgroundColor={Colors.purple[100]}
-                    color={Colors.purple[200]}
-                    onPress={() => {
-                      navigate(`/collective/${poolAddress}/donors`);
-                    }}
-                  />
-                </View>
-              )}
+              <View style={styles.collectiveDonateBox}>
+                <RoundedButton
+                  title="Donate"
+                  backgroundColor={Colors.green[100]}
+                  color={Colors.green[200]}
+                  seeType={false}
+                  onPress={() => {
+                    navigate(`/donate/${poolAddress}`);
+                  }}
+                />
+                <RoundedButton
+                  title="See all donors"
+                  backgroundColor={Colors.purple[100]}
+                  color={Colors.purple[200]}
+                  onPress={() => {
+                    navigate(`/collective/${poolAddress}/donors`);
+                  }}
+                />
+              </View>
             </View>
           </View>
 
@@ -215,6 +296,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               />
             </View>
           </View>
+          <HasDonatedCard donorCollective={maybeDonorCollective} tokenPrice={tokenPrice} />
         </View>
 
         <View style={styles.collectiveDesktopActions}>
@@ -301,62 +383,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               currency={collective.rewardToken}
             />
           </View>
-
-          {hasDonated ? (
-            <View style={{ gap: 24 }}>
-              <Image source={SupportImage} style={styles.supportImg} />
-              <Text style={styles.supportText}>You {isDonating ? 'Support' : 'Supported'} this GoodCollective!!</Text>
-              <View style={{ gap: 16 }}>
-                <WalletDonatedCard
-                  donorCollective={maybeDonorCollective}
-                  tokenPrice={tokenPrice || 0}
-                  userName={userName}
-                />
-                {isDonating ? (
-                  <ActiveStreamCard donorCollective={maybeDonorCollective} />
-                ) : (
-                  <RoundedButton
-                    title="Donate"
-                    backgroundColor={Colors.green[100]}
-                    color={Colors.green[200]}
-                    seeType={false}
-                    onPress={() => {
-                      navigate(`/donate/${poolAddress}`);
-                    }}
-                  />
-                )}
-                <RoundedButton
-                  title="See all donors"
-                  backgroundColor={Colors.purple[100]}
-                  color={Colors.purple[200]}
-                  onPress={() => {
-                    navigate(`/collective/${poolAddress}/donors`);
-                  }}
-                />
-              </View>
-            </View>
-          ) : (
-            <View style={{ gap: 16 }}>
-              <RoundedButton
-                title="Donate"
-                backgroundColor={Colors.green[100]}
-                color={Colors.green[200]}
-                seeType={false}
-                onPress={() => {
-                  navigate(`/donate/${poolAddress}`);
-                }}
-              />
-              <RoundedButton
-                title="See all donors"
-                backgroundColor={Colors.purple[100]}
-                color={Colors.purple[200]}
-                fontSize={18}
-                onPress={() => {
-                  navigate(`/collective/${poolAddress}/donors`);
-                }}
-              />
-            </View>
-          )}
+          <HasDonatedCard donorCollective={maybeDonorCollective} tokenPrice={tokenPrice} />
         </View>
 
         <View style={[styles.container]}>

@@ -41,7 +41,7 @@ function Layout({ children, breadcrumbPath }: LayoutProps) {
     styles.scrollView,
     { ...(!isMobileView && { maxHeight: scrollViewHeight, minHeight: scrollViewHeight }) },
     { paddingBottom: isCollectivePage ? 61 : 0 },
-    { paddingHorizontal: isTabletView ? 48 : isMobileView ? 8 : 24 },
+    { paddingHorizontal: isTabletView ? 48 : isMobileView ? 0 : isCollectivePage ? 0 : 24 },
   ];
 
   return (
