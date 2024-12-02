@@ -161,7 +161,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
                 emit UBICycleCalculated(currentDay, currentBalance, ubiSettings.cycleLengthDays, nextDailyPool);
             }
 
-            uint256 prevPeriodClaimers = status.periodClaimers;
+            status.currentDay = currentDay;
             status.dailyUbi = nextDailyUbi;
             if (status.dailyUbi <= extendedSettings.minClaimAmount) status.dailyUbi = 0;
 
