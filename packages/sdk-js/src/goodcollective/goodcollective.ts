@@ -15,7 +15,7 @@ import { HelperLibrary } from '@gooddollar/goodcollective-contracts/typechain-ty
 // import { StoreMemory } from '@web3-storage/w3up-client/stores/memory';
 // import * as Proof from '@web3-storage/w3up-client/proof';
 // import { Signer } from '@web3-storage/w3up-client/principal/ed25519';
-import { Multicall, ContractCallResults, ContractCallContext, CallContext } from 'ethereum-multicall';
+import { Multicall, ContractCallResults, ContractCallContext } from 'ethereum-multicall';
 import { PoolSettingsStruct } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/UBI/UBIPool.ts';
 
 export type NFTData = ProvableNFT.NFTDataStruct;
@@ -373,7 +373,7 @@ export class GoodCollectiveSDK {
             { reference: 'nextClaimAmount', methodName: 'estimateNextDailyUBI()', methodParameters: [] },
             { reference: 'ubiSettings', methodName: 'ubiSettings()', methodParameters: [] },
             { reference: 'status', methodName: 'status()', methodParameters: [] },
-          ].filter((_) => _ !== undefined) as CallContext[],
+          ].filter((_) => _ !== undefined) as ContractCallContext['calls'],
         },
         {
           reference: `pooldetails_${addr}`,
