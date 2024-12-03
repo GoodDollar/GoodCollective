@@ -369,7 +369,7 @@ export class GoodCollectiveSDK {
     return this.getUBIPoolsDetails(pools, memberAddress);
   }
 
-  async getUBIPoolsDetails(pools: string[], memberAddress: string) {
+  async getUBIPoolsDetails(pools: string[], memberAddress?: string) {
     if (!this.ubifactory) {
       throw new Error('UBI Factory not initialized');
     }
