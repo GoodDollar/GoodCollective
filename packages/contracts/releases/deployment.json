@@ -13258,7 +13258,7 @@
           ]
         },
         "UBIPool": {
-          "address": "0x4a67793B2854E791b32647d9815B3700c797F139",
+          "address": "0x9b704Af178A9d102C39f2090D9fF34bF0e0BEFD0",
           "abi": [
             {
               "inputs": [
@@ -16215,7 +16215,7 @@
           ]
         },
         "UBIPoolFactory_Implementation": {
-          "address": "0x87a71a7dCF13161B18D871253feF3D1d1f7b2881",
+          "address": "0x76c291aA17Bb6e6754b758C7919C8cce9201cDD5",
           "abi": [
             {
               "inputs": [],
@@ -34981,7 +34981,7 @@
           ]
         },
         "UBIPool": {
-          "address": "0x0df27e5feA935870Ccd4B059927C93623eDEd12c",
+          "address": "0xe6C1DB79CDCCF71904d3058E92F5160E23222476",
           "abi": [
             {
               "inputs": [
@@ -37938,7 +37938,7 @@
           ]
         },
         "UBIPoolFactory_Implementation": {
-          "address": "0xAfAdA9E5EeaABBc0e37b1bf84227582b2dCb091c",
+          "address": "0xb7cb07b730141EfeA6a129fd683f7ff3dca62025",
           "abi": [
             {
               "inputs": [],
