@@ -17,7 +17,6 @@ import { HelperLibrary } from '@gooddollar/goodcollective-contracts/typechain-ty
 // import { Signer } from '@web3-storage/w3up-client/principal/ed25519';
 import { Multicall, ContractCallResults, ContractCallContext } from 'ethereum-multicall';
 import { PoolSettingsStruct } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/UBI/UBIPool.ts';
-
 export type NFTData = ProvableNFT.NFTDataStruct;
 export type EventData = ProvableNFT.EventDataStruct;
 export type PoolSettings = Omit<DirectPaymentsPool.PoolSettingsStruct, 'nftType'> & { nftType?: BigNumberish };
@@ -26,6 +25,34 @@ export type SwapData = HelperLibrary.SwapDataStruct;
 export type UBIPoolSettings = PoolSettingsStruct;
 export type UBISettings = UBIPool.UBISettingsStruct;
 export type ExtendedUBISettings = UBIPool.ExtendedSettingsStruct;
+
+type PoolRegistry = {
+  ipfs: string;
+  isVerified: boolean;
+  projectId: string;
+};
+
+export type UBIPoolStatus = {
+  currentDay: BigNumberish;
+  dailyUbi: BigNumberish;
+  dailyCyclePool: BigNumberish;
+  startOfCycle: BigNumberish;
+  currentCycleLength: BigNumberish;
+  periodClaimers: BigNumberish;
+  periodDistributed: BigNumberish;
+  membersCount: BigNumberish;
+};
+
+type UBIPoolDetails = {
+  ubiSettings: UBISettings;
+  status: UBIPoolStatus;
+  contract: string;
+  isRegistered?: boolean;
+  claimAmount?: BigNumberish;
+  nextClaimTime: BigNumberish;
+  nextClaimAmount: BigNumberish;
+  poolDetails?: PoolRegistry;
+};
 export type PoolAttributes = {
   name: string;
   description: string;
@@ -387,33 +414,36 @@ export class GoodCollectiveSDK {
     const results: ContractCallResults = await multicall.call(contractCallContext);
     const poolsDetails = pools.map((addr) => {
       const data = results.results[`pool_${addr}`].callsReturnContext;
-      const result: { [key: string]: any } = { contract: addr };
+      const result: UBIPoolDetails = { contract: addr } as UBIPoolDetails;
       data.forEach((callData) => {
         switch (callData.reference) {
           case 'ubiSettings':
-            result[callData.reference] = {
+            result['ubiSettings'] = {
               cycleLengthDays: callData.returnValues[0],
               claimPeriodDays: callData.returnValues[1],
               minActiveUsers: callData.returnValues[2],
               claimForEnabled: callData.returnValues[3],
-              maxClaimAmount: Number(callData.returnValues[4].hex),
+              maxClaimAmount: BigInt(callData.returnValues[4].hex).toString(),
               maxMembers: callData.returnValues[5],
               onlyMembers: callData.returnValues[6],
             };
             break;
           case 'status':
-            result[callData.reference] = {
-              currentDay: Number(callData.returnValues[0].hex),
-              dailyUbi: Number(callData.returnValues[1].hex),
-              dailyCyclePool: Number(callData.returnValues[2].hex),
-              startOfCycle: Number(callData.returnValues[3].hex),
-              currentCycleLength: Number(callData.returnValues[4].hex),
-              periodClaimers: Number(callData.returnValues[5].hex),
-              periodDistributed: Number(callData.returnValues[6].hex),
+            result['status'] = {
+              currentDay: BigInt(callData.returnValues[0].hex),
+              dailyUbi: BigInt(callData.returnValues[1].hex),
+              dailyCyclePool: BigInt(callData.returnValues[2].hex),
+              startOfCycle: BigInt(callData.returnValues[3].hex),
+              currentCycleLength: BigInt(callData.returnValues[4].hex),
+              periodClaimers: BigInt(callData.returnValues[5].hex),
+              periodDistributed: BigInt(callData.returnValues[6].hex),
               membersCount: callData.returnValues[7],
             };
             break;
-          default:
+          case 'isRegistered':
+          case 'nextClaimAmount':
+          case 'nextClaimTime':
+          case 'claimAmount':
             result[callData.reference] =
               callData.returnValues[0].type === 'BigNumber'
                 ? ethers.BigNumber.from(callData.returnValues[0]).toString()
@@ -422,7 +452,7 @@ export class GoodCollectiveSDK {
       });
       const details = results.results[`pooldetails_${addr}`].callsReturnContext;
       details.forEach((callData) => {
-        result[callData.reference] = {
+        result['poolDetails'] = {
           ipfs: callData.returnValues[0],
           isVerified: callData.returnValues[1],
           projectId: callData.returnValues[2],
