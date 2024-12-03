@@ -15,7 +15,7 @@ import { HelperLibrary } from '@gooddollar/goodcollective-contracts/typechain-ty
 // import { StoreMemory } from '@web3-storage/w3up-client/stores/memory';
 // import * as Proof from '@web3-storage/w3up-client/proof';
 // import { Signer } from '@web3-storage/w3up-client/principal/ed25519';
-import { Multicall, ContractCallResults, ContractCallContext } from 'ethereum-multicall';
+import { Multicall, ContractCallResults, ContractCallContext, CallContext } from 'ethereum-multicall';
 import { PoolSettingsStruct } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/UBI/UBIPool.ts';
 
 export type NFTData = ProvableNFT.NFTDataStruct;
@@ -339,6 +339,13 @@ export class GoodCollectiveSDK {
       throw new Error('UBI Factory not initialized');
     }
     const pools = await this.ubifactory.getMemberPools(memberAddress);
+    return this.getUBIPoolsDetails(pools, memberAddress);
+  }
+
+  async getUBIPoolsDetails(pools: string[], memberAddress: string) {
+    if (!this.ubifactory) {
+      throw new Error('UBI Factory not initialized');
+    }
     const multicall = new Multicall({ ethersProvider: this.ubifactory.provider, tryAggregate: true });
 
     const contractCallContext: ContractCallContext[] = pools
@@ -348,14 +355,25 @@ export class GoodCollectiveSDK {
           contractAddress: addr,
           abi: this.contracts.UBIPool?.abi as [],
           calls: [
-            {
-              reference: 'isRegistered',
-              methodName: 'hasRole',
-              methodParameters: [ethers.utils.keccak256(ethers.utils.toUtf8Bytes('MEMBER_ROLE')), memberAddress],
-            },
+            memberAddress
+              ? {
+                  reference: 'isRegistered',
+                  methodName: 'hasRole',
+                  methodParameters: [ethers.utils.keccak256(ethers.utils.toUtf8Bytes('MEMBER_ROLE')), memberAddress],
+                }
+              : undefined,
+            memberAddress
+              ? {
+                  reference: 'claimAmount',
+                  methodName: 'checkEntitlement(address)',
+                  methodParameters: [memberAddress],
+                }
+              : undefined,
             { reference: 'nextClaimTime', methodName: 'nextClaimTime', methodParameters: [] },
-            { reference: 'claimAmount', methodName: 'checkEntitlement(address)', methodParameters: [memberAddress] },
-          ],
+            { reference: 'nextClaimAmount', methodName: 'estimateNextDailyUBI()', methodParameters: [] },
+            { reference: 'ubiSettings', methodName: 'ubiSettings()', methodParameters: [] },
+            { reference: 'status', methodName: 'status()', methodParameters: [] },
+          ].filter((_) => _ !== undefined) as CallContext[],
         },
         {
           reference: `pooldetails_${addr}`,
@@ -367,14 +385,40 @@ export class GoodCollectiveSDK {
       .flat();
 
     const results: ContractCallResults = await multicall.call(contractCallContext);
-    const memberPools = pools.map((addr) => {
+    const poolsDetails = pools.map((addr) => {
       const data = results.results[`pool_${addr}`].callsReturnContext;
       const result: { [key: string]: any } = { contract: addr };
       data.forEach((callData) => {
-        result[callData.reference] =
-          callData.returnValues[0].type === 'BigNumber'
-            ? ethers.BigNumber.from(callData.returnValues[0]).toString()
-            : callData.returnValues[0];
+        switch (callData.reference) {
+          case 'ubiSettings':
+            result[callData.reference] = {
+              cycleLengthDays: callData.returnValues[0],
+              claimPeriodDays: callData.returnValues[1],
+              minActiveUsers: callData.returnValues[2],
+              claimForEnabled: callData.returnValues[3],
+              maxClaimAmount: Number(callData.returnValues[4].hex),
+              maxMembers: callData.returnValues[5],
+              onlyMembers: callData.returnValues[6],
+            };
+            break;
+          case 'status':
+            result[callData.reference] = {
+              currentDay: Number(callData.returnValues[0].hex),
+              dailyUbi: Number(callData.returnValues[1].hex),
+              dailyCyclePool: Number(callData.returnValues[2].hex),
+              startOfCycle: Number(callData.returnValues[3].hex),
+              currentCycleLength: Number(callData.returnValues[4].hex),
+              periodClaimers: Number(callData.returnValues[5].hex),
+              periodDistributed: Number(callData.returnValues[6].hex),
+              membersCount: callData.returnValues[7],
+            };
+            break;
+          default:
+            result[callData.reference] =
+              callData.returnValues[0].type === 'BigNumber'
+                ? ethers.BigNumber.from(callData.returnValues[0]).toString()
+                : callData.returnValues[0];
+        }
       });
       const details = results.results[`pooldetails_${addr}`].callsReturnContext;
       details.forEach((callData) => {
@@ -387,8 +431,9 @@ export class GoodCollectiveSDK {
       return result;
     });
 
-    return memberPools;
+    return poolsDetails;
   }
+
   /**
    * Starts a new donation flow using Superfluid's core-sdk createFlow method.
    * @param {ethers.Signer} signer - The signer object for the transaction.
