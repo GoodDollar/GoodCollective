@@ -41,7 +41,7 @@ const defaultModalProps = {
 type BaseModalProps = {
   type?: 'error';
   openModal: boolean;
-  setOpenModal: (open: boolean) => void;
+  onClose: () => void;
   onConfirm?: () => void;
   title?: string;
   paragraphs?: any[] | undefined;
@@ -54,7 +54,7 @@ type BaseModalProps = {
 export const BaseModal = ({
   type,
   openModal,
-  setOpenModal,
+  onClose,
   onConfirm,
   title,
   paragraphs,
@@ -63,7 +63,7 @@ export const BaseModal = ({
   errorMessage = '',
   withClose = true,
 }: BaseModalProps) => {
-  const onClose = () => setOpenModal(false);
+  const _onClose = () => onClose();
   const { dTitle, dParagraphs, dConfirmButtonText, dImage } =
     type === 'error'
       ? defaultModalProps[type as keyof typeof defaultModalProps]
@@ -95,13 +95,13 @@ export const BaseModal = ({
           }}>
           {withClose ? (
             <VStack width="100%" alignContent="flex-end">
-              <Pressable w={8} h={8} alignSelf="flex-end" onPress={onClose}>
+              <Pressable w={8} h={8} alignSelf="flex-end" onPress={_onClose}>
                 <Image source={CloseIcon} width={8} height={8} alignSelf="flex-end" />
               </Pressable>
             </VStack>
           ) : null}
-          <VStack space={4} justifyContent="center">
-            <Text variant="bold" fontSize="xl" lineHeight="120%">
+          <VStack space={4}>
+            <Text variant="bold" fontSize="xl" lineHeight="120%" textAlign={'center'}>
               {dTitle?.toUpperCase()}
             </Text>
             <VStack space={0} textAlign="center">

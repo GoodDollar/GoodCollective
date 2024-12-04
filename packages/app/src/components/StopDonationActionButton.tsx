@@ -33,13 +33,13 @@ export const StopDonationActionButton = ({ donorCollective }: { donorCollective:
       <BaseModal
         type="error"
         openModal={!!errorMessage}
-        setOpenModal={() => setErrorMessage(undefined)}
+        onClose={() => setErrorMessage(undefined)}
         errorMessage={errorMessage ?? ''}
         onConfirm={() => setErrorMessage(undefined)}
       />
       <BaseModal
         openModal={stopDonationModalVisible}
-        setOpenModal={setStopDonationModalVisible}
+        onClose={() => setStopDonationModalVisible(false)}
         title="Are you sure you want to stop your donation?"
         paragraphs={[
           'If so, please sign with your wallet. If not, please click below to return to the GoodCollective you support.',

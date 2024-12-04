@@ -62,7 +62,7 @@ const ActionButton = ({ href, text, bg, textColor, onPress }: ActionButtonProps)
   const { buttonContainer, button, buttonText } = responsiveStyles ?? {};
 
   const content = (
-    <Pressable {...button} onPress={onPress} backgroundColor={bg}>
+    <Pressable {...button} onPress={onPress} backgroundColor={bg} paddingBottom={0}>
       <Text {...buttonText} color={textColor}>
         {text}
       </Text>

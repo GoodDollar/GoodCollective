@@ -453,13 +453,13 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       <BaseModal
         type="error"
         openModal={!!errorMessage}
-        setOpenModal={onCloseErrorModal}
+        onClose={onCloseErrorModal}
         errorMessage={errorMessage ?? ''}
         onConfirm={onCloseErrorModal}
       />
       <BaseModal
         openModal={approveSwapModalVisible}
-        setOpenModal={setApproveSwapModalVisible}
+        onClose={() => setApproveSwapModalVisible(false)}
         title="APPROVE TOKEN SWAP"
         paragraphs={[
           "To approve the exchange from your donation currency to this GoodCollective's currency, sign with yourwallet.",
@@ -468,14 +468,15 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       />
       <BaseModal
         openModal={completeDonationModalVisible}
-        setOpenModal={setCompleteDonationModalVisible}
+        onClose={() => setCompleteDonationModalVisible(false)}
         title="COMPLETE YOUR DONATION"
         paragraphs={['To complete your donation, sign with your wallet.']}
         image={PhoneImg}
       />
       <BaseModal
         openModal={thankYouModalVisible}
-        setOpenModal={onCloseThankYouModal}
+        onClose={() => setThankYouModalVisible(false)}
+        onConfirm={onCloseThankYouModal}
         title="thank you!"
         paragraphs={[
           `You have just donated to ${collective?.ipfs?.name} GoodCollective!`,
@@ -488,7 +489,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       />
       <BaseModal
         openModal={startStreamingVisible}
-        setOpenModal={() => setStartStreamingVisible(false)}
+        onClose={() => setStartStreamingVisible(false)}
         title="STREAMS CONTINUE UNLESS YOU STOP THEM!"
         paragraphs={[
           'The stream will end if your GoodDollar wallet balance is depleted.',
