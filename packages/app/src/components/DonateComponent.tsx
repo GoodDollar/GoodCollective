@@ -34,7 +34,7 @@ interface DonateComponentProps {
 }
 
 const PriceImpact = ({ priceImpact }: any) => (
-  <Text color="goodOrange.500" maxWidth="90%">
+  <Text color="goodOrange.500">
     <Text>Due to low liquidity between your chosen currency and GoodDollar, </Text>
     <Text variant="bold" fontWeight="700">
       your donation amount will reduce by {priceImpact?.toFixed(2)}%{' '}
@@ -44,7 +44,7 @@ const PriceImpact = ({ priceImpact }: any) => (
 );
 
 const WarningExplanation = ({ type }: any) => (
-  <Text color="goodOrange.500" maxWidth="90%">
+  <Text color="goodOrange.500">
     <Text>
       {type === 'liquidity'
         ? 'There is not enough liquidity between your chosen currency and GoodDollar to proceed.'
@@ -164,8 +164,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     endDate: '',
   });
   const { price: tokenPrice = 0 } = useGetTokenPrice('G$');
-  const [swapValue, setSwapValue] = useState<number | undefined>(undefined);
-
   const [isDonationComplete, setIsDonationComplete] = useState(false);
   const { navigate } = useCrossNavigate();
   if (isDonationComplete) {
@@ -173,11 +171,25 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   }
 
   const [frequency, setFrequency] = useState<Frequency>(Frequency.OneTime);
-  const [streamRate, setRate] = useState<string | number>(1);
   const [duration, setDuration] = useState(12);
-  const [decimalDonationAmount, setDecimalDonationAmount] = useState<any | number>(0);
-
   const [inputAmount, setInputAmount] = useState<string | undefined>(undefined);
+
+  const tokenList = useTokenList();
+  const gdEnvSymbol =
+    Object.keys(tokenList).find((key) => {
+      if (key.startsWith('G$')) {
+        return tokenList[key].address.toLowerCase() === collective.rewardToken.toLowerCase();
+      } else return false;
+    }) || 'G$';
+
+  const GDToken = GDEnvTokens[gdEnvSymbol];
+
+  const [currency, setCurrency] = useState<string>(gdEnvSymbol || 'G$');
+
+  const decimalDonationAmount = formatDecimalStringInput(
+    (Number(inputAmount) * (currency.includes('G$') ? 1 : Number(duration))).toString()
+  );
+  const swapValue = currency.includes('G$') ? 0 : decimalDonationAmount / tokenPrice;
 
   const container = useBreakpointValue({
     base: {
@@ -191,7 +203,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       paddingRight: 2,
     },
     md: {
-      maxWidth: 800,
+      // maxWidth: 800,
       width: '100%',
       paddingLeft: 4,
       paddingRight: 4,
@@ -213,16 +225,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     },
   });
 
-  const tokenList = useTokenList();
-  const gdEnvSymbol =
-    Object.keys(tokenList).find((key) => {
-      if (key.startsWith('G$')) {
-        return tokenList[key].address.toLowerCase() === collective.rewardToken.toLowerCase();
-      } else return false;
-    }) || 'G$';
-
-  const GDToken = GDEnvTokens[gdEnvSymbol];
-
   const currencyOptions: { value: string; label: string }[] = useMemo(() => {
     let options = Object.keys(tokenList).reduce<Array<{ value: string; label: string }>>((acc, key) => {
       if (!key.startsWith('G$') || key === gdEnvSymbol) {
@@ -233,8 +235,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
 
     return options;
   }, [tokenList, gdEnvSymbol]);
-
-  const [currency, setCurrency] = useState<string>(gdEnvSymbol || 'G$');
 
   const {
     path: swapPath,
@@ -250,6 +250,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     (value: boolean) => setApproveSwapModalVisible(value),
     collectiveId as `0x${string}`
   );
+
   const approvalNotReady = handleApproveToken === undefined && currency.startsWith('G$') === false;
   // const approvalNotReady = false;
 
@@ -273,7 +274,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   // const currencyDecimals = token.decimals;
   const donorCurrencyBalance = useGetTokenBalance(token.address, address, chain?.id, true);
 
-  const totalDecimalDonation = new Decimal(duration * decimalDonationAmount);
+  const totalDecimalDonation = new Decimal(decimalDonationAmount);
   // const totalDonationFormatted = totalDecimalDonation.toDecimalPlaces(currencyDecimals, Decimal.ROUND_DOWN).toString();
 
   const { isNonZeroDonation, isInsufficientBalance, isInsufficientLiquidity, isUnacceptablePriceImpact } =
@@ -298,19 +299,8 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       return;
     }
 
-    if (frequency === Frequency.OneTime) {
-      if (currency.startsWith('G$')) {
-        return await supportSingleTransferAndCall();
-      } else {
-        return await supportSingleWithSwap();
-      }
-    } else if (currency.startsWith('G$')) {
-      handleStreamingWarning();
-    }
-
-    let isApproveSuccess = isRequireApprove === false;
-
-    if (isRequireApprove) {
+    let isApproveSuccess = isRequireApprove === false || currency.startsWith('G$');
+    if (isRequireApprove && currency.startsWith('G$') === false) {
       const txHash = await handleApproveToken?.();
       if (txHash === undefined) {
         return;
@@ -330,8 +320,18 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
         );
       }
     }
-    if (isApproveSuccess) {
-      // await supportFlowWithSwap();
+
+    if (!isApproveSuccess) {
+      return;
+    }
+
+    if (frequency === Frequency.OneTime) {
+      if (currency.startsWith('G$')) {
+        return await supportSingleTransferAndCall();
+      } else {
+        return await supportSingleWithSwap();
+      }
+    } else {
       handleStreamingWarning();
     }
   }, [
@@ -374,47 +374,35 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   const onReset = () => {
     setInputAmount(undefined);
     setEstimatedDuration({ duration: 0, endDate: '' });
-    setSwapValue(undefined);
   };
 
   const onChangeCurrency = (value: string) => {
     setCurrency(value);
+
     onReset();
   };
 
   const estimateDuration = useCallback(
     (v: string, altDuration?: number) => {
-      const calculateEstDuration = (value: number, rate: number) => value / (rate === 0 ? 1 : rate);
+      if (!currency.includes('G$')) {
+        return;
+      }
 
       let estDuration = altDuration ?? 0;
 
       if (frequency === Frequency.Monthly && !altDuration) {
-        if (currency.includes('G$')) {
-          estDuration = parseFloat(donorCurrencyBalance) / parseFloat(v);
-        } else {
-          estDuration = calculateEstDuration(parseFloat(v), parseFloat(streamRate.toString()));
-        }
-      }
-
-      if (!altDuration && !currency.includes('G$')) {
-        const gdValue = parseFloat(v) / tokenPrice;
-        setSwapValue(gdValue);
+        estDuration = parseFloat(donorCurrencyBalance) / parseFloat(v);
       }
 
       const estimatedEndDate = moment().add(estDuration, 'months').format('DD.MM.YY HH:mm');
 
       setEstimatedDuration({ duration: estDuration, endDate: estimatedEndDate });
-      setDuration(Math.max(1, estDuration));
     },
-    [currency, donorCurrencyBalance, streamRate, frequency, tokenPrice]
+    [currency, donorCurrencyBalance, frequency]
   );
 
   const onChangeRate = (value: string) => {
-    setRate(value.endsWith('.') ? value : Number(value));
-
-    if (!Number(value)) return;
-    const estDuration = parseFloat(decimalDonationAmount) / Math.max(parseFloat(value), 1);
-    estimateDuration(value, estDuration);
+    setDuration(Number(value));
   };
 
   const onChangeAmount = useCallback(
@@ -424,8 +412,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       if (![''].includes(v)) setConfirmNoAmount(false);
       if (v.endsWith('.') || ['0', ''].includes(v)) return;
 
-      setDecimalDonationAmount(formatDecimalStringInput(v));
-
       estimateDuration(v);
     },
     [estimateDuration]
@@ -434,7 +420,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   const onChangeFrequency = (value: string) => {
     if (value === Frequency.OneTime) {
       setDuration(1);
-    }
+    } else setDuration(12);
     setFrequency(value as Frequency);
     onReset();
   };
@@ -475,7 +461,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       />
       <BaseModal
         openModal={thankYouModalVisible}
-        onClose={() => setThankYouModalVisible(false)}
+        onClose={() => navigate(`/collective/${collectiveId}`)}
         onConfirm={onCloseThankYouModal}
         title="thank you!"
         paragraphs={[
@@ -513,7 +499,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
         <VStack space={8} backgroundColor="white" shadow="1" paddingY={4} borderRadius={16} {...container}>
           <HStack space={8} {...direction}>
             {/* Donation frequency */}
-            <VStack space={2} width={isDesktopView ? '320' : 'auto'} maxW="320" mb={8}>
+            <VStack space={2} mb={8}>
               <VStack space={2}>
                 <Text variant="bold" fontSize="lg">
                   Donation Frequency
@@ -536,10 +522,10 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
               )}
             </VStack>
             {/* Amount and token */}
-            <VStack space={2} maxW="320" mb={8} zIndex={1}>
+            <VStack space={2} mb={8} zIndex={1}>
               <VStack space={2} zIndex={1}>
                 <Text variant="bold" fontSize="lg">
-                  How much?
+                  How much{frequency !== Frequency.OneTime ? ' per month' : ''}?
                 </Text>
                 <Text>You can donate using any token on Celo.</Text>
               </VStack>
@@ -551,31 +537,35 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 onChangeAmount={onChangeAmount}
                 options={currencyOptions}
                 isWarning={isWarning}
+                withDuration={frequency !== 'One-Time'}
               />
-              {frequency === 'One-Time' && currency === 'CELO' && isNonZeroDonation && swapValue ? (
+              {frequency === 'One-Time' && currency !== 'G$' && isNonZeroDonation && swapValue ? (
                 <SwapValue {...{ swapValue }} />
               ) : null}
             </VStack>
 
-            <VStack space={2} {...(isMobileView ? { maxWidth: '343' } : { minWidth: '343', maxWidth: '10%' })}>
+            <VStack space={2}>
               {frequency !== 'One-Time' && !currency.includes('G$') ? (
                 <>
                   <VStack space={2}>
                     <Text variant="bold" fontSize="lg">
-                      At what streaming rate?
+                      For how many months?
                     </Text>
-                    <Box p={2} />
+                    <Text>You can stop the stream at any time.</Text>
                   </VStack>
                   <NumberInput
-                    type="duration"
+                    type="number"
                     dropdownValue={currency}
-                    inputValue={streamRate?.toString() ?? '1'}
+                    inputValue={duration?.toString() ?? '1'}
                     onSelect={onChangeCurrency}
                     onChangeAmount={onChangeRate}
                   />{' '}
                 </>
               ) : null}
-              {frequency !== 'One-Time' && isNonZeroDonation && !isEmpty(estimatedDuration.endDate) ? (
+              {currency.includes('G$') &&
+              frequency !== 'One-Time' &&
+              isNonZeroDonation &&
+              !isEmpty(estimatedDuration.endDate) ? (
                 <VStack space={2} width="100%">
                   <HStack justifyContent="space-between">
                     <Text variant="bold" color="goodGrey.500" fontSize="lg">
@@ -598,7 +588,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
             </VStack>
           </HStack>
           {frequency !== 'One-Time' && currency === 'CELO' && isNonZeroDonation && swapValue ? (
-            <VStack space={2} maxW="320">
+            <VStack space={2}>
               <Text variant="bold" fontSize="lg">
                 Total Donation Swap Amount:
               </Text>
@@ -634,16 +624,16 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
             : null}
           {isNonZeroDonation ? (
             <VStack space={2} maxW="700">
-              <Text variant="bold">You are about to begin a donation stream</Text>
+              {frequency !== Frequency.OneTime && <Text variant="bold">You are about to begin a donation stream</Text>}
               <Text>
-                Pressing “Confirm” will begin the donation streaming process. You will need to confirm using your
-                connected wallet. You may be asked to sign multiple transactions.
+                Pressing “Confirm” will begin the donation {frequency !== Frequency.OneTime ? 'streaming ' : ''}process.
+                You will need to confirm using your connected wallet. You may be asked to sign multiple transactions.
               </Text>
             </VStack>
           ) : null}
 
           <RoundedButton
-            maxWidth={isDesktopView ? 343 : undefined}
+            // maxWidth={isDesktopView ? 343 : undefined}
             title={buttonCopy}
             backgroundColor={buttonBgColor}
             color={buttonTextColor}

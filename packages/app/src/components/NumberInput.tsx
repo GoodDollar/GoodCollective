@@ -12,6 +12,7 @@ const NumberInput = ({
   options = [],
   isWarning = false,
   inputValue = undefined,
+  withDuration = false,
 }: {
   type: string;
   dropdownValue: string;
@@ -20,6 +21,7 @@ const NumberInput = ({
   options?: { value: string; label: string }[];
   isWarning?: boolean;
   inputValue?: string | undefined;
+  withDuration?: boolean;
 }) => {
   const onChange = useCallback(
     (v: string) => {
@@ -45,7 +47,7 @@ const NumberInput = ({
         padding={2}
         paddingRight={4}
         space={4}
-        maxWidth={type === 'duration' ? 290 : '100%'}>
+        maxWidth={'100%'}>
         {type === 'token' ? <Dropdown value={dropdownValue} onSelect={onSelect} options={options} /> : <Box />}
         <HStack alignItems="center" flexGrow={1} justifyContent="flex-end">
           <HStack justifyContent="flex-end">
@@ -56,7 +58,7 @@ const NumberInput = ({
               placeholder={'0.00'}
               outlineStyle="none"
               borderColor="white"
-              maxWidth={type === 'duration' ? 100 : 159}
+              // maxWidth={type === 'duration' || withDuration ? 159 : 159}
               bgColor="blue"
               color={isWarning ? 'goodOrange.300' : 'goodPurple.400'}
               fontWeight={isWarning ? '700' : '400'}
@@ -69,12 +71,12 @@ const NumberInput = ({
                 bgColor: 'white',
               }}
               value={inputValue ?? ''}
-              maxLength={9}
+              maxLength={20}
               onChangeText={onChange}
             />
           </HStack>
         </HStack>
-        {type === 'duration' ? (
+        {type === 'duration' || withDuration ? (
           <HStack backgroundColor="goodGrey.100" paddingX={2} paddingY={2.5} borderRadius={12}>
             <Text variant="bold" fontSize="md">
               / Month
