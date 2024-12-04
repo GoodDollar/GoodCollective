@@ -139,15 +139,17 @@ const HasDonatedCard = ({
           {isDonating ? (
             <StopDonationActionButton donorCollective={donorCollective} />
           ) : (
-            <RoundedButton
-              title="Donate"
-              backgroundColor={Colors.green[100]}
-              color={Colors.green[200]}
-              seeType={false}
-              onPress={() => {
-                navigate(`/donate/${donorCollective.collective}`);
-              }}
-            />
+            <View flex={1}>
+              <RoundedButton
+                title="Donate"
+                backgroundColor={Colors.green[100]}
+                color={Colors.green[200]}
+                seeType={false}
+                onPress={() => {
+                  navigate(`/donate/${donorCollective.collective}`);
+                }}
+              />
+            </View>
           )}
           <View flex={1} marginTop={{ xl: 0, base: 4 }}>
             <RoundedButton
