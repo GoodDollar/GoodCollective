@@ -298,19 +298,8 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       return;
     }
 
-    if (frequency === Frequency.OneTime) {
-      if (currency.startsWith('G$')) {
-        return await supportSingleTransferAndCall();
-      } else {
-        return await supportSingleWithSwap();
-      }
-    } else if (currency.startsWith('G$')) {
-      handleStreamingWarning();
-    }
-
-    let isApproveSuccess = isRequireApprove === false;
-
-    if (isRequireApprove) {
+    let isApproveSuccess = isRequireApprove === false || currency.startsWith('G$');
+    if (isRequireApprove && currency.startsWith('G$') === false) {
       const txHash = await handleApproveToken?.();
       if (txHash === undefined) {
         return;
@@ -330,8 +319,18 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
         );
       }
     }
-    if (isApproveSuccess) {
-      // await supportFlowWithSwap();
+
+    if (!isApproveSuccess) {
+      return;
+    }
+
+    if (frequency === Frequency.OneTime) {
+      if (currency.startsWith('G$')) {
+        return await supportSingleTransferAndCall();
+      } else {
+        return await supportSingleWithSwap();
+      }
+    } else {
       handleStreamingWarning();
     }
   }, [
