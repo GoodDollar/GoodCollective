@@ -16,7 +16,10 @@ export const useTotalStats = (): TotalStats | undefined => {
   const stats = useSubgraphTotalStats();
 
   return useMemo(() => {
-    const totalDonations = stats?.collectives?.reduce((acc, collective) => acc + Number(collective.totalDonations), 0);
+    const totalDonations = stats?.collectives?.reduce(
+      (acc, collective) => BigInt(acc + BigInt(collective.totalDonations)),
+      BigInt(0)
+    );
     const donationsFormatted = formatGoodDollarAmount(totalDonations?.toString() ?? '0', 2);
 
     return {
