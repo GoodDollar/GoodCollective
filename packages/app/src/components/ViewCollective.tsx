@@ -45,9 +45,11 @@ import { StopDonationActionButton } from './StopDonationActionButton';
 const HasDonatedCard = ({
   donorCollective,
   tokenPrice,
+  poolAddress,
 }: {
   donorCollective?: DonorCollective;
   tokenPrice?: number;
+  poolAddress?: string;
 }) => {
   const { address } = useAccount();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
@@ -151,7 +153,7 @@ const HasDonatedCard = ({
                 color={Colors.green[200]}
                 seeType={false}
                 onPress={() => {
-                  navigate(`/donate/${donorCollective?.collective}`);
+                  navigate(`/donate/${poolAddress}`);
                 }}
               />
             </View>
@@ -165,7 +167,7 @@ const HasDonatedCard = ({
                 color={Colors.purple[200]}
                 seeType={true}
                 onPress={() => {
-                  navigate(`/collective/${donorCollective?.collective}/donors`);
+                  navigate(`/collective/${poolAddress}/donors`);
                 }}
               />
             </View>
@@ -307,7 +309,11 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               />
             </View>
           </View>
-          <HasDonatedCard donorCollective={maybeDonorCollective} tokenPrice={tokenPrice} />
+          <HasDonatedCard
+            donorCollective={maybeDonorCollective}
+            tokenPrice={tokenPrice}
+            poolAddress={collective.address}
+          />
         </View>
 
         <View style={styles.collectiveDesktopActions}>
@@ -394,7 +400,11 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               currency={collective.rewardToken}
             />
           </View>
-          <HasDonatedCard donorCollective={maybeDonorCollective} tokenPrice={tokenPrice} />
+          <HasDonatedCard
+            donorCollective={maybeDonorCollective}
+            tokenPrice={tokenPrice}
+            poolAddress={collective.address}
+          />
         </View>
 
         <View style={[styles.container]}>
