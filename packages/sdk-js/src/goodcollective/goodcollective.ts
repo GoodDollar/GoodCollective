@@ -1,5 +1,5 @@
 import { BigNumberish, ContractTransaction, ethers } from 'ethers';
-import GoodCollectiveContracts from '@gooddollar/goodcollective-contracts/releases/deployment.json';
+import GoodCollectiveContracts from '@gooddollar/goodcollective-contracts/releases/deployment.json' assert { type: 'json' };
 import {
   ProvableNFT,
   DirectPaymentsFactory,
@@ -7,7 +7,8 @@ import {
   UBIPool,
   UBIPoolFactory,
 } from '@gooddollar/goodcollective-contracts/typechain-types';
-import { abi as UBIPoolAbi } from '@gooddollar/goodcollective-contracts/artifacts/contracts/UBI/UBIPool.sol/UBIPool.json';
+import UBIPoolJson from '@gooddollar/goodcollective-contracts/artifacts/contracts/UBI/UBIPool.sol/UBIPool.json' assert { type: 'json' };
+const UBIPoolAbi = UBIPoolJson.abi;
 
 import { Framework } from '@superfluid-finance/sdk-core';
 import { HelperLibrary } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/GoodCollective/GoodCollectiveSuperApp.ts';
@@ -16,7 +17,7 @@ import { HelperLibrary } from '@gooddollar/goodcollective-contracts/typechain-ty
 // import * as Proof from '@web3-storage/w3up-client/proof';
 // import { Signer } from '@web3-storage/w3up-client/principal/ed25519';
 import { Multicall, ContractCallResults, ContractCallContext } from 'ethereum-multicall';
-import { PoolSettingsStruct } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/UBI/UBIPool.ts';
+import { PoolSettingsStruct } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/UBI/UBIPool.sol/UBIPool.ts';
 export type NFTData = ProvableNFT.NFTDataStruct;
 export type EventData = ProvableNFT.EventDataStruct;
 export type PoolSettings = Omit<DirectPaymentsPool.PoolSettingsStruct, 'nftType'> & { nftType?: BigNumberish };
