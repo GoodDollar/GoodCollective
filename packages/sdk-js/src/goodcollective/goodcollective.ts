@@ -17,7 +17,7 @@ import { HelperLibrary } from '@gooddollar/goodcollective-contracts/typechain-ty
 // import * as Proof from '@web3-storage/w3up-client/proof';
 // import { Signer } from '@web3-storage/w3up-client/principal/ed25519';
 import { Multicall, ContractCallResults, ContractCallContext } from 'ethereum-multicall';
-import { PoolSettingsStruct } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/UBI/UBIPool.sol/UBIPool.ts';
+import { PoolSettingsStruct } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/UBI/UBIPool.ts';
 export type NFTData = ProvableNFT.NFTDataStruct;
 export type EventData = ProvableNFT.EventDataStruct;
 export type PoolSettings = Omit<DirectPaymentsPool.PoolSettingsStruct, 'nftType'> & { nftType?: BigNumberish };
