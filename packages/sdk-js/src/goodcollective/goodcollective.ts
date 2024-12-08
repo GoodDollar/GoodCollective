@@ -624,13 +624,7 @@ export class GoodCollectiveSDK {
    * @returns {Promise<ethers.ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
    */
   async supportSingleWithSwap(signer: ethers.Signer, poolAddress: string, swap: SwapData) {
-    const tcabi = ['function allowance(address _from, address _to) view returns (uint256 allowance)'];
-    const token = new ethers.Contract(await swap.swapFrom, tcabi, signer);
     const signerAddress = await signer.getAddress();
-    const allowance = await token.allowance(signerAddress, poolAddress);
-    if (allowance.lt(ethers.BigNumber.from(swap.amount))) {
-      throw new Error('Not enough allowance');
-    }
     const tx = await this.pool
       .attach(poolAddress)
       .connect(signer)

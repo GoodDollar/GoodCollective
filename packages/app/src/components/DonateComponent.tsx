@@ -167,6 +167,8 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   const [swapValue, setSwapValue] = useState<number | undefined>(undefined);
 
   const [isDonationComplete, setIsDonationComplete] = useState(false);
+  const [isDonating, setIsDonating] = useState(false);
+
   const { navigate } = useCrossNavigate();
   if (isDonationComplete) {
     navigate(`/profile/${address}`);
@@ -250,8 +252,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     (value: boolean) => setApproveSwapModalVisible(value),
     collectiveId as `0x${string}`
   );
-  const approvalNotReady = handleApproveToken === undefined && currency.startsWith('G$') === false;
-  // const approvalNotReady = false;
 
   const { supportFlowWithSwap, supportFlow, supportSingleTransferAndCall, supportSingleWithSwap } = useContractCalls(
     collectiveId,
@@ -279,6 +279,8 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   const { isNonZeroDonation, isInsufficientBalance, isInsufficientLiquidity, isUnacceptablePriceImpact } =
     shouldWarning(currency, donorCurrencyBalance, priceImpact, swapRouteStatus, totalDecimalDonation);
 
+  const approvalNotReady = handleApproveToken === undefined && currency.startsWith('G$') === false;
+
   const handleStreamingWarning = useCallback(async () => {
     if (startStreamingVisible) {
       setStartStreamingVisible(false);
@@ -298,40 +300,47 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       return;
     }
 
-    let isApproveSuccess = isRequireApprove === false || currency.startsWith('G$');
-    if (isRequireApprove && currency.startsWith('G$') === false) {
-      const txHash = await handleApproveToken?.();
-      if (txHash === undefined) {
+    setIsDonating(true);
+    try {
+      let isApproveSuccess = isRequireApprove === false || currency.startsWith('G$');
+      if (isRequireApprove && currency.startsWith('G$') === false) {
+        const txHash = await handleApproveToken?.();
+        if (txHash === undefined) {
+          return;
+        }
+        let txReceipt: TransactionReceipt | undefined;
+        try {
+          txReceipt = await waitForTransaction({
+            chainId: chain?.id,
+            confirmations: 1,
+            hash: txHash,
+            timeout: 1000 * 60 * 5,
+          });
+          isApproveSuccess = txReceipt?.status === 'success';
+        } catch (error) {
+          setErrorMessage(
+            'Something went wrong: Your token approval transaction was not confirmed within the timeout period.'
+          );
+        }
+      }
+
+      if (!isApproveSuccess) {
         return;
       }
-      let txReceipt: TransactionReceipt | undefined;
-      try {
-        txReceipt = await waitForTransaction({
-          chainId: chain?.id,
-          confirmations: 1,
-          hash: txHash,
-          timeout: 1000 * 60 * 5,
-        });
-        isApproveSuccess = txReceipt?.status === 'success';
-      } catch (error) {
-        setErrorMessage(
-          'Something went wrong: Your token approval transaction was not confirmed within the timeout period.'
-        );
-      }
-    }
 
-    if (!isApproveSuccess) {
-      return;
-    }
-
-    if (frequency === Frequency.OneTime) {
-      if (currency.startsWith('G$')) {
-        return await supportSingleTransferAndCall();
+      if (frequency === Frequency.OneTime) {
+        if (currency.startsWith('G$')) {
+          return await supportSingleTransferAndCall();
+        } else {
+          return await supportSingleWithSwap();
+        }
       } else {
-        return await supportSingleWithSwap();
+        await handleStreamingWarning();
       }
-    } else {
-      handleStreamingWarning();
+    } catch (e) {
+      console.error('donating failed:', e);
+    } finally {
+      setIsDonating(false);
     }
   }, [
     chain?.id,
@@ -649,7 +658,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
             fontSize={18}
             seeType={false}
             onPress={handleDonate}
-            isLoading={swapRouteStatus === SwapRouteState.LOADING}
+            isLoading={swapRouteStatus === SwapRouteState.LOADING || isDonating}
             disabled={
               (currency.startsWith('G$') === false && swapRouteStatus !== SwapRouteState.READY) ||
               address === undefined ||
