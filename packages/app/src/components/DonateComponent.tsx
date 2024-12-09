@@ -273,7 +273,9 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   // const currencyDecimals = token.decimals;
   const donorCurrencyBalance = useGetTokenBalance(token.address, address, chain?.id, true);
 
-  const totalDecimalDonation = new Decimal(duration * decimalDonationAmount);
+  const totalDecimalDonation = new Decimal((currency === 'G$' ? 1 : duration) * decimalDonationAmount);
+
+  console.log('totalDecimalDonation -->', { totalDecimalDonation: totalDecimalDonation.toString() });
   // const totalDonationFormatted = totalDecimalDonation.toDecimalPlaces(currencyDecimals, Decimal.ROUND_DOWN).toString();
 
   const { isNonZeroDonation, isInsufficientBalance, isInsufficientLiquidity, isUnacceptablePriceImpact } =
@@ -431,6 +433,8 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
 
       if (![''].includes(v)) setConfirmNoAmount(false);
       if (v.endsWith('.') || ['0', ''].includes(v)) return;
+
+      console.log('v onChangeAmount -->', { v });
 
       setDecimalDonationAmount(formatDecimalStringInput(v));
 
