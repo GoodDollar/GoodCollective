@@ -432,8 +432,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       if (![''].includes(v)) setConfirmNoAmount(false);
       if (v.endsWith('.') || ['0', ''].includes(v)) return;
 
-      console.log('v onChangeAmount -->', { v });
-
       setDecimalDonationAmount(formatDecimalStringInput(v));
 
       estimateDuration(v);
