@@ -547,7 +547,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
             <VStack space={2} maxW="320" mb={8} zIndex={1}>
               <VStack space={2} zIndex={1}>
                 <Text variant="bold" fontSize="lg">
-                  How much?
+                  How much{frequency !== 'One-Time' && currency.startsWith('G$') ? ' per month' : ''}?
                 </Text>
                 <Text>You can donate using any token on Celo.</Text>
               </VStack>
@@ -560,7 +560,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 options={currencyOptions}
                 isWarning={isWarning}
               />
-              {frequency === 'One-Time' && currency === 'CELO' && isNonZeroDonation && swapValue ? (
+              {frequency === 'One-Time' && !currency.startsWith('G$') && isNonZeroDonation && swapValue ? (
                 <SwapValue {...{ swapValue }} />
               ) : null}
             </VStack>
