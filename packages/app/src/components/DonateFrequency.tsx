@@ -12,7 +12,7 @@ const WhiteDot = () => <Box color="blue" backgroundColor="white" width={3} heigh
 
 const FrequencySelector = ({ onSelect, options = ['One-Time', 'Monthly'] }: DropdownProps) => {
   const [value, setValue] = useState('One-Time');
-  const { isTabletView } = useScreenSize();
+  const { isDesktopView, isTabletView } = useScreenSize();
 
   return (
     <HStack justifyContent={'space-between'} w={isTabletView ? '100%' : '90%'} m="auto">
@@ -26,7 +26,10 @@ const FrequencySelector = ({ onSelect, options = ['One-Time', 'Monthly'] }: Drop
         style={{ flexDirection: 'row' }}
         width="100%"
         flexDir="row"
-        justifyContent="space-between">
+        justifyContent="space-between"
+        flexBasis={isDesktopView ? '50%' : '100%'}
+        flexShrink={1}
+        flexGrow={0}>
         {options.map((option) => (
           <Radio
             key={option}

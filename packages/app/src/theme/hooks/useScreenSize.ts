@@ -12,12 +12,13 @@ import { useBreakpointValue } from 'native-base';
  */
 
 const useScreenSize = () => {
+  const isLargeDesktop = useBreakpointValue({ base: false, xl: true });
   const isDesktopView = useBreakpointValue({ base: false, lg: true });
   const isTabletView = useBreakpointValue({ base: false, md: true });
   const isSmallTabletView = useBreakpointValue({ base: true, sm: true, md: false });
   const isMobileView = useBreakpointValue({ base: true, sm: false });
 
-  return { isMobileView, isSmallTabletView, isTabletView, isDesktopView };
+  return { isMobileView, isSmallTabletView, isTabletView, isDesktopView, isLargeDesktop };
 };
 
 export default useScreenSize;

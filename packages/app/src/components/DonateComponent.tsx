@@ -76,6 +76,9 @@ const warningProps = {
   noAmount: {
     title: 'Enter an amount above',
   },
+  noWallet: {
+    title: 'Please connect a wallet to proceed',
+  },
 };
 
 const shouldWarning = (
@@ -149,9 +152,9 @@ const WarningBox = ({ content, explanationProps = {} }: any) => {
 };
 
 const DonateComponent = ({ collective }: DonateComponentProps) => {
-  const { isDesktopView, isMobileView } = useScreenSize();
   const { id: collectiveId = '0x' } = useParams();
 
+  const { isLargeDesktop } = useScreenSize();
   const { address } = useAccount();
   const { chain } = useNetwork();
 
@@ -167,6 +170,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   const { price: tokenPrice = 0 } = useGetTokenPrice('G$');
   const [isDonationComplete, setIsDonationComplete] = useState(false);
   const [isDonating, setIsDonating] = useState(false);
+  const [activeWarning, setActiveWarning] = useState<boolean | string>(false);
 
   const { navigate } = useCrossNavigate();
   if (isDonationComplete) {
@@ -196,7 +200,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
 
   const container = useBreakpointValue({
     base: {
-      width: '343',
       paddingLeft: 2,
       paddingRight: 2,
     },
@@ -222,7 +225,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     base: {
       flexDirection: 'column',
     },
-    lg: {
+    xl: {
       flexDirection: 'row',
       flexWrap: 'wrap',
     },
@@ -413,7 +416,10 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       setInputAmount(v);
 
       if (![''].includes(v)) setConfirmNoAmount(false);
-      if (v.endsWith('.') || ['0', ''].includes(v)) return;
+      if (v.endsWith('.') || ['0', ''].includes(v)) {
+        setEstimatedDuration({ duration: 0, endDate: '' });
+        return;
+      }
 
       estimateDuration(v);
     },
@@ -435,6 +441,8 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   };
 
   const isWarning = isInsufficientBalance || isInsufficientLiquidity || isUnacceptablePriceImpact || confirmNoAmount;
+  const isOnlyPriceImpactWarning =
+    isUnacceptablePriceImpact && !isInsufficientBalance && !isInsufficientLiquidity && !confirmNoAmount;
 
   return (
     <Box height="100vh" paddingBottom={8}>
@@ -502,7 +510,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
         <VStack space={8} backgroundColor="white" shadow="1" paddingY={4} borderRadius={16} {...container}>
           <HStack space={8} {...direction}>
             {/* Donation frequency */}
-            <VStack space={2} mb={8}>
+            <VStack space={2} mb={8} flexGrow={0} flexShrink={1} flexBasis={isLargeDesktop ? '30%' : '50%'}>
               <VStack space={2}>
                 <Text variant="bold" fontSize="lg">
                   Donation Frequency
@@ -521,7 +529,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                   </Link>
                 </Text>
               ) : (
-                <Box minWidth="100%" />
+                <Box flexGrow={1} />
               )}
             </VStack>
             {/* Amount and token */}
@@ -606,7 +614,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
         </VStack>
 
         <View style={{ gap: 16, flex: 1, zIndex: -1 }}>
-          {isWarning
+          {isWarning && address !== undefined
             ? Object.keys(warningProps).map((key) => {
                 const whichWarning =
                   key === 'priceImpact'
@@ -625,7 +633,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 ) : null;
               })
             : null}
-          {isNonZeroDonation ? (
+          {isNonZeroDonation && address !== undefined ? (
             <VStack space={2} maxW="700">
               {frequency !== Frequency.OneTime && <Text variant="bold">You are about to begin a donation stream</Text>}
               <Text>
@@ -633,7 +641,10 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 You will need to confirm using your connected wallet. You may be asked to sign multiple transactions.
               </Text>
             </VStack>
-          ) : null}
+          ) : isNonZeroDonation && address === undefined ? (
+            <></>
+          ) : // <WarningBox content={warningProps.noWallet} /> wip: awaiting design confirmation
+          null}
 
           <RoundedButton
             // maxWidth={isDesktopView ? 343 : undefined}
@@ -649,7 +660,9 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
               address === undefined ||
               chain?.id === undefined ||
               !(chain.id in SupportedNetwork) ||
-              approvalNotReady
+              approvalNotReady ||
+              isInsufficientBalance ||
+              (isWarning && !isOnlyPriceImpactWarning)
             }
           />
         </View>
