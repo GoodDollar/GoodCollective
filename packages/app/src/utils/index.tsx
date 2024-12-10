@@ -14,7 +14,7 @@ type ButtonState = {
 
 const BUTTON_STATE = {
   noAddress: {
-    copy: 'Please connect wallet',
+    copy: 'Confirm',
     bgColor: Colors.gray[1000],
     textColor: Colors.gray[300],
   },

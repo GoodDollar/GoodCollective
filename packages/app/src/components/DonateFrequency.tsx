@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, HStack, Radio } from 'native-base';
+import { Box, HStack, Radio, useBreakpointValue } from 'native-base';
 
 import { useScreenSize } from '../theme/hooks';
 
@@ -12,7 +12,10 @@ const WhiteDot = () => <Box color="blue" backgroundColor="white" width={3} heigh
 
 const FrequencySelector = ({ onSelect, options = ['One-Time', 'Monthly'] }: DropdownProps) => {
   const [value, setValue] = useState('One-Time');
-  const { isDesktopView, isTabletView } = useScreenSize();
+  const { isTabletView } = useScreenSize();
+
+  // temp: adding this to useScreenSize breaks UI in multiple other screens.
+  const isDesktopView = useBreakpointValue({ base: false, lg: true, xl: false });
 
   return (
     <HStack justifyContent={'space-between'} w={isTabletView ? '100%' : '90%'} m="auto">

@@ -644,9 +644,8 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
               </Text>
             </VStack>
           ) : isNonZeroDonation && address === undefined ? (
-            <></>
-          ) : // <WarningBox content={warningProps.noWallet} /> wip: awaiting design confirmation
-          null}
+            <WarningBox content={warningProps.noWallet} />
+          ) : null}
 
           <RoundedButton
             title={buttonCopy}
