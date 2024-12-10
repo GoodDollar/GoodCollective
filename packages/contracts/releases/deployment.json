@@ -25232,6 +25232,29 @@
             },
             {
               "inputs": [],
+              "name": "extendedSettings",
+              "outputs": [
+                {
+                  "internalType": "uint32",
+                  "name": "maxPeriodClaimers",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "minClaimAmount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "managerFeeBps",
+                  "type": "uint32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "getCurrentDay",
               "outputs": [
                 {
@@ -37938,7 +37961,7 @@
           ]
         },
         "UBIPoolFactory_Implementation": {
-          "address": "0xb7cb07b730141EfeA6a129fd683f7ff3dca62025",
+          "address": "0x5D081e428453E7EB05baB8142a9f4e6Ca535E0b8",
           "abi": [
             {
               "inputs": [],

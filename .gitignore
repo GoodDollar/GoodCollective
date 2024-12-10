@@ -24,6 +24,7 @@ tenderly.yaml
 
 # secrets / env
 .env
+packages/*/.env
 **/.env.*.local
 **/*.secret
 **/aws.json
@@ -77,4 +78,3 @@ packages/contracts/deployments
 packages/sdk-js/.yarn/install-state.gz
 .vercel
 .vscode/settings.json
-packages/sdk-js/.env

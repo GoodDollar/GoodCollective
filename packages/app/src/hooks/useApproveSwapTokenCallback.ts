@@ -32,6 +32,7 @@ export function useApproveSwapTokenCallback(
     abi: ERC20,
     functionName: 'allowance',
     args: [address, collectiveAddress],
+    watch: true,
   });
 
   const { config } = usePrepareContractWrite({

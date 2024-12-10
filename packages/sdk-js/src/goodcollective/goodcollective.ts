@@ -1,5 +1,5 @@
 import { BigNumberish, ContractTransaction, ethers } from 'ethers';
-import GoodCollectiveContracts from '@gooddollar/goodcollective-contracts/releases/deployment.json';
+import GoodCollectiveContracts from '@gooddollar/goodcollective-contracts/releases/deployment.json' assert { type: 'json' };
 import {
   ProvableNFT,
   DirectPaymentsFactory,
@@ -7,7 +7,8 @@ import {
   UBIPool,
   UBIPoolFactory,
 } from '@gooddollar/goodcollective-contracts/typechain-types';
-import { abi as UBIPoolAbi } from '@gooddollar/goodcollective-contracts/artifacts/contracts/UBI/UBIPool.sol/UBIPool.json';
+import UBIPoolJson from '@gooddollar/goodcollective-contracts/artifacts/contracts/UBI/UBIPool.sol/UBIPool.json' assert { type: 'json' };
+const UBIPoolAbi = UBIPoolJson.abi;
 
 import { Framework } from '@superfluid-finance/sdk-core';
 import { HelperLibrary } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/GoodCollective/GoodCollectiveSuperApp.ts';
@@ -624,13 +625,7 @@ export class GoodCollectiveSDK {
    * @returns {Promise<ethers.ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
    */
   async supportSingleWithSwap(signer: ethers.Signer, poolAddress: string, swap: SwapData) {
-    const tcabi = ['function allowance(address _from, address _to) view returns (uint256 allowance)'];
-    const token = new ethers.Contract(await swap.swapFrom, tcabi, signer);
     const signerAddress = await signer.getAddress();
-    const allowance = await token.allowance(signerAddress, poolAddress);
-    if (allowance.lt(ethers.BigNumber.from(swap.amount))) {
-      throw new Error('Not enough allowance');
-    }
     const tx = await this.pool
       .attach(poolAddress)
       .connect(signer)

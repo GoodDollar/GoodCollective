@@ -25,7 +25,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
   }
 
   const tokenBalance = useGetTokenBalance(GDToken.address, address, chain?.id, true);
-  const formattedTokenBalance = formatNumberWithCommas(tokenBalance);
+  const formattedTokenBalance = formatNumberWithCommas(tokenBalance, 2);
   const { data: ensName } = useEnsName({ address, chainId: 1 });
 
   return (

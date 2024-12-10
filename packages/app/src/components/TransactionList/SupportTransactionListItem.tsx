@@ -1,7 +1,6 @@
 import { SupportTx } from '../../models/models';
 import { formatAddress } from '../../lib/formatAddress';
 import { useEnsName, useWaitForTransaction } from 'wagmi';
-import Decimal from 'decimal.js';
 import TransactionListItem from './TransactionListItem';
 import { useFetchFullName } from '../../hooks/useFetchFullName';
 import { Text } from 'react-native';
@@ -38,29 +37,22 @@ export function SupportTransactionListItem({ transaction }: SupportTransactionLi
     (_) => _.topics[0] === '0x57269d2ebcccecdcc0d9d2c0a0b80ead95f344e28ec20f50f709811f209d4e0e'
   )?.logIndex;
 
+  const amount = (
+    BigInt(transaction.flowRate === '0' ? transaction.previousFlowRate : transaction.flowRate) *
+    BigInt(totalDurationInSeconds(1, Frequency.Monthly))
+  ).toString();
   const flowingAmount = useMemo(() => {
     return transaction.isFlowUpdate ? (
       <>
-        <GoodDollarAmount
-          amount={(
-            Number(transaction.flowRate === '0' ? transaction.previousFlowRate : transaction.flowRate) *
-            totalDurationInSeconds(1, Frequency.Monthly)
-          ).toString()}
-        />
+        <GoodDollarAmount amount={amount} />
         <Text style={styles.amount}> / Month</Text>
       </>
     ) : (
       <GoodDollarAmount
-        amount={new Decimal(transaction.contribution).minus(transaction.previousContribution).toString()}
+        amount={(BigInt(transaction.contribution) - BigInt(transaction.previousContribution)).toString()}
       />
     );
-  }, [
-    transaction.isFlowUpdate,
-    transaction.flowRate,
-    transaction.previousFlowRate,
-    transaction.contribution,
-    transaction.previousContribution,
-  ]);
+  }, [transaction.isFlowUpdate, amount, transaction.contribution, transaction.previousContribution]);
 
   return (
     <TransactionListItem

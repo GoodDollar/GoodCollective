@@ -28,6 +28,7 @@ import useCrossNavigate from '../routes/useCrossNavigate';
 import FrequencySelector from './DonateFrequency';
 import NumberInput from './NumberInput';
 import { ApproveTokenImg, PhoneImg, StreamWarning, ThankYouImg } from '../assets';
+import { formatNumberWithCommas } from '../lib/formatFiatCurrency';
 
 interface DonateComponentProps {
   collective: Collective;
@@ -104,7 +105,7 @@ const SwapValue = ({ swapValue }: { swapValue: number }) => (
       {' '}
       G${' '}
     </Text>
-    {swapValue.toFixed(4)}
+    {formatNumberWithCommas(swapValue.toString(), 2)}
   </Text>
 );
 
@@ -165,6 +166,8 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   });
   const { price: tokenPrice = 0 } = useGetTokenPrice('G$');
   const [isDonationComplete, setIsDonationComplete] = useState(false);
+  const [isDonating, setIsDonating] = useState(false);
+
   const { navigate } = useCrossNavigate();
   if (isDonationComplete) {
     navigate(`/profile/${address}`);
@@ -539,7 +542,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 isWarning={isWarning}
                 withDuration={frequency !== 'One-Time'}
               />
-              {frequency === 'One-Time' && currency !== 'G$' && isNonZeroDonation && swapValue ? (
+              {frequency === 'One-Time' && !currency.startsWith('G$') && isNonZeroDonation && swapValue ? (
                 <SwapValue {...{ swapValue }} />
               ) : null}
             </VStack>
@@ -640,7 +643,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
             fontSize={18}
             seeType={false}
             onPress={handleDonate}
-            isLoading={swapRouteStatus === SwapRouteState.LOADING}
+            isLoading={swapRouteStatus === SwapRouteState.LOADING || isDonating}
             disabled={
               (currency.startsWith('G$') === false && swapRouteStatus !== SwapRouteState.READY) ||
               address === undefined ||
