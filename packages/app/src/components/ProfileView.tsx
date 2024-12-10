@@ -2,9 +2,9 @@ import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import { Colors } from '../utils/colors';
 import { Link } from 'native-base';
-import { useMemo } from 'react';
 import { VerifiedIcon } from '../assets';
 import env from '../lib/env';
+import { RandomAvatar } from './RandomAvatar';
 
 interface ProfileViewProps {
   firstName?: string;
@@ -15,10 +15,6 @@ interface ProfileViewProps {
 }
 
 function ProfileView({ firstName, lastName, ensDomain, userAddress, isWhitelisted = false }: ProfileViewProps) {
-  const profileImage = useMemo(() => {
-    return { uri: `https://robohash.org/${userAddress}` };
-  }, [userAddress]);
-
   const formattedAddress = userAddress?.slice(0, 6) + '...' + userAddress?.slice(-4);
 
   const displayName = firstName ? firstName + ' ' + lastName : ensDomain ?? formattedAddress;
@@ -26,7 +22,7 @@ function ProfileView({ firstName, lastName, ensDomain, userAddress, isWhiteliste
   return (
     <Link href={`${env.REACT_APP_CELO_EXPLORER}/address/${userAddress}`} isExternal>
       <TouchableOpacity style={styles.profileView}>
-        <Image source={profileImage} style={styles.pfp} />
+        <RandomAvatar seed={userAddress || ''} width={16} height={16} backgroundColor="white" />
         <View style={styles.profileText}>
           {
             <>
