@@ -3,6 +3,7 @@ import { Box, HStack, Input, Text, VStack } from 'native-base';
 import { noop } from 'lodash';
 
 import Dropdown from './Dropdown';
+import { useScreenSize } from '../theme/hooks';
 
 const NumberInput = ({
   type,
@@ -12,6 +13,7 @@ const NumberInput = ({
   options = [],
   isWarning = false,
   inputValue = undefined,
+  withDuration = false,
 }: {
   type: string;
   dropdownValue: string;
@@ -20,7 +22,9 @@ const NumberInput = ({
   options?: { value: string; label: string }[];
   isWarning?: boolean;
   inputValue?: string | undefined;
+  withDuration?: boolean;
 }) => {
+  const { isMobileView } = useScreenSize();
   const onChange = useCallback(
     (v: string) => {
       if (!/^\d+(\.\d{0,18})?$/.test(v)) {
@@ -45,38 +49,39 @@ const NumberInput = ({
         padding={2}
         paddingRight={4}
         space={4}
-        maxWidth={type === 'duration' ? 290 : '100%'}>
+        maxWidth={650}>
         {type === 'token' ? <Dropdown value={dropdownValue} onSelect={onSelect} options={options} /> : <Box />}
-        <HStack alignItems="center" flexGrow={1} justifyContent="flex-end">
-          <HStack justifyContent="flex-end">
+        <HStack alignItems="center" flexShrink={3} justifyContent="flex-end">
+          <HStack justifyContent="flex-end" flexShrink={1}>
             <Input
+              flexShrink={1}
               defaultValue=""
               keyboardType="decimal-pad"
               multiline={false}
               placeholder={'0.00'}
               outlineStyle="none"
               borderColor="white"
-              maxWidth={type === 'duration' ? 100 : 159}
+              // maxWidth={type === 'duration' || withDuration ? 159 : 159}
               bgColor="blue"
               color={isWarning ? 'goodOrange.300' : 'goodPurple.400'}
               fontWeight={isWarning ? '700' : '400'}
               textAlign="right"
               paddingLeft={2.5}
-              fontSize="l"
+              fontSize={isMobileView ? 'md' : 'l'} // todo: apply font-size as per design
               _focus={{
                 outlineStyle: 'none',
                 borderColor: 'white',
                 bgColor: 'white',
               }}
               value={inputValue ?? ''}
-              maxLength={9}
+              maxLength={20}
               onChangeText={onChange}
             />
           </HStack>
         </HStack>
-        {type === 'duration' ? (
+        {type === 'duration' || withDuration ? (
           <HStack backgroundColor="goodGrey.100" paddingX={2} paddingY={2.5} borderRadius={12}>
-            <Text variant="bold" fontSize="md">
+            <Text variant="bold" fontSize="sm">
               / Month
             </Text>
           </HStack>

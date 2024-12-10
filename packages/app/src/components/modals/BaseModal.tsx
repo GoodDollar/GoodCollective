@@ -11,7 +11,7 @@ const modalView = {
     native: 'scroll',
     default: 'auto',
   }) as any,
-  margin: 20,
+  margin: 5,
   backgroundColor: 'goodPurple.300',
   borderRadius: 20,
   paddingTop: 8,

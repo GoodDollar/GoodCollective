@@ -34,7 +34,7 @@ const BUTTON_STATE = {
     textColor: Colors.black,
   },
   insufficientBalance: {
-    copy: 'Confirm & Swap Anyway',
+    copy: 'Insufficient balance',
     bgColor: Colors.gray[1000],
     textColor: Colors.gray[300],
   },

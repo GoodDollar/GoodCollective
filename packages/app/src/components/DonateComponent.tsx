@@ -35,7 +35,7 @@ interface DonateComponentProps {
 }
 
 const PriceImpact = ({ priceImpact }: any) => (
-  <Text color="goodOrange.500" maxWidth="90%">
+  <Text color="goodOrange.500" display="flex" flexWrap="wrap">
     <Text>Due to low liquidity between your chosen currency and GoodDollar, </Text>
     <Text variant="bold" fontWeight="700">
       your donation amount will reduce by {priceImpact?.toFixed(2)}%{' '}
@@ -45,7 +45,7 @@ const PriceImpact = ({ priceImpact }: any) => (
 );
 
 const WarningExplanation = ({ type }: any) => (
-  <Text color="goodOrange.500" maxWidth="90%">
+  <Text color="goodOrange.500">
     <Text>
       {type === 'liquidity'
         ? 'There is not enough liquidity between your chosen currency and GoodDollar to proceed.'
@@ -75,6 +75,9 @@ const warningProps = {
   },
   noAmount: {
     title: 'Enter an amount above',
+  },
+  noWallet: {
+    title: 'Please connect a wallet to proceed',
   },
 };
 
@@ -149,9 +152,9 @@ const WarningBox = ({ content, explanationProps = {} }: any) => {
 };
 
 const DonateComponent = ({ collective }: DonateComponentProps) => {
-  const { isDesktopView, isMobileView } = useScreenSize();
   const { id: collectiveId = '0x' } = useParams();
 
+  const { isLargeDesktop } = useScreenSize();
   const { address } = useAccount();
   const { chain } = useNetwork();
 
@@ -165,8 +168,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     endDate: '',
   });
   const { price: tokenPrice = 0 } = useGetTokenPrice('G$');
-  const [swapValue, setSwapValue] = useState<number | undefined>(undefined);
-
   const [isDonationComplete, setIsDonationComplete] = useState(false);
   const [isDonating, setIsDonating] = useState(false);
 
@@ -176,15 +177,28 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   }
 
   const [frequency, setFrequency] = useState<Frequency>(Frequency.OneTime);
-  const [streamRate, setRate] = useState<string | number>(1);
   const [duration, setDuration] = useState(12);
-  const [decimalDonationAmount, setDecimalDonationAmount] = useState<any | number>(0);
-
   const [inputAmount, setInputAmount] = useState<string | undefined>(undefined);
+
+  const tokenList = useTokenList();
+  const gdEnvSymbol =
+    Object.keys(tokenList).find((key) => {
+      if (key.startsWith('G$')) {
+        return tokenList[key].address.toLowerCase() === collective.rewardToken.toLowerCase();
+      } else return false;
+    }) || 'G$';
+
+  const GDToken = GDEnvTokens[gdEnvSymbol];
+
+  const [currency, setCurrency] = useState<string>(gdEnvSymbol || 'G$');
+
+  const decimalDonationAmount = formatDecimalStringInput(
+    (Number(inputAmount) * (currency.includes('G$') ? 1 : Number(duration))).toString()
+  );
+  const swapValue = currency.includes('G$') ? 0 : decimalDonationAmount / tokenPrice;
 
   const container = useBreakpointValue({
     base: {
-      width: '343',
       paddingLeft: 2,
       paddingRight: 2,
     },
@@ -194,7 +208,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       paddingRight: 2,
     },
     md: {
-      maxWidth: 800,
+      // maxWidth: 800,
       width: '100%',
       paddingLeft: 4,
       paddingRight: 4,
@@ -210,21 +224,11 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     base: {
       flexDirection: 'column',
     },
-    lg: {
+    xl: {
       flexDirection: 'row',
       flexWrap: 'wrap',
     },
   });
-
-  const tokenList = useTokenList();
-  const gdEnvSymbol =
-    Object.keys(tokenList).find((key) => {
-      if (key.startsWith('G$')) {
-        return tokenList[key].address.toLowerCase() === collective.rewardToken.toLowerCase();
-      } else return false;
-    }) || 'G$';
-
-  const GDToken = GDEnvTokens[gdEnvSymbol];
 
   const currencyOptions: { value: string; label: string }[] = useMemo(() => {
     let options = Object.keys(tokenList).reduce<Array<{ value: string; label: string }>>((acc, key) => {
@@ -236,8 +240,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
 
     return options;
   }, [tokenList, gdEnvSymbol]);
-
-  const [currency, setCurrency] = useState<string>(gdEnvSymbol || 'G$');
 
   const {
     path: swapPath,
@@ -253,6 +255,9 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     (value: boolean) => setApproveSwapModalVisible(value),
     collectiveId as `0x${string}`
   );
+
+  const approvalNotReady = handleApproveToken === undefined && currency.startsWith('G$') === false;
+  // const approvalNotReady = false;
 
   const { supportFlowWithSwap, supportFlow, supportSingleTransferAndCall, supportSingleWithSwap } = useContractCalls(
     collectiveId,
@@ -274,13 +279,11 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   // const currencyDecimals = token.decimals;
   const donorCurrencyBalance = useGetTokenBalance(token.address, address, chain?.id, true);
 
-  const totalDecimalDonation = new Decimal((currency === 'G$' ? 1 : duration) * decimalDonationAmount);
+  const totalDecimalDonation = new Decimal(decimalDonationAmount);
   // const totalDonationFormatted = totalDecimalDonation.toDecimalPlaces(currencyDecimals, Decimal.ROUND_DOWN).toString();
 
   const { isNonZeroDonation, isInsufficientBalance, isInsufficientLiquidity, isUnacceptablePriceImpact } =
     shouldWarning(currency, donorCurrencyBalance, priceImpact, swapRouteStatus, totalDecimalDonation);
-
-  const approvalNotReady = handleApproveToken === undefined && currency.startsWith('G$') === false;
 
   const handleStreamingWarning = useCallback(async () => {
     if (startStreamingVisible) {
@@ -301,47 +304,40 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       return;
     }
 
-    setIsDonating(true);
-    try {
-      let isApproveSuccess = isRequireApprove === false || currency.startsWith('G$');
-      if (isRequireApprove && currency.startsWith('G$') === false) {
-        const txHash = await handleApproveToken?.();
-        if (txHash === undefined) {
-          return;
-        }
-        let txReceipt: TransactionReceipt | undefined;
-        try {
-          txReceipt = await waitForTransaction({
-            chainId: chain?.id,
-            confirmations: 1,
-            hash: txHash,
-            timeout: 1000 * 60 * 5,
-          });
-          isApproveSuccess = txReceipt?.status === 'success';
-        } catch (error) {
-          setErrorMessage(
-            'Something went wrong: Your token approval transaction was not confirmed within the timeout period.'
-          );
-        }
-      }
-
-      if (!isApproveSuccess) {
+    let isApproveSuccess = isRequireApprove === false || currency.startsWith('G$');
+    if (isRequireApprove && currency.startsWith('G$') === false) {
+      const txHash = await handleApproveToken?.();
+      if (txHash === undefined) {
         return;
       }
-
-      if (frequency === Frequency.OneTime) {
-        if (currency.startsWith('G$')) {
-          return await supportSingleTransferAndCall();
-        } else {
-          return await supportSingleWithSwap();
-        }
-      } else {
-        await handleStreamingWarning();
+      let txReceipt: TransactionReceipt | undefined;
+      try {
+        txReceipt = await waitForTransaction({
+          chainId: chain?.id,
+          confirmations: 1,
+          hash: txHash,
+          timeout: 1000 * 60 * 5,
+        });
+        isApproveSuccess = txReceipt?.status === 'success';
+      } catch (error) {
+        setErrorMessage(
+          'Something went wrong: Your token approval transaction was not confirmed within the timeout period.'
+        );
       }
-    } catch (e) {
-      console.error('donating failed:', e);
-    } finally {
-      setIsDonating(false);
+    }
+
+    if (!isApproveSuccess) {
+      return;
+    }
+
+    if (frequency === Frequency.OneTime) {
+      if (currency.startsWith('G$')) {
+        return await supportSingleTransferAndCall();
+      } else {
+        return await supportSingleWithSwap();
+      }
+    } else {
+      handleStreamingWarning();
     }
   }, [
     chain?.id,
@@ -357,12 +353,16 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     isNonZeroDonation,
   ]);
 
+  const isWarning = isInsufficientBalance || isInsufficientLiquidity || isUnacceptablePriceImpact || confirmNoAmount;
+  const isOnlyPriceImpactWarning =
+    isUnacceptablePriceImpact && !isInsufficientBalance && !isInsufficientLiquidity && !confirmNoAmount;
+
   const donateStyles = useMemo(() => {
     return getDonateStyles({
       noAddress: !address,
       invalidChain: !(chain?.id && chain.id in SupportedNetwork),
       insufficientLiquidity: isInsufficientLiquidity,
-      priceImpact: isUnacceptablePriceImpact,
+      priceImpact: isOnlyPriceImpactWarning,
       insufficientBalance: isInsufficientBalance,
       approvalNotReady: approvalNotReady,
       isZeroDonation: !isNonZeroDonation,
@@ -372,7 +372,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     address,
     chain,
     isInsufficientLiquidity,
-    isUnacceptablePriceImpact,
+    isOnlyPriceImpactWarning,
     isInsufficientBalance,
     approvalNotReady,
     isNonZeroDonation,
@@ -383,47 +383,35 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   const onReset = () => {
     setInputAmount(undefined);
     setEstimatedDuration({ duration: 0, endDate: '' });
-    setSwapValue(undefined);
   };
 
   const onChangeCurrency = (value: string) => {
     setCurrency(value);
+
     onReset();
   };
 
   const estimateDuration = useCallback(
     (v: string, altDuration?: number) => {
-      const calculateEstDuration = (value: number, rate: number) => value / (rate === 0 ? 1 : rate);
+      if (!currency.includes('G$')) {
+        return;
+      }
 
       let estDuration = altDuration ?? 0;
 
       if (frequency === Frequency.Monthly && !altDuration) {
-        if (currency.includes('G$')) {
-          estDuration = parseFloat(donorCurrencyBalance) / parseFloat(v);
-        } else {
-          estDuration = calculateEstDuration(parseFloat(v), parseFloat(streamRate.toString()));
-        }
-      }
-
-      if (!altDuration && !currency.includes('G$')) {
-        const gdValue = parseFloat(v) / tokenPrice;
-        setSwapValue(gdValue);
+        estDuration = parseFloat(donorCurrencyBalance) / parseFloat(v);
       }
 
       const estimatedEndDate = moment().add(estDuration, 'months').format('DD.MM.YY HH:mm');
 
       setEstimatedDuration({ duration: estDuration, endDate: estimatedEndDate });
-      setDuration(Math.max(1, estDuration));
     },
-    [currency, donorCurrencyBalance, streamRate, frequency, tokenPrice]
+    [currency, donorCurrencyBalance, frequency]
   );
 
   const onChangeRate = (value: string) => {
-    setRate(value.endsWith('.') ? value : Number(value));
-
-    if (!Number(value)) return;
-    const estDuration = parseFloat(decimalDonationAmount) / Math.max(parseFloat(value), 1);
-    estimateDuration(value, estDuration);
+    setDuration(Number(value));
   };
 
   const onChangeAmount = useCallback(
@@ -431,9 +419,10 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       setInputAmount(v);
 
       if (![''].includes(v)) setConfirmNoAmount(false);
-      if (v.endsWith('.') || ['0', ''].includes(v)) return;
-
-      setDecimalDonationAmount(formatDecimalStringInput(v));
+      if (v.endsWith('.') || ['0', ''].includes(v)) {
+        setEstimatedDuration({ duration: 0, endDate: '' });
+        return;
+      }
 
       estimateDuration(v);
     },
@@ -443,7 +432,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   const onChangeFrequency = (value: string) => {
     if (value === Frequency.OneTime) {
       setDuration(1);
-    }
+    } else setDuration(12);
     setFrequency(value as Frequency);
     onReset();
   };
@@ -453,8 +442,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     setThankYouModalVisible(false);
     navigate(`/profile/${address}`);
   };
-
-  const isWarning = isInsufficientBalance || isInsufficientLiquidity || isUnacceptablePriceImpact || confirmNoAmount;
 
   return (
     <Box height="100vh" paddingBottom={8}>
@@ -484,7 +471,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       />
       <BaseModal
         openModal={thankYouModalVisible}
-        onClose={() => setThankYouModalVisible(false)}
+        onClose={() => navigate(`/collective/${collectiveId}`)}
         onConfirm={onCloseThankYouModal}
         title="thank you!"
         paragraphs={[
@@ -522,7 +509,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
         <VStack space={8} backgroundColor="white" shadow="1" paddingY={4} borderRadius={16} {...container}>
           <HStack space={8} {...direction}>
             {/* Donation frequency */}
-            <VStack space={2} width={isDesktopView ? '320' : 'auto'} maxW="320" mb={8}>
+            <VStack space={2} mb={8} flexGrow={0} flexShrink={1} flexBasis={isLargeDesktop ? '30%' : '50%'}>
               <VStack space={2}>
                 <Text variant="bold" fontSize="lg">
                   Donation Frequency
@@ -541,14 +528,14 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                   </Link>
                 </Text>
               ) : (
-                <Box minWidth="100%" />
+                <Box flexGrow={1} />
               )}
             </VStack>
             {/* Amount and token */}
-            <VStack space={2} maxW="320" mb={8} zIndex={1}>
+            <VStack space={2} mb={8} zIndex={1}>
               <VStack space={2} zIndex={1}>
                 <Text variant="bold" fontSize="lg">
-                  How much{frequency !== 'One-Time' && currency.startsWith('G$') ? ' per month' : ''}?
+                  How much{frequency !== Frequency.OneTime ? ' per month' : ''}?
                 </Text>
                 <Text>You can donate using any token on Celo.</Text>
               </VStack>
@@ -560,31 +547,35 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 onChangeAmount={onChangeAmount}
                 options={currencyOptions}
                 isWarning={isWarning}
+                withDuration={frequency !== 'One-Time'}
               />
               {frequency === 'One-Time' && !currency.startsWith('G$') && isNonZeroDonation && swapValue ? (
                 <SwapValue {...{ swapValue }} />
               ) : null}
             </VStack>
 
-            <VStack space={2} {...(isMobileView ? { maxWidth: '343' } : { minWidth: '343', maxWidth: '10%' })}>
+            <VStack space={2}>
               {frequency !== 'One-Time' && !currency.includes('G$') ? (
                 <>
                   <VStack space={2}>
                     <Text variant="bold" fontSize="lg">
-                      At what streaming rate?
+                      For how many months?
                     </Text>
-                    <Box p={2} />
+                    <Text>You can stop the stream at any time.</Text>
                   </VStack>
                   <NumberInput
-                    type="duration"
+                    type="number"
                     dropdownValue={currency}
-                    inputValue={streamRate?.toString() ?? '1'}
+                    inputValue={duration?.toString() ?? '1'}
                     onSelect={onChangeCurrency}
                     onChangeAmount={onChangeRate}
                   />{' '}
                 </>
               ) : null}
-              {frequency !== 'One-Time' && isNonZeroDonation && !isEmpty(estimatedDuration.endDate) ? (
+              {currency.includes('G$') &&
+              frequency !== 'One-Time' &&
+              isNonZeroDonation &&
+              !isEmpty(estimatedDuration.endDate) ? (
                 <VStack space={2} width="100%">
                   <HStack justifyContent="space-between">
                     <Text variant="bold" color="goodGrey.500" fontSize="lg">
@@ -607,7 +598,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
             </VStack>
           </HStack>
           {frequency !== 'One-Time' && currency === 'CELO' && isNonZeroDonation && swapValue ? (
-            <VStack space={2} maxW="320">
+            <VStack space={2} alignItems="flex-start">
               <Text variant="bold" fontSize="lg">
                 Total Donation Swap Amount:
               </Text>
@@ -622,37 +613,42 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
         </VStack>
 
         <View style={{ gap: 16, flex: 1, zIndex: -1 }}>
-          {isWarning
-            ? Object.keys(warningProps).map((key) => {
-                const whichWarning =
-                  key === 'priceImpact'
-                    ? isUnacceptablePriceImpact
-                    : key === 'balance'
-                    ? isInsufficientBalance
-                    : key === 'noAmount'
-                    ? !isNonZeroDonation && confirmNoAmount
-                    : isInsufficientLiquidity;
-                return whichWarning ? (
-                  <WarningBox
-                    key={key}
-                    explanationProps={key === 'priceImpact' ? { priceImpact: priceImpact } : { type: key }}
-                    content={warningProps[key as keyof typeof warningProps]}
-                  />
-                ) : null;
-              })
+          {isWarning && address !== undefined
+            ? Object.entries(warningProps)
+                .filter(([key]) => key !== 'noWallet')
+                .map(([key, content]) => {
+                  const whichWarning =
+                    {
+                      priceImpact: isUnacceptablePriceImpact,
+                      balance: isInsufficientBalance,
+                      noAmount: !isNonZeroDonation && confirmNoAmount,
+                    }[key] ?? isInsufficientLiquidity;
+
+                  return whichWarning ? (
+                    <WarningBox
+                      key={key}
+                      {...(key === 'priceImpact'
+                        ? { explanationProps: { priceImpact } }
+                        : { explanationProps: { type: key } })}
+                      content={content}
+                    />
+                  ) : null;
+                })
             : null}
-          {isNonZeroDonation ? (
+          {isNonZeroDonation && address !== undefined ? (
             <VStack space={2} maxW="700">
-              <Text variant="bold">You are about to begin a donation stream</Text>
+              {frequency !== Frequency.OneTime && <Text variant="bold">You are about to begin a donation stream</Text>}
               <Text>
-                Pressing “Confirm” will begin the donation streaming process. You will need to confirm using your
-                connected wallet. You may be asked to sign multiple transactions.
+                Pressing “Confirm” will begin the donation {frequency !== Frequency.OneTime ? 'streaming ' : ''}process.
+                You will need to confirm using your connected wallet. You may be asked to sign multiple transactions.
               </Text>
             </VStack>
-          ) : null}
+          ) : isNonZeroDonation && address === undefined ? (
+            <></>
+          ) : // <WarningBox content={warningProps.noWallet} /> wip: awaiting design confirmation
+          null}
 
           <RoundedButton
-            maxWidth={isDesktopView ? 343 : undefined}
             title={buttonCopy}
             backgroundColor={buttonBgColor}
             color={buttonTextColor}
@@ -665,7 +661,9 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
               address === undefined ||
               chain?.id === undefined ||
               !(chain.id in SupportedNetwork) ||
-              approvalNotReady
+              approvalNotReady ||
+              isInsufficientBalance ||
+              (isWarning && !isOnlyPriceImpactWarning)
             }
           />
         </View>
