@@ -28,6 +28,7 @@ import useCrossNavigate from '../routes/useCrossNavigate';
 import FrequencySelector from './DonateFrequency';
 import NumberInput from './NumberInput';
 import { ApproveTokenImg, PhoneImg, StreamWarning, ThankYouImg } from '../assets';
+import { formatNumberWithCommas } from '../lib/formatFiatCurrency';
 
 interface DonateComponentProps {
   collective: Collective;
@@ -104,7 +105,7 @@ const SwapValue = ({ swapValue }: { swapValue: number }) => (
       {' '}
       G${' '}
     </Text>
-    {swapValue.toFixed(4)}
+    {formatNumberWithCommas(swapValue.toString(), 2)}
   </Text>
 );
 
