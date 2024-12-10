@@ -4,7 +4,6 @@ import { Colors } from '../../utils/colors';
 import { StewardsListItem } from './StewardsListItem';
 import { StewardCollective } from '../../models/models';
 import { useMemo } from 'react';
-import { profilePictures } from '../../utils/profilePictures';
 import { StewardBlue, StewardGreen } from '../../assets';
 import { useFetchFullNames } from '../../hooks/useFetchFullName';
 
@@ -19,10 +18,6 @@ function StewardList({ listType, stewards, titleStyle, listStyle }: StewardListP
   const titleIcon = listType === 'viewCollective' ? StewardGreen : StewardBlue;
   const stewardsCountText = listType === 'viewCollective' ? ` (${stewards.length})` : '';
 
-  const profileImages: string[] = useMemo(() => {
-    return profilePictures.sort(() => Math.random());
-  }, []);
-
   const userAddresses = useMemo(() => {
     return stewards.map((steward) => steward.steward as `0x${string}`);
   }, [stewards]);
@@ -35,12 +30,11 @@ function StewardList({ listType, stewards, titleStyle, listStyle }: StewardListP
         <Text style={styles.title}>Stewards{stewardsCountText}</Text>
       </View>
       <View style={[styles.list, overflowStyle.overflow, { ...(listStyle ?? {}) }]}>
-        {stewards.map((steward, index) => (
+        {stewards.map((steward) => (
           <StewardsListItem
             steward={steward}
             showActions={listType === 'viewStewards'}
             key={steward.steward}
-            profileImage={profileImages[index % profileImages.length]}
             userFullName={userFullNames[steward.steward]}
           />
         ))}

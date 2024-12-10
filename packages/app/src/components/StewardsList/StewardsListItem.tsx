@@ -7,18 +7,17 @@ import { formatAddress } from '../../lib/formatAddress';
 import { useIsStewardVerified } from '../../hooks';
 import { useEnsName } from 'wagmi';
 import useCrossNavigate from '../../routes/useCrossNavigate';
+import { RandomAvatar } from '../RandomAvatar';
 
 interface StewardListItemProps {
   steward: StewardCollective;
   showActions: boolean;
-  profileImage: string;
   userFullName?: string;
 }
 
 export const StewardsListItem = (props: StewardListItemProps) => {
-  const { showActions, steward, profileImage, userFullName } = props;
+  const { showActions, steward, userFullName } = props;
   const { navigate } = useCrossNavigate();
-
   const isVerified = useIsStewardVerified(steward.steward);
 
   const { data: ensName } = useEnsName({ address: steward.steward as `0x${string}`, chainId: 1 });
@@ -28,7 +27,7 @@ export const StewardsListItem = (props: StewardListItemProps) => {
 
   return (
     <TouchableOpacity style={styles.row} onPress={onClickSteward}>
-      <Image source={{ uri: profileImage }} style={styles.rowImg} />
+      <RandomAvatar seed={steward.steward} width={12} height={12} marginRight={4} />
       <Text style={styles.title}>
         {userIdentifier} {isVerified && <Image source={VerifiedIcon} style={styles.verifiedIcon} />}
       </Text>
@@ -38,12 +37,6 @@ export const StewardsListItem = (props: StewardListItemProps) => {
 };
 
 const styles = StyleSheet.create({
-  rowImg: {
-    height: 48,
-    width: 48,
-    borderRadius: 24,
-    marginRight: 16,
-  },
   verifiedIcon: {
     height: 16,
     width: 16,

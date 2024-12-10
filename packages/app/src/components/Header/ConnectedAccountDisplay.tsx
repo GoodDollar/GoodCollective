@@ -8,6 +8,7 @@ import { PlaceholderAvatar } from '../../assets';
 import { useGetTokenBalance } from '../../hooks/useGetTokenBalance';
 import { formatNumberWithCommas } from '../../lib/formatFiatCurrency';
 import { GDToken, SupportedNetwork } from '../../models/constants';
+import { RandomAvatar } from '../RandomAvatar';
 
 interface ConnectedAccountDisplayProps {
   isDesktopResolution: boolean;
@@ -49,7 +50,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
               }}>
               <Text style={styles.amountText}>{formattedTokenBalance} G$</Text>
               <View style={styles.walletConnected}>
-                <Image source={PlaceholderAvatar} resizeMode="contain" style={{ width: 25, height: 25 }} />
+                <RandomAvatar seed={address} />
                 {ensName ? (
                   <Text style={styles.walletConnectedText}>{ensName}</Text>
                 ) : (

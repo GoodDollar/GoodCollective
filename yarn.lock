@@ -4542,6 +4542,7 @@ __metadata:
     moment-duration-format: ^2.3.2
     native-base: ^3.4.28
     node-libs-react-native: ^1.2.1
+    prando: ^6.0.1
     prettier: ^2.4.1
     qs: ^6.12.2
     react: 18
@@ -32018,6 +32019,13 @@ __metadata:
   version: 2.1.0
   resolution: "postinstall-postinstall@npm:2.1.0"
   checksum: e1d34252cf8d2c5641c7d2db7426ec96e3d7a975f01c174c68f09ef5b8327bc8d5a9aa2001a45e693db2cdbf69577094d3fe6597b564ad2d2202b65fba76134b
+  languageName: node
+  linkType: hard
+
+"prando@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "prando@npm:6.0.1"
+  checksum: c0c25dbb2cb92dff4b0f44781f0e2132886c34ab6a12f7f0839d6073c783d86589d4c632727819d8fb0a5a675a7e27223285c6907261d3b6a49167b4cbdc162a
   languageName: node
   linkType: hard
 

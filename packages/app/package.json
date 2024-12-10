@@ -54,6 +54,7 @@
     "moment-duration-format": "^2.3.2",
     "native-base": "^3.4.28",
     "node-libs-react-native": "^1.2.1",
+    "prando": "^6.0.1",
     "qs": "^6.12.2",
     "react": "18",
     "react-dom": "18",
