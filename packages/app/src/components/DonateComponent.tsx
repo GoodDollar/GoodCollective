@@ -35,7 +35,7 @@ interface DonateComponentProps {
 }
 
 const PriceImpact = ({ priceImpact }: any) => (
-  <Text color="goodOrange.500">
+  <Text color="goodOrange.500" display="flex" flexWrap="wrap">
     <Text>Due to low liquidity between your chosen currency and GoodDollar, </Text>
     <Text variant="bold" fontWeight="700">
       your donation amount will reduce by {priceImpact?.toFixed(2)}%{' '}
@@ -170,7 +170,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   const { price: tokenPrice = 0 } = useGetTokenPrice('G$');
   const [isDonationComplete, setIsDonationComplete] = useState(false);
   const [isDonating, setIsDonating] = useState(false);
-  const [activeWarning, setActiveWarning] = useState<boolean | string>(false);
 
   const { navigate } = useCrossNavigate();
   if (isDonationComplete) {
@@ -354,12 +353,16 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     isNonZeroDonation,
   ]);
 
+  const isWarning = isInsufficientBalance || isInsufficientLiquidity || isUnacceptablePriceImpact || confirmNoAmount;
+  const isOnlyPriceImpactWarning =
+    isUnacceptablePriceImpact && !isInsufficientBalance && !isInsufficientLiquidity && !confirmNoAmount;
+
   const donateStyles = useMemo(() => {
     return getDonateStyles({
       noAddress: !address,
       invalidChain: !(chain?.id && chain.id in SupportedNetwork),
       insufficientLiquidity: isInsufficientLiquidity,
-      priceImpact: isUnacceptablePriceImpact,
+      priceImpact: isOnlyPriceImpactWarning,
       insufficientBalance: isInsufficientBalance,
       approvalNotReady: approvalNotReady,
       isZeroDonation: !isNonZeroDonation,
@@ -369,7 +372,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     address,
     chain,
     isInsufficientLiquidity,
-    isUnacceptablePriceImpact,
+    isOnlyPriceImpactWarning,
     isInsufficientBalance,
     approvalNotReady,
     isNonZeroDonation,
@@ -439,10 +442,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     setThankYouModalVisible(false);
     navigate(`/profile/${address}`);
   };
-
-  const isWarning = isInsufficientBalance || isInsufficientLiquidity || isUnacceptablePriceImpact || confirmNoAmount;
-  const isOnlyPriceImpactWarning =
-    isUnacceptablePriceImpact && !isInsufficientBalance && !isInsufficientLiquidity && !confirmNoAmount;
 
   return (
     <Box height="100vh" paddingBottom={8}>
@@ -599,7 +598,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
             </VStack>
           </HStack>
           {frequency !== 'One-Time' && currency === 'CELO' && isNonZeroDonation && swapValue ? (
-            <VStack space={2}>
+            <VStack space={2} alignItems="flex-start">
               <Text variant="bold" fontSize="lg">
                 Total Donation Swap Amount:
               </Text>
@@ -615,23 +614,26 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
 
         <View style={{ gap: 16, flex: 1, zIndex: -1 }}>
           {isWarning && address !== undefined
-            ? Object.keys(warningProps).map((key) => {
-                const whichWarning =
-                  key === 'priceImpact'
-                    ? isUnacceptablePriceImpact
-                    : key === 'balance'
-                    ? isInsufficientBalance
-                    : key === 'noAmount'
-                    ? !isNonZeroDonation && confirmNoAmount
-                    : isInsufficientLiquidity;
-                return whichWarning ? (
-                  <WarningBox
-                    key={key}
-                    explanationProps={key === 'priceImpact' ? { priceImpact: priceImpact } : { type: key }}
-                    content={warningProps[key as keyof typeof warningProps]}
-                  />
-                ) : null;
-              })
+            ? Object.entries(warningProps)
+                .filter(([key]) => key !== 'noWallet')
+                .map(([key, content]) => {
+                  const whichWarning =
+                    {
+                      priceImpact: isUnacceptablePriceImpact,
+                      balance: isInsufficientBalance,
+                      noAmount: !isNonZeroDonation && confirmNoAmount,
+                    }[key] ?? isInsufficientLiquidity;
+
+                  return whichWarning ? (
+                    <WarningBox
+                      key={key}
+                      {...(key === 'priceImpact'
+                        ? { explanationProps: { priceImpact } }
+                        : { explanationProps: { type: key } })}
+                      content={content}
+                    />
+                  ) : null;
+                })
             : null}
           {isNonZeroDonation && address !== undefined ? (
             <VStack space={2} maxW="700">
@@ -647,7 +649,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
           null}
 
           <RoundedButton
-            // maxWidth={isDesktopView ? 343 : undefined}
             title={buttonCopy}
             backgroundColor={buttonBgColor}
             color={buttonTextColor}
