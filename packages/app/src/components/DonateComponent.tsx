@@ -637,7 +637,12 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
             : null}
           {isNonZeroDonation && address !== undefined ? (
             <VStack space={2} maxW="700">
-              {frequency !== Frequency.OneTime && <Text variant="bold">You are about to begin a donation stream</Text>}
+              {!currency.startsWith('G$') ? (
+                <Text variant="bold">
+                  Your {frequency !== Frequency.OneTime ? 'stream ' : 'donation'}will be made in GoodDollars. You are
+                  about to swap and begin a donation stream.
+                </Text>
+              ) : null}
               <Text>
                 Pressing “Confirm” will begin the donation {frequency !== Frequency.OneTime ? 'streaming ' : ''}process.
                 You will need to confirm using your connected wallet. You may be asked to sign multiple transactions.
