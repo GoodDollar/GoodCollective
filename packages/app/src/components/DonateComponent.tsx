@@ -188,7 +188,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   }
 
   const [frequency, setFrequency] = useState<Frequency>(Frequency.OneTime);
-  const [duration, setDuration] = useState(12);
+  const [duration, setDuration] = useState(1);
   const [inputAmount, setInputAmount] = useState<string | undefined>(undefined);
 
   const tokenList = useTokenList();
@@ -203,10 +203,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
 
   const [currency, setCurrency] = useState<string>(gdEnvSymbol || 'G$');
 
-  const decimalDonationAmount = formatDecimalStringInput(
-    (Number(inputAmount) * (currency.includes('G$') ? 1 : Number(duration))).toString()
-  );
-  const swapValue = currency.includes('G$') ? 0 : decimalDonationAmount / tokenPrice;
+  const decimalDonationAmount = formatDecimalStringInput(inputAmount || '0');
 
   const container = useBreakpointValue({
     base: {
@@ -288,7 +285,10 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   // const currencyDecimals = token.decimals;
   const donorCurrencyBalance = useGetTokenBalance(token.address, address, chain?.id, true);
 
-  const totalDecimalDonation = new Decimal(decimalDonationAmount);
+  const totalDecimalDonation = new Decimal(decimalDonationAmount * (currency.includes('G$') ? 1 : Number(duration)));
+
+  const swapValue = currency.includes('G$') ? 0 : totalDecimalDonation.toNumber() / tokenPrice;
+
   // const totalDonationFormatted = totalDecimalDonation.toDecimalPlaces(currencyDecimals, Decimal.ROUND_DOWN).toString();
 
   const { isNonZeroDonation, isInsufficientBalance, isInsufficientLiquidity, isUnacceptablePriceImpact } =

@@ -35,7 +35,7 @@ function RoundedButton({
   if (!seeType) {
     return (
       <Button
-        disabled={disabled}
+        disabled={disabled || isLoading}
         style={[styles.button, { backgroundColor, maxWidth: maxWidth ?? 'auto' }]}
         onPress={onPress}>
         {isLoading ? (
