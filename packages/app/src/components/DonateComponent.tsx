@@ -53,8 +53,20 @@ const WarningExplanation = ({ type }: any) => (
     </Text>
   </Text>
 );
+const NetworkExplanation = ({ type }: any) => (
+  <Text color="goodOrange.500">
+    <Text>Switch in your wallet to the Celo network</Text>
+  </Text>
+);
 
 const warningProps = {
+  noWallet: {
+    title: 'Please connect a wallet to proceed',
+  },
+  invalidChain: {
+    title: 'Unsupported network',
+    Explanation: NetworkExplanation,
+  },
   priceImpact: {
     title: 'Price impact warning!',
     Explanation: PriceImpact,
@@ -75,9 +87,6 @@ const warningProps = {
   },
   noAmount: {
     title: 'Enter an amount above',
-  },
-  noWallet: {
-    title: 'Please connect a wallet to proceed',
   },
 };
 
@@ -124,7 +133,7 @@ const WarningBox = ({ content, explanationProps = {} }: any) => {
             {content.title}
           </Text>
 
-          {!isEmpty(explanationProps) ? <Explanation {...explanationProps} /> : null}
+          {Explanation ? <Explanation {...explanationProps} /> : null}
         </VStack>
         {content.suggestion ? (
           <VStack space={2}>
@@ -138,10 +147,12 @@ const WarningBox = ({ content, explanationProps = {} }: any) => {
                     {index + 1}. {suggestion}
                   </Text>
                 ))}
-                <Link color="goodOrange.500" href={content.href} isExternal>
-                  <Text>3. </Text>
-                  <Text textDecorationLine="underline">Purchase and use GoodDollar</Text>
-                </Link>
+                {content.href && (
+                  <Link color="goodOrange.500" href={content.href} isExternal>
+                    <Text>{content.suggestion.length + 1}. </Text>
+                    <Text textDecorationLine="underline">Purchase and use GoodDollar</Text>
+                  </Link>
+                )}
               </Text>
             </VStack>
           </VStack>
@@ -221,7 +232,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     base: {
       flexDirection: 'column',
     },
-    xl: {
+    lg: {
       flexDirection: 'row',
       flexWrap: 'wrap',
     },
@@ -270,8 +281,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     swapPath
   );
 
-  const [confirmNoAmount, setConfirmNoAmount] = useState(false);
-
   const token = useToken(currency);
   // const currencyDecimals = token.decimals;
   const donorCurrencyBalance = useGetTokenBalance(token.address, address, chain?.id, true);
@@ -299,11 +308,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   }, [currency, startStreamingVisible, supportFlow, supportFlowWithSwap]);
 
   const handleDonate = useCallback(async () => {
-    if (!isNonZeroDonation) {
-      setConfirmNoAmount(true);
-      return;
-    }
-
     let isApproveSuccess = isRequireApprove === false || currency.startsWith('G$');
     setIsDonating(true);
     try {
@@ -357,12 +361,18 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     // supportFlowWithSwap,
     supportSingleTransferAndCall,
     supportSingleWithSwap,
-    isNonZeroDonation,
   ]);
 
-  const isWarning = isInsufficientBalance || isInsufficientLiquidity || isUnacceptablePriceImpact || confirmNoAmount;
+  const isInvalidChain = !(chain?.id && chain.id in SupportedNetwork);
+  const isWarning =
+    isInsufficientBalance ||
+    isInsufficientLiquidity ||
+    isUnacceptablePriceImpact ||
+    !isNonZeroDonation ||
+    isInvalidChain ||
+    address === undefined;
   const isOnlyPriceImpactWarning =
-    isUnacceptablePriceImpact && !isInsufficientBalance && !isInsufficientLiquidity && !confirmNoAmount;
+    isUnacceptablePriceImpact && !isInsufficientBalance && !isInsufficientLiquidity && isNonZeroDonation;
 
   const donateStyles = useMemo(() => {
     return getDonateStyles({
@@ -425,7 +435,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     (v: string) => {
       setInputAmount(v);
 
-      if (![''].includes(v)) setConfirmNoAmount(false);
       if (v.endsWith('.') || ['0', ''].includes(v)) {
         setEstimatedDuration({ duration: 0, endDate: '' });
         return;
@@ -628,9 +637,9 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                     {
                       priceImpact: isUnacceptablePriceImpact,
                       balance: isInsufficientBalance,
-                      noAmount: !isNonZeroDonation && confirmNoAmount,
+                      noAmount: !isNonZeroDonation,
+                      invalidChain: isInvalidChain,
                     }[key] ?? isInsufficientLiquidity;
-
                   return whichWarning ? (
                     <WarningBox
                       key={key}
@@ -642,7 +651,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                   ) : null;
                 })
             : null}
-          {isNonZeroDonation && address !== undefined ? (
+          {isNonZeroDonation && !isInvalidChain ? (
             <VStack space={2} maxW="700">
               {!currency.startsWith('G$') ? (
                 <Text variant="bold">
@@ -655,7 +664,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 You will need to confirm using your connected wallet. You may be asked to sign multiple transactions.
               </Text>
             </VStack>
-          ) : isNonZeroDonation && address === undefined ? (
+          ) : address === undefined ? (
             <WarningBox content={warningProps.noWallet} />
           ) : null}
 
@@ -669,11 +678,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
             isLoading={swapRouteStatus === SwapRouteState.LOADING || isDonating}
             disabled={
               (currency.startsWith('G$') === false && swapRouteStatus !== SwapRouteState.READY) ||
-              address === undefined ||
-              chain?.id === undefined ||
-              !(chain.id in SupportedNetwork) ||
               approvalNotReady ||
-              isInsufficientBalance ||
               (isWarning && !isOnlyPriceImpactWarning)
             }
           />

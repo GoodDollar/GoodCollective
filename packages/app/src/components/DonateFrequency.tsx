@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { Box, HStack, Radio, useBreakpointValue } from 'native-base';
-
-import { useScreenSize } from '../theme/hooks';
+import { Box, HStack, Radio } from 'native-base';
 
 interface DropdownProps {
   onSelect: (value: string) => void;
@@ -12,13 +10,8 @@ const WhiteDot = () => <Box color="blue" backgroundColor="white" width={3} heigh
 
 const FrequencySelector = ({ onSelect, options = ['One-Time', 'Monthly'] }: DropdownProps) => {
   const [value, setValue] = useState('One-Time');
-  const { isTabletView } = useScreenSize();
-
-  // temp: adding this to useScreenSize breaks UI in multiple other screens.
-  const isDesktopView = useBreakpointValue({ base: false, lg: true, xl: false });
-
   return (
-    <HStack justifyContent={'space-between'} w={isTabletView ? '100%' : '90%'} m="auto">
+    <HStack justifyContent={'space-between'} width={'100%'} margin={'auto'}>
       <Radio.Group
         name="donationFrequency"
         value={value}
@@ -30,9 +23,7 @@ const FrequencySelector = ({ onSelect, options = ['One-Time', 'Monthly'] }: Drop
         width="100%"
         flexDir="row"
         justifyContent="space-between"
-        flexBasis={isDesktopView ? '50%' : '100%'}
-        flexShrink={1}
-        flexGrow={0}>
+        flexBasis={{ lg: '100%', md: '70%', sm: '100%', base: '100%' }}>
         {options.map((option) => (
           <Radio
             key={option}
