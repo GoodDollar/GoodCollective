@@ -79,6 +79,9 @@ const warningProps = {
   noWallet: {
     title: 'Please connect a wallet to proceed',
   },
+  invalidChain: {
+    title: 'Unsupported network',
+  },
 };
 
 const shouldWarning = (
@@ -124,7 +127,7 @@ const WarningBox = ({ content, explanationProps = {} }: any) => {
             {content.title}
           </Text>
 
-          {!isEmpty(explanationProps) ? <Explanation {...explanationProps} /> : null}
+          {Explanation ? <Explanation {...explanationProps} /> : null}
         </VStack>
         {content.suggestion ? (
           <VStack space={2}>
@@ -224,7 +227,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     base: {
       flexDirection: 'column',
     },
-    xl: {
+    lg: {
       flexDirection: 'row',
       flexWrap: 'wrap',
     },
@@ -273,8 +276,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     swapPath
   );
 
-  const [confirmNoAmount, setConfirmNoAmount] = useState(false);
-
   const token = useToken(currency);
   // const currencyDecimals = token.decimals;
   const donorCurrencyBalance = useGetTokenBalance(token.address, address, chain?.id, true);
@@ -299,11 +300,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   }, [currency, startStreamingVisible, supportFlow, supportFlowWithSwap]);
 
   const handleDonate = useCallback(async () => {
-    if (!isNonZeroDonation) {
-      setConfirmNoAmount(true);
-      return;
-    }
-
     let isApproveSuccess = isRequireApprove === false || currency.startsWith('G$');
     if (isRequireApprove && currency.startsWith('G$') === false) {
       const txHash = await handleApproveToken?.();
@@ -350,12 +346,18 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     // supportFlowWithSwap,
     supportSingleTransferAndCall,
     supportSingleWithSwap,
-    isNonZeroDonation,
   ]);
 
-  const isWarning = isInsufficientBalance || isInsufficientLiquidity || isUnacceptablePriceImpact || confirmNoAmount;
+  const isInvalidChain = !(chain?.id && chain.id in SupportedNetwork);
+  const isWarning =
+    isInsufficientBalance ||
+    isInsufficientLiquidity ||
+    isUnacceptablePriceImpact ||
+    !isNonZeroDonation ||
+    isInvalidChain ||
+    address === undefined;
   const isOnlyPriceImpactWarning =
-    isUnacceptablePriceImpact && !isInsufficientBalance && !isInsufficientLiquidity && !confirmNoAmount;
+    isUnacceptablePriceImpact && !isInsufficientBalance && !isInsufficientLiquidity && isNonZeroDonation;
 
   const donateStyles = useMemo(() => {
     return getDonateStyles({
@@ -418,7 +420,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     (v: string) => {
       setInputAmount(v);
 
-      if (![''].includes(v)) setConfirmNoAmount(false);
       if (v.endsWith('.') || ['0', ''].includes(v)) {
         setEstimatedDuration({ duration: 0, endDate: '' });
         return;
@@ -621,9 +622,10 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                     {
                       priceImpact: isUnacceptablePriceImpact,
                       balance: isInsufficientBalance,
-                      noAmount: !isNonZeroDonation && confirmNoAmount,
+                      noAmount: !isNonZeroDonation,
+                      noWallet: !address,
+                      invalidChain: isInvalidChain,
                     }[key] ?? isInsufficientLiquidity;
-
                   return whichWarning ? (
                     <WarningBox
                       key={key}
@@ -635,7 +637,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                   ) : null;
                 })
             : null}
-          {isNonZeroDonation && address !== undefined ? (
+          {isNonZeroDonation && !isInvalidChain ? (
             <VStack space={2} maxW="700">
               {!currency.startsWith('G$') ? (
                 <Text variant="bold">
@@ -648,7 +650,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 You will need to confirm using your connected wallet. You may be asked to sign multiple transactions.
               </Text>
             </VStack>
-          ) : isNonZeroDonation && address === undefined ? (
+          ) : address === undefined ? (
             <WarningBox content={warningProps.noWallet} />
           ) : null}
 
@@ -662,11 +664,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
             isLoading={swapRouteStatus === SwapRouteState.LOADING || isDonating}
             disabled={
               (currency.startsWith('G$') === false && swapRouteStatus !== SwapRouteState.READY) ||
-              address === undefined ||
-              chain?.id === undefined ||
-              !(chain.id in SupportedNetwork) ||
               approvalNotReady ||
-              isInsufficientBalance ||
               (isWarning && !isOnlyPriceImpactWarning)
             }
           />

@@ -19,12 +19,12 @@ const BUTTON_STATE = {
     textColor: Colors.gray[300],
   },
   invalidChain: {
-    copy: 'Unsupported network',
+    copy: 'Confirm',
     bgColor: Colors.gray[1000],
     textColor: Colors.gray[300],
   },
   insufficientLiquidity: {
-    copy: 'Insufficient liquidity for this trade',
+    copy: 'Confirm',
     bgColor: Colors.gray[1000],
     textColor: Colors.gray[300],
   },
@@ -34,12 +34,12 @@ const BUTTON_STATE = {
     textColor: Colors.black,
   },
   insufficientBalance: {
-    copy: 'Insufficient balance',
+    copy: 'Confirm',
     bgColor: Colors.gray[1000],
     textColor: Colors.gray[300],
   },
   approvalNotReady: {
-    copy: 'Swap Not Ready',
+    copy: 'Confirm',
     bgColor: Colors.gray[1000],
     textColor: Colors.gray[300],
   },
