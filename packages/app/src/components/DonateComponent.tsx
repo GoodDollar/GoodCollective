@@ -60,6 +60,13 @@ const NetworkExplanation = ({ type }: any) => (
 );
 
 const warningProps = {
+  noWallet: {
+    title: 'Please connect a wallet to proceed',
+  },
+  invalidChain: {
+    title: 'Unsupported network',
+    Explanation: NetworkExplanation,
+  },
   priceImpact: {
     title: 'Price impact warning!',
     Explanation: PriceImpact,
@@ -80,13 +87,6 @@ const warningProps = {
   },
   noAmount: {
     title: 'Enter an amount above',
-  },
-  noWallet: {
-    title: 'Please connect a wallet to proceed',
-  },
-  invalidChain: {
-    title: 'Unsupported network',
-    Explanation: NetworkExplanation,
   },
 };
 
