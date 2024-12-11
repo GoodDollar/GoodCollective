@@ -177,7 +177,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   }
 
   const [frequency, setFrequency] = useState<Frequency>(Frequency.OneTime);
-  const [duration, setDuration] = useState(12);
+  const [duration, setDuration] = useState(1);
   const [inputAmount, setInputAmount] = useState<string | undefined>(undefined);
 
   const tokenList = useTokenList();
@@ -192,10 +192,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
 
   const [currency, setCurrency] = useState<string>(gdEnvSymbol || 'G$');
 
-  const decimalDonationAmount = formatDecimalStringInput(
-    (Number(inputAmount) * (currency.includes('G$') ? 1 : Number(duration))).toString()
-  );
-  const swapValue = currency.includes('G$') ? 0 : decimalDonationAmount / tokenPrice;
+  const decimalDonationAmount = formatDecimalStringInput(inputAmount || '0');
 
   const container = useBreakpointValue({
     base: {
@@ -279,7 +276,10 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   // const currencyDecimals = token.decimals;
   const donorCurrencyBalance = useGetTokenBalance(token.address, address, chain?.id, true);
 
-  const totalDecimalDonation = new Decimal(decimalDonationAmount);
+  const totalDecimalDonation = new Decimal(decimalDonationAmount * (currency.includes('G$') ? 1 : Number(duration)));
+
+  const swapValue = currency.includes('G$') ? 0 : totalDecimalDonation.toNumber() / tokenPrice;
+
   // const totalDonationFormatted = totalDecimalDonation.toDecimalPlaces(currencyDecimals, Decimal.ROUND_DOWN).toString();
 
   const { isNonZeroDonation, isInsufficientBalance, isInsufficientLiquidity, isUnacceptablePriceImpact } =
@@ -305,39 +305,46 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     }
 
     let isApproveSuccess = isRequireApprove === false || currency.startsWith('G$');
-    if (isRequireApprove && currency.startsWith('G$') === false) {
-      const txHash = await handleApproveToken?.();
-      if (txHash === undefined) {
+    setIsDonating(true);
+    try {
+      if (isRequireApprove && currency.startsWith('G$') === false) {
+        const txHash = await handleApproveToken?.();
+        if (txHash === undefined) {
+          return;
+        }
+        let txReceipt: TransactionReceipt | undefined;
+        try {
+          txReceipt = await waitForTransaction({
+            chainId: chain?.id,
+            confirmations: 1,
+            hash: txHash,
+            timeout: 1000 * 60 * 5,
+          });
+          isApproveSuccess = txReceipt?.status === 'success';
+        } catch (error) {
+          setErrorMessage(
+            'Something went wrong: Your token approval transaction was not confirmed within the timeout period.'
+          );
+        }
+      }
+
+      if (!isApproveSuccess) {
         return;
       }
-      let txReceipt: TransactionReceipt | undefined;
-      try {
-        txReceipt = await waitForTransaction({
-          chainId: chain?.id,
-          confirmations: 1,
-          hash: txHash,
-          timeout: 1000 * 60 * 5,
-        });
-        isApproveSuccess = txReceipt?.status === 'success';
-      } catch (error) {
-        setErrorMessage(
-          'Something went wrong: Your token approval transaction was not confirmed within the timeout period.'
-        );
-      }
-    }
 
-    if (!isApproveSuccess) {
-      return;
-    }
-
-    if (frequency === Frequency.OneTime) {
-      if (currency.startsWith('G$')) {
-        return await supportSingleTransferAndCall();
+      if (frequency === Frequency.OneTime) {
+        if (currency.startsWith('G$')) {
+          return await supportSingleTransferAndCall();
+        } else {
+          return await supportSingleWithSwap();
+        }
       } else {
-        return await supportSingleWithSwap();
+        handleStreamingWarning();
       }
-    } else {
-      handleStreamingWarning();
+    } catch (e) {
+      console.error('donation error:', e);
+    } finally {
+      setIsDonating(false);
     }
   }, [
     chain?.id,
