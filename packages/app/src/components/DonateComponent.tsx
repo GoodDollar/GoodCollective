@@ -53,6 +53,11 @@ const WarningExplanation = ({ type }: any) => (
     </Text>
   </Text>
 );
+const NetworkExplanation = ({ type }: any) => (
+  <Text color="goodOrange.500">
+    <Text>Switch in your wallet to the Celo network</Text>
+  </Text>
+);
 
 const warningProps = {
   priceImpact: {
@@ -81,6 +86,7 @@ const warningProps = {
   },
   invalidChain: {
     title: 'Unsupported network',
+    Explanation: NetworkExplanation,
   },
 };
 
@@ -141,10 +147,12 @@ const WarningBox = ({ content, explanationProps = {} }: any) => {
                     {index + 1}. {suggestion}
                   </Text>
                 ))}
-                <Link color="goodOrange.500" href={content.href} isExternal>
-                  <Text>3. </Text>
-                  <Text textDecorationLine="underline">Purchase and use GoodDollar</Text>
-                </Link>
+                {content.href && (
+                  <Link color="goodOrange.500" href={content.href} isExternal>
+                    <Text>{content.suggestion.length + 1}. </Text>
+                    <Text textDecorationLine="underline">Purchase and use GoodDollar</Text>
+                  </Link>
+                )}
               </Text>
             </VStack>
           </VStack>
