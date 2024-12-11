@@ -305,39 +305,46 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
     }
 
     let isApproveSuccess = isRequireApprove === false || currency.startsWith('G$');
-    if (isRequireApprove && currency.startsWith('G$') === false) {
-      const txHash = await handleApproveToken?.();
-      if (txHash === undefined) {
+    setIsDonating(true);
+    try {
+      if (isRequireApprove && currency.startsWith('G$') === false) {
+        const txHash = await handleApproveToken?.();
+        if (txHash === undefined) {
+          return;
+        }
+        let txReceipt: TransactionReceipt | undefined;
+        try {
+          txReceipt = await waitForTransaction({
+            chainId: chain?.id,
+            confirmations: 1,
+            hash: txHash,
+            timeout: 1000 * 60 * 5,
+          });
+          isApproveSuccess = txReceipt?.status === 'success';
+        } catch (error) {
+          setErrorMessage(
+            'Something went wrong: Your token approval transaction was not confirmed within the timeout period.'
+          );
+        }
+      }
+
+      if (!isApproveSuccess) {
         return;
       }
-      let txReceipt: TransactionReceipt | undefined;
-      try {
-        txReceipt = await waitForTransaction({
-          chainId: chain?.id,
-          confirmations: 1,
-          hash: txHash,
-          timeout: 1000 * 60 * 5,
-        });
-        isApproveSuccess = txReceipt?.status === 'success';
-      } catch (error) {
-        setErrorMessage(
-          'Something went wrong: Your token approval transaction was not confirmed within the timeout period.'
-        );
-      }
-    }
 
-    if (!isApproveSuccess) {
-      return;
-    }
-
-    if (frequency === Frequency.OneTime) {
-      if (currency.startsWith('G$')) {
-        return await supportSingleTransferAndCall();
+      if (frequency === Frequency.OneTime) {
+        if (currency.startsWith('G$')) {
+          return await supportSingleTransferAndCall();
+        } else {
+          return await supportSingleWithSwap();
+        }
       } else {
-        return await supportSingleWithSwap();
+        handleStreamingWarning();
       }
-    } else {
-      handleStreamingWarning();
+    } catch (e) {
+      console.error('donation error:', e);
+    } finally {
+      setIsDonating(false);
     }
   }, [
     chain?.id,
