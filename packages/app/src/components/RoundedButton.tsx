@@ -2,6 +2,7 @@ import { Image, Text, TouchableOpacity, View, StyleSheet, ActivityIndicator } fr
 import { InterSemiBold } from '../utils/webFonts';
 import { ForwardIcon } from '../assets';
 import { Colors } from '../utils/colors';
+import { Button } from 'native-base';
 
 interface RoundedButtonProps {
   title: string;
@@ -33,8 +34,8 @@ function RoundedButton({
 
   if (!seeType) {
     return (
-      <TouchableOpacity
-        disabled={disabled}
+      <Button
+        disabled={disabled || isLoading}
         style={[styles.button, { backgroundColor, maxWidth: maxWidth ?? 'auto' }]}
         onPress={onPress}>
         {isLoading ? (
@@ -42,7 +43,7 @@ function RoundedButton({
         ) : (
           <Text style={[styles.nonSeeTypeText, dynamicTextStyle]}>{title}</Text>
         )}
-      </TouchableOpacity>
+      </Button>
     );
   }
   return (
