@@ -202,6 +202,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   const GDToken = GDEnvTokens[gdEnvSymbol];
 
   const [currency, setCurrency] = useState<string>(gdEnvSymbol || 'G$');
+  const { price: altTokenPrice = 0 } = useGetTokenPrice(currency);
 
   const decimalDonationAmount = formatDecimalStringInput(inputAmount || '0');
 
@@ -287,7 +288,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
 
   const totalDecimalDonation = new Decimal(decimalDonationAmount * (currency.includes('G$') ? 1 : Number(duration)));
 
-  const swapValue = currency.includes('G$') ? 0 : totalDecimalDonation.toNumber() / tokenPrice;
+  const swapValue = currency.includes('G$') ? 0 : (totalDecimalDonation.toNumber() * altTokenPrice) / tokenPrice;
 
   // const totalDonationFormatted = totalDecimalDonation.toDecimalPlaces(currencyDecimals, Decimal.ROUND_DOWN).toString();
 
@@ -570,7 +571,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
               ) : null}
             </VStack>
 
-            <VStack space={2}>
+            <VStack space={2} maxWidth={650}>
               {frequency !== 'One-Time' && !currency.includes('G$') ? (
                 <>
                   <VStack space={2}>
@@ -655,10 +656,16 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
             <VStack space={2} maxW="700">
               {!currency.startsWith('G$') ? (
                 <Text variant="bold">
-                  Your {frequency !== Frequency.OneTime ? 'stream ' : 'donation'}will be made in GoodDollars. You are
+                  Your {frequency !== Frequency.OneTime ? 'stream ' : 'donation'} will be made in GoodDollars. You are
                   about to swap and begin a donation stream.
                 </Text>
-              ) : null}
+              ) : (
+                <Text variant="bold">
+                  {frequency === Frequency.OneTime
+                    ? 'You are about to make a one-time donation.'
+                    : 'You are about to begin a donation stream.'}
+                </Text>
+              )}
               <Text>
                 Pressing “Confirm” will begin the donation {frequency !== Frequency.OneTime ? 'streaming ' : ''}process.
                 You will need to confirm using your connected wallet. You may be asked to sign multiple transactions.

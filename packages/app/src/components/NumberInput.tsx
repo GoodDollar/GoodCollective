@@ -48,8 +48,7 @@ const NumberInput = ({
         borderRadius="20"
         padding={2}
         paddingRight={4}
-        space={4}
-        maxWidth={650}>
+        space={4}>
         {type === 'token' ? <Dropdown value={dropdownValue} onSelect={onSelect} options={options} /> : <Box />}
         <HStack alignItems="center" flexShrink={3} justifyContent="flex-end">
           <HStack justifyContent="flex-end" flexShrink={1}>
@@ -61,7 +60,6 @@ const NumberInput = ({
               placeholder={'0.00'}
               outlineStyle="none"
               borderColor="white"
-              // maxWidth={type === 'duration' || withDuration ? 159 : 159}
               bgColor="blue"
               color={isWarning ? 'goodOrange.300' : 'goodPurple.400'}
               fontWeight={isWarning ? '700' : '400'}
