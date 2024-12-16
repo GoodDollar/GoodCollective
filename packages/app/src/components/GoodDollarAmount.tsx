@@ -6,10 +6,11 @@ import { formatGoodDollarAmount } from '../lib/calculateGoodDollarAmounts';
 interface FlowingBalanceProps extends TextProps {
   amount: string;
   lastDigitsProps?: TextProps;
+  decimals?: number;
 }
 
-export const GoodDollarAmount: FC<FlowingBalanceProps> = ({ amount, lastDigitsProps, ...props }) => {
-  const formatted = formatGoodDollarAmount(amount);
+export const GoodDollarAmount: FC<FlowingBalanceProps> = ({ amount, lastDigitsProps, decimals = 4, ...props }) => {
+  const formatted = formatGoodDollarAmount(amount, decimals);
   return (
     <>
       <Text {...props} style={[styles.amount, props.style]}>
