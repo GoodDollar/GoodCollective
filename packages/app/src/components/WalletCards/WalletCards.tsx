@@ -1,6 +1,6 @@
 import React from 'react';
 import { Donor, IpfsCollective, Steward } from '../../models/models';
-import { View } from 'react-native';
+import { View } from 'native-base';
 
 import StewardCollectiveCard from './StewardCollectiveCard';
 import DonorCollectiveCard from './DonorCollectiveCard';
@@ -43,26 +43,30 @@ function WalletCards({
       {steward &&
         stewardIpfsCollectives.length > 0 &&
         steward.collectives?.map((collective, i) => (
-          <StewardCollectiveCard
-            key={collective.collective}
-            collective={collective}
-            ipfsCollective={stewardIpfsCollectives[i]}
-            ensName={ensName ?? undefined}
-            tokenPrice={tokenPrice}
-            isDesktopResolution={isDesktopView}
-          />
+          <View style={{ flexGrow: 1, flexShrink: 0 }} maxWidth={{ lg: 400 }} minWidth={{ lg: 300 }}>
+            <StewardCollectiveCard
+              key={collective.collective}
+              collective={collective}
+              ipfsCollective={stewardIpfsCollectives[i]}
+              ensName={ensName ?? undefined}
+              tokenPrice={tokenPrice}
+              isDesktopResolution={isDesktopView}
+            />
+          </View>
         ))}
       {donor &&
         donorIpfsCollectives.length > 0 &&
         donor.collectives?.map((collective, i) => (
-          <DonorCollectiveCard
-            key={collective.collective}
-            donorCollective={collective}
-            ipfsCollective={donorIpfsCollectives[i]}
-            ensName={ensName ?? undefined}
-            tokenPrice={tokenPrice}
-            isDesktopResolution={isDesktopView}
-          />
+          <View style={{ flexGrow: 1, flexShrink: 0 }} maxWidth={{ lg: 400 }} minWidth={{ lg: 300 }}>
+            <DonorCollectiveCard
+              key={collective.collective}
+              donorCollective={collective}
+              ipfsCollective={donorIpfsCollectives[i]}
+              ensName={ensName ?? undefined}
+              tokenPrice={tokenPrice}
+              isDesktopResolution={isDesktopView}
+            />
+          </View>
         ))}
     </View>
   );

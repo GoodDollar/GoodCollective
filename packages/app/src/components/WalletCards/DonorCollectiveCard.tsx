@@ -35,10 +35,9 @@ function DonorCollectiveCard({
 
   const peopleSupported = useCountPeopleSupported([donorCollective]) ?? 0;
 
-  const dynamicContainerStyle = isDesktopResolution ? { width: '48%' } : {};
   const hasActiveDonationStream = Number(donorCollective.flowRate || 0) > 0;
   return (
-    <View style={[styles.cardContainer, styles.elevation, dynamicContainerStyle]}>
+    <View style={[styles.cardContainer, styles.elevation]}>
       <View style={styles.cardContentContainer}>
         <Image source={hasActiveDonationStream ? StreamTX : DonorGreenIcon} alt="icon" style={styles.icon} />
 

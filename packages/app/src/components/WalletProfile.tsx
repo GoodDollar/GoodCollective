@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     borderBottomEndRadius: 16,
   },
   desktopContainer: {
-    maxHeight: 550,
+    maxHeight: 620,
     maxWidth: 420,
     borderRadius: 16,
   },
