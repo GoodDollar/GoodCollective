@@ -31,7 +31,7 @@ function TransactionList({ collective }: TransactionListProps) {
         <Text style={styles.rowText}>Recent Transactions</Text>
       </View>
       {isDesktopView && <View style={styles.horizontalDivider} />}
-      <View style={[styles.list, overflowStyle.overflow]}>
+      <View style={styles.list}>
         {transactions
           .slice(0, 5)
           .map((transaction) =>
@@ -118,8 +118,9 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   list: {
-    maxHeight: 389,
     gap: 16,
+    width: '100%',
+    paddingRight: 16,
   },
   showMoreButton: {
     marginTop: 16,
@@ -143,16 +144,6 @@ const styles = StyleSheet.create({
     height: 1,
     marginBottom: 21,
     backgroundColor: Colors.gray[600],
-  },
-});
-
-const overflowStyle = StyleSheet.create({
-  overflow: {
-    // @ts-ignore
-    overflow: Platform.select({
-      native: 'scroll',
-      default: 'auto',
-    }),
   },
 });
 

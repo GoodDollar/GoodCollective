@@ -1,66 +1,164 @@
-import { Image, Text, View } from 'react-native';
-import { Colors } from '../../utils/colors';
-import { Link } from 'native-base';
-import { styles } from './styles';
+import { Image } from 'react-native';
+import { HStack, Link, Text, View, VStack } from 'native-base';
 import { formatEther } from 'viem';
+import moment from 'moment';
+
+import { formatAddress } from '../../lib/formatAddress';
 import env from '../../lib/env';
 
 interface TransactionListItemProps {
   userIdentifier: string;
-  isDonation?: boolean;
-  isStream?: boolean;
   amount: JSX.Element;
   txHash: string;
-  explorerLink?: string;
   rawNetworkFee: string;
   icon: any;
+  timeStamp?: number;
+  isDonation?: boolean;
+  isUBIPool?: boolean;
+  isStream?: string;
+  explorerLink?: string;
 }
+
+export const theme = {
+  firstIcon: {
+    height: 32,
+    width: 32,
+  },
+  rowText: {
+    fontSize: 16,
+    marginLeft: 16,
+    width: '100%',
+    color: 'black',
+  },
+  row: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: 8,
+    backgroundColor: 'white',
+    minHeight: 65,
+    maxHeight: 65,
+  },
+  bar: {
+    width: 6,
+    alignSelf: 'stretch',
+  },
+  rowIcon: {
+    height: 28,
+    width: 28,
+  },
+  userId: {
+    fontSize: 14,
+    lineHeight: 24,
+    width: '100%',
+  },
+  currency: {
+    fontSize: 14,
+    color: 'goodGrey.400',
+    textAlign: 'right',
+  },
+  amount: {
+    fontSize: 14,
+    color: 'goodGrey.400',
+    textAlign: 'right',
+  },
+  amountLastDigits: {
+    fontSize: 14,
+    color: 'goodGrey.25',
+    fontWeight: 400,
+    textAlign: 'right',
+  },
+  hash: {
+    fontSize: 10,
+    lineHeight: 15,
+    color: 'goodGrey.400',
+    marginBottom: 2,
+  },
+  feeText: {
+    fontSize: 12,
+    lineHeight: 18,
+    color: 'goodGrey.25',
+    width: '100%',
+  },
+  alignLeft: {
+    textAlign: 'left',
+  },
+  alignRight: {
+    textAlign: 'right',
+  },
+  txDetails: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  txCurrency: { flexDirection: 'row', alignItems: 'flex-end' },
+  txTotal: { flexDirection: 'row', alignItems: 'flex-end' },
+};
 
 function TransactionListItem({
   userIdentifier,
   isDonation,
+  isStream,
+  isUBIPool,
   amount,
   txHash,
   explorerLink,
   rawNetworkFee,
+  timeStamp = 0,
   icon,
 }: TransactionListItemProps) {
   const formattedFee: string = formatEther(BigInt(rawNetworkFee ?? 0)).toString();
-  const formattedHash = txHash.slice(0, 40) + '...';
+  const formattedHash = formatAddress(txHash);
+  const formattedTimestamp = moment(timeStamp * 1000).format('MM.DD.YYYY HH:mm');
+
+  const title = !isDonation ? (isUBIPool ? 'Recipient claim' : 'Steward Payout') : isStream;
+  const color = title?.includes('Ended') ? 'goodRed.300' : isDonation ? 'goodGreen.200' : 'goodOrange.200';
 
   return (
-    <View style={styles.row}>
-      {isDonation ? (
-        <View style={[styles.bar, { backgroundColor: Colors.green[100] }]} />
-      ) : (
-        <View style={[styles.bar, { backgroundColor: Colors.orange[100] }]} />
-      )}
-      {isDonation ? (
-        <Image source={{ uri: icon }} style={styles.rowIcon} />
-      ) : (
-        <Image source={{ uri: icon }} style={styles.rowIcon} />
-      )}
-      <View style={{ flex: 1 }}>
-        <View style={styles.txDetails}>
-          <Text style={styles.userId}>{userIdentifier}</Text>
-          <View style={styles.txCurrency}>
-            <Text style={styles.currency}>{'G$   '}</Text>
-            {amount}
+    <HStack space={2} flex={1} backgroundColor="white" borderBottomWidth="1" borderBottomColor="goodGrey.400:alpha.10">
+      <View backgroundColor={color} width="1.5" alignSelf="stretch" />
+      <VStack width="100%">
+        <HStack justifyContent="space-between">
+          <Image source={{ uri: icon }} style={theme.rowIcon} />
+          <Text
+            display="flex"
+            paddingLeft={1}
+            flexGrow={1}
+            alignItems="center"
+            color={title?.includes('Ended') ? 'goodRed.800' : isDonation ? 'goodGreen.500' : 'goodOrange.500'}
+            fontSize="2xs"
+            fontWeight="500">
+            {title}
+          </Text>
+          <Text display="flex" alignItems="center" color="goodGrey.400" fontSize="2xs" fontWeight="500">
+            {formattedTimestamp}
+          </Text>
+        </HStack>
+        <View style={{ flex: 1 }}>
+          <View flexDir="row" justifyContent="space-between" alignItems="center">
+            <Text fontWeight="bold" style={theme.userId}>
+              {userIdentifier}
+            </Text>
+            <View flexDirection="row" alignItems="flex-end">
+              <Text lineHeight="normal" textAlign="right">
+                {'G$   '}
+              </Text>
+              {amount}
+            </View>
           </View>
-        </View>
-        <Link href={explorerLink ?? `${env.REACT_APP_CELO_EXPLORER}/tx/${txHash}`} isExternal>
-          <Text style={styles.hash}>{formattedHash}</Text>
-        </Link>
-        <View>
-          <View style={styles.txDetails}>
-            <Text style={[styles.feeText, styles.alignLeft]}>Transaction fee (Gas)</Text>
-            <View style={styles.txTotal}>
-              <Text style={[styles.feeText, styles.alignRight]}>CELO {formattedFee}</Text>
+          <Link href={explorerLink ?? `${env.REACT_APP_CELO_EXPLORER}/tx/${txHash}`} isExternal>
+            <Text {...theme.hash}>{formattedHash}</Text>
+          </Link>
+          <View>
+            <View flexDirection="row" justifyContent="space-between" alignItems="center">
+              <Text alignItems="left" {...theme.feeText}>
+                Transaction fee (Gas)
+              </Text>
+              <View flexDirection="row" alignItems="flex-end">
+                <Text alignItems="right" {...theme.feeText}>
+                  CELO {formattedFee}
+                </Text>
+              </View>
             </View>
           </View>
         </View>
-      </View>
-    </View>
+      </VStack>
+    </HStack>
   );
 }
 
