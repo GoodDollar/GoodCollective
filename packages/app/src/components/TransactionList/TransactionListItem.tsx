@@ -20,28 +20,6 @@ interface TransactionListItemProps {
 }
 
 export const theme = {
-  firstIcon: {
-    height: 32,
-    width: 32,
-  },
-  rowText: {
-    fontSize: 16,
-    marginLeft: 16,
-    width: '100%',
-    color: 'black',
-  },
-  row: {
-    flex: 1,
-    flexDirection: 'row',
-    gap: 8,
-    backgroundColor: 'white',
-    minHeight: 65,
-    maxHeight: 65,
-  },
-  bar: {
-    width: 6,
-    alignSelf: 'stretch',
-  },
   rowIcon: {
     height: 28,
     width: 28,
@@ -51,20 +29,9 @@ export const theme = {
     lineHeight: 24,
     width: '100%',
   },
-  currency: {
-    fontSize: 14,
-    color: 'goodGrey.400',
-    textAlign: 'right',
-  },
   amount: {
     fontSize: 14,
     color: 'goodGrey.400',
-    textAlign: 'right',
-  },
-  amountLastDigits: {
-    fontSize: 14,
-    color: 'goodGrey.25',
-    fontWeight: 400,
     textAlign: 'right',
   },
   hash: {
@@ -79,15 +46,6 @@ export const theme = {
     color: 'goodGrey.25',
     width: '100%',
   },
-  alignLeft: {
-    textAlign: 'left',
-  },
-  alignRight: {
-    textAlign: 'right',
-  },
-  txDetails: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  txCurrency: { flexDirection: 'row', alignItems: 'flex-end' },
-  txTotal: { flexDirection: 'row', alignItems: 'flex-end' },
 };
 
 function TransactionListItem({
