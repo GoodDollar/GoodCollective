@@ -24,14 +24,26 @@ const getTxIcon = (transaction: SupportTx) => {
   }
   return DonationTX;
 };
+
+const getDonationType = (transaction: SupportTx) => {
+  if (transaction.isFlowUpdate) {
+    if (transaction.flowRate === '0') return 'Stream Ended';
+    if (transaction.previousFlowRate !== '0') return 'Stream Updated';
+    return 'Stream Started';
+  }
+  return 'Donation (one-time)';
+};
+
 export function SupportTransactionListItem({ transaction }: SupportTransactionListItemProps) {
-  const { hash, networkFee, donor } = transaction;
+  const { donor, hash, networkFee, timestamp } = transaction;
 
   const userAddress = donor as `0x${string}`;
   const { data: ensName } = useEnsName({ address: userAddress, chainId: 1 });
   const userFullName = useFetchFullName(userAddress);
   const userIdentifier = userFullName ?? ensName ?? formatAddress(userAddress);
+
   const flowUpdateLog = useWaitForTransaction({ hash: hash as `0x${string}`, chainId: 42220 });
+
   // super fluid event flowupdated event https://www.4byte.directory/event-signatures/?bytes_signature=0x57269d2ebcccecdcc0d9d2c0a0b80ead95f344e28ec20f50f709811f209d4e0e
   const flowLogIndex = flowUpdateLog.data?.logs.find(
     (_) => _.topics[0] === '0x57269d2ebcccecdcc0d9d2c0a0b80ead95f344e28ec20f50f709811f209d4e0e'
@@ -41,6 +53,7 @@ export function SupportTransactionListItem({ transaction }: SupportTransactionLi
     BigInt(transaction.flowRate === '0' ? transaction.previousFlowRate : transaction.flowRate) *
     BigInt(totalDurationInSeconds(1, Frequency.Monthly))
   ).toString();
+
   const flowingAmount = useMemo(() => {
     return transaction.isFlowUpdate ? (
       <>
@@ -50,13 +63,14 @@ export function SupportTransactionListItem({ transaction }: SupportTransactionLi
     ) : (
       <GoodDollarAmount
         amount={(BigInt(transaction.contribution) - BigInt(transaction.previousContribution)).toString()}
+        isStream={transaction.isFlowUpdate}
       />
     );
   }, [transaction.isFlowUpdate, amount, transaction.contribution, transaction.previousContribution]);
 
   return (
     <TransactionListItem
-      isStream={transaction.isFlowUpdate}
+      isStream={getDonationType(transaction)}
       explorerLink={
         // ? `${env.REACT_APP_SUPERFLUID_EXPLORER}/streams/${donor}-${transaction.collective}-${transaction.rewardToken}-0.0`
         transaction.isFlowUpdate ? `${env.REACT_APP_SUPERFLUID_EXPLORER}/${hash}-${flowLogIndex}` : undefined
@@ -67,6 +81,7 @@ export function SupportTransactionListItem({ transaction }: SupportTransactionLi
       amount={flowingAmount}
       txHash={hash}
       rawNetworkFee={networkFee}
+      timeStamp={timestamp}
     />
   );
 }

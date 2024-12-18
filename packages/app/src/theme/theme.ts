@@ -17,7 +17,7 @@ export const nbTheme = extendTheme({
       100: '#F4F4F4',
       200: '#E6E6E6',
       300: '#CCCCCC',
-      400: '#B0B0B0',
+      400: '#5A5A5A',
       500: '#1F2937',
       600: '#D4D4D4',
     },
@@ -41,6 +41,10 @@ export const nbTheme = extendTheme({
       300: '#FFAD62',
       400: '#D86800',
       500: '#AB5200',
+    },
+    goodRed: {
+      300: '#FCA5A5',
+      800: '#991B1B',
     },
 
     // borders
