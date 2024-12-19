@@ -24,7 +24,7 @@ function Layout({ children, breadcrumbPath }: LayoutProps) {
   const scrollViewHeight = safeAreaHeight - 105;
 
   const { address } = useAccount();
-  const { isDesktopView, isMobileView, isTabletView } = useScreenSize();
+  const { isDesktopView, isMobileView } = useScreenSize();
 
   const location = useLocation();
   const { navigate } = useCrossNavigate();
