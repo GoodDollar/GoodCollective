@@ -18,6 +18,7 @@ export const styles = StyleSheet.create({
     gap: 24,
     flexDirection: 'column',
     justifyContent: 'space-between',
+    flex: 1,
   },
   cardContentContainer: {
     width: '100%',

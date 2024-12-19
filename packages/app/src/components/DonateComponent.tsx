@@ -461,7 +461,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   };
 
   return (
-    <Box height="100vh" paddingBottom={8}>
+    <Box height="100vh" paddingY={8} paddingX={4}>
       {/* todo: find simpler solution to render different modals */}
       <BaseModal
         type="error"

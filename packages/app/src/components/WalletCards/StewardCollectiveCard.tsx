@@ -33,12 +33,10 @@ function StewardCollectiveCard({
     2
   );
 
-  const dynamicContainerStyle = isDesktopResolution ? { width: '48%' } : {};
-
   const infoLabel = ipfsCollective.rewardDescription ?? defaultInfoLabel;
 
   return (
-    <View style={[styles.cardContainer, styles.elevation, dynamicContainerStyle]}>
+    <View style={[styles.cardContainer, styles.elevation]}>
       <View style={styles.cardContentContainer}>
         <Image source={StewardOrange} alt="icon" style={styles.icon} />
 
