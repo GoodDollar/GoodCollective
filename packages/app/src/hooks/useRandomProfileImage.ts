@@ -8,7 +8,7 @@ export const useRandomProfileImage = (seed: string) => {
   const images = Object.entries(modules);
   useEffect(() => {
     const loadImage = async () => {
-      const rng = new prand(seed);
+      const rng = new prand(seed.toLowerCase());
 
       const rnd = rng.nextInt(0, images.length - 1);
       const img = (await images[rnd][1]()) as any;
