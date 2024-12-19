@@ -9,81 +9,100 @@ import { useCountPeopleSupported } from '../../hooks/useCountPeopleSupported';
 import { GoodDollarAmount } from '../GoodDollarAmount';
 
 interface BothWalletDetailsProps {
-  donor: Donor;
-  steward: Steward;
+  donor?: Donor;
+  steward?: Steward;
   tokenPrice?: number;
+  firstName: string;
 }
 
-function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProps) {
+function BothWalletDetails({ donor, steward, tokenPrice, firstName }: BothWalletDetailsProps) {
   const { wei: formattedDonations, usdValue: donationsUsdValue } = useDonorCollectivesFlowingBalances(
-    donor.collectives,
+    donor?.collectives || [],
     tokenPrice
   );
 
   const { formatted: formattedRewards, usdValue: rewardsUsdValue } = calculateGoodDollarAmounts(
-    steward.totalEarned,
-    tokenPrice,
-    2
+    steward?.totalEarned || '0',
+    tokenPrice
   );
 
-  const peopleSupported = useCountPeopleSupported(donor.collectives) ?? 0;
+  const peopleSupported = useCountPeopleSupported(donor?.collectives || []) ?? 0;
 
   const nCollectives = countUniqueValuesInTwoArrays(
-    steward.collectives.map((c) => c.collective),
-    donor.collectives.map((d) => d.collective)
+    steward?.collectives.map((c) => c.collective) || [],
+    donor?.collectives.map((d) => d.collective) || []
   );
 
   return (
     <View style={styles.walletDetailsContainer}>
-      <View style={[styles.row]}>
-        <View style={[styles.impactBar, styles.greenBar]} />
-        <View style={styles.rowContent}>
-          <Text style={styles.rowTitle}>This wallet has donated a total of</Text>
+      {donor && (
+        <>
           <View style={[styles.row]}>
-            <Text style={styles.rowBoldText}>G$ </Text>
-            <GoodDollarAmount
-              style={styles.rowText}
-              lastDigitsProps={{ style: { fontSize: 18, lineHeight: 27, fontWeight: '300' } }}
-              amount={formattedDonations || '0'}
-            />
+            <View style={[styles.impactBar, styles.greenBar]} />
+            <View style={styles.rowContent}>
+              <Text style={styles.rowTitle}>{firstName} has donated a total of</Text>
+              <View style={[styles.row]}>
+                <Text style={styles.rowBoldText}>G$ </Text>
+                <GoodDollarAmount
+                  style={styles.rowText}
+                  lastDigitsProps={{ style: { fontSize: 18, lineHeight: 27, fontWeight: '300' } }}
+                  amount={formattedDonations || '0'}
+                />
+              </View>
+              <Text style={styles.formattedUsd}>= {donationsUsdValue} USD</Text>
+            </View>
           </View>
-          <Text style={styles.formattedUsd}>= {donationsUsdValue} USD</Text>
-        </View>
-      </View>
 
-      <View style={[styles.row]}>
-        <View style={[styles.impactBar, styles.greenBar]} />
-        <View style={styles.rowContent}>
-          <Text style={styles.rowTitle}>Since</Text>
-          <Text style={styles.rowText}>{formatTime(donor.joined)}</Text>
-        </View>
-      </View>
-
-      <View style={[styles.row]}>
-        <View style={[styles.impactBar, styles.greenBar]} />
-        <View style={styles.rowContent}>
-          <Text style={styles.rowTitle}>This wallet's funding supported</Text>
           <View style={[styles.row]}>
-            <Text style={styles.rowBoldText}>{peopleSupported}</Text>
-            <Text style={styles.rowText}> people</Text>
+            <View style={[styles.impactBar, styles.greenBar]} />
+            <View style={styles.rowContent}>
+              <Text style={styles.rowTitle}>Since</Text>
+              <Text style={styles.rowText}>{formatTime(donor.joined)}</Text>
+            </View>
           </View>
-        </View>
-      </View>
 
-      <View style={[styles.row]}>
-        <View style={[styles.impactBar, styles.orangeBar]} />
-        <View style={styles.rowContent}>
-          <Text style={styles.rowTitle}>And received</Text>
           <View style={[styles.row]}>
-            <Text style={styles.rowBoldText}>G$ </Text>
-            <Text style={styles.rowText}>{formattedRewards}</Text>
+            <View style={[styles.impactBar, styles.greenBar]} />
+            <View style={styles.rowContent}>
+              <Text style={styles.rowTitle}>{firstName}'s funding supported</Text>
+              <View style={[styles.row]}>
+                <Text style={styles.rowBoldText}>{peopleSupported}</Text>
+                <Text style={styles.rowText}> people</Text>
+              </View>
+            </View>
           </View>
-          <Text>= {rewardsUsdValue} USD</Text>
-        </View>
-      </View>
+        </>
+      )}
+      {steward && (
+        <>
+          <View style={[styles.row]}>
+            <View style={[styles.impactBar, styles.orangeBar]} />
+            <View style={styles.rowContent}>
+              <Text style={styles.rowTitle}>{firstName} has performed</Text>
+              <View style={[styles.row]}>
+                <Text style={styles.rowBoldText}>{steward?.actions}</Text>
+                <Text style={styles.rowText}> actions</Text>
+              </View>
+            </View>
+          </View>
 
+          <View style={[styles.row]}>
+            <View style={[styles.impactBar, styles.orangeBar]} />
+            <View style={styles.rowContent}>
+              <Text style={styles.rowTitle}>And has received</Text>
+              <View style={[styles.row]}>
+                <Text style={styles.rowBoldText}>G$ </Text>
+                <Text style={styles.rowText}>{formattedRewards}</Text>
+              </View>
+              <Text>= {rewardsUsdValue} USD</Text>
+            </View>
+          </View>
+        </>
+      )}
       <View style={[styles.row]}>
-        <View style={[styles.impactBar, styles.blueBar]} />
+        <View
+          style={[styles.impactBar, steward && donor ? styles.blueBar : steward ? styles.orangeBar : styles.greenBar]}
+        />
         <View style={styles.rowContent}>
           <Text style={styles.rowTitle}>in the following</Text>
           <View style={[styles.row]}>
