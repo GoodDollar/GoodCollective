@@ -4,19 +4,13 @@ import { useEnsName } from 'wagmi';
 import TransactionListItem from './TransactionListItem';
 import { useFetchFullName } from '../../hooks/useFetchFullName';
 import { useMemo } from 'react';
-import { ClaimTX, PayoutTX } from '../../assets';
+import { SendIcon } from '../../assets';
 import { GoodDollarAmount } from '../GoodDollarAmount';
 
 interface ClaimTransactionListItemProps {
   transaction: ClaimTx;
 }
 
-const getTxIcon = (transaction: ClaimTx) => {
-  if (transaction.pooltype === 'UBI') {
-    return ClaimTX;
-  }
-  return PayoutTX;
-};
 export function ClaimTransactionListItem({ transaction }: ClaimTransactionListItemProps) {
   const { hash, networkFee, stewards, totalRewards } = transaction;
 
@@ -35,17 +29,19 @@ export function ClaimTransactionListItem({ transaction }: ClaimTransactionListIt
     multipleStewardsText ?? userFullName ?? ensName ?? (userAddress ? formatAddress(userAddress) : 'Unknown');
 
   const amount = useMemo(() => {
-    return <GoodDollarAmount amount={totalRewards} />;
+    return <GoodDollarAmount amount={totalRewards} isStream={false} />;
   }, [totalRewards]);
 
   return (
     <TransactionListItem
-      icon={getTxIcon(transaction)}
+      icon={SendIcon}
       userIdentifier={userIdentifier}
       isDonation={false}
+      isUBIPool={transaction.pooltype === 'UBI'}
       amount={amount}
       txHash={hash}
       rawNetworkFee={networkFee}
+      timeStamp={transaction.timestamp}
     />
   );
 }
