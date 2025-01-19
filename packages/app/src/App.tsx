@@ -51,7 +51,8 @@ function App(): JSX.Element {
     new ReownAppKitConnector({
       chains: [celo],
       options: {
-        appId: 'your-reown-appkit-app-id', // Replace with actual app ID
+        appId: 'actual-reown-appkit-app-id', // Ensure this is the correct app ID
+        // Add any additional configuration options required by the guide
       },
     }),
   ];

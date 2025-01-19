@@ -1,4 +1,3 @@
-// import { PropsWithChildren, ReactNode } from 'react';
 import { NativeBaseProvider } from 'native-base';
 import { ethers } from 'ethers';
 import { Web3Provider } from '@gooddollar/web3sdk-v2';
