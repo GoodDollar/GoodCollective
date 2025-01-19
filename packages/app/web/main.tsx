@@ -8,7 +8,6 @@ import App from '../src/App';
 // import { publicProvider } from 'wagmi/providers/public';
 // import { infuraProvider } from 'wagmi/providers/infura';
 // import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-// import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 // import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 
 // const { publicClient, webSocketPublicClient, chains } = configureChains(
@@ -24,12 +23,6 @@ import App from '../src/App';
 // const connectors = [
 //   new MetaMaskConnector({
 //     chains: chains,
-//   }),
-//   new WalletConnectConnector({
-//     chains: chains,
-//     options: {
-//       projectId: 'f147afbc9ad50465eaedd3f56ad2ae87',
-//     },
 //   }),
 // ];
 

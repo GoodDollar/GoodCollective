@@ -19,7 +19,7 @@ import { celo, mainnet } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
+import { ReownAppKitConnector } from '@reown/appkit';
 import { ApolloProvider } from '@apollo/client';
 
 import { Colors } from './utils/colors';
@@ -48,10 +48,10 @@ function App(): JSX.Element {
     new MetaMaskConnector({
       chains: [celo],
     }),
-    new WalletConnectConnector({
+    new ReownAppKitConnector({
       chains: [celo],
       options: {
-        projectId: 'f147afbc9ad50465eaedd3f56ad2ae87',
+        appId: 'your-reown-appkit-app-id', // Replace with actual app ID
       },
     }),
   ];

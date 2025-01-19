@@ -4,12 +4,12 @@ import { useConnect } from 'wagmi';
 
 import { Colors } from '../../utils/colors';
 import { RotatingArrowIcon } from './RotatingArrowIcon';
-import { MetaMaskLogo, WalletConnectLogo, WalletConnectLogoWhite, WebIcon } from '../../assets';
+import { MetaMaskLogo, WebIcon } from '../../assets';
 import { useScreenSize } from '../../theme/hooks';
 
 const supportedConnectors = {
   metaMask: 'MetaMask',
-  walletConnect: 'WalletConnect',
+  reownAppKit: 'ReownAppKit',
 };
 
 interface ConnectWalletMenuProps {
@@ -27,8 +27,8 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
     switch (name) {
       case supportedConnectors.metaMask:
         return MetaMaskLogo;
-      case supportedConnectors.walletConnect:
-        return WalletConnectLogo;
+      case supportedConnectors.reownAppKit:
+        return WebIcon; // Assuming Reown AppKit uses a generic web icon
       default:
         return WebIcon;
     }
@@ -38,7 +38,7 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
     if (isDesktopView) {
       setOpenDropdown(!openDropdown);
     } else {
-      const connector = connectors.find((conn) => conn.name === supportedConnectors.walletConnect);
+      const connector = connectors.find((conn) => conn.name === supportedConnectors.reownAppKit);
       if (connector && connector.ready) {
         connect({ connector });
       }
@@ -50,7 +50,7 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
       <TouchableOpacity style={styles.walletConnectButton} onPress={onClickConnectWallet}>
         <View style={isDesktopView ? {} : styles.mobileButtonContentContainer}>
           {!isDesktopView && (
-            <Image source={WalletConnectLogoWhite} resizeMode="contain" style={[styles.walletConnectorLogo]} />
+            <Image source={WebIcon} resizeMode="contain" style={[styles.walletConnectorLogo]} />
           )}
           <Text style={styles.walletConnectButtonText}>Connect Wallet</Text>
         </View>
