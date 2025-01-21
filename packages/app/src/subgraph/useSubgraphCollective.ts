@@ -21,7 +21,7 @@ export const collectivesById = gql`
         threads
         infoLabel
       }
-      stewards {
+      stewards(first: 1000) {
         id
         steward {
           id
