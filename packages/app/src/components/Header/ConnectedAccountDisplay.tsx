@@ -1,6 +1,5 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
-import { useEnsName, useNetwork } from 'wagmi';
-
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEnsName, useNetwork, useSwitchNetwork } from 'wagmi';
 import { InterRegular } from '../../utils/webFonts';
 import { formatAddress } from '../../lib/formatAddress';
 import { Colors } from '../../utils/colors';
@@ -9,21 +8,50 @@ import { useGetTokenBalance } from '../../hooks/useGetTokenBalance';
 import { formatNumberWithCommas } from '../../lib/formatFiatCurrency';
 import { GDToken, SupportedNetwork } from '../../models/constants';
 import { RandomAvatar } from '../RandomAvatar';
+import { useEffect, useState } from 'react';
 
 interface ConnectedAccountDisplayProps {
   isDesktopResolution: boolean;
   address: `0x${string}`;
 }
 
+const CELO_CHAIN_ID = 42220;
+
 export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => {
   const { isDesktopResolution, address } = props;
 
   const { chain } = useNetwork();
-  let chainName = chain?.name.replace(/\d+|\s/g, '');
+  const { switchNetwork, isError, error } = useSwitchNetwork();
 
-  if (!(chainName && chainName.toUpperCase() in SupportedNetwork)) {
-    chainName = 'Unsupported Network';
-  }
+  const formatChainName = (chainName: string | undefined) => chainName?.replace(/\d+|\s/g, '') || '';
+
+  const [chainName, setChainName] = useState(formatChainName(chain?.name));
+
+  const isUnsupportedNetwork = !(chainName && chainName.toUpperCase() in SupportedNetwork);
+
+  const handleNetworkClick = () => {
+    if (isUnsupportedNetwork && switchNetwork) {
+      switchNetwork(CELO_CHAIN_ID);
+      setChainName(formatChainName(chain?.name));
+    }
+  };
+
+  useEffect(() => {
+    if (isUnsupportedNetwork && switchNetwork) {
+      setChainName(formatChainName(chain?.name));
+      switchNetwork(CELO_CHAIN_ID);
+    }
+  }, [isUnsupportedNetwork, switchNetwork, chain?.name]);
+
+  useEffect(() => {
+    if (!isError || !error?.message) return;
+
+    const newChainName = error.message.includes('User rejected')
+      ? 'Switch to Celo Network'
+      : 'Celo Network Not Supported';
+
+    setChainName(newChainName);
+  }, [isError, error]);
 
   const tokenBalance = useGetTokenBalance(GDToken.address, address, chain?.id, true);
   const formattedTokenBalance = formatNumberWithCommas(tokenBalance, 2);
@@ -34,14 +62,17 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
       {isDesktopResolution && (
         <View style={styles.desktopWrapper}>
           <View style={[styles.walletInfoContainer, styles.walletInfoContainerDesktop]}>
-            <View
-              style={{
-                ...styles.walletWhiteContainer,
-                minWidth: 48,
-                ...InterRegular,
-              }}>
-              <Text style={{ ...InterRegular }}>{chainName}</Text>
-            </View>
+            <TouchableOpacity
+              onPress={handleNetworkClick}
+              style={[
+                styles.walletWhiteContainer,
+                { minWidth: 48, ...InterRegular },
+                isUnsupportedNetwork && styles.unsupportedNetwork,
+              ]}>
+              <Text style={[{ ...InterRegular }, isUnsupportedNetwork && styles.unsupportedNetworkText]}>
+                {chainName}
+              </Text>
+            </TouchableOpacity>
             <View
               style={{
                 ...styles.walletWhiteContainer,
@@ -63,14 +94,17 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
       )}
       {!isDesktopResolution && (
         <View style={styles.walletInfoContainer}>
-          <View
-            style={{
-              ...styles.walletWhiteContainer,
-              width: 48,
-              ...InterRegular,
-            }}>
-            <Text style={{ ...InterRegular }}>{chainName}</Text>
-          </View>
+          <TouchableOpacity
+            onPress={handleNetworkClick}
+            style={[
+              styles.walletWhiteContainer,
+              { width: 48, ...InterRegular },
+              isUnsupportedNetwork && styles.unsupportedNetwork,
+            ]}>
+            <Text style={[{ ...InterRegular }, isUnsupportedNetwork && styles.unsupportedNetworkText]}>
+              {chainName}
+            </Text>
+          </TouchableOpacity>
           <View
             style={{
               ...styles.walletWhiteContainer,
@@ -151,5 +185,11 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 1,
     ...InterRegular,
+  },
+  unsupportedNetwork: {
+    opacity: 0.9,
+  },
+  unsupportedNetworkText: {
+    color: Colors.black,
   },
 });
