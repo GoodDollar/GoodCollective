@@ -35,6 +35,7 @@ const defaultModalProps = {
     dParagraphs: (errorMessage: string) => ['Please try again later.', 'Reason: ' + (errorMessage ?? 'unknown')],
     dConfirmButtonText: 'OK',
     dImage: ThankYouImg,
+    dMessage: 'Something went wrong',
   },
 };
 
@@ -49,6 +50,7 @@ type BaseModalProps = {
   image?: any;
   errorMessage?: string;
   withClose?: boolean;
+  message?: string;
 };
 
 export const BaseModal = ({
@@ -62,12 +64,19 @@ export const BaseModal = ({
   image,
   errorMessage = '',
   withClose = true,
+  message,
 }: BaseModalProps) => {
   const _onClose = () => onClose();
-  const { dTitle, dParagraphs, dConfirmButtonText, dImage } =
+  const { dTitle, dParagraphs, dConfirmButtonText, dImage, dMessage } =
     type === 'error'
       ? defaultModalProps[type as keyof typeof defaultModalProps]
-      : { dTitle: title, dParagraphs: paragraphs, dConfirmButtonText: confirmButtonText, dImage: image };
+      : {
+          dTitle: title,
+          dParagraphs: paragraphs,
+          dConfirmButtonText: confirmButtonText,
+          dImage: image,
+          dMessage: message,
+        };
 
   const paragraph =
     type === 'error' && typeof dParagraphs === 'function'
@@ -116,7 +125,12 @@ export const BaseModal = ({
                   )
                 : null}
             </VStack>
-            <Image source={dImage} alt="woman" width={'100%'} height={224} margin="auto" resizeMode="contain" />
+            <Image source={dImage} alt="woman" width={'100%'} height={210} margin="auto" resizeMode="contain" />
+            {dMessage && (
+              <Text variant="bold" fontSize="sm" textAlign="center">
+                {message}
+              </Text>
+            )}
             {dConfirmButtonText ? (
               <ActionButton
                 text={dConfirmButtonText}
