@@ -15,7 +15,6 @@ interface ConnectedAccountDisplayProps {
   address: `0x${string}`;
 }
 
-const CELO_CHAIN_ID = 42220;
 
 export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => {
   const { isDesktopResolution, address } = props;
