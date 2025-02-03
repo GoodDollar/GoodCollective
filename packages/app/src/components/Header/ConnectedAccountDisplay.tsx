@@ -30,7 +30,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
 
   const handleNetworkClick = () => {
     if (isUnsupportedNetwork && switchNetwork) {
-      switchNetwork(CELO_CHAIN_ID);
+      switchNetwork(SupportedNetwork.CELO);
       setChainName(formatChainName(chain?.name));
     }
   };
