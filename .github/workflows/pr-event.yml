@@ -1,0 +1,35 @@
+name: PR Event
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  check-user:
+    runs-on: ubuntu-latest
+    outputs:
+      is_member: ${{ steps.check-team.outputs.isMember }}
+    steps:
+      - name: Check if user is a member of a specific team
+        id: check-team
+        uses: tspascoal/get-user-teams-membership@v2
+        with:
+          username: ${{ github.actor }}
+          organization: GoodDollar
+          team: GoodDollar
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  trigger_deploy:
+    needs: check-user
+    if: needs.check-user.outputs.is_member == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Deployment Workflow in Main Repo
+        run: |
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               https://api.github.com/repos/GoodDollar/GoodCollective/actions/workflows/preview.yml/dispatches \
+               -d '{"ref": "master", "inputs": {"pr_number": "${{ github.event.pull_request.number }}"}}'

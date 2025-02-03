@@ -4,14 +4,16 @@ on:
   push:
     branches:
       - master
-  pull_request:
-    types: [opened, synchronize, edited, ready_for_review]
-    branches:
-      - master
   workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request Number'
+        required: false
+
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
 jobs:
   preview:
     runs-on: ubuntu-latest
@@ -19,17 +21,33 @@ jobs:
       name: preview
       url: ${{ steps.deploy.outputs.url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository (PR or Master)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.pr_number && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || 'master' }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: yarn
-      - run: yarn install --immutable
-      # build the local mono-repo dependencies
+
+      - name: Install Dependencies
+        run: yarn install --immutable
+
+      # Build local mono-repo dependencies
       - run: yarn build:contracts
       - run: yarn build:sdk
-      - run: yarn vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-      - run: echo "$(node -v)"
-      - run: yarn vercel build --token=${{ secrets.VERCEL_TOKEN }}
-      - id: deploy
+
+      - name: Pull Vercel Configuration
+        run: yarn vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Verify Node Version
+        run: echo "$(node -v)"
+
+      - name: Build for Vercel
+        run: yarn vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Vercel
+        id: deploy
         run: echo "::set-output name=url::$(yarn vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})"
