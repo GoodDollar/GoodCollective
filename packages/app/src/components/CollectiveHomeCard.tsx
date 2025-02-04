@@ -20,24 +20,19 @@ function CollectiveHomeCard({ name, description, headerImage, route }: Collectiv
 
   const headerImg = headerImage ? { uri: headerImage } : Ocean;
 
-  const [isParagraphExpanded, setIsParagraphExpanded] = useState(false);
-
   return (
     <TouchableOpacity
       style={[
         styles.cardContainer,
         styles.elevation,
         isDesktopView ? styles.cardContainerDesktop : {},
-        isParagraphExpanded ? { height: 'auto' } : {},
         isTabletView ? { marginBottom: 20 } : {},
       ]}
       onPress={() => navigate(`/collective/${route}`)}>
       <Image source={headerImg} style={styles.sectionImage} />
       <View style={styles.cardDescriptionContainer}>
         <Text style={styles.cardTitle}>{name}</Text>
-        <TouchableOpacity onPress={() => setIsParagraphExpanded(!isParagraphExpanded)}>
-          <Text style={[styles.cardDescription, isParagraphExpanded ? { maxHeight: 'auto' } : {}]}>{description}</Text>
-        </TouchableOpacity>
+        <Text style={styles.cardDescription}>{description}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -46,7 +41,7 @@ function CollectiveHomeCard({ name, description, headerImage, route }: Collectiv
 const styles = StyleSheet.create({
   cardContainer: {
     width: '100%',
-    height: 330,
+    minHeight: 330,
     backgroundColor: Colors.white,
     paddingTop: 0,
     borderRadius: 20,
@@ -54,7 +49,7 @@ const styles = StyleSheet.create({
   },
   cardContainerDesktop: {
     width: 360,
-    height: 330,
+    minheight: 330,
     marginBottom: 0,
   },
   cardTitle: {
@@ -72,7 +67,7 @@ const styles = StyleSheet.create({
     color: Colors.gray[100],
     ...InterSmall,
     lineHeight: 24,
-    maxHeight: 72,
+    maxHeight: 'auto',
     overflow: 'hidden',
   },
   sectionImage: {
