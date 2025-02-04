@@ -498,6 +498,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
             : undefined,
         ]}
         confirmButtonText="GO TO PROFILE"
+        message="Please be patient! It may take some time for your donation to appear in your profile."
         image={ThankYouImg}
       />
       <BaseModal
