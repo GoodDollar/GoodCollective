@@ -1,7 +1,9 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import useCrossNavigate from '../../routes/useCrossNavigate';
 import { useState } from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Link } from 'native-base';
 import { useDisconnect } from 'wagmi';
+
+import useCrossNavigate from '../../routes/useCrossNavigate';
 import { Colors } from '../../utils/colors';
 import { CloseIcon, Logout, MenuIcon, PlaceholderAvatar } from '../../assets';
 
@@ -68,7 +70,9 @@ export const DropdownMenu = (props: DropdownMenuProps) => {
               navigate('/about');
             }}>
             <Image source={{ uri: reactUri }} resizeMode="contain" style={{ width: 20, height: 20 }} />
-            <Text style={styles.dropdownText}>About GoodCollective</Text>
+            <Link href="https://www.gooddollar.org/goodcollective-how-it-work" isExternal>
+              <Text style={styles.dropdownText}>About GoodCollective</Text>
+            </Link>
           </TouchableOpacity>
           <View style={styles.dropdownSeparator} />
           <TouchableOpacity
