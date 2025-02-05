@@ -80,7 +80,7 @@ function BothWalletDetails({ donor, steward, tokenPrice, firstName }: BothWallet
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>{firstName} has performed</Text>
               <View style={[styles.row]}>
-                <Text style={styles.rowBoldText}>{steward?.actions}</Text>
+                <Text style={styles.rowBoldText}>{steward.actions}</Text>
                 <Text style={styles.rowText}> actions</Text>
               </View>
             </View>
