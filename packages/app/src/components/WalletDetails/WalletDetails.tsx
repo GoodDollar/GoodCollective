@@ -1,6 +1,6 @@
 import EmptyProfile from './EmptyProfile';
 import { Donor, Steward } from '../../models/models';
-import EitherWalletDetails from './BothWalletDetails';
+import WalletDetailsContent from './BothWalletDetails';
 
 interface WalletDetailsProps {
   firstName: string;
@@ -11,7 +11,7 @@ interface WalletDetailsProps {
 
 function WalletDetails({ firstName, donor, steward, tokenPrice }: WalletDetailsProps) {
   if (!!donor || !!steward)
-    return <EitherWalletDetails donor={donor} steward={steward} tokenPrice={tokenPrice} firstName={firstName} />;
+    return < WalletDetailsContent donor={donor} steward={steward} tokenPrice={tokenPrice} firstName={firstName} />;
 
   return <EmptyProfile />;
 }
