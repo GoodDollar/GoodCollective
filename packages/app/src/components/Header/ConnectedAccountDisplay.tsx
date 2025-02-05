@@ -2,6 +2,7 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useEnsName, useNetwork, useSwitchNetwork } from 'wagmi';
 import { InterRegular } from '../../utils/webFonts';
 import { formatAddress } from '../../lib/formatAddress';
+import { formatEns } from '../../lib/formatEns';
 import { Colors } from '../../utils/colors';
 import { PlaceholderAvatar } from '../../assets';
 import { useGetTokenBalance } from '../../hooks/useGetTokenBalance';
@@ -14,7 +15,6 @@ interface ConnectedAccountDisplayProps {
   isDesktopResolution: boolean;
   address: `0x${string}`;
 }
-
 
 export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => {
   const { isDesktopResolution, address } = props;
@@ -77,12 +77,13 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
                 ...styles.walletWhiteContainer,
                 width: 240,
                 justifyContent: 'space-between',
+                borderRadius: 25,
               }}>
-              <Text style={styles.amountText}>{formattedTokenBalance} G$</Text>
+              <Text style={styles.amountText}>G$ {formattedTokenBalance}</Text>
               <View style={styles.walletConnected}>
                 <RandomAvatar seed={address} />
                 {ensName ? (
-                  <Text style={styles.walletConnectedText}>{ensName}</Text>
+                  <Text style={styles.walletConnectedText}>{formatEns(ensName)}</Text>
                 ) : (
                   <Text style={styles.walletConnectedText}>{formatAddress(address)}</Text>
                 )}
@@ -109,12 +110,13 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
               ...styles.walletWhiteContainer,
               flex: 1,
               justifyContent: 'space-between',
+              borderRadius: 25,
             }}>
-            <Text style={styles.amountText}>{formattedTokenBalance} G$</Text>
+            <Text style={styles.amountText}>G$ {formattedTokenBalance}</Text>
             <View style={styles.walletConnected}>
               <Image source={PlaceholderAvatar} resizeMode="contain" style={{ width: 25, height: 25 }} />
               {ensName ? (
-                <Text style={styles.walletConnectedText}>{ensName}</Text>
+                <Text style={styles.walletConnectedText}>{formatEns(ensName)}</Text>
               ) : (
                 <Text style={styles.walletConnectedText}>{formatAddress(address)}</Text>
               )}
@@ -146,7 +148,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 8,
+    padding: 5,
     height: 40,
     marginRight: 8,
     justifyContent: 'center',
@@ -156,6 +158,7 @@ const styles = StyleSheet.create({
     maxWidth: 120,
     color: Colors.gray[100],
     fontSize: 16,
+    padding: 5,
     fontWeight: 400,
     ...InterRegular,
   },
@@ -192,4 +195,3 @@ const styles = StyleSheet.create({
     color: Colors.black,
   },
 });
-
