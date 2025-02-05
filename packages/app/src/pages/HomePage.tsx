@@ -43,7 +43,7 @@ const CollectivesContainer: FC<PropsWithChildren> = ({ children }) => {
       flexDirection: 'row',
       flexWrap: 'wrap',
       justifyContent: 'center',
-      alignItems: 'flex-start',
+      alignItems: 'strech',
     },
   });
 
