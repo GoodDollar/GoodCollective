@@ -1,4 +1,12 @@
-import { Image, Text, TouchableOpacity, View, StyleSheet, ActivityIndicator } from 'react-native';
+import {
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  GestureResponderEvent,
+} from 'react-native';
 import { InterSemiBold } from '../utils/webFonts';
 import { ForwardIcon } from '../assets';
 import { Colors } from '../utils/colors';
@@ -10,7 +18,7 @@ interface RoundedButtonProps {
   color: string;
   fontSize?: number;
   seeType?: boolean;
-  onPress?: () => void;
+  onPress?: (e: GestureResponderEvent) => void;
   maxWidth?: number | string;
   disabled?: boolean;
   isLoading?: boolean;

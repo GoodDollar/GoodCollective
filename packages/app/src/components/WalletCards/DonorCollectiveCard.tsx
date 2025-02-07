@@ -1,4 +1,4 @@
-import { Text, View, Image } from 'react-native';
+import { Text, View, Image, TouchableOpacity } from 'react-native';
 import RoundedButton from '../RoundedButton';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { DonorCollective, IpfsCollective } from '../../models/models';
@@ -37,7 +37,9 @@ function DonorCollectiveCard({
 
   const hasActiveDonationStream = Number(donorCollective.flowRate || 0) > 0;
   return (
-    <View style={[styles.cardContainer, styles.elevation]}>
+    <TouchableOpacity
+      style={[styles.cardContainer, styles.elevation]}
+      onPress={() => navigate(`/collective/${donorCollective.collective}`)}>
       <View style={styles.cardContentContainer}>
         <Image source={hasActiveDonationStream ? StreamTX : DonorGreenIcon} alt="icon" style={styles.icon} />
 
@@ -66,12 +68,13 @@ function DonorCollectiveCard({
           backgroundColor="#95EED8"
           color="#3A7768"
           seeType={false}
-          onPress={() => {
+          onPress={(e) => {
+            e.stopPropagation();
             navigate(`/donate/${donorCollective.collective}`);
           }}
         />
       )}
-    </View>
+    </TouchableOpacity>
   );
 }
 export default DonorCollectiveCard;
