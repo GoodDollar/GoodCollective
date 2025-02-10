@@ -14,12 +14,11 @@ import * as Routing from './routes/routing';
 import ActivityLogPage from './pages/ActivityLogPage';
 import { Providers } from './Providers';
 import DonatePage from './pages/DonatePage';
-import { createConfig, http, WagmiProvider } from 'wagmi';
+import { WagmiProvider } from 'wagmi';
 import { celo, mainnet, AppKitNetwork } from '@reown/appkit/networks'
-import { injected, walletConnect } from 'wagmi/connectors'
 import { ApolloProvider } from '@apollo/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { createAppKit } from '@reown/appkit';
+import { createAppKit } from '@reown/appkit/react';
 import { Colors } from './utils/colors';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { useCreateSubgraphApolloClient, useCreateMongoDbApolloClient } from './hooks/apollo';
@@ -46,27 +45,14 @@ createAppKit({
   networks,
   projectId,
   metadata,
-  defaultNetwork: celo
+  defaultNetwork: celo,
+  features: {
+   email: false,
+   socials: false,
+  }
 })
 
-function AppNative(): JSX.Element {
-  const connectors = [
-    injected({
-      target: 'metaMask',
-    }),
-    walletConnect({
-        projectId: 'f147afbc9ad50465eaedd3f56ad2ae87',
-    }),
-  ];
-
-  const wagmiConfig = createConfig({
-    connectors,
-    chains: [celo], 
-    transports: { 
-      [celo.id]: http("https://rpc.ankr.com/celo"), 
-    },
-  });
-
+function AppWep(): JSX.Element {
   const subgraphApolloClient = useCreateSubgraphApolloClient();
   const mongoDbApolloClient = useCreateMongoDbApolloClient();
 
@@ -76,7 +62,7 @@ function AppNative(): JSX.Element {
 
   return (
     <Providers>
-      <WagmiProvider config={wagmiConfig}>
+      <WagmiProvider config={wagmiAdapter.wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <ApolloProvider client={subgraphApolloClient}>
           <MongoDbApolloProvider client={mongoDbApolloClient}>
@@ -112,4 +98,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AppNative;
+export default AppWep;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Image, StyleSheet, Text, TextStyle, TouchableOpacity, View } from 'react-native';
-import { useConnect } from 'wagmi';
+import { useAccount, useConnect } from 'wagmi';
 
 import { Colors } from '../../utils/colors';
 import { RotatingArrowIcon } from './RotatingArrowIcon';
@@ -19,10 +19,12 @@ interface ConnectWalletMenuProps {
 export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
   const { isDesktopView } = useScreenSize();
   const { dropdownOffset } = props;
-  const { connect, connectors, isLoading, pendingConnector } = useConnect();
+  const { connect, connectors } = useConnect();
+  const { status } = useAccount();
 
   const [openDropdown, setOpenDropdown] = useState<boolean>(false);
-
+  const [clickedConnector, setClickedConnector] = useState<string>('');
+  
   function connectorLogo(name: string) {
     switch (name) {
       case supportedConnectors.metaMask:
@@ -33,15 +35,21 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
         return WebIcon;
     }
   }
-
+  
+  const filteredConnectors = connectors.filter(connector => 
+    connector.name === supportedConnectors.metaMask || 
+    connector.name === supportedConnectors.walletConnect
+  );
   const onClickConnectWallet = () => {
     if (isDesktopView) {
       setOpenDropdown(!openDropdown);
+      console.log('CONNNECT', connect.name);
     } else {
       const connector = connectors.find((conn) => conn.name === supportedConnectors.walletConnect);
       if (connector && connector.ready) {
         connect({ connector });
       }
+      console.log('CONNNECT', connect.name);
     }
   };
 
@@ -58,14 +66,16 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
       </TouchableOpacity>
       {openDropdown && (
         <View style={[styles.dropdownContainer, dropdownOffset]}>
-          {connectors.map(
-            (connector, i) =>
-              (connector.ready || isLoading) && (
+          {filteredConnectors.map(
+            (connector, i) => 
+              ( 
                 <View key={connector.id}>
                   <TouchableOpacity
                     style={styles.walletConnector}
-                    disabled={!connector.ready}
-                    onPress={() => connect({ connector })}>
+                    disabled={status == "connected"}
+                    onPress={() => {
+                      setClickedConnector(connector.name);
+                      connect({ connector });}}>
                     <Image
                       source={connectorLogo(connector.name)}
                       resizeMode="contain"
@@ -73,7 +83,7 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
                     />
                     <Text style={styles.walletConnectorText}>
                       {connector.name}
-                      {isLoading && connector.id === pendingConnector?.id && ' (connecting)'}
+                      { clickedConnector === connector.name && ' (connecting)'}
                     </Text>
                   </TouchableOpacity>
                   {i < connectors.length - 1 && <View style={styles.divider} />}

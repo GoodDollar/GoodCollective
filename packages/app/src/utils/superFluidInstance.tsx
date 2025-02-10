@@ -1,5 +1,5 @@
 // import { Framework } from '@superfluid-finance/sdk-core';
-// import { useConnect, useNetwork } from 'wagmi';
+// import { useConnect } from 'wagmi';
 
 // export const getSFFramework = async () => {
 //   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -7,7 +7,7 @@
 
 //   const provider = await connector.getProvider();
 //   // eslint-disable-next-line react-hooks/rules-of-hooks
-//   const { chain }: any = useNetwork();
+//   const { chain }: any = useAccount();
 
 //   const framework = await Framework.create({
 //     provider,

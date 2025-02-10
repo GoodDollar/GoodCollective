@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useEnsName, useNetwork, useSwitchNetwork } from 'wagmi';
+import { useEnsName, useAccount, useSwitchChain } from 'wagmi';
 import { InterRegular } from '../../utils/webFonts';
 import { formatAddress } from '../../lib/formatAddress';
 import { formatEns } from '../../lib/formatEns';
@@ -19,8 +19,8 @@ interface ConnectedAccountDisplayProps {
 export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => {
   const { isDesktopResolution, address } = props;
 
-  const { chain } = useNetwork();
-  const { switchNetwork, isError, error } = useSwitchNetwork();
+  const { chain } = useAccount();
+  const { switchChain, isError, error } = useSwitchChain();
 
   const formatChainName = (chainName: string | undefined) => chainName?.replace(/\d+|\s/g, '') || '';
 
@@ -29,18 +29,18 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
   const isUnsupportedNetwork = !(chainName && chainName.toUpperCase() in SupportedNetwork);
 
   const handleNetworkClick = () => {
-    if (isUnsupportedNetwork && switchNetwork) {
-      switchNetwork(SupportedNetwork.CELO);
+    if (isUnsupportedNetwork && switchChain) {
+      switchChain({chainId:SupportedNetwork.CELO});
       setChainName(formatChainName(chain?.name));
     }
   };
 
   useEffect(() => {
-    if (isUnsupportedNetwork && switchNetwork) {
+    if (isUnsupportedNetwork && switchChain) {
       setChainName(formatChainName(chain?.name));
-      switchNetwork(SupportedNetwork.CELO);
+      switchChain({chainId:SupportedNetwork.CELO});
     }
-  }, [isUnsupportedNetwork, switchNetwork, chain?.name]);
+  }, [isUnsupportedNetwork, switchChain, chain?.name]);
 
   useEffect(() => {
     if (!isError || !error?.message) return;

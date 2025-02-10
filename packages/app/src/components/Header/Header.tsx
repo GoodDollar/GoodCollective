@@ -2,7 +2,7 @@ import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useAccount } from 'wagmi';
 
 import { ConnectedAccountDisplay } from './ConnectedAccountDisplay';
-import { ConnectWalletMenu } from './ConnectWalletMenu';
+import { ConnectWalletMenuWrapper } from './ConnectWalletMenuWrapper';
 import { DropdownMenu } from './DropdownMenu';
 
 import useCrossNavigate from '../../routes/useCrossNavigate';
@@ -26,7 +26,7 @@ function Header(): JSX.Element {
           </View>
           <View style={[styles.walletInfoContainer, styles.walletInfoContainerDesktop]}>
             {address && <ConnectedAccountDisplay isDesktopResolution={isDesktopView} address={address} />}
-            {!address && <ConnectWalletMenu dropdownOffset={{ top: 40, right: 50 }} />}
+            {!address && <ConnectWalletMenuWrapper dropdownOffset={{ top: 40, right: 50 }} />}
             <DropdownMenu
               isDesktopResolution={isDesktopView}
               address={address}
@@ -39,7 +39,7 @@ function Header(): JSX.Element {
         <View style={styles.headerMobileContainer}>
           <View style={[styles.walletInfoContainer, styles.desktopWrapper]}>
             {address && <ConnectedAccountDisplay isDesktopResolution={isDesktopView} address={address} />}
-            {!address && <ConnectWalletMenu dropdownOffset={{ top: 37, left: 0 }} />}
+            {!address && <ConnectWalletMenuWrapper dropdownOffset={{ top: 37, left: 0 }} />}
             <DropdownMenu
               isDesktopResolution={isDesktopView}
               address={address}

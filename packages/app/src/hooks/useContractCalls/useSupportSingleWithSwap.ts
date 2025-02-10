@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { calculateRawTotalDonation } from '../../lib/calculateRawTotalDonation';
 import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { useEthersSigner } from '../useEthers';
 import { Token } from '@uniswap/sdk-core';
 import { printAndParseSupportError, validateConnection } from './util';
@@ -19,7 +19,7 @@ export function useSupportSingleWithSwap(
   swapPath?: string
 ) {
   const { address: maybeAddress } = useAccount();
-  const { chain } = useNetwork();
+  const { chain } = useAccount();
   const maybeSigner = useEthersSigner({ chainId: chain?.id });
 
   return useCallback(async () => {
