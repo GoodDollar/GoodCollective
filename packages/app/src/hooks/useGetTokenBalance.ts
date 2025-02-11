@@ -1,8 +1,8 @@
 import { SupportedNetwork } from '../models/constants';
 import { useEffect, useState } from 'react';
-import { createConfig, http } from 'wagmi';
+import { config } from './../config';
 import { getBalance } from 'wagmi/actions';
-import { celo } from 'wagmi/chains';
+
 
 export const useGetTokenBalance = (
   currencyAddress: string,
@@ -11,13 +11,6 @@ export const useGetTokenBalance = (
   formatted?: boolean
 ): string => {
   const [tokenBalance, setTokenBalance] = useState<string>('0');
-
-  const config = createConfig({
-      chains: [celo], 
-      transports: { 
-        [celo.id]: http("https://rpc.ankr.com/celo"), 
-      },
-  });
 
   useEffect(() => {
     if (!currencyAddress || !accountAddress || chainId !== SupportedNetwork.CELO) return;

@@ -31,6 +31,7 @@ import FrequencySelector from './DonateFrequency';
 import NumberInput from './NumberInput';
 import { ApproveTokenImg, PhoneImg, StreamWarning, ThankYouImg } from '../assets';
 import { formatNumberWithCommas } from '../lib/formatFiatCurrency';
+type ConfigChainId = typeof config.chains[number]['id'];
 
 interface DonateComponentProps {
   collective: Collective;
@@ -322,7 +323,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
         let txReceipt: TransactionReceipt | undefined;
         try {
           txReceipt = await waitForTransactionReceipt(config, {
-            chainId: celo.id,
+            chainId: chain?.id as ConfigChainId,
             confirmations: 1,
             hash: txHash,
             timeout: 1000 * 60 * 5,
