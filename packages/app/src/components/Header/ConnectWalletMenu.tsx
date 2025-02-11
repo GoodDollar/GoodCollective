@@ -43,13 +43,11 @@ export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
   const onClickConnectWallet = () => {
     if (isDesktopView) {
       setOpenDropdown(!openDropdown);
-      console.log('CONNNECT', connect.name);
     } else {
       const connector = connectors.find((conn) => conn.name === supportedConnectors.walletConnect);
       if (connector && connector.ready) {
         connect({ connector });
       }
-      console.log('CONNNECT', connect.name);
     }
   };
 
