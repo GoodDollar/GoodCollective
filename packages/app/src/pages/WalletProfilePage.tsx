@@ -25,7 +25,7 @@ function WalletProfilePage() {
 
   const userIdentifier = firstName ? `${firstName} ${lastName}` : ensName ?? address ?? '0x';
 
-  const isWhitelisted = useIsStewardVerified(address || '');
+  const isWhitelisted = useIsStewardVerified(address as `0x${string}`);
   return (
     <Layout breadcrumbPath={[{ text: userIdentifier, route: `/profile/${address}` }]}>
       <WalletProfile

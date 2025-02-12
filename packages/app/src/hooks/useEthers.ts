@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { usePublicClient, useWalletClient, type WalletClient } from 'wagmi';
+import { usePublicClient, useWalletClient } from 'wagmi';
 import { providers } from 'ethers';
-import { Chain, Client, Transport } from 'viem';
+import { Chain, Client, Transport, WalletClient } from 'viem';
 
 export function walletClientToSigner(walletClient: WalletClient) {
   const { account, chain, transport } = walletClient;
