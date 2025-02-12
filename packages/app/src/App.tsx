@@ -46,13 +46,9 @@ createAppKit({
   projectId,
   metadata,
   defaultNetwork: celo,
-  features: {
-   email: false,
-   socials: false,
-  }
 })
 
-function AppWeb(): JSX.Element {
+function App(): JSX.Element {
   const subgraphApolloClient = useCreateSubgraphApolloClient();
   const mongoDbApolloClient = useCreateMongoDbApolloClient();
 
@@ -98,4 +94,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AppWeb;
+export default App;

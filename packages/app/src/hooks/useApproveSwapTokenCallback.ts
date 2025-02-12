@@ -1,5 +1,5 @@
-import { useReadContract, useWriteContract, useAccount, useSimulateContract, useWatchContractEvent } from 'wagmi';
-import { useMemo } from 'react';
+import { useReadContract, useWriteContract, useAccount, useSimulateContract, useBlockNumber } from 'wagmi';
+import { useEffect, useMemo } from 'react';
 import { calculateRawTotalDonation } from '../lib/calculateRawTotalDonation';
 import { ERC20 } from '../abi/ERC20';
 import { useToken } from './useTokenList';
@@ -26,6 +26,7 @@ export function useApproveSwapTokenCallback(
     [decimalAmountIn, duration, tokenIn.decimals]
   );
 
+  const { data: blockNumber } = useBlockNumber({ watch: true })
   const { data: allowance = 0n, refetch } = useReadContract({
     chainId: chain?.id,
     address: tokenIn.address as `0x${string}`,
@@ -33,6 +34,10 @@ export function useApproveSwapTokenCallback(
     functionName: 'allowance',
     args: [address, collectiveAddress],
   });
+
+  useEffect(() => {
+    refetch()
+  }, [blockNumber])
 
   const { data } = useSimulateContract({
     chainId: chain?.id,
