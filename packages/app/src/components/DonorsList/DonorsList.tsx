@@ -3,7 +3,7 @@ import { DonorCollective } from '../../models/models';
 import { DonorsListItem } from './DonorsListItem';
 import { useMemo } from 'react';
 import { useFetchFullNames } from '../../hooks/useFetchFullName';
-import { useDonorsWithTotal } from '../../hooks/useDonorsWithTotal';
+import { useDonorsWithTotal } from '../../hooks/donors/useDonorsWithTotal';
 
 interface DonorsListProps {
   donors: DonorCollective[];
