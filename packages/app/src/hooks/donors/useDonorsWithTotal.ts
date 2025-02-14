@@ -9,7 +9,11 @@ export function useDonorsWithTotal(donors: DonorCollective[]) {
   const donorsWithTotal = stableDonors.map(useDonorWithTotal);
 
   return useMemo(
-    () => donorsWithTotal.sort((a, b) => (b.totalDonations > a.totalDonations ? 1 : -1)),
+    () =>
+      donorsWithTotal.sort((a, b) => {
+        const diff = b.totalDonations - a.totalDonations;
+        return diff > 0n ? 1 : diff < 0n ? -1 : 0;
+      }),
     [donorsWithTotal]
   );
 }
