@@ -1,19 +1,14 @@
 import { useMemo } from 'react';
 import { DonorCollective } from '../../models/models';
 import { useDonorWithTotal } from './useDonorWithTotal';
+import { sortBy } from 'lodash';
 
 export function useDonorsWithTotal(donors: DonorCollective[]) {
-  const stableDonors = useMemo(() => {
-    return [...donors].sort((a, b) => (a.donor > b.donor ? 1 : -1));
-  }, [donors]);
+  // Sort by donor address for stable hook ordering
+  const stableDonors = useMemo(() => sortBy(donors, 'donor'), [donors]);
+
   const donorsWithTotal = stableDonors.map(useDonorWithTotal);
 
-  return useMemo(
-    () =>
-      donorsWithTotal.sort((a, b) => {
-        const diff = b.totalDonations - a.totalDonations;
-        return diff > 0n ? 1 : diff < 0n ? -1 : 0;
-      }),
-    [donorsWithTotal]
-  );
+  // Sort by total donations in descending order
+  return useMemo(() => sortBy(donorsWithTotal, (d) => d.totalDonations).reverse(), [donorsWithTotal]);
 }
