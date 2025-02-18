@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { Frequency, SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
 import { calculateFlowRate } from '../../lib/calculateFlowRate';
 import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { useEthersSigner } from '../useEthers';
 import { printAndParseSupportError, validateConnection } from './util';
 
@@ -18,7 +18,7 @@ export function useSupportFlow(
   toggleIsDonationComplete: (value: boolean) => void
 ) {
   const { address: maybeAddress } = useAccount();
-  const { chain } = useNetwork();
+  const { chain } = useAccount();
   const maybeSigner = useEthersSigner({ chainId: chain?.id });
 
   return useCallback(async () => {

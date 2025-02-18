@@ -14,55 +14,41 @@ import * as Routing from './routes/routing';
 import ActivityLogPage from './pages/ActivityLogPage';
 import { Providers } from './Providers';
 import DonatePage from './pages/DonatePage';
-import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import { celo, mainnet } from 'wagmi/chains';
-import { publicProvider } from 'wagmi/providers/public';
-import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
+import { WagmiProvider } from 'wagmi';
+import { celo, mainnet, AppKitNetwork } from '@reown/appkit/networks'
 import { ApolloProvider } from '@apollo/client';
-
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { createAppKit } from '@reown/appkit/react';
 import { Colors } from './utils/colors';
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { useCreateSubgraphApolloClient, useCreateMongoDbApolloClient } from './hooks/apollo';
 import { MongoDbApolloProvider } from './components/providers/MongoDbApolloProvider';
 
+const queryClient = new QueryClient();
+const projectId = 'b1b7664bfba2f6ad5538aa7fa9a2404f'
+const metadata = {
+  name: 'GoodCollective',
+  description: 'GoodCollective is a platform for creating and supporting social good projects.',
+  url: 'https://www.gooddollar.org/',
+  icons: ['https://avatars.githubusercontent.com/u/179229932'],
+  redirect: {
+    native: 'YOUR_APP_SCHEME://',
+    universal: 'https://www.gooddollar.org/'
+  }
+}
+
+const networks: [AppKitNetwork, AppKitNetwork] = [mainnet, celo];
+const wagmiAdapter = new WagmiAdapter({ networks, projectId })
+
+createAppKit({
+  adapters: [wagmiAdapter],
+  networks,
+  projectId,
+  metadata,
+  defaultNetwork: celo,
+})
+
 function App(): JSX.Element {
-  const { publicClient, webSocketPublicClient } = configureChains(
-    [celo, mainnet],
-    [
-      publicProvider(),
-      jsonRpcProvider({
-        rpc: (chain) => {
-          if (chain.id === 42220) {
-            return {
-              http: 'https://rpc.ankr.com/celo',
-            };
-          }
-          return null;
-        },
-      }),
-    ]
-  );
-
-  const connectors = [
-    new MetaMaskConnector({
-      chains: [celo],
-    }),
-    new WalletConnectConnector({
-      chains: [celo],
-      options: {
-        projectId: 'f147afbc9ad50465eaedd3f56ad2ae87',
-      },
-    }),
-  ];
-
-  const wagmiConfig = createConfig({
-    autoConnect: true,
-    connectors,
-    publicClient,
-    webSocketPublicClient,
-  });
-
   const subgraphApolloClient = useCreateSubgraphApolloClient();
   const mongoDbApolloClient = useCreateMongoDbApolloClient();
 
@@ -72,7 +58,8 @@ function App(): JSX.Element {
 
   return (
     <Providers>
-      <WagmiConfig config={wagmiConfig}>
+      <WagmiProvider config={wagmiAdapter.wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
         <ApolloProvider client={subgraphApolloClient}>
           <MongoDbApolloProvider client={mongoDbApolloClient}>
             <SafeAreaView style={styles.body}>
@@ -94,7 +81,8 @@ function App(): JSX.Element {
             </SafeAreaView>
           </MongoDbApolloProvider>
         </ApolloProvider>
-      </WagmiConfig>
+        </QueryClientProvider>
+      </WagmiProvider>
     </Providers>
   );
 }

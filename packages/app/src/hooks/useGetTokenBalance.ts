@@ -1,6 +1,8 @@
 import { SupportedNetwork } from '../models/constants';
 import { useEffect, useState } from 'react';
-import { fetchBalance } from 'wagmi/actions';
+import { config } from './../config';
+import { getBalance } from 'wagmi/actions';
+
 
 export const useGetTokenBalance = (
   currencyAddress: string,
@@ -12,7 +14,8 @@ export const useGetTokenBalance = (
 
   useEffect(() => {
     if (!currencyAddress || !accountAddress || chainId !== SupportedNetwork.CELO) return;
-    fetchBalance({
+    getBalance(
+      config,{
       address: accountAddress,
       chainId: chainId,
       token: currencyAddress as `0x${string}`,

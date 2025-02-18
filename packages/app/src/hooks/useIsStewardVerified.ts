@@ -1,11 +1,11 @@
 import { G$ContractAddresses } from '@gooddollar/web3sdk-v2';
 import { isAddress, zeroAddress } from 'viem';
-import { useContractRead, useNetwork } from 'wagmi';
+import { useAccount, useReadContract } from 'wagmi';
 
-export const useIsStewardVerified = (address: string): boolean => {
-  const chain = useNetwork();
+export const useIsStewardVerified = (address: `0x${string}`): boolean => {
+  const chain = useAccount();
   const idAddress = G$ContractAddresses('Identity', 'production-celo') as `0x{string}`;
-  const result = useContractRead({
+  const result = useReadContract({
     chainId: chain.chain?.id,
     abi: [
       {
