@@ -9,6 +9,6 @@ export function useDonorsWithTotal(donors: DonorCollective[]) {
 
   const donorsWithTotal = stableDonors.map(useDonorWithTotal);
 
-  // Sort by total donations in descending order
+  // Sort by total donations in descending order, using lodoash
   return useMemo(() => orderBy(donorsWithTotal, 'totalDonations', 'desc'), [donorsWithTotal]);
 }
