@@ -1,4 +1,3 @@
-import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { useParams } from 'react-router-native';
 
@@ -9,7 +8,7 @@ import { DonorBlue, Ocean } from '../assets';
 import { useScreenSize } from '../theme/hooks';
 
 import { useCollectiveById } from '../hooks';
-import DonorList from '../components/DonorsList/DonorsList';
+import DonorsList from '../components/DonorsList/DonorsList';
 
 function ViewDonorsPage() {
   const { isTabletView } = useScreenSize();
@@ -38,7 +37,7 @@ function ViewDonorsPage() {
               <Text style={styles.listTitle}>Donors</Text>
             </View>
             <View style={styles.desktopDonorsContainer}>
-              <DonorList donors={collective.donorCollectives} />
+              <DonorsList donors={collective.donorCollectives} />
             </View>
           </View>
         )}
@@ -57,7 +56,7 @@ function ViewDonorsPage() {
             <Text style={styles.title}>{collective.ipfs.name}</Text>
           </View>
           <View style={[styles.donorsContainer]}>
-            <DonorList donors={collective.donorCollectives} />
+            <DonorsList donors={collective.donorCollectives} />
           </View>
         </>
       )}

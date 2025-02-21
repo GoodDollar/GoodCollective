@@ -34,7 +34,8 @@ export function useDonorCollectivesFlowingBalances(
       aggregation.flowRates.push(donorCollective.flowRate);
     });
     return aggregation;
-  }, [donorCollectives]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [`${donorCollectives}`]);
   return useSumOfFlowingBalances(
     donationInputs.contributions,
     donationInputs.timestamps,
@@ -58,7 +59,8 @@ export function useDonorCollectivesFlowingBalancesWithAltStaticBalance(
       aggregation.flowRates.push(donorCollective.flowRate);
     });
     return aggregation;
-  }, [donorCollectives]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [`${donorCollectives}`]);
 
   const baseAmounts: string[] = useMemo(() => {
     const arr = Array(donorCollectives.length);
@@ -75,14 +77,17 @@ export function useSumOfFlowingBalances(
   flowRates: string[],
   tokenPrice: number | undefined
 ): CalculatedAmounts {
-  const balance = useMemo(() => balances.reduce((a, b) => a + BigInt(b), BigInt(0)), [balances]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const balance = useMemo(() => balances.reduce((a, b) => a + BigInt(b), BigInt(0)), [JSON.stringify(balances)]);
   const [weiValue, setWeiValue] = useState<BigNumberish>(balance);
   useEffect(() => setWeiValue(balance), [balance]);
 
-  const flowRateBigNumbers = useMemo(() => flowRates.map((flowRate) => BigInt(flowRate)), [flowRates]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const flowRateBigNumbers = useMemo(() => flowRates.map((flowRate) => BigInt(flowRate)), [JSON.stringify(flowRates)]);
   const balanceTimestampsMs = useMemo(
     () => balanceTimestamps.map((balanceTimestamp) => BigInt(balanceTimestamp) * BigInt(1000)),
-    [balanceTimestamps]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(balanceTimestamps)]
   );
 
   useEffect(() => {

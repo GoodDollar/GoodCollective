@@ -8,6 +8,6 @@ export function useCountPeopleSupported(donorCollectives: DonorCollective[]): nu
   }, [donorCollectives]);
   const collectives = useCollectivesById(collectiveIds);
   return useMemo(() => {
-    return collectives?.reduce((acc, cur) => acc + cur?.stewardCollectives?.length ?? 0, 0);
+    return collectives?.reduce((acc, cur) => acc + (cur?.stewardCollectives?.length ?? 0), 0);
   }, [collectives]);
 }

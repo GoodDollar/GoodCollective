@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+  pull_request_target:
+    branches:
+      - master
   pull_request:
     types: [opened, synchronize, edited, ready_for_review]
     branches:
@@ -13,6 +16,12 @@ env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 jobs:
+  authorize:
+    environment: ${{ github.event_name == 'pull_request_target' &&
+      github.event.pull_request.head.repo.full_name != github.repository && 'external' || 'internal' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: true
   preview:
     runs-on: ubuntu-latest
     environment:
@@ -20,6 +29,8 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: 20
