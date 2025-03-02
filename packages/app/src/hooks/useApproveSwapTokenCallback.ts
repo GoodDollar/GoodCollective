@@ -34,7 +34,8 @@ export function useApproveSwapTokenCallback(
     functionName: 'allowance',
     args: [address, collectiveAddress],
   });
-
+  
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     refetch()
   }, [blockNumber])

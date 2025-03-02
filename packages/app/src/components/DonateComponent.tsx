@@ -5,7 +5,6 @@ import { useAccount } from 'wagmi';
 import { useParams } from 'react-router-native';
 import Decimal from 'decimal.js';
 import { waitForTransactionReceipt } from '@wagmi/core';
-import { celo } from '@wagmi/core/chains'
 import { config } from './../config';
 import { TransactionReceipt } from 'viem';
 import { isEmpty } from 'lodash';
