@@ -1,7 +1,10 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useScreenSize } from '../../theme/hooks';
+interface ConnectWalletMenuProps {
+  dropdownOffset: { top: number; right?: number; left?: number };
+}
 
-export const ConnectWalletMenu = () => {
+export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
   const { isDesktopView } = useScreenSize();
   return (
     <>
