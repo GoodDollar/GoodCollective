@@ -1,5 +1,5 @@
-import { useAccount, useContractRead, useContractWrite, useNetwork, usePrepareContractWrite } from 'wagmi';
-import { useMemo } from 'react';
+import { useReadContract, useWriteContract, useAccount, useSimulateContract, useBlockNumber } from 'wagmi';
+import { useEffect, useMemo } from 'react';
 import { calculateRawTotalDonation } from '../lib/calculateRawTotalDonation';
 import { ERC20 } from '../abi/ERC20';
 import { useToken } from './useTokenList';
@@ -11,14 +11,14 @@ export function useApproveSwapTokenCallback(
   toggleApproveSwapModalVisible: (value: boolean) => void,
   collectiveAddress: `0x${string}`
 ): {
-  isLoading: boolean;
+  isPending: boolean;
   isSuccess: boolean;
   isError: boolean;
   isRequireApprove: boolean;
   handleApproveToken?: () => Promise<`0x${string}` | undefined>;
 } {
   const { address = '0x' } = useAccount();
-  const { chain } = useNetwork();
+  const { chain } = useAccount();
   const tokenIn = useToken(currencyIn);
 
   const rawAmountIn = useMemo(
@@ -26,16 +26,21 @@ export function useApproveSwapTokenCallback(
     [decimalAmountIn, duration, tokenIn.decimals]
   );
 
-  const { data: allowance = 0n } = useContractRead({
+  const { data: blockNumber } = useBlockNumber({ watch: true })
+  const { data: allowance = 0n, refetch } = useReadContract({
     chainId: chain?.id,
     address: tokenIn.address as `0x${string}`,
     abi: ERC20,
     functionName: 'allowance',
     args: [address, collectiveAddress],
-    watch: true,
   });
+  
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    refetch()
+  }, [blockNumber])
 
-  const { config } = usePrepareContractWrite({
+  const { data } = useSimulateContract({
     chainId: chain?.id,
     address: tokenIn.address as `0x${string}`,
     abi: ERC20,
@@ -44,24 +49,25 @@ export function useApproveSwapTokenCallback(
     args: [collectiveAddress, rawAmountIn],
   });
 
-  const { isLoading, isSuccess, isError, writeAsync } = useContractWrite(config);
+  const { isPending, isSuccess, isError, writeContractAsync } = useWriteContract();
 
   const handleApproveToken =
-    writeAsync === undefined
+  writeContractAsync === undefined
       ? undefined
       : async () => {
           toggleApproveSwapModalVisible(true);
-          const result = await writeAsync().catch((_) => {
+          if (!data?.request) return undefined;
+          const result = await writeContractAsync(data.request).catch((_) => {
             // user rejected the transaction
             return undefined;
           });
           toggleApproveSwapModalVisible(false);
-          return result?.hash;
+          return result;
         };
 
   return {
     isRequireApprove: rawAmountIn > allowance,
-    isLoading,
+    isPending,
     isSuccess,
     isError,
     handleApproveToken,

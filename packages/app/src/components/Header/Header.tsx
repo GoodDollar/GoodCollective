@@ -4,7 +4,6 @@ import { useAccount } from 'wagmi';
 import { ConnectedAccountDisplay } from './ConnectedAccountDisplay';
 import { ConnectWalletMenu } from './ConnectWalletMenu';
 import { DropdownMenu } from './DropdownMenu';
-
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { Colors } from '../../utils/colors';
 import { BackIcon, HeaderLogo } from '../../assets';

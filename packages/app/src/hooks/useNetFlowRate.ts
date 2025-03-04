@@ -1,6 +1,6 @@
 import { useContractRead } from 'wagmi';
 
-export const useNetFlowRate = (token: string, account: string) => {
+export const useNetFlowRate = (token: `0x${string}`, account: `0x${string}`) => {
   const result = useContractRead({
     address: '0xcfA132E353cB4E398080B9700609bb008eceB125',
     abi: [

@@ -1,10 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Image, View } from 'react-native';
 import { Box, HStack, Link, Text, useBreakpointValue, VStack } from 'native-base';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { useParams } from 'react-router-native';
 import Decimal from 'decimal.js';
-import { waitForTransaction } from '@wagmi/core';
+import { waitForTransactionReceipt } from '@wagmi/core';
+import { config } from './../config';
 import { TransactionReceipt } from 'viem';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
@@ -29,6 +30,7 @@ import FrequencySelector from './DonateFrequency';
 import NumberInput from './NumberInput';
 import { ApproveTokenImg, PhoneImg, StreamWarning, ThankYouImg } from '../assets';
 import { formatNumberWithCommas } from '../lib/formatFiatCurrency';
+type ConfigChainId = typeof config.chains[number]['id'];
 
 interface DonateComponentProps {
   collective: Collective;
@@ -167,7 +169,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
 
   const { isLargeDesktop } = useScreenSize();
   const { address } = useAccount();
-  const { chain } = useNetwork();
+  const { chain } = useAccount();
 
   const [completeDonationModalVisible, setCompleteDonationModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
@@ -319,8 +321,8 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
         }
         let txReceipt: TransactionReceipt | undefined;
         try {
-          txReceipt = await waitForTransaction({
-            chainId: chain?.id,
+          txReceipt = await waitForTransactionReceipt(config, {
+            chainId: chain?.id as ConfigChainId,
             confirmations: 1,
             hash: txHash,
             timeout: 1000 * 60 * 5,

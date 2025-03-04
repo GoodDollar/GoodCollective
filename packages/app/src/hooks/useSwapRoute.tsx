@@ -8,7 +8,7 @@ import {
   V3Route,
 } from '@uniswap/smart-order-router';
 import { CurrencyAmount, Percent, Token, TradeType } from '@uniswap/sdk-core';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { encodeRouteToPath } from '@uniswap/v3-sdk';
 import { Protocol } from '@uniswap/router-sdk';
 import Decimal from 'decimal.js';
@@ -43,7 +43,7 @@ export function useSwapRoute(
   gasEstimate?: string;
 } {
   const { address } = useAccount();
-  const { chain } = useNetwork();
+  const { chain } = useAccount();
   const provider = useEthersProvider({ chainId: chain?.id });
   const tokenIn = useToken(currencyIn);
 

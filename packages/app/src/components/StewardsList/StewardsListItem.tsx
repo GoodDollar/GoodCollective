@@ -18,7 +18,7 @@ interface StewardListItemProps {
 export const StewardsListItem = (props: StewardListItemProps) => {
   const { showActions, steward, userFullName } = props;
   const { navigate } = useCrossNavigate();
-  const isVerified = useIsStewardVerified(steward.steward);
+  const isVerified = useIsStewardVerified(steward.steward as `0x${string}`);
 
   const { data: ensName } = useEnsName({ address: steward.steward as `0x${string}`, chainId: 1 });
   const userIdentifier = userFullName ?? ensName ?? formatAddress(steward.steward);
