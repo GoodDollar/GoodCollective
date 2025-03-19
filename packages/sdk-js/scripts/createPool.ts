@@ -2,6 +2,7 @@
 import * as ethers from 'ethers';
 import { GoodCollectiveSDK, UBIPoolSettings, UBISettings } from '../src/goodcollective/goodcollective.ts';
 import { config } from 'dotenv';
+import { ExtendedUBISettings } from '../types/index.js';
 
 config();
 // const provider = new ethers.providers.JsonRpcProvider('https://alfajores-forno.celo-testnet.org');
@@ -149,16 +150,12 @@ const createUbiPool = async () => {
     // ],
   };
 
+  // production identity/G$ token contracts are used here
   const poolSettings: UBIPoolSettings = {
     manager: wallet.address,
     membersValidator: ethers.constants.AddressZero,
     uniquenessValidator: '0xC361A6E67822a0EDc17D899227dd9FC50BD62F42',
-    // uniquenessValidator: '0xF25fA0D4896271228193E782831F6f3CFCcF169C',
-    // rewardToken: '0xFa51eFDc0910CCdA91732e6806912Fa12e2FD475',
     rewardToken: '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A',
-    // network === 'development-celo'
-    //   ? '0xFa51eFDc0910CCdA91732e6806912Fa12e2FD475'
-    //   : '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A', //celo production token
   };
 
   const ubiSettings: UBISettings = {
@@ -167,8 +164,15 @@ const createUbiPool = async () => {
     minActiveUsers: ethers.BigNumber.from(500),
     claimForEnabled: false,
     maxClaimAmount: ethers.utils.parseEther('437'),
-    maxClaimers: 500,
+    maxMembers: 500,
     onlyMembers: true,
+  };
+
+  // example for fixed amount type of pool
+  const extendedUBISettings: ExtendedUBISettings = {
+    maxPeriodClaimers: 1,
+    minClaimAmount: ubiSettings.maxClaimAmount,
+    managerFeeBps: 1500, // 15%
   };
 
   const pool = await sdk.createUbiPoolWithAttributes(
@@ -177,7 +181,8 @@ const createUbiPool = async () => {
     poolAttributes,
     poolSettings,
     ubiSettings,
-    true
+    extendedUBISettings,
+    false
   );
   console.log('pool:', pool.address);
 };

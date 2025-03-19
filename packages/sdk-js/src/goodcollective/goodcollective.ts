@@ -1,4 +1,5 @@
 import { BigNumberish, ContractTransaction, ethers } from 'ethers';
+
 import GoodCollectiveContracts from '@gooddollar/goodcollective-contracts/releases/deployment.json' assert { type: 'json' };
 import {
   ProvableNFT,
@@ -6,7 +7,7 @@ import {
   DirectPaymentsPool,
   UBIPool,
   UBIPoolFactory,
-} from '@gooddollar/goodcollective-contracts/typechain-types';
+} from '@gooddollar/goodcollective-contracts/typechain-types/index.ts';
 import UBIPoolJson from '@gooddollar/goodcollective-contracts/artifacts/contracts/UBI/UBIPool.sol/UBIPool.json' assert { type: 'json' };
 const UBIPoolAbi = UBIPoolJson.abi;
 
