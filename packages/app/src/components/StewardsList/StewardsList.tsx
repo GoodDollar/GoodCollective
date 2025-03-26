@@ -16,7 +16,6 @@ interface StewardListProps {
 
 function StewardList({ listType, stewards, titleStyle, listStyle }: StewardListProps) {
   const titleIcon = listType === 'viewCollective' ? StewardGreen : StewardBlue;
-  const stewardsCountText = listType === 'viewCollective' ? ` (${stewards.length})` : '';
 
   const userAddresses = useMemo(() => {
     return stewards.map((steward) => steward.steward as `0x${string}`);
@@ -27,7 +26,7 @@ function StewardList({ listType, stewards, titleStyle, listStyle }: StewardListP
     <View style={styles.stewardsListContainer}>
       <View style={[styles.row, { marginBottom: 24, ...(titleStyle ?? {}) }]}>
         <Image source={titleIcon} style={styles.titleIcon} />
-        <Text style={styles.title}>Stewards{stewardsCountText}</Text>
+        <Text style={styles.title}>Stewards</Text>
       </View>
       <View style={[styles.list, overflowStyle.overflow, { ...(listStyle ?? {}) }]}>
         {stewards.map((steward) => (
