@@ -4,7 +4,7 @@ interface ConnectWalletMenuProps {
   dropdownOffset: { top: number; right?: number; left?: number };
 }
 
-export const ConnectWalletMenu = (props: ConnectWalletMenuProps) => {
+export const ConnectWalletMenu = (_props: ConnectWalletMenuProps) => {
   const { isDesktopView } = useScreenSize();
   return (
     <>

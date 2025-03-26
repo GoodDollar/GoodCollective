@@ -30,7 +30,7 @@ import FrequencySelector from './DonateFrequency';
 import NumberInput from './NumberInput';
 import { ApproveTokenImg, PhoneImg, StreamWarning, ThankYouImg } from '../assets';
 import { formatNumberWithCommas } from '../lib/formatFiatCurrency';
-type ConfigChainId = typeof config.chains[number]['id'];
+type ConfigChainId = (typeof config.chains)[number]['id'];
 
 interface DonateComponentProps {
   collective: Collective;
@@ -55,7 +55,7 @@ const WarningExplanation = ({ type }: any) => (
     </Text>
   </Text>
 );
-const NetworkExplanation = ({ type }: any) => (
+const NetworkExplanation = ({ _type }: any) => (
   <Text color="goodOrange.500">
     <Text>Switch in your wallet to the Celo network</Text>
   </Text>

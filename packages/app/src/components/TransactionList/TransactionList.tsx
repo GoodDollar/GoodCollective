@@ -1,4 +1,4 @@
-import { Image, Text, View, Platform, StyleSheet } from 'react-native';
+import { Image, Text, View, StyleSheet } from 'react-native';
 import { Link } from 'native-base';
 
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';

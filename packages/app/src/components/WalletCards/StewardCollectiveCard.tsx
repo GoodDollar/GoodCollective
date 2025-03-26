@@ -22,7 +22,7 @@ function StewardCollectiveCard({
   collective,
   ensName,
   tokenPrice,
-  isDesktopResolution,
+  _isDesktopResolution,
 }: StewardCollectiveCardProps) {
   const { navigate } = useCrossNavigate();
   const userName = ensName ?? 'This wallet';

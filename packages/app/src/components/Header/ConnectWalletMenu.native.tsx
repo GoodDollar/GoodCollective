@@ -1,13 +1,13 @@
-import '@walletconnect/react-native-compat';  
+import '@walletconnect/react-native-compat';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { AppKitButton } from '@reown/appkit-wagmi-react-native'
+import { AppKitButton } from '@reown/appkit-wagmi-react-native';
 
 export const ConnectWalletMenu = () => {
   return (
     <>
       <TouchableOpacity>
         <View style={styles.mobileButtonContentContainer}>
-        <AppKitButton />
+          <AppKitButton />
         </View>
       </TouchableOpacity>
     </>

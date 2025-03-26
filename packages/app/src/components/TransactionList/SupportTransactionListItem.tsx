@@ -1,6 +1,6 @@
 import { SupportTx } from '../../models/models';
 import { formatAddress } from '../../lib/formatAddress';
-import { useEnsName, useWaitForTransactionReceipt} from 'wagmi';
+import { useEnsName, useWaitForTransactionReceipt } from 'wagmi';
 import TransactionListItem from './TransactionListItem';
 import { useFetchFullName } from '../../hooks/useFetchFullName';
 import { Text } from 'react-native';
