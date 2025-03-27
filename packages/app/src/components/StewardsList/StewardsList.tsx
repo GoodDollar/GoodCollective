@@ -97,9 +97,6 @@ const styles = StyleSheet.create({
   stewardRow: {
     ...InterSemiBold,
   },
-  list: {
-    maxHeight: 400,
-  },
 });
 
 const overflowStyle = StyleSheet.create({

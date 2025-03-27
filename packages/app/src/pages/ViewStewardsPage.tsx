@@ -38,6 +38,7 @@ function ViewStewardsPage() {
                 titleStyle={styles.desktopTitleUnderline}
                 stewards={collective?.stewardCollectives}
                 listType="viewStewards"
+                listStyle={{ height: '60vh' }}
               />
             </View>
           </View>
