@@ -23,7 +23,7 @@ function ViewStewardsPage() {
       <Layout
         breadcrumbPath={[
           { text: collective?.ipfs.name ?? collectiveId, route: `/collective/${collectiveId}` },
-          { text: 'Stewards', route: `/collective/${collectiveId}/stewards` },
+          { text: 'Recipients', route: `/collective/${collectiveId}/stewards` },
         ]}>
         {!collective ? (
           <Text>Loading...</Text>

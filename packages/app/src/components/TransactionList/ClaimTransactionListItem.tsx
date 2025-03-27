@@ -20,7 +20,7 @@ export function ClaimTransactionListItem({ transaction }: ClaimTransactionListIt
   if (stewards.length === 1) {
     userAddress = stewards[0] as `0x${string}`;
   } else {
-    multipleStewardsText = `${stewards.length} Stewards`;
+    multipleStewardsText = `${stewards.length} Recipients`;
   }
 
   const { data: ensName } = useEnsName({ address: userAddress, chainId: 1 });
