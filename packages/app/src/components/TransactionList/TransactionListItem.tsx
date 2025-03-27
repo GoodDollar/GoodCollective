@@ -64,7 +64,7 @@ function TransactionListItem({
   const formattedHash = formatAddress(txHash);
   const formattedTimestamp = moment(timeStamp * 1000).format('MM.DD.YYYY HH:mm');
 
-  const title = !isDonation ? (isUBIPool ? 'Recipient claim' : 'Steward Payout') : isStream;
+  const title = !isDonation ? (isUBIPool ? 'Recipient claim' : 'Recipient Payout') : isStream;
   const color = title?.includes('Ended') ? 'goodRed.300' : isDonation ? 'goodGreen.200' : 'goodOrange.200';
 
   return (

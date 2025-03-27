@@ -279,7 +279,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
           <View style={styles.collectiveDesktopTimeline}>
             <View style={{ flex: 1, gap: 16 }}>
               <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
-              <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
+              <RowItem imageUrl={StewardGreen} rowInfo="Recipients Paid" rowData={stewardsPaid ?? 0} />
               <RowItem imageUrl={ListGreenIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
             </View>
             <View style={{ flex: 1, gap: 16 }}>
@@ -320,7 +320,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
           <View style={[styles.container, styles.desktopContainer]}>
             <StewardList stewards={stewardCollectives.slice(0, 6)} listType="viewCollective" />
             <RoundedButton
-              title="See all stewards"
+              title="See all recipients"
               backgroundColor={Colors.purple[100]}
               color={Colors.purple[200]}
               onPress={() => navigate(`/collective/${poolAddress}/stewards`)}
@@ -373,7 +373,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
           <View style={styles.rowContainer}>
             <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />
-            <RowItem imageUrl={StewardGreen} rowInfo="Stewards Paid" rowData={stewardsPaid ?? 0} />
+            <RowItem imageUrl={StewardGreen} rowInfo="Recipients Paid" rowData={stewardsPaid ?? 0} />
             <RowItem imageUrl={ListGreenIcon} rowInfo="# of Payments Made" rowData={paymentsMade ?? 0} currency="" />
             <FlowingDonationsRowItem
               imageUrl={ReceiveLightIcon}
@@ -410,7 +410,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
         <View style={[styles.container]}>
           <StewardList stewards={stewardCollectives.slice(0, 5)} listType="viewCollective" />
           <RoundedButton
-            title="See all stewards"
+            title="See all recipients"
             backgroundColor={Colors.purple[100]}
             color={Colors.purple[200]}
             fontSize={18}
