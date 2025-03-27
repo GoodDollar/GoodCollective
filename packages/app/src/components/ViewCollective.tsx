@@ -53,7 +53,7 @@ const HasDonatedCard = ({
 }) => {
   const { address } = useAccount();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
-  const { isDesktopView /*, isMobileView*/ } = useScreenSize();
+  const { isDesktopView } = useScreenSize();
   const userName = ensName ?? 'This wallet';
   const { navigate } = useCrossNavigate();
   const isDonating = donorCollective && donorCollective.flowRate !== '0';
