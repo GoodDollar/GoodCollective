@@ -27,7 +27,7 @@ function DonorCollectiveCard({
   donorCollective,
   ensName,
   tokenPrice,
-  isDesktopResolution,
+  _isDesktopResolution,
 }: DonorCollectiveCardProps) {
   const { navigate } = useCrossNavigate();
   const userName = ensName ?? 'This wallet';

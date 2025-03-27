@@ -26,7 +26,7 @@ export function useApproveSwapTokenCallback(
     [decimalAmountIn, duration, tokenIn.decimals]
   );
 
-  const { data: blockNumber } = useBlockNumber({ watch: true })
+  const { data: blockNumber } = useBlockNumber({ watch: true });
   const { data: allowance = 0n, refetch } = useReadContract({
     chainId: chain?.id,
     address: tokenIn.address as `0x${string}`,
@@ -34,11 +34,11 @@ export function useApproveSwapTokenCallback(
     functionName: 'allowance',
     args: [address, collectiveAddress],
   });
-  
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   useEffect(() => {
-    refetch()
-  }, [blockNumber])
+    refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blockNumber]);
 
   const { data } = useSimulateContract({
     chainId: chain?.id,
@@ -52,7 +52,7 @@ export function useApproveSwapTokenCallback(
   const { isPending, isSuccess, isError, writeContractAsync } = useWriteContract();
 
   const handleApproveToken =
-  writeContractAsync === undefined
+    writeContractAsync === undefined
       ? undefined
       : async () => {
           toggleApproveSwapModalVisible(true);

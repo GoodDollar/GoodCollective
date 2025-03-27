@@ -30,7 +30,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
 
   const handleNetworkClick = () => {
     if (isUnsupportedNetwork && switchChain) {
-      switchChain({chainId:SupportedNetwork.CELO});
+      switchChain({ chainId: SupportedNetwork.CELO });
       setChainName(formatChainName(chain?.name));
     }
   };
@@ -38,7 +38,7 @@ export const ConnectedAccountDisplay = (props: ConnectedAccountDisplayProps) => 
   useEffect(() => {
     if (isUnsupportedNetwork && switchChain) {
       setChainName(formatChainName(chain?.name));
-      switchChain({chainId:SupportedNetwork.CELO});
+      switchChain({ chainId: SupportedNetwork.CELO });
     }
   }, [isUnsupportedNetwork, switchChain, chain?.name]);
 
