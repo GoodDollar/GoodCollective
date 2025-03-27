@@ -22,13 +22,7 @@ const PoolPerson: { [key: string]: string } = {
   DirectPayments: 'stewards',
 };
 
-function DonorCollectiveCard({
-  ipfsCollective,
-  donorCollective,
-  ensName,
-  tokenPrice,
-  _isDesktopResolution,
-}: DonorCollectiveCardProps) {
+function DonorCollectiveCard({ ipfsCollective, donorCollective, ensName, tokenPrice }: DonorCollectiveCardProps) {
   const { navigate } = useCrossNavigate();
   const userName = ensName ?? 'This wallet';
   const infoLabel = ipfsCollective.rewardDescription ?? defaultInfoLabel;

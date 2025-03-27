@@ -17,13 +17,7 @@ interface StewardCollectiveCardProps {
   isDesktopResolution: boolean;
 }
 
-function StewardCollectiveCard({
-  ipfsCollective,
-  collective,
-  ensName,
-  tokenPrice,
-  _isDesktopResolution,
-}: StewardCollectiveCardProps) {
+function StewardCollectiveCard({ ipfsCollective, collective, ensName, tokenPrice }: StewardCollectiveCardProps) {
   const { navigate } = useCrossNavigate();
   const userName = ensName ?? 'This wallet';
 
