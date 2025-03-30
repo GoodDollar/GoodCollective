@@ -1,6 +1,6 @@
 // Run with npx ts-node --esm
 import * as ethers from 'ethers';
-import { GoodCollectiveSDK, UBIPoolSettings, UBISettings } from '../src/goodcollective/goodcollective.ts';
+import { GoodCollectiveSDK, UBIPoolSettings, UBISettings } from '../src/goodcollective/goodcollective';
 import { config } from 'dotenv';
 import { ExtendedUBISettings } from '../types/index.js';
 
@@ -73,7 +73,17 @@ const createPool = async () => {
     maxMemberPerDay: ethers.utils.parseEther('55000'),
   };
 
-  const pool = await sdk.createPoolWithAttributes(wallet, projectId, poolAttributes, poolSettings, poolLimits, true);
+  const managerFeeBps = 1500; // 15%
+
+  const pool = await sdk.createPoolWithAttributes(
+    wallet,
+    projectId,
+    poolAttributes,
+    poolSettings,
+    poolLimits,
+    managerFeeBps,
+    true
+  );
   console.log('pool:', pool.address);
 };
 
