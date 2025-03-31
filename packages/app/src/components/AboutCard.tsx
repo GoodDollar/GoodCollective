@@ -61,15 +61,15 @@ const AboutCard = () => {
           GoodCollective makes visible the climate stewardship activities of individuals, and provides a direct channel
           of payment to them. We work in partnership with project developers and community organizations already
           providing climate-positive services, leveraging their impact verification approaches which correspond a
-          steward’s individual activity to an intended climate outcome.
+          recipient’s individual activity to an intended climate outcome.
         </Text>
         <Text {...subTitle}>How it works</Text>
         <Text {...paragraph}>
-          The GoodCollective dApp allows donors to contribute to individual climate stewards performing critical climate
-          activities across a variety of projects. Each time a steward makes a verified climate-positive activity, it
-          triggers a payment directly to their wallet. Any climate-positive organization or project developer can use
-          activities associated with their preferred impact verification methodology to initiate direct payments to
-          their stewards.
+          The GoodCollective dApp allows donors to contribute to individual climate recipients performing critical
+          climate activities across a variety of projects. Each time a recipient makes a verified climate-positive
+          activity, it triggers a payment directly to their wallet. Any climate-positive organization or project
+          developer can use activities associated with their preferred impact verification methodology to initiate
+          direct payments to their recipients.
         </Text>
         <Text {...subTitle}>Why we built GoodCollective</Text>
         <Text {...paragraph}>

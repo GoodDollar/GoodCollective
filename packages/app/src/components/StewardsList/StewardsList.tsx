@@ -6,6 +6,7 @@ import { StewardCollective } from '../../models/models';
 import { useMemo } from 'react';
 import { StewardBlue, StewardGreen } from '../../assets';
 import { useFetchFullNames } from '../../hooks/useFetchFullName';
+import { orderBy } from 'lodash';
 
 interface StewardListProps {
   listType: 'viewCollective' | 'viewStewards';
@@ -17,6 +18,8 @@ interface StewardListProps {
 function StewardList({ listType, stewards, titleStyle, listStyle }: StewardListProps) {
   const titleIcon = listType === 'viewCollective' ? StewardGreen : StewardBlue;
 
+  const stewardsInOrder = useMemo(() => orderBy(stewards, 'actions', 'desc'), [stewards]);
+
   const userAddresses = useMemo(() => {
     return stewards.map((steward) => steward.steward as `0x${string}`);
   }, [stewards]);
@@ -26,10 +29,10 @@ function StewardList({ listType, stewards, titleStyle, listStyle }: StewardListP
     <View style={styles.stewardsListContainer}>
       <View style={[styles.row, { marginBottom: 24, ...(titleStyle ?? {}) }]}>
         <Image source={titleIcon} style={styles.titleIcon} />
-        <Text style={styles.title}>Stewards</Text>
+        <Text style={styles.title}>Recipients</Text>
       </View>
-      <View style={[styles.list, overflowStyle.overflow, { ...(listStyle ?? {}) }]}>
-        {stewards.map((steward) => (
+      <View style={[overflowStyle.overflow, { ...(listStyle ?? {}) }]}>
+        {stewardsInOrder.map((steward) => (
           <StewardsListItem
             steward={steward}
             showActions={listType === 'viewStewards'}
@@ -93,9 +96,6 @@ const styles = StyleSheet.create({
   },
   stewardRow: {
     ...InterSemiBold,
-  },
-  list: {
-    maxHeight: 400,
   },
 });
 
