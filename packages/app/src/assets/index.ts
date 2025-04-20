@@ -54,3 +54,6 @@ export { default as Woman } from './Woman.svg';
 export { default as chevronDown } from './chevron-down.svg';
 export { default as chevronRight } from './chevron-right.svg';
 export { default as empty } from './empty.svg';
+export { default as DirectPayments } from './poolTypes/directPayments.jpg';
+export { default as Segmented } from './poolTypes/segmented.jpg';
+export { default as Community } from './poolTypes/community.jpg';

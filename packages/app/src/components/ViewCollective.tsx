@@ -1,4 +1,4 @@
-import { StyleSheet, Image } from 'react-native';
+import { StyleSheet, Image, ImageSourcePropType } from 'react-native';
 import { Link, useBreakpointValue, Text, View, VStack } from 'native-base';
 import { useAccount, useEnsName } from 'wagmi';
 
@@ -30,6 +30,9 @@ import {
   SupportImage,
   TwitterIcon,
   WebIcon,
+  DirectPayments,
+  Segmented,
+  Community,
 } from '../assets/';
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 import FlowingDonationsRowItem from './FlowingDonationsRowItem';
@@ -41,6 +44,17 @@ import { GoodDollarAmount } from './GoodDollarAmount';
 import { styles as walletCardStyles } from '../components/WalletCards/styles';
 import { formatFlowRate } from '../lib/formatFlowRate';
 import { StopDonationActionButton } from './StopDonationActionButton';
+
+const getPoolType = (pool: string) => {
+  switch (pool) {
+    case 'DirectPayments':
+      return DirectPayments;
+    case 'UBI':
+      return Community;
+    default:
+      return Segmented;
+  }
+};
 
 const HasDonatedCard = ({
   donorCollective,
@@ -193,6 +207,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
     donorCollectives,
     paymentsMade,
     totalRewards,
+    pooltype,
   } = collective;
 
   // default to oceanUri if headerImage is undefined
@@ -211,12 +226,20 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
     tokenPrice,
     2
   );
+
+  const poolTypes = getPoolType(pooltype);
+
   if (isDesktopView) {
     return (
       <View style={{ gap: 24, flex: 1 }}>
         <View style={styles.collectiveDesktopBox}>
           <View style={styles.collectiveDetailsDesktop}>
-            <Image source={headerImg} style={styles.imageDesktop} />
+            <View style={styles.imageContainer}>
+              <Image source={headerImg} style={styles.imageDesktop} />
+              <Link href="https://www.gooddollar.org/goodcollective-how-it-work" style={styles.poolTypeContainer}>
+                <Image source={poolTypes} style={styles.poolTypeImg} />
+              </Link>
+            </View>
             <View style={styles.collectiveDesktopData}>
               <Text style={[styles.title, styles.titleMobile]}>{ipfs.name}</Text>
               <Text style={styles.description}>{ipfs.description}</Text>
@@ -336,7 +359,12 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   return (
     <View>
-      <Image source={headerImg} style={styles.image} />
+      <View style={styles.imageContainer}>
+        <Image source={headerImg} style={styles.image} />
+        <Link href="https://www.gooddollar.org/goodcollective-how-it-work" style={styles.poolTypeContainer}>
+          <Image source={poolTypes} style={styles.poolTypeImg} />
+        </Link>
+      </View>
       <View style={{ gap: 24 }}>
         <View style={[styles.container]}>
           <Text style={styles.title}>{ipfs.name}</Text>
@@ -560,6 +588,27 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   collectiveDesktopActions: { flex: 1, flexDirection: 'row', justifyContent: 'center', gap: 32 },
+  imageContainer: {
+    position: 'relative',
+    width: '100%',
+    maxWidth: 512,
+    height: 290,
+    borderRadius: 20,
+    flex: 1,
+  },
+  poolTypeContainer: {
+    position: 'absolute',
+    width: 90,
+    height: 110,
+    bottom: '12px',
+    right: '12px',
+    cursor: 'pointer',
+  },
+  poolTypeImg: {
+    width: '100%',
+    borderRadius: 8,
+    borderColor: '#ffff',
+  },
 });
 
 export default ViewCollective;
