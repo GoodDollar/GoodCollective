@@ -50,9 +50,9 @@ const getPoolType = (pool: string) => {
     case 'DirectPayments':
       return DirectPayments;
     case 'UBI':
-      return Community;
-    default:
       return Segmented;
+    default:
+      return Community;
   }
 };
 
