@@ -1,19 +1,21 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
 import { Colors } from '../utils/colors';
 import { Ocean } from '../assets';
 import { useScreenSize } from '../theme/hooks';
+import BannerPool from './BannerPool';
 
 interface CollectiveHomeCardProps {
   name: string;
   description: string;
   headerImage?: string;
   route: string;
+  poolType: string;
 }
 
-function CollectiveHomeCard({ name, description, headerImage, route }: CollectiveHomeCardProps) {
+function CollectiveHomeCard({ name, description, headerImage, route, poolType }: CollectiveHomeCardProps) {
   const { navigate } = useCrossNavigate();
   const { isDesktopView, isTabletView } = useScreenSize();
 
@@ -28,7 +30,7 @@ function CollectiveHomeCard({ name, description, headerImage, route }: Collectiv
         isTabletView ? { marginBottom: 20 } : {},
       ]}
       onPress={() => navigate(`/collective/${route}`)}>
-      <Image source={headerImg} style={styles.sectionImage} />
+      <BannerPool isDesktopView={isDesktopView} poolType={poolType} headerImg={headerImg} homePage={true} />
       <View style={styles.cardDescriptionContainer}>
         <Text style={styles.cardTitle}>{name}</Text>
         <Text style={styles.cardDescription}>{description}</Text>
