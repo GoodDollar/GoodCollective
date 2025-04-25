@@ -1,5 +1,5 @@
-import { Image, StyleSheet } from 'react-native';
-import { Link, View } from 'native-base';
+import { Image, Linking, StyleSheet, TouchableOpacity } from 'react-native';
+import { View } from 'native-base';
 import { Colors } from '../utils/colors';
 import { DirectPayments, Segmented, Community } from '../assets/poolTypes';
 
@@ -32,9 +32,15 @@ function BannerPool({
         source={headerImg}
         style={!homePage ? (isDesktopView ? styles.imageDesktop : styles.image) : styles.sectionImage}
       />
-      <Link href="https://www.gooddollar.org/goodcollective-how-it-work" style={styles.poolTypeContainer}>
-        <Image source={poolTypes} style={styles.poolTypeImg} />
-      </Link>
+      <TouchableOpacity
+        onPress={(e) => {
+          e.stopPropagation();
+          Linking.openURL('https://www.gooddollar.org/goodcollective-how-it-work');
+        }}>
+        <View style={styles.poolTypeContainer}>
+          <Image source={poolTypes} style={styles.poolTypeImg} />
+        </View>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -68,16 +74,18 @@ const styles = StyleSheet.create({
   },
   poolTypeContainer: {
     position: 'absolute',
-    width: 90,
-    height: 110,
+    width: 70,
+    height: 90,
     bottom: 12,
     right: 12,
+    padding: 5,
     cursor: 'pointer',
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
   },
   poolTypeImg: {
     width: '100%',
-    borderRadius: 8,
-    borderColor: '#ffffff',
+    height: '100%',
   },
 });
 
