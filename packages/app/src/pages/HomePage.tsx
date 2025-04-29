@@ -175,6 +175,7 @@ individuals and communities by providing direct digital payments to those who ne
                       description={ipfsCollective.description}
                       headerImage={ipfsCollective.headerImage}
                       route={ipfsCollective.collective}
+                      poolType={ipfsCollective.pooltype}
                     />
                   ))
                 )}

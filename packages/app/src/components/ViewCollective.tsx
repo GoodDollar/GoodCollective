@@ -41,6 +41,7 @@ import { GoodDollarAmount } from './GoodDollarAmount';
 import { styles as walletCardStyles } from '../components/WalletCards/styles';
 import { formatFlowRate } from '../lib/formatFlowRate';
 import { StopDonationActionButton } from './StopDonationActionButton';
+import BannerPool from './BannerPool';
 
 const HasDonatedCard = ({
   donorCollective,
@@ -193,6 +194,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
     donorCollectives,
     paymentsMade,
     totalRewards,
+    pooltype,
   } = collective;
 
   // default to oceanUri if headerImage is undefined
@@ -211,12 +213,13 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
     tokenPrice,
     2
   );
+
   if (isDesktopView) {
     return (
       <View style={{ gap: 24, flex: 1 }}>
         <View style={styles.collectiveDesktopBox}>
           <View style={styles.collectiveDetailsDesktop}>
-            <Image source={headerImg} style={styles.imageDesktop} />
+            <BannerPool isDesktopView={isDesktopView} poolType={pooltype} headerImg={headerImg} homePage={false} />
             <View style={styles.collectiveDesktopData}>
               <Text style={[styles.title, styles.titleMobile]}>{ipfs.name}</Text>
               <Text style={styles.description}>{ipfs.description}</Text>
@@ -336,7 +339,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   return (
     <View>
-      <Image source={headerImg} style={styles.image} />
+      <BannerPool isDesktopView={isDesktopView} poolType={pooltype} headerImg={headerImg} homePage={false} />
       <View style={{ gap: 24 }}>
         <View style={[styles.container]}>
           <Text style={styles.title}>{ipfs.name}</Text>
@@ -470,18 +473,7 @@ const styles = StyleSheet.create({
     gap: 30,
     marginTop: 35,
   },
-  image: {
-    width: '100%',
-    height: 192,
-  },
   infoLabelDesktop: { flexDirection: 'row', gap: 8 },
-  imageDesktop: {
-    width: '100%',
-    maxWidth: 512,
-    height: 290,
-    borderRadius: 20,
-    flex: 1,
-  },
   collectiveDesktopData: {
     flexDirection: 'column',
     alignItems: 'flex-start',
