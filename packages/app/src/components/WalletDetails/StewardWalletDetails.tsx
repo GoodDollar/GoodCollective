@@ -1,11 +1,11 @@
 import { Text, View } from 'react-native';
-import { Steward } from '../../models/models';
+import { StewardExtended } from '../../models/models';
 import { styles } from './styles';
 import { calculateGoodDollarAmounts } from '../../lib/calculateGoodDollarAmounts';
 
 interface StewardWalletDetailsProps {
   firstName: string;
-  steward: Steward;
+  steward: StewardExtended;
   tokenPrice?: number;
 }
 

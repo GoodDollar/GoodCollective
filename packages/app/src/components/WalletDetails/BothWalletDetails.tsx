@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native';
-import { Donor, Steward } from '../../models/models';
+import { Donor, StewardExtended } from '../../models/models';
 import { styles } from './styles';
 import { formatTime } from '../../lib/formatTime';
 import { countUniqueValuesInTwoArrays } from '../../lib/countUniqueValuesInTwoArrays';
@@ -10,7 +10,7 @@ import { GoodDollarAmount } from '../GoodDollarAmount';
 
 interface BothWalletDetailsProps {
   donor: Donor;
-  steward: Steward;
+  steward: StewardExtended;
   tokenPrice?: number;
 }
 
@@ -21,7 +21,13 @@ function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProp
   );
 
   const { formatted: formattedRewards, usdValue: rewardsUsdValue } = calculateGoodDollarAmounts(
-    steward.totalEarned,
+    steward.totalClimateEarned,
+    tokenPrice,
+    2
+  );
+
+  const { formatted: formattedUBIRewards, usdValue: ubiRewardsUsdValue } = calculateGoodDollarAmounts(
+    steward.totalUBIEarned,
     tokenPrice,
     2
   );
@@ -73,12 +79,32 @@ function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProp
       <View style={[styles.row]}>
         <View style={[styles.impactBar, styles.orangeBar]} />
         <View style={styles.rowContent}>
-          <Text style={styles.rowTitle}>And received</Text>
+          <Text style={styles.rowTitle}>And performed</Text>
+          <View style={[styles.row]}>
+            <Text style={styles.rowBoldText}>{steward.actions}</Text>
+            <Text style={styles.rowText}> climate actions and received</Text>
+          </View>
           <View style={[styles.row]}>
             <Text style={styles.rowBoldText}>G$ </Text>
             <Text style={styles.rowText}>{formattedRewards}</Text>
           </View>
           <Text>= {rewardsUsdValue} USD</Text>
+        </View>
+      </View>
+
+      <View style={[styles.row]}>
+        <View style={[styles.impactBar, styles.orangeBar]} />
+        <View style={styles.rowContent}>
+          <Text style={styles.rowTitle}>This wallet has claimed</Text>
+          <View style={[styles.row]}>
+            <Text style={styles.rowBoldText}>{steward.claimCount}</Text>
+            <Text style={styles.rowText}> times and received</Text>
+          </View>
+          <View style={[styles.row]}>
+            <Text style={styles.rowBoldText}>G$ </Text>
+            <Text style={styles.rowText}>{formattedUBIRewards}</Text>
+          </View>
+          <Text>= {ubiRewardsUsdValue} USD</Text>
         </View>
       </View>
 

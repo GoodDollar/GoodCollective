@@ -7,7 +7,7 @@ import { useScreenSize } from '../theme/hooks';
 
 import ProfileView from './ProfileView';
 import WalletDetails from './WalletDetails/WalletDetails';
-import { Donor, Steward } from '../models/models';
+import { Donor, Steward, StewardExtended } from '../models/models';
 import { useCollectivesMetadataById, useGetTokenPrice } from '../hooks';
 import { LightningIcon } from '../assets';
 import WalletCards from './WalletCards/WalletCards';
@@ -19,7 +19,7 @@ interface WalletProfileProps {
   firstName?: string;
   lastName?: string;
   donor?: Donor;
-  steward?: Steward;
+  steward?: StewardExtended;
   isWhitelisted?: boolean;
 }
 

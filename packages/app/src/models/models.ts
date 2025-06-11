@@ -13,6 +13,12 @@ export interface Steward {
   nfts: ProvableNFT[];
 }
 
+export interface StewardExtended extends Steward {
+  totalUBIEarned: string;
+  totalClimateEarned: string;
+  claimCount: number;
+}
+
 export interface DonorCollective {
   donor: string;
   collective: string;

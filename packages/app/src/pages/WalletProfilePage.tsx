@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from '../components/Layout/Layout';
-import { useDonorById, useIsStewardVerified, useStewardById } from '../hooks';
+import { useDonorById, useIsStewardVerified, useStewardExtendedById } from '../hooks';
 import { useParams } from 'react-router-native';
 import WalletProfile from '../components/WalletProfile';
 import { useEnsName } from 'wagmi';
@@ -12,7 +12,7 @@ function WalletProfilePage() {
   const profileAddress = id.toLowerCase();
 
   const donor = useDonorById(profileAddress, SUBGRAPH_POLL_INTERVAL);
-  const steward = useStewardById(profileAddress);
+  const steward = useStewardExtendedById(profileAddress);
 
   const address: `0x${string}` | undefined = profileAddress.startsWith('0x')
     ? (profileAddress as `0x${string}`)
