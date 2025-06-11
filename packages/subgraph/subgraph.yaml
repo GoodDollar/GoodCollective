@@ -1,0 +1,154 @@
+specVersion: 1.2.0
+features:
+ - ipfsOnEthereumContracts
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: DirectPaymentsFactory
+    # prettier-ignore
+    network: celo
+    source:
+      address: '0xb1C7F09156d04BFf6F412447A73a0F72929b6ea4'
+      abi: DirectPaymentsFactory
+      startBlock: 26191405
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - DirectPaymentPool
+      abis:
+        - name: DirectPaymentsFactory
+          file: ./abis/DirectPaymentsFactory.json
+      eventHandlers:
+        - event: PoolCreated(indexed address,indexed string,string,indexed uint32,(uint32,uint16[],uint128[],address,address,address,address,bool),(uint256,uint256,uint256))
+          handler: handlePoolCreated
+        - event: PoolDetailsChanged(indexed address,string)
+          handler: handlePoolDetailsChanged
+        - event: PoolVerifiedChanged(indexed address,bool)
+          handler: handlePoolVerifiedChange
+      file: ./src/mappings/poolFactory.ts
+  - kind: ethereum/contract
+    name: UBIPoolFactory
+    # prettier-ignore
+    network: celo
+    source:
+      address: '0x4602C5F43A9961E430247D3Fb2d5450285080754'
+      abi: UBIPoolFactory
+      startBlock: 26191405
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Collective
+        - UBIPool
+      abis:
+        - name: UBIPoolFactory
+          file: ./abis/UBIPoolFactory.json
+      eventHandlers:
+        - event: PoolCreated(indexed address,indexed string,string,(address,address,address,address),(uint32,uint32,uint32,bool,uint256,uint32,bool))
+          handler: handleUBIPoolCreated
+        - event: PoolDetailsChanged(indexed address,string)
+          handler: handlePoolDetailsChanged
+        - event: PoolVerifiedChanged(indexed address,bool)
+          handler: handlePoolVerifiedChange
+      file: ./src/mappings/poolFactory.ts
+
+  - kind: ethereum
+    name: ProvableNFT
+    # prettier-ignore
+    network: celo
+    source:
+      address: '0x251EEBd7d9469bbcc02Ef23c95D902Cbb7fD73B3'
+      abi: ProvableNFT
+      startBlock: 26191405
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ProvableNFT
+      abis:
+        - name: ProvableNFT
+          file: ./abis/ProvableNFT.json
+      eventHandlers:
+        - event: ProvableNftMinted(uint256,address,bytes32)
+          handler: handleNftMint
+      file: ./src/mappings/ProvableNFT.ts
+
+templates:
+  - kind: ethereum/contract
+    name: DirectPaymentsPool
+    # prettier-ignore
+    network: celo
+    source:
+      abi: DirectPaymentsPool
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - DirectPaymentPool
+        - SafetyLimits
+        - PoolSettings
+        - Claim
+        - Donor
+      abis:
+        - name: DirectPaymentsPool
+          file: ./abis/DirectPaymentsPool.json
+      eventHandlers:
+        - event: PoolSettingsChanged((uint32,uint16[],uint128[],address,address,address,address,bool))
+          handler: handlePoolSettingsChange
+        - event: PoolLimitsChanged((uint256,uint256,uint256))
+          handler: handlePoolLimitsChange
+        - event: EventRewardClaimed(indexed uint256,uint16,uint32,uint256,string,address[],uint256)
+          handler: handleRewardClaim
+        - event: NFTClaimed(indexed uint256,uint256)
+          handler: handleClaim
+        - event: SupporterUpdated(indexed address,uint256,uint256,int96,int96,bool)
+          handler: handleSupport
+      file: ./src/mappings/pool.ts
+  - kind: ethereum/contract
+    name: UBIPool
+    # prettier-ignore
+    network: celo
+    source:
+      abi: UBIPool
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - UBIPool
+        - UBILimits
+        - PoolSettings
+        - Claim
+        - Donor
+      abis:
+        - name: UBIPool
+          file: ./abis/UBIPool.json
+      eventHandlers:
+        - event: PoolSettingsChanged((address,address,address,address))
+          handler: handlePoolSettingsChange
+        - event: UBISettingsChanged((uint32,uint32,uint32,bool,uint256,uint32,bool))
+          handler: handleUBISettingsChange
+        - event: UBIClaimed(indexed address,indexed address,uint256)
+          handler: handleUBIClaim
+        - event: SupporterUpdated(indexed address,uint256,uint256,int96,int96,bool)
+          handler: handleSupport
+      file: ./src/mappings/ubipool.ts
+  
+  - kind: file/ipfs
+    name: IpfsMetaData
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/ipfsCollective.ts
+      handler: handleCreateIpfsCollective
+      entities:
+        - IpfsCollective
+      abis:
+        - name: DirectPaymentsFactory
+          file: ./abis/DirectPaymentsFactory.json
