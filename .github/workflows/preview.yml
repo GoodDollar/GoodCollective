@@ -24,6 +24,7 @@ jobs:
     steps:
       - run: true
   preview:
+    needs: authorize
     runs-on: ubuntu-latest
     environment:
       name: preview
