@@ -114,11 +114,10 @@ const styles = StyleSheet.create({
     borderBottomEndRadius: 16,
   },
   desktopContainer: {
-    maxHeight: 620,
     maxWidth: 420,
     borderRadius: 16,
   },
-  profileContentBox: { flexDirection: 'row', gap: 30, marginTop: 20 },
+  profileContentBox: { flexDirection: 'row', gap: 30, marginTop: 20, alignItems: 'flex-start' },
   pfp: {
     width: 64,
     height: 64,

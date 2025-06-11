@@ -21,7 +21,7 @@ export function useStewardExtendedById(id: string): StewardExtended | undefined 
     if (collective.collective.pooltype === 'UBI') {
       totalUBIEarned += BigInt(collective.totalEarned);
       claimCount += collective.collective.paymentsMade;
-    } else if (collective.collective.pooltype === 'Climate') {
+    } else if (collective.collective.pooltype === 'Climate' || collective.collective.pooltype === 'DirectPayments') {
       totalClimateEarned += BigInt(collective.totalEarned);
     } else {
       console.warn(`Unknown pool type: ${collective.collective.pooltype}`);
