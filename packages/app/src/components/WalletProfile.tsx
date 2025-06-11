@@ -7,7 +7,7 @@ import { useScreenSize } from '../theme/hooks';
 
 import ProfileView from './ProfileView';
 import WalletDetails from './WalletDetails/WalletDetails';
-import { Donor, Steward, StewardExtended } from '../models/models';
+import { Donor, StewardExtended } from '../models/models';
 import { useCollectivesMetadataById, useGetTokenPrice } from '../hooks';
 import { LightningIcon } from '../assets';
 import WalletCards from './WalletCards/WalletCards';

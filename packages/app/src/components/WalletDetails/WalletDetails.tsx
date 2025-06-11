@@ -1,5 +1,5 @@
 import EmptyProfile from './EmptyProfile';
-import { Donor, Steward, StewardExtended } from '../../models/models';
+import { Donor, StewardExtended } from '../../models/models';
 import StewardWalletDetails from './StewardWalletDetails';
 import BothWalletDetails from './BothWalletDetails';
 import DonorWalletDetails from './DonorWalletDetails';
