@@ -17,9 +17,6 @@ interface BothWalletDetailsProps {
 function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProps) {
   const { wei, usdValue: donationsUsdValue } = useDonorCollectivesFlowingBalances(donor.collectives, tokenPrice);
 
-  const { usdValue: rewardsUsdValue } = calculateGoodDollarAmounts(steward.totalClimateEarned, tokenPrice, 2);
-
-  const { usdValue: ubiRewardsUsdValue } = calculateGoodDollarAmounts(steward.totalUBIEarned, tokenPrice, 2);
 
   const totalStewardEarned =
     (steward.totalClimateEarned ? BigInt(steward.totalClimateEarned) : 0n) +
