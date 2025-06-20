@@ -15,6 +15,8 @@ const steward = gql`
         }
         collective {
           id
+          pooltype
+          paymentsMade
         }
         actions
         totalEarned

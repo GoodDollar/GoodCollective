@@ -26,7 +26,7 @@ export type SubgraphSteward = {
 export type SubgraphStewardCollective = {
   id: string;
   steward: { id: string }; // | SubgraphSteward; --> always fetched as id
-  collective: { id: string }; // | SubgraphCollective; --> always fetched as id
+  collective: { id: string; pooltype: string; paymentsMade: number }; // | SubgraphCollective; --> always fetched as id
   actions: number;
   totalEarned: string;
 };
