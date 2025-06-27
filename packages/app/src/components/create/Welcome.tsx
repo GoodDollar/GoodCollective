@@ -1,6 +1,8 @@
-import { Box, Checkbox, HStack, Radio, VStack } from 'native-base';
+import { Image, Text, Box, Checkbox, HStack, Radio, VStack } from 'native-base';
 import { useState } from 'react';
 import RoundedButton from '../RoundedButton';
+import { CreateCollectiveLogo } from '../../assets';
+import ActionButton from '../ActionButton';
 
 // TODO All components wrap a component that has a step forward and backward callback
 const Welcome = ({ onStepForward }: { onStepForward: () => {} }) => {
@@ -14,17 +16,28 @@ const Welcome = ({ onStepForward }: { onStepForward: () => {} }) => {
     }
     onStepForward();
   };
+  console.log(CreateCollectiveLogo);
 
   return (
-    <VStack space={8}>
-      <div>Welcome to Good Collective</div>
+    <VStack space={4} padding={2}>
+      <Text fontSize="3xl" textAlign="center" fontWeight="600" color="goodPurple.500">
+        Welcome to
+      </Text>
+      <img src={CreateCollectiveLogo} />
       <Box backgroundColor="white" padding={8}>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam totam, tempore saepe beatae et quidem provident
-        aperiam esse recusandae rem fugiat laboriosam est rerum enim at magni suscipit amet qui. Lorem ipsum dolor, sit
-        amet consectetur adipisicing elit. Totam similique vel odio incidunt enim officiis, quo dignissimos quaerat
-        officia omnis at dolorem itaque dolore pariatur tempora? Quo ratione sequi dolorem. Lorem ipsum dolor sit amet
-        consectetur adipisicing elit. Ratione cupiditate, labore ducimus quae suscipit tempora minus non nihil inventore
-        ipsa dignissimos ex corrupti adipisci impedit autem repudiandae reprehenderit eum in!
+        <Text textAlign="center" marginBottom={4}>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam totam, tempore saepe beatae et quidem provident
+          aperiam esse recusandae rem fugiat laboriosam est rerum enim at magni suscipit amet qui. Lorem ipsum dolor,
+          sit amet consectetur adipisicing elit. Totam similique vel odio incidunt enim officiis, quo dignissimos
+          quaerat officia omnis at dolorem itaque dolore pariatur tempora? Quo ratione sequi dolorem. Lorem ipsum dolor
+          sit amet consectetur adipisicing elit. Repellendus eum similique culpa dolore quos doloremque. Nostrum quo rem
+          deserunt, sit sint hic itaque? Cumque incidunt facilis repellendus vero magnam dolorem.
+        </Text>
+        <Text textAlign="center">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione cupiditate, labore ducimus quae suscipit
+          tempora minus non nihil inventore ipsa dignissimos ex corrupti adipisci impedit autem repudiandae
+          reprehenderit eum in!
+        </Text>
       </Box>
       <Box background="white" padding={8}>
         <Radio.Group
@@ -38,26 +51,26 @@ const Welcome = ({ onStepForward }: { onStepForward: () => {} }) => {
           flexDir="column"
           justifyContent="space-between"
           flexBasis={{ lg: '100%', md: '70%', sm: '100%', base: '100%' }}>
-          <div>
-            <Radio value="one" my={1}>
+          <Radio value="one" my={4}>
+            <Text fontSize="xs">
               Lorem ipsum dolor sit, amet consectetur adipisicing elit. Animi, dignissimos fugit adipisci, ex libero
               laborum praesentium officiis
-            </Radio>
-          </div>
-          <div>
-            <Radio value="two">
+            </Text>
+          </Radio>
+          <Radio value="two">
+            <Text fontSize="xs">
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates maiores ab dicta vero veritatis omnis
               natus ration
-            </Radio>
-          </div>
+            </Text>
+          </Radio>
         </Radio.Group>
       </Box>
       <HStack background="white" padding={8} space={4}>
         <Checkbox value={String(acknowledged)} onChange={(v) => setAcknowledged(String(v))} accessibilityLabel="TODO" />
-        <div>I understand</div>
+        <Text fontSize="sm">I understand</Text>
       </HStack>
       {/* TODO Color */}
-      <RoundedButton onPress={onSubmit} title={'Get Started'} backgroundColor={'blue'} color={'white'} />
+      <ActionButton onPress={onSubmit} text="Get Started" bg="goodPurple.400" textColor="white" />
     </VStack>
   );
 };
