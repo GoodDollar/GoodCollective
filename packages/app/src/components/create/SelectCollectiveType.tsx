@@ -1,4 +1,4 @@
-import { Text, Badge, Checkbox, HStack, VStack } from 'native-base';
+import { Text, Badge, Checkbox, HStack, VStack, Center } from 'native-base';
 import { useState } from 'react';
 import { Pressable } from 'react-native';
 import { CommunityFundsIcon, SegmentedAidIcon, ResultsBasedIcon } from '../../assets';
@@ -37,10 +37,16 @@ const SelectType = ({ onStepForward }: { onStepForward: () => {} }) => {
   ];
 
   return (
-    <VStack space={8}>
-      <div>About Various Pools</div>
-      Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dignissimos ipsa ab nemo fugiat expedita, facilis
-      voluptatibus magni velit odio quis cumque quidem veniam fuga. Ea perferendis voluptas voluptatum in iste!
+    <VStack space={8} padding={2}>
+      <Text fontSize="3xl" textAlign="center" fontWeight="600" color="#1B7BEC">
+        About Various Pools
+      </Text>
+      <Center>
+        <Text maxW="2/3">
+          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dignissimos ipsa ab nemo fugiat expedita, facilis
+          voluptatibus magni velit odio quis cumque quidem veniam fuga. Ea perferendis voluptas voluptatum in iste!
+        </Text>
+      </Center>
       {poolTypes.map((poolType) => (
         <Pressable
           disabled={poolType.disabled}
@@ -50,16 +56,16 @@ const SelectType = ({ onStepForward }: { onStepForward: () => {} }) => {
           }}>
           <HStack backgroundColor="white" space={8} alignItems="center" justifyContent="center" paddingY={4}>
             <img src={poolType.icon} />
-            <VStack w="4/6">
-              <Text textTransform="uppercase">{poolType.name}</Text>
-              <div>{poolType.description}</div>
-              <div>
-                {poolType.interested && (
-                  <Badge maxW="48" rounded="full">
-                    'Interested? Please reach out!'
-                  </Badge>
-                )}
-              </div>
+            <VStack w="4/6" space={2}>
+              <Text textTransform="uppercase" color="goodPurple.500" fontWeight="600">
+                {poolType.name}
+              </Text>
+              <Text fontSize="xs">{poolType.description}</Text>
+              {poolType.interested && (
+                <Badge maxW="48" rounded="full" backgroundColor="gray.300">
+                  'Interested? Please reach out!'
+                </Badge>
+              )}
             </VStack>
             <div>{!poolType.disabled && <Checkbox value={'true'} />}</div>
           </HStack>
