@@ -57,3 +57,5 @@ export { default as empty } from './empty.svg';
 export { default as CommunityFundsIcon } from './CommunityFundsIcon.png';
 export { default as ResultsBasedIcon } from './ResultsBasedIcon.png';
 export { default as SegmentedAidIcon } from './SegmentedAidIcon.png';
+export { default as CreateCollectiveLogo } from './CreateCollectiveLogo.png';
+export { default as DownloadIcon } from './DownloadIcon.png';
