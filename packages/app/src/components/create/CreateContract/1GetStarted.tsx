@@ -1,18 +1,22 @@
 import { VStack, Text, FormControl, Input, WarningOutlineIcon, TextArea, HStack, Box, Center } from 'native-base';
+import { DownloadIcon } from '../../../assets';
 
 const GetStarted = () => {
   return (
-    <VStack>
-      <h2>Get Started</h2>
-      <p>Add basic information about your project, details can be edited later</p>
-      <Text bold fontSize="xl" mb="4">
-        Default
+    <VStack padding={2}>
+      <Text fontSize="2xl" fontWeight="700">
+        Get Started
+      </Text>
+      <Text mb={6} fontSize="xs" color="gray.500">
+        Add basic information about your project, details can be edited later
       </Text>
       <FormControl mb="5" isRequired>
         <FormControl.Label>
-          <Text textTransform="uppercase">Project Name</Text>
+          <Text fontSize="xs" fontWeight="700" textTransform="uppercase">
+            Project Name
+          </Text>
         </FormControl.Label>
-        <FormControl.HelperText>
+        <FormControl.HelperText mt={0} mb={2}>
           Give a brief name to your project that it can be identified with.
         </FormControl.HelperText>
         <Input />
@@ -22,7 +26,9 @@ const GetStarted = () => {
       </FormControl>
       <FormControl mb="5" isRequired>
         <FormControl.Label>
-          <Text textTransform="uppercase">Tagline</Text>
+          <Text fontSize="xs" fontWeight="700" textTransform="uppercase">
+            Tagline
+          </Text>
         </FormControl.Label>
         <Input />
         <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
@@ -31,7 +37,9 @@ const GetStarted = () => {
       </FormControl>
       <FormControl mb="5" isRequired>
         <FormControl.Label>
-          <Text textTransform="uppercase">Project Description</Text>
+          <Text fontSize="xs" fontWeight="700" textTransform="uppercase">
+            Project Description
+          </Text>
         </FormControl.Label>
         <TextArea autoCompleteType={undefined} />
         <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
@@ -39,17 +47,21 @@ const GetStarted = () => {
         </FormControl.ErrorMessage>
       </FormControl>
       <HStack style={{ maxWidth: '100%' }} justifyContent="space-between">
-        <div>
+        <div style={{ width: '40%' }}>
           <FormControl mb="5" isRequired>
             <FormControl.Label>
-              <Text textTransform="uppercase">Logo</Text>
+              <Text fontSize="xs" fontWeight="700" textTransform="uppercase">
+                Logo
+              </Text>
             </FormControl.Label>
 
-            <FormControl.HelperText>SVG, PNG, JPG or GIF (500x500px)</FormControl.HelperText>
+            <FormControl.HelperText mt={0} mb={2}>
+              SVG, PNG, JPG or GIF (500x500px)
+            </FormControl.HelperText>
             {/* TODO Separate into component */}
-            <Box backgroundColor="white">
+            <Box backgroundColor="white" mt={2} padding={6}>
               <Center>
-                icon
+                <img src={DownloadIcon} alt="" />
                 <Text>Click to upload</Text>
               </Center>
             </Box>
@@ -59,17 +71,21 @@ const GetStarted = () => {
           </FormControl>
         </div>
 
-        <div>
+        <div style={{ width: '55%' }}>
           <FormControl mb="5">
             <FormControl.Label>
-              <Text textTransform="uppercase">Cover Photo</Text>
+              <Text fontSize="xs" fontWeight="700" textTransform="uppercase">
+                Cover Photo
+              </Text>
             </FormControl.Label>
 
-            <FormControl.HelperText>SVG, PNG, JPG or GIF (1400x256px)</FormControl.HelperText>
+            <FormControl.HelperText mt={0} mb={2}>
+              SVG, PNG, JPG or GIF (1400x256px)
+            </FormControl.HelperText>
             {/* TODO Separate into component */}
-            <Box backgroundColor="white">
+            <Box backgroundColor="white" mt={2} padding={6}>
               <Center>
-                icon
+                <img src={DownloadIcon} alt="" />
                 <Text>Click to upload</Text>
               </Center>
             </Box>
