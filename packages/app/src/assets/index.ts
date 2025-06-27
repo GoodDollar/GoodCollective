@@ -54,3 +54,6 @@ export { default as Woman } from './Woman.svg';
 export { default as chevronDown } from './chevron-down.svg';
 export { default as chevronRight } from './chevron-right.svg';
 export { default as empty } from './empty.svg';
+export { default as CommunityFundsIcon } from './CommunityFundsIcon.png';
+export { default as ResultsBasedIcon } from './ResultsBasedIcon.png';
+export { default as SegmentedAidIcon } from './SegmentedAidIcon.png';
