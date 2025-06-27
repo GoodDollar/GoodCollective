@@ -143,7 +143,7 @@ individuals and communities by providing direct digital payments to those who ne
                       onPress={scrollToCollectives}
                     />
                     <ActionButton
-                      onPress={() => navigate(`/creategood`)}
+                      onPress={() => navigate(`/create`)}
                       text="Create a GoodCollective"
                       bg="goodPurple.100"
                       textColor="goodPurple.400"
