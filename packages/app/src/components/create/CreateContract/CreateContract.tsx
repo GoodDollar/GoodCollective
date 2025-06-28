@@ -1,25 +1,24 @@
-import { useState } from 'react';
 import { Box, Text, HStack, Progress, VStack } from 'native-base';
 
 import GetStarted from './1GetStarted';
 import ProjectDetails from './2ProjectDetails';
 import PoolConfiguration from './3PoolConfiguration';
 import ReviewLaunch from './4ReviewLaunch';
-import ActionButton from '../../ActionButton';
+import { Form } from '../CreateGoodCollective';
 
 const CreateContract = ({
   step,
+  form,
   onStepForward,
   onStepBackward,
+  onPartialSubmit,
 }: {
   step: number;
+  form: Form;
   onStepForward: () => {};
   onStepBackward: () => {};
+  onPartialSubmit: Function;
 }) => {
-  const [getStartedValidate, setGetStartedValidate] = useState<Function>();
-  const [projectDetailsValidate, setProjectDetailsValidate] = useState<Function>();
-  const [poolConfigurationValidate, setPoolConfigurationValidate] = useState<Function>();
-
   return (
     <VStack>
       <Box backgroundColor="goodPurple.400" padding={4}>
@@ -39,10 +38,38 @@ const CreateContract = ({
           </Text>
         </HStack>
       </Box>
-      {step === 2 && <GetStarted registerValidate={setGetStartedValidate} />}
-      {step === 3 && <ProjectDetails registerValidate={setProjectDetailsValidate} />}
-      {step === 4 && <PoolConfiguration registerValidate={setPoolConfigurationValidate} />}
-      {step === 5 && <ReviewLaunch />}
+      {step === 2 && (
+        <GetStarted
+          form={form}
+          onStepForward={(partialForm: Object) => {
+            console.log(partialForm);
+            onPartialSubmit(partialForm);
+            onStepForward();
+          }}
+          onStepBackward={onStepBackward}
+        />
+      )}
+      {step === 3 && (
+        <ProjectDetails
+          form={form}
+          onStepForward={(partialForm: Object) => {
+            onPartialSubmit(partialForm);
+            onStepForward();
+          }}
+          onStepBackward={onStepBackward}
+        />
+      )}
+      {step === 4 && (
+        <PoolConfiguration
+          form={form}
+          onStepForward={(partialForm: Object) => {
+            onPartialSubmit(partialForm);
+            onStepForward();
+          }}
+          onStepBackward={onStepBackward}
+        />
+      )}
+      {step === 5 && <ReviewLaunch form={form} onStepForward={onStepForward} onStepBackward={onStepBackward} />}
     </VStack>
   );
 };
