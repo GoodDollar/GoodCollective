@@ -1,4 +1,6 @@
-import { Box, Button, HStack, Progress, VStack } from 'native-base';
+import { useState } from 'react';
+import { Box, Text, HStack, Progress, VStack } from 'native-base';
+
 import GetStarted from './1GetStarted';
 import ProjectDetails from './2ProjectDetails';
 import PoolConfiguration from './3PoolConfiguration';
@@ -14,25 +16,33 @@ const CreateContract = ({
   onStepForward: () => {};
   onStepBackward: () => {};
 }) => {
+  const [getStartedValidate, setGetStartedValidate] = useState<Function>();
+  const [projectDetailsValidate, setProjectDetailsValidate] = useState<Function>();
+  const [poolConfigurationValidate, setPoolConfigurationValidate] = useState<Function>();
+
   return (
     <VStack>
-      <Box backgroundColor="blueGray.400">
-        <Progress colorScheme="secondary" value={5 + 30 * (step - 2)} />
-        <HStack style={{ width: '100%', justifyContent: 'space-between' }}>
-          <p style={{ color: step === 2 ? 'white' : 'grey' }}>Get Started(1/4)</p>
-          <p style={{ color: step === 3 ? 'white' : 'grey' }}>Create Pool(2/4)</p>
-          <p style={{ color: step === 4 ? 'white' : 'grey' }}>Pool Configuraiton(3/4)</p>
-          <p style={{ color: step === 5 ? 'white' : 'grey' }}>Review & Launch(4/4)</p>
+      <Box backgroundColor="goodPurple.400" padding={4}>
+        <Progress colorScheme="blueGray" value={5 + 30 * (step - 2)} mt={4} />
+        <HStack style={{ width: '100%', justifyContent: 'space-between' }} mt={2}>
+          <Text fontSize="xs" fontWeight="600" color={step === 2 ? 'white' : 'gray.600'}>
+            Get Started(1/4)
+          </Text>
+          <Text fontSize="xs" fontWeight="600" color={step === 3 ? 'white' : 'gray.500'}>
+            Create Pool(2/4)
+          </Text>
+          <Text fontSize="xs" fontWeight="600" color={step === 4 ? 'white' : 'gray.600'}>
+            Pool Configuraiton(3/4)
+          </Text>
+          <Text fontSize="xs" fontWeight="600" color={step === 5 ? 'white' : 'gray.600'}>
+            Review & Launch(4/4)
+          </Text>
         </HStack>
       </Box>
-      {step === 2 && <GetStarted />}
-      {step === 3 && <ProjectDetails />}
-      {step === 4 && <PoolConfiguration />}
+      {step === 2 && <GetStarted registerValidate={setGetStartedValidate} />}
+      {step === 3 && <ProjectDetails registerValidate={setProjectDetailsValidate} />}
+      {step === 4 && <PoolConfiguration registerValidate={setPoolConfigurationValidate} />}
       {step === 5 && <ReviewLaunch />}
-      <HStack w="full" justifyContent="space-between">
-        <ActionButton onPress={() => onStepBackward()} text={'Back'} bg="white" textColor="black" />
-        <ActionButton onPress={() => onStepForward()} text={'Next'} bg="goodPurple.400" textColor="white" />
-      </HStack>
     </VStack>
   );
 };
