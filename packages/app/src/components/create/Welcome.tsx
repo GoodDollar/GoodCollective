@@ -1,10 +1,8 @@
-import { Image, Text, Box, Checkbox, HStack, Radio, VStack } from 'native-base';
+import { Text, Box, Checkbox, HStack, Radio, VStack } from 'native-base';
 import { useState } from 'react';
-import RoundedButton from '../RoundedButton';
 import { CreateCollectiveLogo } from '../../assets';
 import ActionButton from '../ActionButton';
 
-// TODO All components wrap a component that has a step forward and backward callback
 const Welcome = ({ onStepForward }: { onStepForward: () => {} }) => {
   const [value, setValue] = useState<string>();
   const [acknowledged, setAcknowledged] = useState<string>('');
@@ -12,11 +10,10 @@ const Welcome = ({ onStepForward }: { onStepForward: () => {} }) => {
   const onSubmit = () => {
     if (!acknowledged) {
       // Show error
-      // return;
+      return;
     }
     onStepForward();
   };
-  console.log(CreateCollectiveLogo);
 
   return (
     <VStack space={4} padding={2}>
@@ -66,7 +63,12 @@ const Welcome = ({ onStepForward }: { onStepForward: () => {} }) => {
         </Radio.Group>
       </Box>
       <HStack background="white" padding={8} space={4}>
-        <Checkbox value={String(acknowledged)} onChange={(v) => setAcknowledged(String(v))} accessibilityLabel="TODO" />
+        <Checkbox
+          colorScheme="danger"
+          value={String(acknowledged)}
+          onChange={(v) => setAcknowledged(String(v))}
+          accessibilityLabel="TODO"
+        />
         <Text fontSize="sm">I understand</Text>
       </HStack>
       {/* TODO Color */}
