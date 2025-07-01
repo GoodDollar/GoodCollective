@@ -12,13 +12,22 @@ const CreateContract = ({
   onStepForward,
   onStepBackward,
   onPartialSubmit,
+  onStartOver,
 }: {
   step: number;
   form: Form;
-  onStepForward: () => {};
-  onStepBackward: () => {};
+  onStepForward: Function;
+  onStepBackward: Function;
   onPartialSubmit: Function;
+  onStartOver: Function;
 }) => {
+  const STEPS = [
+    { id: 2, Component: GetStarted },
+    { id: 3, Component: ProjectDetails },
+    { id: 4, Component: PoolConfiguration },
+    { id: 5, Component: ReviewLaunch },
+  ];
+
   return (
     <VStack>
       <Box backgroundColor="goodPurple.400" padding={4}>
@@ -27,49 +36,32 @@ const CreateContract = ({
           <Text fontSize="xs" fontWeight="600" color={step === 2 ? 'white' : 'gray.600'}>
             Get Started(1/4)
           </Text>
-          <Text fontSize="xs" fontWeight="600" color={step === 3 ? 'white' : 'gray.500'}>
+          <Text fontSize="xs" fontWeight="600" color={step === 3 ? 'white' : 'gray.600'}>
             Create Pool(2/4)
           </Text>
           <Text fontSize="xs" fontWeight="600" color={step === 4 ? 'white' : 'gray.600'}>
-            Pool Configuraiton(3/4)
+            Pool Configuration(3/4)
           </Text>
           <Text fontSize="xs" fontWeight="600" color={step === 5 ? 'white' : 'gray.600'}>
             Review & Launch(4/4)
           </Text>
         </HStack>
       </Box>
-      {step === 2 && (
-        <GetStarted
-          form={form}
-          onStepForward={(partialForm: Object) => {
-            console.log(partialForm);
-            onPartialSubmit(partialForm);
-            onStepForward();
-          }}
-          onStepBackward={onStepBackward}
-        />
+      {STEPS.map(
+        ({ id, Component }) =>
+          step === id && (
+            <Component
+              key={id}
+              form={form}
+              onStepForward={(partialForm: Object) => {
+                onPartialSubmit(partialForm);
+                onStepForward();
+              }}
+              onStepBackward={onStepBackward}
+              onStartOver={onStartOver}
+            />
+          )
       )}
-      {step === 3 && (
-        <ProjectDetails
-          form={form}
-          onStepForward={(partialForm: Object) => {
-            onPartialSubmit(partialForm);
-            onStepForward();
-          }}
-          onStepBackward={onStepBackward}
-        />
-      )}
-      {step === 4 && (
-        <PoolConfiguration
-          form={form}
-          onStepForward={(partialForm: Object) => {
-            onPartialSubmit(partialForm);
-            onStepForward();
-          }}
-          onStepBackward={onStepBackward}
-        />
-      )}
-      {step === 5 && <ReviewLaunch form={form} onStepForward={onStepForward} onStepBackward={onStepBackward} />}
     </VStack>
   );
 };

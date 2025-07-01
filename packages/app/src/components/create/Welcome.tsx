@@ -2,10 +2,12 @@ import { Text, Box, Checkbox, HStack, Radio, VStack } from 'native-base';
 import { useState } from 'react';
 import { CreateCollectiveLogo } from '../../assets';
 import ActionButton from '../ActionButton';
+import { useScreenSize } from '../../theme/hooks';
 
 const Welcome = ({ onStepForward }: { onStepForward: () => {} }) => {
   const [value, setValue] = useState<string>();
   const [acknowledged, setAcknowledged] = useState<string>('');
+  const { isDesktopView } = useScreenSize();
 
   const onSubmit = () => {
     if (!acknowledged) {
@@ -21,7 +23,7 @@ const Welcome = ({ onStepForward }: { onStepForward: () => {} }) => {
         Welcome to
       </Text>
       <img src={CreateCollectiveLogo} />
-      <Box backgroundColor="white" padding={8}>
+      <Box backgroundColor={isDesktopView ? 'white' : 'goodPurple.300'} borderRadius={8} padding={8}>
         <Text textAlign="center" marginBottom={4}>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam totam, tempore saepe beatae et quidem provident
           aperiam esse recusandae rem fugiat laboriosam est rerum enim at magni suscipit amet qui. Lorem ipsum dolor,
@@ -36,7 +38,12 @@ const Welcome = ({ onStepForward }: { onStepForward: () => {} }) => {
           reprehenderit eum in!
         </Text>
       </Box>
-      <Box background="white" padding={8}>
+      <Box
+        borderWidth={isDesktopView ? 0 : 2}
+        borderColor="goodPurple.400"
+        background="white"
+        borderRadius={8}
+        padding={8}>
         <Radio.Group
           name="donationFrequency"
           value={value}
@@ -44,7 +51,6 @@ const Welcome = ({ onStepForward }: { onStepForward: () => {} }) => {
             setValue(v);
             console.log(v);
           }}
-          style={{ flexDirection: 'column' }}
           flexDir="column"
           justifyContent="space-between"
           flexBasis={{ lg: '100%', md: '70%', sm: '100%', base: '100%' }}>
@@ -62,7 +68,7 @@ const Welcome = ({ onStepForward }: { onStepForward: () => {} }) => {
           </Radio>
         </Radio.Group>
       </Box>
-      <HStack background="white" padding={8} space={4}>
+      <HStack backgroundColor={isDesktopView ? 'white' : 'goodPurple.300'} borderRadius={8} padding={8} space={4}>
         <Checkbox
           colorScheme="danger"
           value={String(acknowledged)}
