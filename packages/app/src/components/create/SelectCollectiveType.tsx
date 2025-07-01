@@ -1,9 +1,11 @@
 import { Text, Badge, Checkbox, HStack, VStack, Center } from 'native-base';
 import { Pressable } from 'react-native';
 import { CommunityFundsIcon, SegmentedAidIcon, ResultsBasedIcon } from '../../assets';
+import { useScreenSize } from '../../theme/hooks';
+import { PoolType } from './CreateGoodCollective';
 
 const SelectType = ({ onStepForward, onPartialSubmit }: { onStepForward: () => {}; onPartialSubmit: Function }) => {
-  type PoolType = 'community-funds' | 'segmented-aid' | 'results-based';
+  const { isDesktopView } = useScreenSize();
 
   const poolTypes = [
     {
@@ -35,7 +37,7 @@ const SelectType = ({ onStepForward, onPartialSubmit }: { onStepForward: () => {
 
   return (
     <VStack space={8} padding={2}>
-      <Text fontSize="3xl" textAlign="center" fontWeight="600" color="#1B7BEC">
+      <Text fontSize={isDesktopView ? '3xl' : '2xl'} textAlign="center" fontWeight="600" color="#1B7BEC">
         About Various Pools
       </Text>
       <Center>
@@ -52,8 +54,17 @@ const SelectType = ({ onStepForward, onPartialSubmit }: { onStepForward: () => {
             onPartialSubmit({ poolType: poolType.id });
             onStepForward();
           }}>
-          <HStack backgroundColor="white" space={8} alignItems="center" justifyContent="center" paddingY={4}>
-            <img src={poolType.icon} />
+          <HStack
+            borderRadius={16}
+            borderWidth={isDesktopView ? 0 : 2}
+            borderColor="goodPurple.400"
+            backgroundColor="white"
+            space={4}
+            alignItems="center"
+            justifyContent="center"
+            padding={4}
+            style={{ maxWidth: '100%' }}>
+            <img width="40" src={poolType.icon} />
             <VStack w="4/6" space={2}>
               <Text textTransform="uppercase" color="goodPurple.500" fontWeight="600">
                 {poolType.name}
