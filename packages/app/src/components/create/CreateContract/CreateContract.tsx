@@ -4,23 +4,9 @@ import GetStarted from './1GetStarted';
 import ProjectDetails from './2ProjectDetails';
 import PoolConfiguration from './3PoolConfiguration';
 import ReviewLaunch from './4ReviewLaunch';
-import { Form } from '../CreateGoodCollective';
+import { Form, useCreatePool } from '../../../hooks/useCreatePool';
 
-const CreateContract = ({
-  step,
-  form,
-  onStepForward,
-  onStepBackward,
-  onPartialSubmit,
-  onStartOver,
-}: {
-  step: number;
-  form: Form;
-  onStepForward: Function;
-  onStepBackward: Function;
-  onPartialSubmit: Function;
-  onStartOver: Function;
-}) => {
+const CreateContract = ({}: {}) => {
   const STEPS = [
     { id: 2, Component: GetStarted },
     { id: 3, Component: ProjectDetails },
@@ -28,8 +14,11 @@ const CreateContract = ({
     { id: 5, Component: ReviewLaunch },
   ];
 
+  const { step } = useCreatePool();
+
   return (
-    <VStack>
+    // TODO
+    <VStack width="full">
       <Box backgroundColor="goodPurple.400" padding={4}>
         <Progress colorScheme="blueGray" value={5 + 30 * (step - 2)} mt={4} />
         <HStack style={{ width: '100%', justifyContent: 'space-between' }} mt={2}>
@@ -47,21 +36,7 @@ const CreateContract = ({
           </Text>
         </HStack>
       </Box>
-      {STEPS.map(
-        ({ id, Component }) =>
-          step === id && (
-            <Component
-              key={id}
-              form={form}
-              onStepForward={(partialForm: Object) => {
-                onPartialSubmit(partialForm);
-                onStepForward();
-              }}
-              onStepBackward={onStepBackward}
-              onStartOver={onStartOver}
-            />
-          )
-      )}
+      {STEPS.map(({ id, Component }) => step === id && <Component key={id} />)}
     </VStack>
   );
 };

@@ -10,100 +10,137 @@ import {
   HStack,
   InputLeftAddon,
   InputGroup,
+  ChevronLeftIcon,
+  ArrowForwardIcon,
+  Box,
+  WarningTwoIcon,
 } from 'native-base';
+import { useAccount } from 'wagmi';
 
 import ActionButton from '../../ActionButton';
-import { Form } from '../CreateGoodCollective';
+import { useScreenSize } from '../../../theme/hooks';
+import { useCreatePool } from '../../../hooks/useCreatePool';
 
 type FieldError = {
   social?: string;
   adminWalletAddress?: string;
+  website?: string;
 };
 
-const ProjectDetails = ({
-  form,
-  onStepForward,
-  onStepBackward,
-}: {
-  form: Form;
-  onStepForward: Function;
-  onStepBackward: () => {};
-}) => {
+const Warning = ({ width, message }: { width: string; message?: string }) => {
+  return (
+    <HStack backgroundColor="goodPurple.100" padding={6} alignItems="center" space={2} width={width}>
+      <WarningTwoIcon color="red.600" size="md" />
+      <Text fontSize="md" color="goodPurple.400">
+        Please fill out all required fields before proceeding:
+        <br />
+        <Text fontWeight="700">{message}</Text>
+      </Text>
+    </HStack>
+  );
+};
+
+const ProjectDetails = () => {
+  const { form, nextStep, submitPartial, previousStep } = useCreatePool();
+  const { isDesktopView } = useScreenSize();
+  const { address } = useAccount();
+
   const [website, setWebsite] = useState<string>(form.website ?? '');
   const [twitter, setTwitter] = useState<string>(form.twitter ?? '');
   const [telegram, setTelegram] = useState<string>(form.telegram ?? '');
   const [discord, setDiscord] = useState<string>(form.discord ?? '');
   const [facebook, setFacebook] = useState<string>(form.facebook ?? '');
-  // TODO Set current wallet
-  const [adminWalletAddredss, setAdminWalletAddress] = useState<string>(form.adminWalletAddress ?? '');
+  const [adminWalletAddress, setAdminWalletAddress] = useState<string>(form.adminWalletAddress ?? address ?? '');
   const [additionalInfo, setAdditionalInfo] = useState<string>(form.additionalInfo ?? '');
 
   const onSubmit = () => {
-    if (validate())
-      onStepForward({
+    if (validate()) {
+      submitPartial({
         website,
         twitter,
         telegram,
         discord,
         facebook,
-        adminWalletAddredss,
+        adminWalletAddress,
         additionalInfo,
       });
+      nextStep();
+    }
   };
 
   const validate = () => {
     const currErrors = errors;
+    let pass = true;
     if (!website && !twitter && !telegram && !discord && !facebook) {
       currErrors.social = 'One social channel is required';
+      pass = false;
     }
 
-    if (!adminWalletAddredss) {
-      currErrors.adminWalletAddress = 'Admin wallet address is required!';
+    const pattern = new RegExp(
+      '^(https?:\\/\\/)?' +
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+        '((\\d{1,3}\\.){3}\\d{1,3}))' +
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+        '(\\?[;&a-z\\d%_.~+=-]*)?' +
+        '(\\#[-a-z\\d_]*)?$',
+      'i'
+    );
+    if (website && !pattern.test(website)) {
+      currErrors.website = 'Website invalid format!';
+      pass = false;
     }
+
+    if (!adminWalletAddress) {
+      currErrors.adminWalletAddress = 'Admin wallet address is required!';
+      pass = false;
+    }
+
+    console.log(currErrors);
 
     setErrors({
+      ...errors,
       ...currErrors,
     });
 
-    return Object.keys(currErrors);
+    return pass;
   };
 
   const [errors, setErrors] = useState<FieldError>({});
 
   return (
-    <VStack padding={2}>
-      <Text fontSize="2xl" fontWeight="700">
+    <VStack padding={2} style={{ minWidth: '600px' }} width="1/2" marginX="auto">
+      <Text fontSize={isDesktopView ? '2xl' : 'lg'} fontWeight="700">
         Project Details
       </Text>
       <Text mb={6} fontSize="xs" color="gray.500">
         Add a detalied description, project links and disclaimer to help educate contributors about your project and
         it's goals
       </Text>
-      <FormControl mb="5" isRequired>
+      <FormControl mb="5" isRequired isInvalid={!!errors.website}>
         <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform="uppercase">
+          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
             Website
           </Text>
         </FormControl.Label>
-        <InputGroup width="full">
+        <InputGroup width="full" backgroundColor="white">
           <InputLeftAddon children={'https://'} />
-          <Input value={website} onChangeText={(value) => setWebsite(value)} />
+          <Input flex={1} value={website} onChangeText={(value) => setWebsite(value)} />
         </InputGroup>
         <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-          Something is wrong.
+          {errors.website}
         </FormControl.ErrorMessage>
       </FormControl>
 
       <FormControl mb="5">
         <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform="uppercase">
+          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
             Twitter (X) Handle
           </Text>
         </FormControl.Label>
 
-        <InputGroup width="full">
+        <InputGroup width="full" backgroundColor="white">
           <InputLeftAddon children={'@'} />
-          <Input value={twitter} onChangeText={(value) => setTwitter(value)} />
+          <Input flex={1} value={twitter} onChangeText={(value) => setTwitter(value)} />
         </InputGroup>
         <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
           Something is wrong.
@@ -112,13 +149,14 @@ const ProjectDetails = ({
 
       <FormControl mb="5">
         <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform="uppercase">
+          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
             Telegram
           </Text>
         </FormControl.Label>
-        <InputGroup width="full">
+
+        <InputGroup width="full" backgroundColor="white">
           <InputLeftAddon children={'@'} />
-          <Input value={telegram} onChangeText={(value) => setTelegram(value)} />
+          <Input flex={1} value={telegram} onChangeText={(value) => setTelegram(value)} />
         </InputGroup>
         <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
           Something is wrong.
@@ -127,13 +165,13 @@ const ProjectDetails = ({
 
       <FormControl mb="5">
         <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform="uppercase">
+          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
             Discord
           </Text>
         </FormControl.Label>
-        <InputGroup width="full">
+        <InputGroup width="full" backgroundColor="white">
           <InputLeftAddon children={'@'} />
-          <Input value={discord} onChangeText={(value) => setDiscord(value)} />
+          <Input flex={1} value={discord} onChangeText={(value) => setDiscord(value)} />
         </InputGroup>
         <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
           Something is wrong.
@@ -142,27 +180,27 @@ const ProjectDetails = ({
 
       <FormControl mb="5">
         <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform="uppercase">
+          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
             Facebook
           </Text>
         </FormControl.Label>
-        <InputGroup width="full">
+        <InputGroup width="full" backgroundColor="white">
           <InputLeftAddon children={'@'} />
-          <Input value={facebook} onChangeText={(value) => setFacebook(value)} />
+          <Input flex={1} value={facebook} onChangeText={(value) => setFacebook(value)} />
         </InputGroup>
         <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
           Something is wrong.
         </FormControl.ErrorMessage>
       </FormControl>
 
-      <Text textTransform="uppercase" fontSize="md" fontWeight="600" mt={2}>
+      <Text textTransform={isDesktopView ? 'uppercase' : 'none'} fontSize="md" fontWeight="600" mt={2}>
         Project Owner Details
       </Text>
       <Divider mb={8} />
 
-      <FormControl mb="5" isRequired>
+      <FormControl mb="5" isRequired isInvalid={!!errors.adminWalletAddress}>
         <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform="uppercase">
+          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
             Admin Wallet Address
           </Text>
         </FormControl.Label>
@@ -170,30 +208,53 @@ const ProjectDetails = ({
           Fill this out with an Ethereum address to make that address this project's owner.
         </FormControl.HelperText>
         <Input
+          backgroundColor="white"
           style={errors.adminWalletAddress ? styles.error : {}}
-          value={adminWalletAddredss}
+          value={adminWalletAddress}
           onChangeText={(value) => setAdminWalletAddress(value)}
         />
         <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-          Something is wrong.
+          {errors.adminWalletAddress}
         </FormControl.ErrorMessage>
       </FormControl>
 
-      <FormControl mb="5" isRequired>
+      <FormControl mb="5">
         <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform="uppercase">
+          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
             Please provide any additional information about your project that you would like us to know (optional)
           </Text>
         </FormControl.Label>
-        <Input value={additionalInfo} onChangeText={(value) => setAdditionalInfo(value)} />
+        <Input backgroundColor="white" value={additionalInfo} onChangeText={(value) => setAdditionalInfo(value)} />
         <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
           Something is wrong.
         </FormControl.ErrorMessage>
       </FormControl>
       <HStack w="full" justifyContent="space-between">
-        <ActionButton onPress={() => onStepBackward()} text={'Back'} bg="white" textColor="black" />
-        <ActionButton onPress={onSubmit} text="Next: Configure Pool" bg="goodPurple.400" textColor="white" />
+        <ActionButton
+          onPress={() => previousStep()}
+          text={
+            <HStack alignItems="center" space={1}>
+              <ChevronLeftIcon /> <Text>Back</Text>
+            </HStack>
+          }
+          bg="white"
+          textColor="black"
+        />
+        <ActionButton
+          onPress={onSubmit}
+          text={
+            <HStack alignItems="center" space={1}>
+              <Text>Next: Configure Pool</Text>
+              <ArrowForwardIcon />
+            </HStack>
+          }
+          bg="goodPurple.400"
+          textColor="white"
+        />
       </HStack>
+      <Box flexDir="row-reverse" paddingY={2}>
+        {Object.keys(errors).length > 0 && <Warning width="1/2" message={errors.social} />}
+      </Box>
     </VStack>
   );
 };
