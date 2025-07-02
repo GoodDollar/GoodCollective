@@ -1,24 +1,28 @@
-import { Text, Box, Checkbox, HStack, Radio, VStack } from 'native-base';
+import { Text, Box, Checkbox, HStack, Radio, VStack, FormControl, WarningOutlineIcon } from 'native-base';
 import { useState } from 'react';
 import { CreateCollectiveLogo } from '../../assets';
 import ActionButton from '../ActionButton';
 import { useScreenSize } from '../../theme/hooks';
+import { useCreatePool } from '../../hooks/useCreatePool';
 
-const Welcome = ({ onStepForward }: { onStepForward: () => {} }) => {
-  const [value, setValue] = useState<string>();
+const Welcome = () => {
+  const [value, setValue] = useState<string>('one');
   const [acknowledged, setAcknowledged] = useState<string>('');
+  const [pressed, setPressed] = useState<boolean>(false);
   const { isDesktopView } = useScreenSize();
+
+  const { nextStep } = useCreatePool();
 
   const onSubmit = () => {
     if (!acknowledged) {
-      // Show error
+      setPressed(true);
       return;
     }
-    onStepForward();
+    nextStep();
   };
 
   return (
-    <VStack space={4} padding={2}>
+    <VStack space={4} padding={2} style={{ minWidth: '600px' }} width="1/2" marginX="auto">
       <Text fontSize="3xl" textAlign="center" fontWeight="600" color="goodPurple.500">
         Welcome to
       </Text>
@@ -54,13 +58,13 @@ const Welcome = ({ onStepForward }: { onStepForward: () => {} }) => {
           flexDir="column"
           justifyContent="space-between"
           flexBasis={{ lg: '100%', md: '70%', sm: '100%', base: '100%' }}>
-          <Radio value="one" my={4}>
+          <Radio value="one" my={4} size="sm">
             <Text fontSize="xs">
               Lorem ipsum dolor sit, amet consectetur adipisicing elit. Animi, dignissimos fugit adipisci, ex libero
               laborum praesentium officiis
             </Text>
           </Radio>
-          <Radio value="two">
+          <Radio value="two" size="sm">
             <Text fontSize="xs">
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates maiores ab dicta vero veritatis omnis
               natus ration
@@ -68,15 +72,30 @@ const Welcome = ({ onStepForward }: { onStepForward: () => {} }) => {
           </Radio>
         </Radio.Group>
       </Box>
-      <HStack backgroundColor={isDesktopView ? 'white' : 'goodPurple.300'} borderRadius={8} padding={8} space={4}>
-        <Checkbox
-          colorScheme="danger"
-          value={String(acknowledged)}
-          onChange={(v) => setAcknowledged(String(v))}
-          accessibilityLabel="TODO"
-        />
-        <Text fontSize="sm">I understand</Text>
-      </HStack>
+      <FormControl isInvalid={!acknowledged && pressed}>
+        <VStack backgroundColor={isDesktopView ? 'white' : 'goodPurple.300'} borderRadius={8} padding={8}>
+          <HStack space={4}>
+            <Checkbox
+              borderWidth={2}
+              borderRadius={4}
+              borderColor="goodPurple.300"
+              colorScheme="goodPurple.300"
+              value={String(acknowledged)}
+              onChange={(v) => setAcknowledged(String(v))}
+              accessibilityLabel="I understand"
+              size="md"
+            />
+            <Text fontSize="sm">I understand</Text>
+          </HStack>
+          <FormControl.ErrorMessage
+            _stack={{
+              alignItems: 'flex-start',
+            }}
+            leftIcon={<WarningOutlineIcon size="xs" mt={1} />}>
+            You must aknowledge...
+          </FormControl.ErrorMessage>
+        </VStack>
+      </FormControl>
       {/* TODO Color */}
       <ActionButton onPress={onSubmit} text="Get Started" bg="goodPurple.400" textColor="white" />
     </VStack>

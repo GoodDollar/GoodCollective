@@ -1,11 +1,12 @@
-import { Text, Badge, Checkbox, HStack, VStack, Center } from 'native-base';
+import { Text, Badge, Checkbox, HStack, VStack, Center, Box } from 'native-base';
 import { Pressable } from 'react-native';
 import { CommunityFundsIcon, SegmentedAidIcon, ResultsBasedIcon } from '../../assets';
 import { useScreenSize } from '../../theme/hooks';
-import { PoolType } from './CreateGoodCollective';
+import { PoolType, useCreatePool } from '../../hooks/useCreatePool';
 
-const SelectType = ({ onStepForward, onPartialSubmit }: { onStepForward: () => {}; onPartialSubmit: Function }) => {
+const SelectType = () => {
   const { isDesktopView } = useScreenSize();
+  const { submitPartial, nextStep } = useCreatePool();
 
   const poolTypes = [
     {
@@ -36,7 +37,7 @@ const SelectType = ({ onStepForward, onPartialSubmit }: { onStepForward: () => {
   ];
 
   return (
-    <VStack space={8} padding={2}>
+    <VStack space={8} padding={2} style={{ minWidth: '600px' }} width="1/2" marginX="auto">
       <Text fontSize={isDesktopView ? '3xl' : '2xl'} textAlign="center" fontWeight="600" color="#1B7BEC">
         About Various Pools
       </Text>
@@ -51,10 +52,11 @@ const SelectType = ({ onStepForward, onPartialSubmit }: { onStepForward: () => {
           key={index}
           disabled={poolType.disabled}
           onPress={() => {
-            onPartialSubmit({ poolType: poolType.id });
-            onStepForward();
+            submitPartial({ poolType: poolType.id });
+            nextStep();
           }}>
           <HStack
+            minH={130}
             borderRadius={16}
             borderWidth={isDesktopView ? 0 : 2}
             borderColor="goodPurple.400"
@@ -64,7 +66,9 @@ const SelectType = ({ onStepForward, onPartialSubmit }: { onStepForward: () => {
             justifyContent="center"
             padding={4}
             style={{ maxWidth: '100%' }}>
-            <img width="40" src={poolType.icon} />
+            <Box width="1/6" alignItems="center">
+              <img width="40" src={poolType.icon} />
+            </Box>
             <VStack w="4/6" space={2}>
               <Text textTransform="uppercase" color="goodPurple.500" fontWeight="600">
                 {poolType.name}
@@ -76,7 +80,7 @@ const SelectType = ({ onStepForward, onPartialSubmit }: { onStepForward: () => {
                 </Badge>
               )}
             </VStack>
-            <div>{!poolType.disabled && <Checkbox value={'true'} />}</div>
+            <Box w="1/6">{!poolType.disabled && <Checkbox value={'true'} />}</Box>
           </HStack>
         </Pressable>
       ))}
