@@ -5,7 +5,6 @@ function CreateGoodCollectivePage() {
   return (
     <Layout>
       <CreateGoodCollective />
-      {/* TODO Show has to log in wallet first */}
     </Layout>
   );
 }

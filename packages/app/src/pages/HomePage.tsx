@@ -13,6 +13,8 @@ import Layout from '../components/Layout/Layout';
 import { IpfsCollective } from '../models/models';
 import { useCollectivesMetadata } from '../hooks';
 import useCrossNavigate from '../routes/useCrossNavigate';
+import { useAccount } from 'wagmi';
+import WarningBox from '../components/WarningBox';
 
 const homeContainerStyles = {
   flex: 1,
@@ -76,10 +78,17 @@ const HomePage = () => {
 
   const collectivesSectionRef = useRef<any>(null);
 
+  const { isConnected } = useAccount();
+
   const scrollToCollectives = () => {
     if (collectivesSectionRef.current) {
       collectivesSectionRef.current.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  const redirectToCreateCollective = () => {
+    if (!isConnected) return;
+    navigate(`/create`);
   };
 
   const stats = totalStats
@@ -143,11 +152,18 @@ individuals and communities by providing direct digital payments to those who ne
                       onPress={scrollToCollectives}
                     />
                     <ActionButton
-                      onPress={() => navigate(`/create`)}
+                      onPress={redirectToCreateCollective}
                       text="Create a GoodCollective"
                       bg="goodPurple.100"
                       textColor="goodPurple.400"
                     />
+                    {!isConnected && (
+                      <WarningBox
+                        content={{
+                          title: 'Please connect a wallet to proceed',
+                        }}
+                      />
+                    )}
                   </HStack>
                 </VStack>
               </VStack>
