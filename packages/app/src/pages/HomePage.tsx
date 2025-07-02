@@ -12,6 +12,9 @@ import Layout from '../components/Layout/Layout';
 
 import { IpfsCollective } from '../models/models';
 import { useCollectivesMetadata } from '../hooks';
+import useCrossNavigate from '../routes/useCrossNavigate';
+import { useAccount } from 'wagmi';
+import WarningBox from '../components/WarningBox';
 
 const homeContainerStyles = {
   flex: 1,
@@ -67,6 +70,7 @@ const statsCopy: { [K in keyof TotalStats]: { copy: string } } = {
 };
 
 const HomePage = () => {
+  const { navigate } = useCrossNavigate();
   const collectives = useCollectivesMetadata();
   const totalStats = useTotalStats();
 
@@ -74,10 +78,17 @@ const HomePage = () => {
 
   const collectivesSectionRef = useRef<any>(null);
 
+  const { isConnected } = useAccount();
+
   const scrollToCollectives = () => {
     if (collectivesSectionRef.current) {
       collectivesSectionRef.current.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  const redirectToCreateCollective = () => {
+    if (!isConnected) return;
+    navigate(`/create`);
   };
 
   const stats = totalStats
@@ -141,11 +152,18 @@ individuals and communities by providing direct digital payments to those who ne
                       onPress={scrollToCollectives}
                     />
                     <ActionButton
-                      href="https://gooddollar.typeform.com/creategood"
+                      onPress={redirectToCreateCollective}
                       text="Create a GoodCollective"
                       bg="goodPurple.100"
                       textColor="goodPurple.400"
                     />
+                    {!isConnected && (
+                      <WarningBox
+                        content={{
+                          title: 'Please connect a wallet to proceed',
+                        }}
+                      />
+                    )}
                   </HStack>
                 </VStack>
               </VStack>
