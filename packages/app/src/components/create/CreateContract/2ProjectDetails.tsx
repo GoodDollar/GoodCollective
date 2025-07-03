@@ -95,8 +95,6 @@ const ProjectDetails = () => {
       pass = false;
     }
 
-    console.log(currErrors);
-
     setErrors({
       ...errors,
       ...currErrors,
