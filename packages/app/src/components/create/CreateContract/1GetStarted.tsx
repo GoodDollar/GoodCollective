@@ -12,7 +12,6 @@ import {
   ChevronLeftIcon,
   WarningTwoIcon,
   ArrowForwardIcon,
-  InfoOutlineIcon,
 } from 'native-base';
 import { StyleSheet } from 'react-native';
 
@@ -375,7 +374,7 @@ const GetStarted = ({}: {}) => {
         />
       </HStack>
       <Box flexDir="row-reverse" paddingY={2}>
-        {Object.keys(errors).length > 0 && <Warning width="1/2" />}
+        {Object.values(errors).filter((value) => value).length !== 0 && <Warning width="1/2" />}
       </Box>
     </VStack>
   );
