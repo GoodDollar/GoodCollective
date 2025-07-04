@@ -76,6 +76,11 @@ const ProjectDetails = () => {
       pass = false;
     }
 
+    if (!website) {
+      currErrors.website = 'Website is required';
+      pass = false;
+    }
+
     const pattern = new RegExp(
       '^(https?:\\/\\/)?' +
         '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
@@ -93,6 +98,12 @@ const ProjectDetails = () => {
     if (!adminWalletAddress) {
       currErrors.adminWalletAddress = 'Admin wallet address is required!';
       pass = false;
+    } else {
+      const ethereumAddressRegex = /^0x[a-fA-F0-9]{40}$/;
+      if (!ethereumAddressRegex.test(adminWalletAddress)) {
+        currErrors.adminWalletAddress = 'Admin wallet address is not valid!';
+        pass = false;
+      }
     }
 
     setErrors({
@@ -114,7 +125,7 @@ const ProjectDetails = () => {
         Add a detalied description, project links and disclaimer to help educate contributors about your project and
         it's goals
       </Text>
-      <FormControl mb="5" isRequired isInvalid={!!errors.website}>
+      <FormControl mb="5" isRequired>
         <FormControl.Label>
           <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
             Website
@@ -122,11 +133,23 @@ const ProjectDetails = () => {
         </FormControl.Label>
         <InputGroup width="full" backgroundColor="white">
           <InputLeftAddon children={'https://'} />
-          <Input flex={1} value={website} onChangeText={(value) => setWebsite(value)} />
+          <Input
+            flex={1}
+            value={website}
+            onChangeText={(value) => {
+              setWebsite(value);
+              validate();
+            }}
+          />
         </InputGroup>
-        <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-          {errors.website}
-        </FormControl.ErrorMessage>
+        {errors.website && (
+          <HStack alignItems="center" space={1} marginTop={1}>
+            <WarningOutlineIcon size="xs" color="red.500" />
+            <Text fontSize="xs" color="red.500">
+              {errors.website}
+            </Text>
+          </HStack>
+        )}
       </FormControl>
 
       <FormControl mb="5">
@@ -140,9 +163,6 @@ const ProjectDetails = () => {
           <InputLeftAddon children={'@'} />
           <Input flex={1} value={twitter} onChangeText={(value) => setTwitter(value)} />
         </InputGroup>
-        <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-          Something is wrong.
-        </FormControl.ErrorMessage>
       </FormControl>
 
       <FormControl mb="5">
@@ -156,9 +176,6 @@ const ProjectDetails = () => {
           <InputLeftAddon children={'@'} />
           <Input flex={1} value={telegram} onChangeText={(value) => setTelegram(value)} />
         </InputGroup>
-        <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-          Something is wrong.
-        </FormControl.ErrorMessage>
       </FormControl>
 
       <FormControl mb="5">
@@ -171,9 +188,6 @@ const ProjectDetails = () => {
           <InputLeftAddon children={'@'} />
           <Input flex={1} value={discord} onChangeText={(value) => setDiscord(value)} />
         </InputGroup>
-        <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-          Something is wrong.
-        </FormControl.ErrorMessage>
       </FormControl>
 
       <FormControl mb="5">
@@ -186,9 +200,6 @@ const ProjectDetails = () => {
           <InputLeftAddon children={'@'} />
           <Input flex={1} value={facebook} onChangeText={(value) => setFacebook(value)} />
         </InputGroup>
-        <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-          Something is wrong.
-        </FormControl.ErrorMessage>
       </FormControl>
 
       <Text textTransform={isDesktopView ? 'uppercase' : 'none'} fontSize="md" fontWeight="600" mt={2}>
@@ -196,7 +207,7 @@ const ProjectDetails = () => {
       </Text>
       <Divider mb={8} />
 
-      <FormControl mb="5" isRequired isInvalid={!!errors.adminWalletAddress}>
+      <FormControl mb="5" isRequired>
         <FormControl.Label>
           <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
             Admin Wallet Address
@@ -209,11 +220,19 @@ const ProjectDetails = () => {
           backgroundColor="white"
           style={errors.adminWalletAddress ? styles.error : {}}
           value={adminWalletAddress}
-          onChangeText={(value) => setAdminWalletAddress(value)}
+          onChangeText={(value) => {
+            setAdminWalletAddress(value);
+            validate();
+          }}
         />
-        <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-          {errors.adminWalletAddress}
-        </FormControl.ErrorMessage>
+        {errors.adminWalletAddress && (
+          <HStack alignItems="center" space={1} marginTop={1}>
+            <WarningOutlineIcon size="xs" color="red.500" />
+            <Text fontSize="xs" color="red.500">
+              {errors.adminWalletAddress}
+            </Text>
+          </HStack>
+        )}
       </FormControl>
 
       <FormControl mb="5">
