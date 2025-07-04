@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   VStack,
   Text,
@@ -8,57 +8,18 @@ import {
   TextArea,
   HStack,
   Box,
-  Center,
   Flex,
-  Pressable,
   ChevronLeftIcon,
   WarningTwoIcon,
   ArrowForwardIcon,
+  InfoOutlineIcon,
 } from 'native-base';
 import { StyleSheet } from 'react-native';
 
-import { DownloadIcon } from '../../../assets';
 import ActionButton from '../../ActionButton';
 import { useScreenSize } from '../../../theme/hooks';
 import { useCreatePool } from '../../../hooks/useCreatePool';
-
-// TODO Separate into component
-const FileUpload = ({ style, onUpload }: { style: FieldError | {}; onUpload: Function }) => {
-  const uploader = useRef(null);
-  const [fileName, setFileName] = useState<string>('');
-
-  return (
-    <Pressable onPress={() => (uploader.current as unknown as HTMLInputElement)?.click()}>
-      <Box
-        style={style as {}}
-        borderWidth={2}
-        borderRadius={8}
-        borderStyle="dotted"
-        borderColor="gray.300"
-        backgroundColor="white"
-        mt={2}
-        padding={6}>
-        <Center>
-          <img src={DownloadIcon} alt="" />
-          {!fileName && <Text>Click to upload</Text>}
-          <Text overflow="hidden">{fileName}</Text>
-        </Center>
-      </Box>
-      <input
-        style={{ display: 'none' }}
-        ref={uploader}
-        type="file"
-        name="myImage"
-        accept="image/svg+xml,image/png,image/jpeg,image/gif"
-        onChange={(event) => {
-          if (!event.target.files) return;
-          setFileName(event.target.files[0].name);
-          onUpload(event.target.files[0]);
-        }}
-      />
-    </Pressable>
-  );
-};
+import FileUpload from '../../FileUpload';
 
 const Warning = ({ width }: { width: string }) => {
   return (
@@ -71,7 +32,7 @@ const Warning = ({ width }: { width: string }) => {
   );
 };
 
-type FieldError = {
+type FormError = {
   projectName?: string;
   projectDescription?: string;
   tagline?: string;
@@ -93,7 +54,7 @@ async function fetchImageAsFile(url: string, filename = 'image.jpg') {
   return file;
 }
 
-// TODO
+// TODO Upload image
 const uploadImg = async (img: File, name: string) => {};
 
 const GetStarted = ({}: {}) => {
@@ -106,19 +67,36 @@ const GetStarted = ({}: {}) => {
   const [projectDescription, setProjectDescription] = useState<string>(form.projectDescription ?? '');
   const [logo, setLogo] = useState<File | undefined>();
   const [coverPhoto, setCoverPhoto] = useState<File | undefined>();
-  const [errors, setErrors] = useState<FieldError>({});
+  const [errors, setErrors] = useState<FormError>({});
 
-  // Display already uploaded images
   useEffect(() => {
     (async () => {
-      if (form.logo) {
-        setLogo(await fetchImageAsFile(form.logo, form.logo.split('/').pop()));
+      if (form.logo && !logo) {
+        try {
+          const resp = await fetchImageAsFile(form.logo, form.logo.split('/').pop());
+          setLogo(resp);
+        } catch (error) {
+          const errorMsg = `Error fetching ${form.logo
+            .split('/')
+            .pop()}! Please reupload it or upload a different one.`;
+          console.log(errorMsg);
+          if (!errors.logo) setErrors({ ...errors, logo: errorMsg });
+        }
       }
-      if (form.coverPhoto) {
-        setCoverPhoto(await fetchImageAsFile(form.coverPhoto, form.coverPhoto.split('/').pop()));
+      if (form.coverPhoto && !coverPhoto) {
+        try {
+          const resp = await fetchImageAsFile(form.coverPhoto, form.coverPhoto.split('/').pop());
+          setCoverPhoto(resp);
+        } catch (error) {
+          const errorMsg = `Error fetching ${form.coverPhoto
+            .split('/')
+            .pop()}! Please reupload it or upload a different one.`;
+          console.log(errorMsg);
+          if (!errors.logo) setErrors({ ...errors, logo: errorMsg });
+        }
       }
     })();
-  }, [form.coverPhoto, form.logo]);
+  }, [coverPhoto, errors, form.coverPhoto, form.logo, logo]);
 
   useEffect(() => {
     if (!logo) return;
@@ -140,15 +118,15 @@ const GetStarted = ({}: {}) => {
         projectName,
         tagline,
         projectDescription,
-        logo: 'TODO',
-        coverPhoto: 'TODO',
+        logo: logo?.name,
+        coverPhoto: coverPhoto?.name,
       });
       nextStep();
     }
   };
 
   const validate = () => {
-    const currErrors: FieldError = {
+    const currErrors: FormError = {
       projectName: '',
       projectDescription: '',
       tagline: '',
@@ -157,6 +135,7 @@ const GetStarted = ({}: {}) => {
     };
     let pass = true;
 
+    // Pool Name* - 100 character max
     if (!projectName) {
       currErrors.projectName = 'Project name is required';
       pass = false;
@@ -165,6 +144,7 @@ const GetStarted = ({}: {}) => {
       pass = false;
     }
 
+    // Pool Description* - 500 character max
     if (!projectDescription) {
       currErrors.projectDescription = 'Project name is required';
       pass = false;
@@ -173,17 +153,44 @@ const GetStarted = ({}: {}) => {
       pass = false;
     }
 
+    // Logo* - jpg, gif, png; max file size 1MB, (500x500px)
     if (!logo) {
       currErrors.logo = 'Logo is required';
       pass = false;
-    } else if (logo.size > 1 * 1024 * 1024) {
-      currErrors.logo = 'Logo size (max 1 MB)';
-      pass = false;
+    } else {
+      if (logo.size > 1 * 1024 * 1024) {
+        currErrors.logo = 'Logo size (max 1 MB)';
+        pass = false;
+      }
+      const img = new Image();
+      img.onload = function () {
+        if (img.width > 500 || img.height > 500) {
+          setErrors({
+            ...errors,
+            logo: 'Logo height, width wrong',
+          });
+        }
+      };
+      img.src = URL.createObjectURL(logo);
     }
 
-    if (coverPhoto && coverPhoto.size > 20) {
-      currErrors.coverPhoto = 'Cover photo size (max 20MB)';
-      pass = false;
+    // Image* - jpg, gif, png; max file size 20MB, (1400x256px)
+    if (coverPhoto) {
+      if (coverPhoto.size > 20 * 1024 * 1024) {
+        currErrors.coverPhoto = 'Cover photo size (max 20MB)';
+        pass = false;
+      }
+
+      const img2 = new Image();
+      img2.onload = function () {
+        if (img2.width > 1400 || img2.height > 256) {
+          setErrors({
+            ...errors,
+            coverPhoto: 'Cover photo height, width wrong',
+          });
+        }
+      };
+      img2.src = URL.createObjectURL(coverPhoto);
     }
 
     setErrors({
@@ -202,7 +209,7 @@ const GetStarted = ({}: {}) => {
       <Text mb={6} fontSize="xs" color="gray.500">
         Add basic information about your project, details can be edited later
       </Text>
-      <FormControl mb="5" isRequired isInvalid={!!errors.projectName}>
+      <FormControl mb="5" isRequired>
         <FormControl.Label>
           <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
             Project Name
@@ -217,13 +224,21 @@ const GetStarted = ({}: {}) => {
           style={errors.projectName ? styles.error : {}}
           backgroundColor="white"
           value={projectName}
-          onChangeText={(val) => setProjectName(val)}
+          onChangeText={(val) => {
+            setProjectName(val);
+            validate();
+          }}
           autoComplete={undefined}
           borderRadius={8}
         />
-        <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-          {errors.projectName}
-        </FormControl.ErrorMessage>
+        {errors.projectName && (
+          <HStack alignItems="center" space={1} marginTop={1}>
+            <WarningOutlineIcon size="xs" color="red.500" />
+            <Text fontSize="xs" color="red.500">
+              {errors.projectName}
+            </Text>
+          </HStack>
+        )}
       </FormControl>
       <FormControl mb="5" isRequired>
         <FormControl.Label>
@@ -235,14 +250,22 @@ const GetStarted = ({}: {}) => {
           style={errors.tagline ? styles.error : {}}
           backgroundColor="white"
           value={tagline}
-          onChangeText={(val) => setTagline(val)}
+          onChangeText={(val) => {
+            setTagline(val);
+            validate();
+          }}
           borderRadius={8}
         />
-        <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-          Something is wrong.
-        </FormControl.ErrorMessage>
+        {errors.tagline && (
+          <HStack alignItems="center" space={1} marginTop={1}>
+            <WarningOutlineIcon size="xs" color="red.500" />
+            <Text fontSize="xs" color="red.500">
+              Something is wrong.
+            </Text>
+          </HStack>
+        )}
       </FormControl>
-      <FormControl mb="5" isRequired isInvalid={!!errors.projectDescription}>
+      <FormControl mb="5" isRequired>
         <FormControl.Label>
           <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
             Project Description
@@ -253,19 +276,27 @@ const GetStarted = ({}: {}) => {
           backgroundColor="white"
           value={projectDescription}
           autoCompleteType={undefined}
-          onChangeText={(val) => setProjectDescription(val)}
+          onChangeText={(val) => {
+            setProjectDescription(val);
+            validate();
+          }}
           borderRadius={8}
         />
-        <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-          {errors.projectDescription}
-        </FormControl.ErrorMessage>
+        {errors.projectDescription && (
+          <HStack alignItems="center" space={1} marginTop={1}>
+            <WarningOutlineIcon size="xs" color="red.500" />
+            <Text fontSize="xs" color="red.500">
+              {errors.projectDescription}
+            </Text>
+          </HStack>
+        )}
       </FormControl>
       <Flex
         direction={isDesktopView ? 'row' : 'column'}
         style={{ maxWidth: '100%', gap: 32 }}
         justifyContent="space-between"
         alignItems="stretch">
-        <FormControl width={isDesktopView ? '2/6' : '4/6'} isRequired isInvalid={!!errors.logo}>
+        <FormControl width={isDesktopView ? '2/6' : '4/6'} isRequired>
           <FormControl.Label>
             <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
               Logo
@@ -277,13 +308,26 @@ const GetStarted = ({}: {}) => {
           </FormControl.HelperText>
 
           <Box marginTop="auto">
-            <FileUpload style={errors.logo ? styles.error : {}} onUpload={setLogo} />
+            <FileUpload
+              style={errors.logo ? styles.error : {}}
+              onUpload={(file: File) => {
+                setLogo(file);
+                validate();
+              }}
+            />
           </Box>
           {!!errors.coverPhoto && !errors.logo && <Box height={18} />}
-          <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>{errors.logo}</FormControl.ErrorMessage>
+          {errors.logo && (
+            <HStack alignItems="center" space={1} marginTop={1}>
+              <WarningOutlineIcon size="xs" color="red.500" />
+              <Text fontSize="xs" color="red.500">
+                {errors.logo}
+              </Text>
+            </HStack>
+          )}
         </FormControl>
 
-        <FormControl flex={1} isInvalid={!!errors.coverPhoto}>
+        <FormControl flex={1}>
           <FormControl.Label>
             <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
               Cover Photo
@@ -297,9 +341,14 @@ const GetStarted = ({}: {}) => {
             <FileUpload style={errors.coverPhoto ? styles.error : {}} onUpload={setCoverPhoto} />
           </Box>
           {!errors.coverPhoto && !!errors.logo && <Box height={26} />}
-          <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-            {errors.coverPhoto}
-          </FormControl.ErrorMessage>
+          {errors.coverPhoto && (
+            <HStack alignItems="center" space={1} marginTop={1}>
+              <WarningOutlineIcon size="xs" color="red.500" />
+              <Text fontSize="xs" color="red.500">
+                {errors.coverPhoto}
+              </Text>
+            </HStack>
+          )}
         </FormControl>
       </Flex>
       <HStack maxWidth="full" justifyContent="space-between">
