@@ -2,7 +2,7 @@ import Welcome from './Welcome';
 import SelectType from './SelectCollectiveType';
 import CreateContract from './CreateContract/CreateContract';
 import Success from './Success';
-import { useCreatePool } from '../../hooks/useCreatePool';
+import { useCreatePool } from '../../hooks/useCreatePool/useCreatePool';
 
 const CreateGoodCollective = () => {
   const { step } = useCreatePool();

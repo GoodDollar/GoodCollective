@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { CreateCollectiveLogo } from '../../assets';
 import ActionButton from '../ActionButton';
 import { useScreenSize } from '../../theme/hooks';
-import { useCreatePool } from '../../hooks/useCreatePool';
+import { useCreatePool } from '../../hooks/useCreatePool/useCreatePool';
 
 const Welcome = () => {
   const [value, setValue] = useState<string>('one');
@@ -22,7 +22,12 @@ const Welcome = () => {
   };
 
   return (
-    <VStack space={4} padding={2} style={{ minWidth: '600px' }} width="1/2" marginX="auto">
+    <VStack
+      space={4}
+      padding={2}
+      style={{ minWidth: isDesktopView ? '600px' : '150px' }}
+      width={isDesktopView ? '1/2' : 'full'}
+      marginX="auto">
       <Text fontSize="3xl" textAlign="center" fontWeight="600" color="goodPurple.500">
         Welcome to
       </Text>
@@ -78,7 +83,7 @@ const Welcome = () => {
             <Checkbox
               borderWidth={2}
               borderRadius={4}
-              borderColor="goodPurple.300"
+              borderColor={isDesktopView ? 'goodPurple.300' : 'white'}
               colorScheme="goodPurple.300"
               value={String(acknowledged)}
               onChange={(v) => setAcknowledged(String(v))}

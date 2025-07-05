@@ -1,10 +1,17 @@
 import { Box, HStack, Text, VStack } from 'native-base';
 import ActionButton from '../ActionButton';
 import { SuccessIcon, SuccessGuyIcon, Mask } from '../../assets';
+import { useScreenSize } from '@gooddollar/good-design';
 
 const Success = () => {
+  const { isDesktopView } = useScreenSize();
+
   return (
-    <VStack space={4} style={{ minWidth: '600px' }} width="1/2" marginX="auto">
+    <VStack
+      space={4}
+      style={{ minWidth: isDesktopView ? '600px' : '150px' }}
+      width={isDesktopView ? '1/2' : 'full'}
+      marginX="auto">
       <VStack
         backgroundColor="goodPurple.300"
         borderRadius={16}
@@ -37,6 +44,7 @@ const Success = () => {
           <Text fontSize="lg" fontWeight="700" textTransform="uppercase">
             Share Project Link
           </Text>
+          {/* TODO */}
           <HStack>...</HStack>
         </div>
       </VStack>

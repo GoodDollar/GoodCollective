@@ -2,7 +2,7 @@ import { Text, Badge, Checkbox, HStack, VStack, Center, Box } from 'native-base'
 import { Pressable } from 'react-native';
 import { CommunityFundsIcon, SegmentedAidIcon, ResultsBasedIcon } from '../../assets';
 import { useScreenSize } from '../../theme/hooks';
-import { PoolType, useCreatePool } from '../../hooks/useCreatePool';
+import { PoolType, useCreatePool } from '../../hooks/useCreatePool/useCreatePool';
 
 const SelectType = () => {
   const { isDesktopView } = useScreenSize();
@@ -37,16 +37,25 @@ const SelectType = () => {
   ];
 
   return (
-    <VStack space={8} padding={2} style={{ minWidth: '600px' }} width="1/2" marginX="auto">
-      <Text fontSize={isDesktopView ? '3xl' : '2xl'} textAlign="center" fontWeight="600" color="#1B7BEC">
-        About Various Pools
-      </Text>
-      <Center>
-        <Text maxW="2/3">
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dignissimos ipsa ab nemo fugiat expedita, facilis
-          voluptatibus magni velit odio quis cumque quidem veniam fuga. Ea perferendis voluptas voluptatum in iste!
+    <VStack
+      space={8}
+      padding={2}
+      style={{ minWidth: isDesktopView ? '600px' : '150px' }}
+      width={isDesktopView ? '1/2' : 'full'}
+      marginX="auto">
+      <Box padding={2}>
+        <Text fontSize={isDesktopView ? '3xl' : '2xl'} textAlign="center" fontWeight="600" color="#1B7BEC">
+          About
+          {!isDesktopView && <br />}
+          Various Pools
         </Text>
-      </Center>
+        <Center>
+          <Text maxW="2/3" textAlign="center">
+            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dignissimos ipsa ab nemo fugiat expedita, facilis
+            voluptatibus magni velit odio quis cumque quidem veniam fuga. Ea perferendis voluptas voluptatum in iste!
+          </Text>
+        </Center>
+      </Box>
       {poolTypes.map((poolType, index) => (
         <Pressable
           key={index}
