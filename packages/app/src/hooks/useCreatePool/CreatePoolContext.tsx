@@ -2,10 +2,10 @@ import { createContext, ReactNode, useState } from 'react';
 import { Form } from './useCreatePool';
 import { ExtendedUBISettings, GoodCollectiveSDK, UBIPoolSettings, UBISettings } from '@gooddollar/goodcollective-sdk';
 import { ethers } from 'ethers';
-import { SupportedNetwork, SupportedNetworkNames } from '../models/constants';
+import { SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
 import { useAccount } from 'wagmi';
-import { useEthersSigner } from './useEthers';
-import { validateConnection } from './useContractCalls/util';
+import { useEthersSigner } from '../useEthers';
+import { validateConnection } from '../useContractCalls/util';
 
 type CreatePoolContextType = {
   step: number;
@@ -35,6 +35,7 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
     setForm((prev) => ({ ...prev, ...partialForm }));
   };
 
+  // TODO Check each step if the user has wallet connected
   const nextStep = () => setStep((prev) => prev + 1);
   const previousStep = () => setStep((prev) => prev - 1);
   const startOver = () => {
@@ -56,6 +57,7 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
     if (step !== 5) return;
     setStep(4);
   };
+  // TODO Switch to hardhat and try create
 
   const createPool = async () => {
     const validation = validateConnection(maybeAddress, chain?.id, maybeSigner);
@@ -63,29 +65,39 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     const { chainId, signer } = validation;
+    // const { signer } = validation;
+    // const readProvider = new ethers.providers.JsonRpcProvider('https://alfajores-forno.celo-testnet.org');
+    // const chainId = 44787;
     const chainIdString = chainId.toString() as `${SupportedNetwork}`;
     const network = SupportedNetworkNames[chainId as SupportedNetwork];
 
     const sdk = new GoodCollectiveSDK(chainIdString, signer.provider as ethers.providers.Provider, { network });
 
+    console.log(form);
+
     // Form validation
     if (!form.projectName || !form.projectDescription) return;
-    if (!form.logo || !form.coverPhoto) return;
+    if (!form.logo) return;
+    if (
+      !form.maximumMembers ||
+      !form.claimAmountPerWeek ||
+      !form.claimFrequency ||
+      typeof form.managerFeePercentage !== 'number'
+    )
+      return;
 
     // TODO
     const projectId = 'redtent';
     const poolAttributes = {
       name: form.projectName,
       description: form.projectDescription,
-      // TODO
-      rewardDescription: 'Up to 500 women in Nigeria may claim G$ every day ',
-      goodidDescription: 'Verified women from Nigeria',
+      rewardDescription: form.rewardDescription ?? '',
       website: form.website,
       twitter: form.twitter,
       instagram: form.instagram,
       threads: form.threads,
       discord: form.discord,
-      headerImage: form.coverPhoto,
+      headerImage: form.coverPhoto ?? '',
       logo: form.logo,
     };
 
@@ -97,22 +109,21 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
       rewardToken: '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A',
     };
 
-    // TODO
     const ubiSettings: UBISettings = {
-      cycleLengthDays: ethers.BigNumber.from(7),
       claimPeriodDays: ethers.BigNumber.from(form.claimFrequency),
-      minActiveUsers: ethers.BigNumber.from(500),
+      // TODO
+      minActiveUsers: ethers.BigNumber.from(1),
+      maxClaimAmount: ethers.utils.parseEther(String(form.claimAmountPerWeek)),
+      maxMembers: form.maximumMembers,
+      onlyMembers: form.canNewMembersJoin ?? false,
+      cycleLengthDays: ethers.BigNumber.from(form.claimFrequency <= 7 ? 7 : form.claimFrequency),
       claimForEnabled: false,
-      maxClaimAmount: ethers.utils.parseEther('437'),
-      maxMembers: 500,
-      onlyMembers: true,
     };
 
-    // example for fixed amount type of pool
     const extendedUBISettings: ExtendedUBISettings = {
-      maxPeriodClaimers: 1,
+      maxPeriodClaimers: 0,
       minClaimAmount: ubiSettings.maxClaimAmount,
-      managerFeeBps: 1500, // 15%
+      managerFeeBps: form.managerFeePercentage * 100,
     };
 
     const pool = await sdk.createUbiPoolWithAttributes(
