@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren, useRef } from 'react';
+import { FC, PropsWithChildren, useRef, useState } from 'react';
 import { Box, HStack, ScrollView, Spinner, Text, useBreakpointValue, VStack } from 'native-base';
 import { Platform } from 'react-native';
 
@@ -79,6 +79,7 @@ const HomePage = () => {
   const collectivesSectionRef = useRef<any>(null);
 
   const { isConnected } = useAccount();
+  const [showWarningMessage, setShowWarningMessage] = useState(false);
 
   const scrollToCollectives = () => {
     if (collectivesSectionRef.current) {
@@ -87,7 +88,10 @@ const HomePage = () => {
   };
 
   const redirectToCreateCollective = () => {
-    if (!isConnected) return;
+    if (!isConnected) {
+      setShowWarningMessage(true);
+    }
+    setShowWarningMessage(false);
     navigate(`/create`);
   };
 
@@ -157,7 +161,7 @@ individuals and communities by providing direct digital payments to those who ne
                       bg="goodPurple.100"
                       textColor="goodPurple.400"
                     />
-                    {!isConnected && (
+                    {showWarningMessage && (
                       <WarningBox
                         content={{
                           title: 'Please connect a wallet to proceed',

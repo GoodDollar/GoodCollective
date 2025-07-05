@@ -24,7 +24,7 @@ import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 import { useCreateSubgraphApolloClient, useCreateMongoDbApolloClient } from './hooks/apollo';
 import { MongoDbApolloProvider } from './components/providers/MongoDbApolloProvider';
 import CreateGoodCollectivePage from './pages/CreateGoodCollectivePage';
-import { CreatePoolProvider } from './hooks/CreatePoolContext';
+import { CreatePoolProvider } from './hooks/useCreatePool';
 
 const queryClient = new QueryClient();
 const projectId = 'b1b7664bfba2f6ad5538aa7fa9a2404f';
