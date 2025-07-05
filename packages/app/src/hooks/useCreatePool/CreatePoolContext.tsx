@@ -1,0 +1,159 @@
+import { createContext, ReactNode, useState } from 'react';
+import { Form } from './useCreatePool';
+import { ExtendedUBISettings, GoodCollectiveSDK, UBIPoolSettings, UBISettings } from '@gooddollar/goodcollective-sdk';
+import { ethers } from 'ethers';
+import { SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
+import { useAccount } from 'wagmi';
+import { useEthersSigner } from '../useEthers';
+import { validateConnection } from '../useContractCalls/util';
+
+type CreatePoolContextType = {
+  step: number;
+  form: Form;
+  nextStep: () => void;
+  previousStep: () => void;
+  startOver: () => void;
+  submitPartial: (partialForm: Form) => void;
+  setStep: (step: number) => void;
+  goToBasics: () => void;
+  goToPoolConfiguration: () => void;
+  goToProjectDetails: () => void;
+  createPool: () => void;
+};
+
+export const CreatePoolContext = createContext<CreatePoolContextType | undefined>(undefined);
+
+export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
+  const { address: maybeAddress } = useAccount();
+  const { chain } = useAccount();
+  const maybeSigner = useEthersSigner({ chainId: chain?.id });
+
+  const [step, setStep] = useState(0);
+  const [form, setForm] = useState<Form>({});
+
+  const submitPartial = (partialForm: Form) => {
+    setForm((prev) => ({ ...prev, ...partialForm }));
+  };
+
+  // TODO Check each step if the user has wallet connected
+  const nextStep = () => setStep((prev) => prev + 1);
+  const previousStep = () => setStep((prev) => prev - 1);
+  const startOver = () => {
+    setStep(2);
+    setForm({});
+  };
+
+  const goToBasics = () => {
+    if (step !== 5) return;
+    setStep(2);
+  };
+
+  const goToProjectDetails = () => {
+    if (step !== 5) return;
+    setStep(3);
+  };
+
+  const goToPoolConfiguration = () => {
+    if (step !== 5) return;
+    setStep(4);
+  };
+  // TODO Switch to hardhat and try create
+
+  const createPool = async () => {
+    const validation = validateConnection(maybeAddress, chain?.id, maybeSigner);
+    if (typeof validation === 'string') {
+      return;
+    }
+    const { chainId, signer } = validation;
+    // const { signer } = validation;
+    // const readProvider = new ethers.providers.JsonRpcProvider('https://alfajores-forno.celo-testnet.org');
+    // const chainId = 44787;
+    const chainIdString = chainId.toString() as `${SupportedNetwork}`;
+    const network = SupportedNetworkNames[chainId as SupportedNetwork];
+
+    const sdk = new GoodCollectiveSDK(chainIdString, signer.provider as ethers.providers.Provider, { network });
+
+    console.log(form);
+
+    // Form validation
+    if (!form.projectName || !form.projectDescription) return;
+    if (!form.logo) return;
+    if (
+      !form.maximumMembers ||
+      !form.claimAmountPerWeek ||
+      !form.claimFrequency ||
+      typeof form.managerFeePercentage !== 'number'
+    )
+      return;
+
+    // TODO
+    const projectId = 'redtent';
+    const poolAttributes = {
+      name: form.projectName,
+      description: form.projectDescription,
+      rewardDescription: form.rewardDescription ?? '',
+      website: form.website,
+      twitter: form.twitter,
+      instagram: form.instagram,
+      threads: form.threads,
+      discord: form.discord,
+      headerImage: form.coverPhoto ?? '',
+      logo: form.logo,
+    };
+
+    // production identity/G$ token contracts are used here
+    const poolSettings: UBIPoolSettings = {
+      manager: signer.getAddress(),
+      membersValidator: ethers.constants.AddressZero,
+      uniquenessValidator: '0xC361A6E67822a0EDc17D899227dd9FC50BD62F42',
+      rewardToken: '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A',
+    };
+
+    const ubiSettings: UBISettings = {
+      claimPeriodDays: ethers.BigNumber.from(form.claimFrequency),
+      // TODO
+      minActiveUsers: ethers.BigNumber.from(1),
+      maxClaimAmount: ethers.utils.parseEther(String(form.claimAmountPerWeek)),
+      maxMembers: form.maximumMembers,
+      onlyMembers: form.canNewMembersJoin ?? false,
+      cycleLengthDays: ethers.BigNumber.from(form.claimFrequency <= 7 ? 7 : form.claimFrequency),
+      claimForEnabled: false,
+    };
+
+    const extendedUBISettings: ExtendedUBISettings = {
+      maxPeriodClaimers: 0,
+      minClaimAmount: ubiSettings.maxClaimAmount,
+      managerFeeBps: form.managerFeePercentage * 100,
+    };
+
+    const pool = await sdk.createUbiPoolWithAttributes(
+      signer,
+      projectId,
+      poolAttributes,
+      poolSettings,
+      ubiSettings,
+      extendedUBISettings,
+      false
+    );
+    console.log('pool:', pool.address);
+  };
+
+  return (
+    <CreatePoolContext.Provider
+      value={{
+        step,
+        form,
+        nextStep,
+        previousStep,
+        startOver,
+        submitPartial,
+        setStep,
+        goToBasics,
+        goToPoolConfiguration,
+        goToProjectDetails,
+        createPool,
+      }}>
+      {children}
+    </CreatePoolContext.Provider>
+  );
+};
