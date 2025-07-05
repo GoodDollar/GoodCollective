@@ -1,3 +1,7 @@
+import { ReactNode, useEffect, useState } from 'react';
+import { useAccount } from 'wagmi';
+import { mainnet } from '@wagmi/core/chains';
+import { createConfig, getEnsName, http } from '@wagmi/core';
 import {
   ArrowForwardIcon,
   Box,
@@ -11,20 +15,17 @@ import {
   InputGroup,
   InputRightAddon,
   Pressable,
-  Progress,
   Radio,
   Slider,
   VStack,
   WarningOutlineIcon,
   WarningTwoIcon,
+  Text,
 } from 'native-base';
 
 import ActionButton from '../../ActionButton';
-import { Text } from 'native-base';
-import { ReactNode, useState } from 'react';
 import { useScreenSize } from '../../../theme/hooks';
-import { useCreatePool } from '../../../hooks/useCreatePool';
-import { useAccount } from 'wagmi';
+import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { DefaultIcon, SettingsIcon } from '../../../assets';
 
 const Disclaimer = ({ hideIcon, text }: { hideIcon?: boolean; text: string | ReactNode }) => {
@@ -53,8 +54,6 @@ const PoolConfiguration = () => {
   const { isDesktopView } = useScreenSize();
   const { address } = useAccount();
 
-  const [errors, setErrors] = useState<FormError>({});
-
   const [poolManagerFeeType, setPoolManagerFeeType] = useState<'default' | 'custom'>(
     form.poolManagerFeeType ?? 'default'
   );
@@ -62,11 +61,31 @@ const PoolConfiguration = () => {
   const [joinStatus, setJoinStatus] = useState<'closed' | 'open'>(form.joinStatus ?? 'closed');
   const [maximumMembers, setMaximumMembers] = useState(form.maximumMembers ?? 1);
   const [managerAddress, setManagerAddress] = useState(form.managerAddress ?? address);
-  const [poolRecipients, setPoolRecipients] = useState(form.poolRecipients ?? '0xasd,0xasd');
+  const [poolRecipients, setPoolRecipients] = useState(form.poolRecipients ?? '');
   const [managerFeePercentage, setManagerFeePercentage] = useState(form.managerFeePercentage ?? 0);
   const [claimAmountPerWeek, setClaimAmountPerWeek] = useState(form.claimAmountPerWeek ?? 10);
   const [expectedMembers, setExpectedMembers] = useState(form.expectedMembers ?? 10);
   const [customClaimFrequency, setCustomClaimFrequency] = useState(form.customClaimFrequency ?? 1);
+  const [ensName, setEnsName] = useState('');
+  const [errors, setErrors] = useState<FormError>({});
+
+  useEffect(() => {
+    (async () => {
+      if (!managerAddress || ensName) return;
+      const resp = await getEnsName(
+        createConfig({
+          chains: [mainnet],
+          transports: {
+            [mainnet.id]: http(),
+          },
+        }),
+        {
+          address: managerAddress as `0x${string}`,
+        }
+      );
+      if (typeof resp === 'string') setEnsName(resp);
+    })();
+  }, [ensName, managerAddress]);
 
   const validate = () => {
     const currErrors: FormError = {
@@ -84,6 +103,10 @@ const PoolConfiguration = () => {
         currErrors.poolRecipients = 'Invalid format';
         break;
       }
+    }
+
+    if (form.expectedMembers && expectedMembers !== addresses.length) {
+      currErrors.poolRecipients = 'Number of addresses must match the amount of members';
     }
 
     if (isNaN(+customClaimFrequency)) {
@@ -104,6 +127,22 @@ const PoolConfiguration = () => {
     });
 
     return pass;
+  };
+
+  const submitForm = () => {
+    if (validate())
+      submitPartial({
+        poolManagerFeeType,
+        claimFrequency: claimFrequency !== 2 ? claimFrequency : customClaimFrequency,
+        joinStatus,
+        maximumMembers,
+        managerAddress,
+        poolRecipients,
+        managerFeePercentage,
+        claimAmountPerWeek: claimAmountPerWeek,
+        expectedMembers,
+      });
+    nextStep();
   };
 
   const baseFrequencies = [
@@ -128,11 +167,16 @@ const PoolConfiguration = () => {
     },
   ]);
 
-  // {/* TODO Programmatically disconnect and open walletconnect */}
+  // {/* TODO Programmatically disconnect and open walletconnect modal */}
   const changeWallet = () => {};
 
   return (
-    <VStack padding={2} style={{ minWidth: '600px' }} width="1/2" marginX="auto" space={2}>
+    <VStack
+      padding={2}
+      style={{ minWidth: isDesktopView ? '600px' : '150px' }}
+      width={isDesktopView ? '1/2' : 'full'}
+      marginX="auto"
+      space={2}>
       <Text fontSize={isDesktopView ? '2xl' : 'lg'} fontWeight="700">
         Pool Configuration
       </Text>
@@ -150,7 +194,7 @@ const PoolConfiguration = () => {
       <ActionButton text="Change Wallet" bg="goodPurple.400" textColor="white" onPress={changeWallet} />
       <Box borderWidth={2} borderColor="gray.200" backgroundColor="white" padding={4} borderRadius={4}>
         <Text fontSize="md" fontWeight="400" color="gray.400">
-          Fortified.eth
+          {ensName}
         </Text>
         <Text fontSize="sm" fontWeight="500" color="gray.400">
           {managerAddress}
@@ -218,7 +262,7 @@ const PoolConfiguration = () => {
             <Radio size="sm" value="closed" my={1}>
               Closed for new members
             </Radio>
-            <Radio size="sm" value="open" my={1}>
+            <Radio size="sm" value="open" my={1} isDisabled={!poolRecipients}>
               New members can join
             </Radio>
           </Radio.Group>
@@ -243,7 +287,6 @@ const PoolConfiguration = () => {
             setPoolManagerFeeType(nextValue as 'default' | 'custom');
           }}>
           <HStack space={8}>
-            {/* TODO Use different checkbox icon */}
             <Pressable
               alignItems="center"
               padding={4}
@@ -488,7 +531,6 @@ const PoolConfiguration = () => {
                   maxValue={100}
                   value={expectedMembers}
                   onChange={(val) => {
-                    console.log(val);
                     setExpectedMembers(val);
                   }}>
                   <Slider.Track>
@@ -514,8 +556,10 @@ const PoolConfiguration = () => {
           </FormControl>
           <Box backgroundColor="goodPurple.200" padding={4}>
             <Text>
-              For a fixed amount of <Text bold> XG$ per week</Text>, your pool needs at least <Text bold>XG$</Text> to
-              support <Text bold>X members</Text> per cycle.
+              {/* TODO Verify these */}
+              For a fixed amount of <Text bold> {claimAmountPerWeek}G$ per week</Text>, your pool needs at least{' '}
+              <Text bold>{(claimAmountPerWeek ?? 0) * (maximumMembers ?? 0)}G$</Text> to support{' '}
+              <Text bold>{maximumMembers} members</Text> per cycle.
             </Text>
             <HStack paddingY={2} space={2}>
               <WarningTwoIcon color="red.600" size="md" />
@@ -536,21 +580,7 @@ const PoolConfiguration = () => {
           textColor="black"
         />
         <ActionButton
-          onPress={() => {
-            if (validate())
-              submitPartial({
-                poolManagerFeeType,
-                claimFrequency,
-                joinStatus,
-                maximumMembers,
-                managerAddress,
-                poolRecipients,
-                managerFeePercentage,
-                claimAmountPerWeek: claimAmountPerWeek !== 2 ? claimAmountPerWeek : customClaimFrequency,
-                expectedMembers,
-              });
-            nextStep();
-          }}
+          onPress={submitForm}
           text={
             <HStack alignItems="center" space={1}>
               <Text>Next: Review</Text>

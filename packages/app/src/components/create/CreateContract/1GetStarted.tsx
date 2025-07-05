@@ -17,8 +17,9 @@ import { StyleSheet } from 'react-native';
 
 import ActionButton from '../../ActionButton';
 import { useScreenSize } from '../../../theme/hooks';
-import { useCreatePool } from '../../../hooks/useCreatePool';
+import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import FileUpload from '../../FileUpload';
+import { uploadImg } from '../../../hooks/useCreatePool/util';
 
 const Warning = ({ width }: { width: string }) => {
   return (
@@ -53,9 +54,6 @@ async function fetchImageAsFile(url: string, filename = 'image.jpg') {
   return file;
 }
 
-// TODO Upload image
-const uploadImg = async (img: File, name: string) => {};
-
 const GetStarted = ({}: {}) => {
   const { form, nextStep, previousStep, submitPartial } = useCreatePool();
 
@@ -63,10 +61,12 @@ const GetStarted = ({}: {}) => {
 
   const [projectName, setProjectName] = useState<string>(form.projectName ?? '');
   const [tagline, setTagline] = useState<string>(form.tagline ?? '');
+  const [rewardDescription, setRewardDescription] = useState<string>(form.rewardDescription ?? '');
   const [projectDescription, setProjectDescription] = useState<string>(form.projectDescription ?? '');
   const [logo, setLogo] = useState<File | undefined>();
   const [coverPhoto, setCoverPhoto] = useState<File | undefined>();
   const [errors, setErrors] = useState<FormError>({});
+  const [showWarning, setShowWarning] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -100,6 +100,7 @@ const GetStarted = ({}: {}) => {
   useEffect(() => {
     if (!logo) return;
     (async () => {
+      console.log('here');
       await uploadImg(logo, logo.name);
     })();
   }, [logo]);
@@ -111,8 +112,9 @@ const GetStarted = ({}: {}) => {
     })();
   }, [coverPhoto]);
 
-  const onSubmit = () => {
-    if (validate()) {
+  const submitForm = () => {
+    setShowWarning(true);
+    if (validate(true)) {
       submitPartial({
         projectName,
         tagline,
@@ -124,7 +126,7 @@ const GetStarted = ({}: {}) => {
     }
   };
 
-  const validate = () => {
+  const validate = (checkEmpty = false) => {
     const currErrors: FormError = {
       projectName: '',
       projectDescription: '',
@@ -136,8 +138,10 @@ const GetStarted = ({}: {}) => {
 
     // Pool Name* - 100 character max
     if (!projectName) {
-      currErrors.projectName = 'Project name is required';
-      pass = false;
+      if (checkEmpty) {
+        currErrors.projectName = 'Project name is required';
+        pass = false;
+      }
     } else if (projectName.length > 100) {
       currErrors.projectName = 'Project name length (max 100 characteres)';
       pass = false;
@@ -145,8 +149,11 @@ const GetStarted = ({}: {}) => {
 
     // Pool Description* - 500 character max
     if (!projectDescription) {
-      currErrors.projectDescription = 'Project name is required';
-      pass = false;
+      console.log('here, ', showWarning);
+      if (checkEmpty) {
+        currErrors.projectDescription = 'Project description is required';
+        pass = false;
+      }
     } else if (projectDescription.length > 500) {
       currErrors.projectDescription = 'Project description length (max 500 characteres)';
       pass = false;
@@ -154,8 +161,10 @@ const GetStarted = ({}: {}) => {
 
     // Logo* - jpg, gif, png; max file size 1MB, (500x500px)
     if (!logo) {
-      currErrors.logo = 'Logo is required';
-      pass = false;
+      if (checkEmpty) {
+        currErrors.logo = 'Logo is required';
+        pass = false;
+      }
     } else {
       if (logo.size > 1 * 1024 * 1024) {
         currErrors.logo = 'Logo size (max 1 MB)';
@@ -201,7 +210,11 @@ const GetStarted = ({}: {}) => {
   };
 
   return (
-    <VStack padding={2} style={{ minWidth: '600px' }} width="1/2" marginX="auto">
+    <VStack
+      padding={2}
+      style={{ minWidth: isDesktopView ? '600px' : '150px' }}
+      width={isDesktopView ? '1/2' : 'full'}
+      marginX="auto">
       <Text fontSize="2xl" fontWeight="700">
         Get Started
       </Text>
@@ -223,10 +236,8 @@ const GetStarted = ({}: {}) => {
           style={errors.projectName ? styles.error : {}}
           backgroundColor="white"
           value={projectName}
-          onChangeText={(val) => {
-            setProjectName(val);
-            validate();
-          }}
+          onChangeText={(val) => setProjectName(val)}
+          onBlur={() => validate()}
           autoComplete={undefined}
           borderRadius={8}
         />
@@ -239,7 +250,7 @@ const GetStarted = ({}: {}) => {
           </HStack>
         )}
       </FormControl>
-      <FormControl mb="5" isRequired>
+      <FormControl mb="5">
         <FormControl.Label>
           <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
             Tagline
@@ -249,10 +260,31 @@ const GetStarted = ({}: {}) => {
           style={errors.tagline ? styles.error : {}}
           backgroundColor="white"
           value={tagline}
-          onChangeText={(val) => {
-            setTagline(val);
-            validate();
-          }}
+          onChangeText={(val) => setTagline(val)}
+          onBlur={() => validate()}
+          borderRadius={8}
+        />
+        {errors.tagline && (
+          <HStack alignItems="center" space={1} marginTop={1}>
+            <WarningOutlineIcon size="xs" color="red.500" />
+            <Text fontSize="xs" color="red.500">
+              Something is wrong.
+            </Text>
+          </HStack>
+        )}
+      </FormControl>
+      <FormControl mb="5">
+        <FormControl.Label>
+          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
+            Reward Description
+          </Text>
+        </FormControl.Label>
+        <Input
+          style={errors.tagline ? styles.error : {}}
+          backgroundColor="white"
+          value={rewardDescription}
+          onChangeText={(val) => setRewardDescription(val)}
+          onBlur={() => validate()}
           borderRadius={8}
         />
         {errors.tagline && (
@@ -275,10 +307,8 @@ const GetStarted = ({}: {}) => {
           backgroundColor="white"
           value={projectDescription}
           autoCompleteType={undefined}
-          onChangeText={(val) => {
-            setProjectDescription(val);
-            validate();
-          }}
+          onChangeText={(val) => setProjectDescription(val)}
+          onBlur={() => validate()}
           borderRadius={8}
         />
         {errors.projectDescription && (
@@ -362,7 +392,7 @@ const GetStarted = ({}: {}) => {
           textColor="black"
         />
         <ActionButton
-          onPress={onSubmit}
+          onPress={submitForm}
           text={
             <HStack alignItems="center" space={1}>
               <Text>Next: Details</Text>
@@ -374,7 +404,7 @@ const GetStarted = ({}: {}) => {
         />
       </HStack>
       <Box flexDir="row-reverse" paddingY={2}>
-        {Object.values(errors).filter((value) => value).length !== 0 && <Warning width="1/2" />}
+        {showWarning && Object.values(errors).filter((value) => value).length !== 0 && <Warning width="1/2" />}
       </Box>
     </VStack>
   );

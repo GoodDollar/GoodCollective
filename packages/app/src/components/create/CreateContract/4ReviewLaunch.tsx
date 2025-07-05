@@ -1,14 +1,53 @@
 import { Box, CheckCircleIcon, ChevronLeftIcon, Divider, HStack, Pressable, Text, TextArea, VStack } from 'native-base';
 import ActionButton from '../../ActionButton';
-import { useCreatePool } from '../../../hooks/useCreatePool';
-import { EditIcon, RocketLaunchIcon } from '../../../assets';
+import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
+import {
+  AtIcon,
+  DiscordIcon,
+  EditIcon,
+  InstagramIcon,
+  RocketLaunchIcon,
+  TwitterIcon,
+  WebsiteIcon,
+} from '../../../assets';
+import { useScreenSize } from '@gooddollar/good-design';
+
+// TODO Show something when executing
 
 const ReviewLaunch = () => {
   const { form, nextStep, startOver, previousStep, goToBasics, goToProjectDetails, goToPoolConfiguration, createPool } =
     useCreatePool();
+  const { isDesktopView } = useScreenSize();
+
+  const socials = [
+    !!form.website && {
+      name: 'website',
+      icon: WebsiteIcon,
+    },
+    form.twitter && {
+      name: 'twitter',
+      icon: TwitterIcon,
+    },
+    form.instagram && {
+      name: 'instagram',
+      icon: InstagramIcon,
+    },
+    form.discord && {
+      name: 'discord',
+      icon: DiscordIcon,
+    },
+    form.threads && {
+      name: 'threads',
+      icon: AtIcon,
+    },
+  ].filter((val) => !!val);
 
   return (
-    <VStack padding={2} style={{ minWidth: '600px' }} width="1/2" marginX="auto">
+    <VStack
+      padding={2}
+      style={{ minWidth: isDesktopView ? '600px' : '150px' }}
+      width={isDesktopView ? '1/2' : 'full'}
+      marginX="auto">
       <VStack backgroundColor="white" borderRadius={16} paddingY={8}>
         <VStack paddingX={8} space={2}>
           <HStack alignItems="center">
@@ -21,22 +60,22 @@ const ReviewLaunch = () => {
             </Pressable>
           </HStack>
           <Divider />
-          <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
+          <Text color="gray.500" fontSize="md" fontWeight="600" textTransform="uppercase">
             Project Name
           </Text>
           <Text fontSize="md">{form.projectName}</Text>
-          <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
+          <Text color="gray.500" fontSize="md" fontWeight="600" textTransform="uppercase">
             Tagline
           </Text>
           <Text fontSize="md">{form.tagline}</Text>
-          <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
+          <Text color="gray.500" fontSize="md" fontWeight="600" textTransform="uppercase">
             Project Description
           </Text>
           <Text fontSize="md">{form.projectDescription}</Text>
         </VStack>
         <VStack paddingX={8} space={2}>
           <HStack alignItems="center">
-            <Text textTransform="uppercase" fontSize="md" fontWeight="700" marginRight={2}>
+            <Text textTransform="uppercase" fontSize="md" fontWeight="600" marginRight={2}>
               Project Details
             </Text>
             <CheckCircleIcon color="blue.500" />
@@ -45,12 +84,17 @@ const ReviewLaunch = () => {
             </Pressable>
           </HStack>
           <Divider />
-          <Text color="gray.500" fontSize="sm" fontWeight="700" textTransform="uppercase">
+          <Text color="gray.500" fontSize="md" fontWeight="700" textTransform="uppercase">
             Socials
           </Text>
-          {/* TODO */}
-          <HStack>...</HStack>
-          <Text color="gray.500" fontSize="sm" fontWeight="700" textTransform="uppercase">
+          <HStack space={2}>
+            {socials.map((social) => (
+              <Box backgroundColor="gray.100" width={10} height={10} justifyContent="center" alignItems="center">
+                <img width={24} src={social.icon} />
+              </Box>
+            ))}
+          </HStack>
+          <Text color="gray.500" fontSize="md" fontWeight="700" textTransform="uppercase">
             Admin Wallet Address
           </Text>
           <Text fontWeight="600" fontSize="lg">
@@ -168,8 +212,8 @@ const ReviewLaunch = () => {
           textColor="black"
         />
         <ActionButton
-          onPress={() => {
-            createPool();
+          onPress={async () => {
+            await createPool();
             nextStep();
           }}
           text={

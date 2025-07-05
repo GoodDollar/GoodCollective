@@ -19,9 +19,9 @@ import { useAccount } from 'wagmi';
 
 import ActionButton from '../../ActionButton';
 import { useScreenSize } from '../../../theme/hooks';
-import { useCreatePool } from '../../../hooks/useCreatePool';
+import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 
-type FieldError = {
+type FormError = {
   social?: string;
   adminWalletAddress?: string;
   website?: string;
@@ -52,8 +52,11 @@ const ProjectDetails = () => {
   const [facebook, setFacebook] = useState<string>(form.facebook ?? '');
   const [adminWalletAddress, setAdminWalletAddress] = useState<string>(form.adminWalletAddress ?? address ?? '');
   const [additionalInfo, setAdditionalInfo] = useState<string>(form.additionalInfo ?? '');
+  const [errors, setErrors] = useState<FormError>({});
+  const [showWarning, setShowWarning] = useState(false);
 
-  const onSubmit = () => {
+  const submitForm = () => {
+    setShowWarning(true);
     if (validate()) {
       submitPartial({
         website,
@@ -69,7 +72,11 @@ const ProjectDetails = () => {
   };
 
   const validate = () => {
-    const currErrors = errors;
+    const currErrors: FormError = {
+      social: '',
+      adminWalletAddress: '',
+      website: '',
+    };
     let pass = true;
     if (!website && !twitter && !telegram && !discord && !facebook) {
       currErrors.social = 'One social channel is required';
@@ -114,10 +121,12 @@ const ProjectDetails = () => {
     return pass;
   };
 
-  const [errors, setErrors] = useState<FieldError>({});
-
   return (
-    <VStack padding={2} style={{ minWidth: '600px' }} width="1/2" marginX="auto">
+    <VStack
+      padding={2}
+      style={{ minWidth: isDesktopView ? '600px' : '150px' }}
+      width={isDesktopView ? '1/2' : 'full'}
+      marginX="auto">
       <Text fontSize={isDesktopView ? '2xl' : 'lg'} fontWeight="700">
         Project Details
       </Text>
@@ -258,7 +267,7 @@ const ProjectDetails = () => {
           textColor="black"
         />
         <ActionButton
-          onPress={onSubmit}
+          onPress={submitForm}
           text={
             <HStack alignItems="center" space={1}>
               <Text>Next: Configure Pool</Text>
@@ -270,7 +279,7 @@ const ProjectDetails = () => {
         />
       </HStack>
       <Box flexDir="row-reverse" paddingY={2}>
-        {Object.keys(errors).length > 0 && <Warning width="1/2" message={errors.social} />}
+        {showWarning && Object.keys(errors).length > 0 && <Warning width="1/2" message={errors.social} />}
       </Box>
     </VStack>
   );
