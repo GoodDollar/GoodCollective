@@ -66,7 +66,7 @@ function ActivityLog({
 
   const handleIpfsPress = async () => {
     if (ipfsHash) {
-      const cleanHash = ipfsHash.replace(/^(ipfs:\/\/|https?:\/\/[^\/]+\/ipfs\/)/, '');
+      const cleanHash = ipfsHash.replace(/^(ipfs:\/\/|https?:\/\/[^/]+\/ipfs\/)/, '');
       const gateways = [
         `https://ipfs.io/ipfs/${cleanHash}`,
         `https://gateway.pinata.cloud/ipfs/${cleanHash}`,
