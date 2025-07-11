@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
 
   actionsCount: {
     fontSize: 14,
-    color: Colors.gray[600],
+    color: Colors.gray[100],
     ...InterMedium,
   },
 
