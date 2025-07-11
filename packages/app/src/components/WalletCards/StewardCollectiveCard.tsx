@@ -1,12 +1,12 @@
-import { Text, View, Image } from 'react-native';
-import RoundedButton from '../RoundedButton';
-import useCrossNavigate from '../../routes/useCrossNavigate';
-import { IpfsCollective, StewardCollective } from '../../models/models';
-import { styles } from './styles';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { InfoIcon, StewardOrange } from '../../assets';
 import { calculateGoodDollarAmounts } from '../../lib/calculateGoodDollarAmounts';
 import { defaultInfoLabel } from '../../models/constants';
+import { IpfsCollective, StewardCollective } from '../../models/models';
+import useCrossNavigate from '../../routes/useCrossNavigate';
 import { GoodDollarAmount } from '../GoodDollarAmount';
+import RoundedButton from '../RoundedButton';
+import { styles } from './styles';
 
 interface StewardCollectiveCardProps {
   collective: StewardCollective;
@@ -15,9 +15,16 @@ interface StewardCollectiveCardProps {
   tokenPrice?: number;
   containerStyle?: Record<string, any>;
   isDesktopResolution: boolean;
+  stewardAddress?: string;
 }
 
-function StewardCollectiveCard({ ipfsCollective, collective, ensName, tokenPrice }: StewardCollectiveCardProps) {
+function StewardCollectiveCard({
+  ipfsCollective,
+  collective,
+  ensName,
+  tokenPrice,
+  stewardAddress,
+}: StewardCollectiveCardProps) {
   const { navigate } = useCrossNavigate();
   const userName = ensName ?? 'This wallet';
 
@@ -28,6 +35,12 @@ function StewardCollectiveCard({ ipfsCollective, collective, ensName, tokenPrice
   );
 
   const infoLabel = ipfsCollective.rewardDescription ?? defaultInfoLabel;
+
+  const handleActionsClick = () => {
+    if (stewardAddress) {
+      navigate(`/profile/${stewardAddress}/activity`);
+    }
+  };
 
   return (
     <View style={[styles.cardContainer, styles.elevation]}>
@@ -46,9 +59,12 @@ function StewardCollectiveCard({ ipfsCollective, collective, ensName, tokenPrice
               {userName} has {ipfsCollective.pooltype === 'UBI' ? 'claimed' : 'performed'}
             </Text>
             <View style={styles.row}>
-              <Text style={styles.orangeBoldUnderline}>
-                {collective.actions} {ipfsCollective.pooltype === 'UBI' ? 'times' : 'actions'}
-              </Text>
+              {/* Make the actions count clickable */}
+              <TouchableOpacity onPress={handleActionsClick}>
+                <Text style={[styles.orangeBoldUnderline, { textDecorationLine: 'underline' }]}>
+                  {collective.actions} {ipfsCollective.pooltype === 'UBI' ? 'times' : 'actions'}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
 

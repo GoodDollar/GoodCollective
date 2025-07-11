@@ -1,28 +1,66 @@
-import { Image, Text, View, StyleSheet } from 'react-native';
-import { InterRegular, InterSemiBold } from '../utils/webFonts';
+import { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../utils/colors';
-
-const ReceiveIconUri = `data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"> <rect width="32" height="32" rx="16" fill="#95EED8"/> <path d="M19.048 14.6186C18.7453 14.3159 18.2546 14.3159 17.952 14.6186L16.775 15.7956V9.33325C16.775 8.90523 16.428 8.55825 16 8.55825C15.572 8.55825 15.225 8.90523 15.225 9.33325V15.7956L14.048 14.6186C13.7453 14.3159 13.2546 14.3159 12.952 14.6186C12.6493 14.9212 12.6493 15.4119 12.952 15.7146L15.452 18.2146C15.7546 18.5172 16.2453 18.5172 16.548 18.2146L19.048 15.7146C19.3507 15.4119 19.3507 14.9212 19.048 14.6186ZM23.4417 15.9999C23.4417 15.5719 23.0947 15.2249 22.6667 15.2249C22.2386 15.2249 21.8917 15.5719 21.8917 15.9999C21.8917 19.2538 19.2539 21.8916 16 21.8916C12.7461 21.8916 10.1083 19.2538 10.1083 15.9999C10.1083 15.5719 9.76135 15.2249 9.33333 15.2249C8.90531 15.2249 8.55833 15.5719 8.55833 15.9999C8.55833 20.1098 11.8901 23.4416 16 23.4416C20.1099 23.4416 23.4417 20.1098 23.4417 15.9999Z" fill="#27564B" stroke="#5BBAA3" stroke-width="0.3"/> </svg> `;
+import { InterMedium, InterSemiBold, InterSmall } from '../utils/webFonts';
 
 interface ActivityLogProps {
   name: string;
   id: string;
   creationDate: string;
+  nftId?: string;
+  paymentAmount?: string;
+  transactionHash?: string;
+  ipfsHash?: string;
 }
 
-function ActivityLog({}: ActivityLogProps) {
+function ActivityLog({ name, creationDate }: ActivityLogProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.row}>
-        <View style={styles.bar} />
-        <Image style={styles.icon} source={{ uri: ReceiveIconUri }} />
-        <Text style={styles.logProfileDetails}>
-          <Text style={styles.name}>Silvi Tree Claim {'\n'}</Text>
-          <Text style={styles.id}>0x723a86c93838c1facse.....</Text>
-        </Text>
-        <View style={styles.logDate}>
-          <Text style={styles.date}>July 3, 2023</Text>
-        </View>
+      <View style={styles.leftBorder} />
+
+      <View style={styles.contentContainer}>
+        <TouchableOpacity onPress={toggleExpanded} style={styles.actionRow}>
+          <View style={styles.leftSection}>
+            <View style={styles.iconContainer}>
+              <Text style={styles.downloadIcon}>↓</Text>
+            </View>
+
+            <View style={styles.actionInfo}>
+              <Text style={styles.actionName}>{name}</Text>
+              <Text style={styles.actionDate}>{creationDate}</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity onPress={toggleExpanded} style={styles.chevronContainer}>
+            <Text style={styles.chevron}>{isExpanded ? '⌃' : '⌄'}</Text>
+          </TouchableOpacity>
+        </TouchableOpacity>
+
+        {isExpanded && (
+          <View style={styles.expandedContent}>
+            <TouchableOpacity style={styles.linkButton}>
+              <Text style={styles.linkText}>Payment Transaction</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.linkButton}>
+              <Text style={styles.linkText}>NFT Details</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.linkButton}>
+              <Text style={styles.linkText}>IPFS Claim and Proof of Verification</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={toggleExpanded} style={styles.collapseButton}>
+              <Text style={styles.collapseIcon}>⌃</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -30,49 +68,165 @@ function ActivityLog({}: ActivityLogProps) {
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
     backgroundColor: Colors.white,
-    paddingLeft: 16,
-    paddingRight: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    overflow: 'hidden',
   },
-  row: {
-    width: '100%',
-    flex: 1,
-    flexDirection: 'row',
-    gap: 8,
-    backgroundColor: Colors.white,
+
+  contentContainer: {
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingBottom: 8,
+    paddingTop: 8,
   },
-  bar: {
+
+  leftBorder: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 4,
     backgroundColor: Colors.green[100],
-    width: 6,
-    height: 40,
-    alignSelf: 'flex-start',
+    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 12,
+    zIndex: 1,
   },
-  icon: {
+
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+
+  leftSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+
+  iconContainer: {
     width: 32,
     height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.green[100],
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
-  name: {
-    color: Colors.black,
+
+  checkIcon: {
+    color: Colors.green[200],
     fontSize: 16,
-    lineHeight: 24,
-    ...InterSemiBold,
-    width: '100%',
+    fontWeight: 'bold',
   },
-  date: {
-    color: Colors.gray[100],
+
+  downloadIcon: {
+    color: Colors.green[200],
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+
+  actionInfo: {
+    flex: 1,
+  },
+
+  actionName: {
+    fontSize: 16,
+    color: Colors.black,
+    marginBottom: 2,
+    ...InterSemiBold,
+  },
+
+  actionDate: {
+    fontSize: 12,
+    color: Colors.gray[500],
+    ...InterSmall,
+  },
+
+  chevronContainer: {
+    padding: 8,
+  },
+
+  chevron: {
+    fontSize: 16,
+    color: Colors.gray[400],
+  },
+
+  expandedContent: {
+    borderTopWidth: 1,
+    borderTopColor: Colors.gray[200],
+    padding: 16,
+    paddingTop: 12,
+  },
+
+  detailSection: {
+    marginBottom: 12,
+  },
+
+  sectionLabel: {
+    fontSize: 12,
+    color: Colors.gray[600],
+    marginBottom: 4,
+    ...InterSmall,
+  },
+
+  linkButton: {
+    backgroundColor: 'transparent',
+  },
+
+  linkText: {
     fontSize: 14,
-    lineHeight: 21,
-    textAlign: 'left',
-    width: '100%',
-    ...InterSemiBold,
+    color: Colors.blue[200],
+    textDecorationLine: 'underline',
+    ...InterMedium,
   },
-  id: {
-    fontSize: 10,
-    lineHeight: 15,
-    ...InterRegular,
+
+  collapseButton: {
+    alignSelf: 'center',
+    padding: 8,
+    marginTop: 8,
   },
-  logProfileDetails: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  logDate: { alignItems: 'flex-end' },
+
+  collapseIcon: {
+    fontSize: 16,
+    color: Colors.gray[400],
+  },
+
+  transactionDetails: {
+    backgroundColor: Colors.gray[100],
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 8,
+  },
+
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+
+  detailLabel: {
+    fontSize: 12,
+    color: Colors.gray[600],
+    ...InterSmall,
+  },
+
+  detailValue: {
+    fontSize: 12,
+    color: Colors.gray[900],
+    fontFamily: 'monospace',
+    ...InterSmall,
+  },
 });
+
 export default ActivityLog;
