@@ -68,13 +68,13 @@ function ActivityLogPage() {
   })();
 
   const handleSeeAll = (collectiveId: string) => {
-    setSelectedCollective(collectiveId);
-    setShowAllActions(true);
-  };
-
-  const handleBackToOverview = () => {
-    setShowAllActions(false);
-    setSelectedCollective(null);
+    if (selectedCollective === collectiveId && showAllActions) {
+      setShowAllActions(false);
+      setSelectedCollective(null);
+    } else {
+      setSelectedCollective(collectiveId);
+      setShowAllActions(true);
+    }
   };
 
   const getActivitiesForDisplay = () => {
@@ -124,35 +124,29 @@ function ActivityLogPage() {
           </View>
         </View>
 
+        <View style={styles.collectivesContainer}>
+          {displayCollectives.map((collective) => (
+            <View key={collective.id} style={styles.collectiveCard}>
+              <Text style={styles.collectiveTitle}>{collective.name}</Text>
+              <View style={styles.collectiveStats}>
+                <Text style={styles.actionsCount}>{collective.count} Actions</Text>
+                <TouchableOpacity onPress={() => handleSeeAll(collective.id)}>
+                  <Text style={styles.seeAllLink}>See all &gt;</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+
+          {displayCollectives.length === 0 && (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateText}>No activity data found</Text>
+              <Text style={styles.emptyStateSubText}>This user may not have any recorded actions yet.</Text>
+            </View>
+          )}
+        </View>
+
         {!showAllActions && (
-          <View style={styles.collectivesContainer}>
-            {displayCollectives.map((collective) => (
-              <View key={collective.id} style={styles.collectiveCard}>
-                <Text style={styles.collectiveTitle}>{collective.name}</Text>
-                <View style={styles.collectiveStats}>
-                  <Text style={styles.actionsCount}>{collective.count} Actions</Text>
-                  <TouchableOpacity onPress={() => handleSeeAll(collective.id)}>
-                    <Text style={styles.seeAllLink}>See all &gt;</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))}
-
-            {displayCollectives.length === 0 && (
-              <View style={styles.emptyState}>
-                <Text style={styles.emptyStateText}>No activity data found</Text>
-                <Text style={styles.emptyStateSubText}>This user may not have any recorded actions yet.</Text>
-              </View>
-            )}
-          </View>
-        )}
-
-        {showAllActions && (
           <View style={styles.activityContainer}>
-            <TouchableOpacity onPress={handleBackToOverview} style={styles.backButton}>
-              <Text style={styles.backButtonText}>← Back to Overview</Text>
-            </TouchableOpacity>
-
             {activitiesToDisplay.length > 0 ? (
               activitiesToDisplay.map((activity) => (
                 <ActivityLog
@@ -183,6 +177,7 @@ const styles = StyleSheet.create({
   body: {
     backgroundColor: Colors.gray[1000],
     minHeight: '100%',
+    paddingBottom: 20,
   },
 
   container: {
@@ -276,18 +271,6 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 24,
     gap: 4,
-  },
-
-  backButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
-
-  backButtonText: {
-    fontSize: 14,
-    color: Colors.blue[200],
-    ...InterMedium,
   },
 
   emptyState: {
