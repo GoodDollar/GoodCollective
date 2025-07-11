@@ -1,4 +1,3 @@
-// hooks/useActivityLogData.ts
 import { useMemo } from 'react';
 import { useSubgraphStewardWithActivityData } from '../subgraph/useSubgraphStewardActivityData';
 
