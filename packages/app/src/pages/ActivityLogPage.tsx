@@ -87,7 +87,7 @@ function ActivityLogPage() {
         .filter((nft) => !selectedCollective || nft.collective === selectedCollective)
         .map((nft, _index) => ({
           id: nft.id,
-          name: `Silvi Proof of Planting`,
+          name: nft.id,
           creationDate: new Date().toLocaleDateString(),
           nftId: nft.id,
           hash: nft.hash,

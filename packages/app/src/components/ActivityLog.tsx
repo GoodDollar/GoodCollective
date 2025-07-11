@@ -62,6 +62,8 @@ function ActivityLog({
     }
   };
 
+  const truncatedName = name.length > 15 ? `${name.substring(0, 5)}...${name.substring(name.length - 5)}` : name;
+
   const handleIpfsPress = async () => {
     if (ipfsHash) {
       const cleanHash = ipfsHash.replace(/^(ipfs:\/\/|https?:\/\/[^\/]+\/ipfs\/)/, '');
@@ -98,7 +100,7 @@ function ActivityLog({
 
             <View style={styles.actionInfo}>
               <View style={styles.titleRow}>
-                <Text style={styles.actionName}>{name}</Text>
+                <Text style={styles.actionName}>NFT ID: {truncatedName}</Text>
 
                 <Text style={styles.actionDate}>{creationDate}</Text>
               </View>
