@@ -70,7 +70,7 @@ function WalletProfile({ address, ensName, firstName, lastName, donor, steward, 
           stewardIpfsCollectives={stewardIpfsCollectives}
           ensName={ensName ?? undefined}
           tokenPrice={tokenPrice}
-          stewardAddress={address} // Pass the address here
+          stewardAddress={address}
         />
       </View>
     );
