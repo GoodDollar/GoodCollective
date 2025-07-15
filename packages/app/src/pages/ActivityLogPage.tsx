@@ -11,6 +11,9 @@ import { useActivityLogByCollective, useActivityLogData } from '../hooks/useActi
 import { useFetchFullName } from '../hooks/useFetchFullName';
 import { Colors } from '../utils/colors';
 import { InterMedium, InterSemiBold, InterSmall } from '../utils/webFonts';
+import { Transaction } from '../models/models';
+import { useRecentTransactions } from '../hooks/useRecentTransactions';
+import { SUBGRAPH_POLL_INTERVAL } from '../models/constants';
 
 function ActivityLogPage() {
   const { id = '' } = useParams();
@@ -18,10 +21,25 @@ function ActivityLogPage() {
   const [showAllActions, setShowAllActions] = useState(false);
   const [selectedCollective, setSelectedCollective] = useState<string | null>(null);
 
+  // Log URL params
+  console.log('=== URL PARAMS ===');
+  console.log('Raw id:', id);
+  console.log('Profile address:', profileAddress);
+
+  // Log state
+  console.log('=== COMPONENT STATE ===');
+  console.log('Show all actions:', showAllActions);
+  console.log('Selected collective:', selectedCollective);
+
   const steward = useStewardExtendedById(profileAddress);
   const address: `0x${string}` | undefined = profileAddress.startsWith('0x')
     ? (profileAddress as `0x${string}`)
     : undefined;
+
+  // Log steward data
+  console.log('=== STEWARD DATA ===');
+  console.log('Steward:', steward);
+  console.log('Address:', address);
 
   const { data: ensName } = useEnsName({ address, chainId: 1 });
   const fullName = useFetchFullName(address);
@@ -29,12 +47,30 @@ function ActivityLogPage() {
   const userIdentifier = firstName ? `${firstName} ${lastName}` : ensName ?? address ?? '0x';
   const isWhitelisted = useIsStewardVerified(address as `0x${string}`);
 
+  // Log user identity data
+  console.log('=== USER IDENTITY ===');
+  console.log('ENS name:', ensName);
+  console.log('Full name:', fullName);
+  console.log('First name:', firstName);
+  console.log('Last name:', lastName);
+  console.log('User identifier:', userIdentifier);
+  console.log('Is whitelisted:', isWhitelisted);
+
   const allActivityData = useActivityLogData(profileAddress);
   const selectedCollectiveActivities = useActivityLogByCollective(profileAddress, selectedCollective || '');
+
+  // Log activity data
+  console.log('=== ACTIVITY DATA ===');
+  console.log('All activity data:', allActivityData);
+  console.log('Selected collective activities:', selectedCollectiveActivities);
 
   const stewardIpfsCollectives = useCollectivesMetadataById(
     steward?.collectives.map((collective) => collective.collective) ?? []
   );
+
+  // Log IPFS collectives
+  console.log('=== IPFS COLLECTIVES ===');
+  console.log('Steward IPFS collectives:', stewardIpfsCollectives);
 
   const collectiveStats =
     allActivityData && allActivityData.length > 0
@@ -50,6 +86,10 @@ function ActivityLogPage() {
           return acc;
         }, {} as Record<string, { name: string; count: number }>)
       : {};
+
+  // Log collective stats
+  console.log('=== COLLECTIVE STATS ===');
+  console.log('Collective stats:', collectiveStats);
 
   const displayCollectives = (() => {
     if (Object.keys(collectiveStats).length > 0) {
@@ -67,40 +107,124 @@ function ActivityLogPage() {
     return [];
   })();
 
-  const handleSeeAll = (collectiveId: string) => {
-    if (selectedCollective === collectiveId && showAllActions) {
-      setShowAllActions(false);
-      setSelectedCollective(null);
-    } else {
-      setSelectedCollective(collectiveId);
-      setShowAllActions(true);
-    }
-  };
+  // Log display collectives
+  console.log('=== DISPLAY COLLECTIVES ===');
+  console.log('Display collectives:', displayCollectives);
 
   const getActivitiesForDisplay = () => {
+    console.log('=== GET ACTIVITIES FOR DISPLAY ===');
+
     if (selectedCollectiveActivities && selectedCollectiveActivities.length > 0) {
+      console.log('Using selected collective activities:', selectedCollectiveActivities);
       return selectedCollectiveActivities;
     }
 
     if (steward?.nfts && steward.nfts.length > 0) {
-      return steward.nfts
-        .filter((nft) => !selectedCollective || nft.collective === selectedCollective)
-        .map((nft, _index) => ({
-          id: nft.id,
-          name: nft.id,
-          creationDate: new Date().toLocaleDateString(),
-          nftId: nft.id,
-          hash: nft.hash,
-          owner: nft.owner,
-          collective: nft.collective,
-          ipfsHash: nft.hash,
-        }));
+      const filteredNfts = steward.nfts.filter((nft) => !selectedCollective || nft.collective === selectedCollective);
+      console.log('Filtered NFTs:', filteredNfts);
+
+      const mappedActivities = filteredNfts.map((nft, _index) => ({
+        id: nft.id,
+        name: nft.id,
+        creationDate: new Date().toLocaleDateString(),
+        nftId: nft.id,
+        hash: nft.hash,
+        owner: nft.owner,
+        collective: nft.collective,
+        ipfsHash: nft.hash,
+      }));
+
+      console.log('Mapped activities from NFTs:', mappedActivities);
+      return mappedActivities;
     }
 
+    console.log('No activities found, returning empty array');
     return [];
   };
 
   const activitiesToDisplay = getActivitiesForDisplay();
+
+  // Log final activities to display
+  console.log('=== FINAL ACTIVITIES TO DISPLAY ===');
+  console.log('Activities to display:', activitiesToDisplay);
+
+  // Get collective ID for transactions from the actual data being displayed
+  const getCollectiveForTransactions = (): `0x${string}` | '' => {
+    // Priority 1: Use selected collective if available
+    if (selectedCollective) {
+      console.log('Using selected collective for transactions:', selectedCollective);
+      return selectedCollective.startsWith('0x') ? (selectedCollective as `0x${string}`) : '';
+    }
+
+    // Priority 2: Use collective from Steward IPFS collectives data
+    if (stewardIpfsCollectives && stewardIpfsCollectives.length > 0) {
+      const ipfsCollective = stewardIpfsCollectives[0].collective;
+      console.log('Using collective from Steward IPFS collectives for transactions:', ipfsCollective);
+      console.log('Full IPFS collective data:', stewardIpfsCollectives[0]);
+      return ipfsCollective.startsWith('0x') ? (ipfsCollective as `0x${string}`) : '';
+    }
+
+    // Priority 3: Use collective from first activity being displayed
+    if (activitiesToDisplay.length > 0) {
+      const firstActivityCollective =
+        typeof activitiesToDisplay[0].collective === 'object'
+          ? activitiesToDisplay[0].collective.id
+          : activitiesToDisplay[0].collective;
+      console.log('Using collective from first activity for transactions:', firstActivityCollective);
+      return firstActivityCollective.startsWith('0x') ? (firstActivityCollective as `0x${string}`) : '';
+    }
+
+    // Priority 4: Use first collective from display collectives
+    if (displayCollectives.length > 0) {
+      console.log('Using first display collective for transactions:', displayCollectives[0].id);
+      const collectiveId = displayCollectives[0].id;
+      return collectiveId.startsWith('0x') ? (collectiveId as `0x${string}`) : '';
+    }
+
+    // Priority 5: Use first collective from steward data
+    if (steward?.collectives?.[0]?.collective) {
+      console.log('Using first steward collective for transactions:', steward.collectives[0].collective);
+      const collectiveId = steward.collectives[0].collective;
+      return collectiveId.startsWith('0x') ? (collectiveId as `0x${string}`) : '';
+    }
+
+    console.log('No collective found for transactions, using empty string');
+    return '';
+  };
+
+  const collectiveForTransactions = getCollectiveForTransactions();
+  const recentTransactions = useRecentTransactions(collectiveForTransactions, 6, SUBGRAPH_POLL_INTERVAL);
+  const transactions: Transaction[] = collectiveForTransactions ? recentTransactions : [];
+
+  // Log transactions
+  console.log('=== TRANSACTIONS ===');
+  console.log('Collective ID used for transactions:', collectiveForTransactions);
+  console.log('Transactions:', transactions);
+
+  // Log steward NFTs if available
+  console.log('=== STEWARD NFTs ===');
+  console.log('Steward NFTs:', steward?.nfts);
+
+  // Log constants
+  console.log('=== CONSTANTS ===');
+  console.log('SUBGRAPH_POLL_INTERVAL:', SUBGRAPH_POLL_INTERVAL);
+
+  const handleSeeAll = (collectiveId: string) => {
+    console.log('=== HANDLE SEE ALL ===');
+    console.log('Clicked collective ID:', collectiveId);
+    console.log('Current selected collective:', selectedCollective);
+    console.log('Current show all actions:', showAllActions);
+
+    if (selectedCollective === collectiveId && showAllActions) {
+      setShowAllActions(false);
+      setSelectedCollective(null);
+      console.log('Hiding all actions and deselecting collective');
+    } else {
+      setSelectedCollective(collectiveId);
+      setShowAllActions(true);
+      console.log('Showing all actions for collective:', collectiveId);
+    }
+  };
 
   return (
     <Layout
