@@ -26,6 +26,7 @@ function ActivityLog({
   owner,
   hash,
 }: ActivityLogProps) {
+  const NFT_CA = '0x251EEBd7d9469bbcc02Ef23c95D902Cbb7fD73B3';
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleExpanded = () => {
@@ -56,7 +57,7 @@ function ActivityLog({
 
   const handleNftDetailsPress = () => {
     if (nftId && collective) {
-      openExternalLink(`https://celoscan.io/token/${collective}?a=${nftId}`);
+      openExternalLink(`https://celoscan.io/token/${NFT_CA}?a=${nftId}`);
     } else if (nftId) {
       openExternalLink(`https://celoscan.io/search?q=${nftId}`);
     }
