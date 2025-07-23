@@ -10,16 +10,43 @@ const steward = gql`
       totalEarned
       collectives {
         id
-        steward {
-          id
-        }
+        actions
+        totalEarned
         collective {
           id
           pooltype
           paymentsMade
+          settings {
+            rewardToken
+          }
+          claims {
+            txHash
+            networkFee
+            totalRewards
+            timestamp
+            events {
+              id
+              eventType
+              timestamp
+              quantity
+              rewardPerContributor
+              contributors {
+                id
+              }
+              nft {
+                id
+                hash
+                owner
+                collective {
+                  id
+                }
+              }
+            }
+          }
         }
-        actions
-        totalEarned
+        steward {
+          id
+        }
       }
       nfts {
         id

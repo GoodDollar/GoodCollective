@@ -25,8 +25,8 @@ export type SubgraphSteward = {
 
 export type SubgraphStewardCollective = {
   id: string;
-  steward: { id: string }; // | SubgraphSteward; --> always fetched as id
-  collective: { id: string; pooltype: string; paymentsMade: number }; // | SubgraphCollective; --> always fetched as id
+  steward: { id: string };
+  collective: SubgraphCollective;
   actions: number;
   totalEarned: string;
 };
@@ -34,7 +34,7 @@ export type SubgraphStewardCollective = {
 export type SubgraphCollective = {
   id: string;
   pooltype: string;
-  ipfs: SubgraphIpfsCollective;
+  ipfs?: SubgraphIpfsCollective;
   settings?: SubgraphPoolSettings;
   limits?: SubgraphSafetyLimits;
   donors?: SubgraphDonorCollective[];
@@ -42,10 +42,10 @@ export type SubgraphCollective = {
   projectId?: string;
   isVerified?: boolean;
   poolFactory?: string;
-  timestamp: number;
+  timestamp?: number;
   paymentsMade: number;
-  totalDonations: string;
-  totalRewards: string;
+  totalDonations?: string;
+  totalRewards?: string;
   claims?: SubgraphClaim[];
 };
 
@@ -92,7 +92,7 @@ export type SubgraphProvableNFT = {
 };
 
 export type SubgraphClaimEvent = {
-  id: string; // event uri
+  id: string;
   eventType: number;
   timestamp: number;
   quantity: string;

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { useSubgraphStewardWithActivityData } from '../subgraph/useSubgraphStewardActivityData';
+import { subgraphCollectiveToModel, subgraphProvableNftToModel } from '../models/transforms';
+import { useSubgraphSteward } from '../subgraph';
 
 export interface ActivityLogItem {
   id: string;
@@ -18,43 +19,66 @@ export interface ActivityLogItem {
 }
 
 export function useActivityLogData(stewardId: string): ActivityLogItem[] {
-  const activityData = useSubgraphStewardWithActivityData(stewardId);
+  const subgraphStewardData = useSubgraphSteward(stewardId);
 
   return useMemo(() => {
-    if (!activityData || !activityData.claims) {
+    if (!subgraphStewardData || !subgraphStewardData.collectives) {
       return [];
     }
 
     const activities: ActivityLogItem[] = [];
 
-    activityData.claims.forEach((claim) => {
-      claim.events.forEach((event) => {
-        const isContributor = event.contributors.some(
-          (contributor) => contributor.id.toLowerCase() === stewardId.toLowerCase()
-        );
+    subgraphStewardData.collectives.forEach((collectiveMembership) => {
+      const subgraphCollective = collectiveMembership.collective;
 
-        if (isContributor && event.nft) {
-          activities.push({
-            id: event.id,
-            name: getActivityName(claim.collective.pooltype),
-            creationDate: formatDate(event.timestamp),
-            nftId: formatNftId(event.nft.id, event.nft.collective.id),
-            nftHash: event.nft.id,
-            ipfsHash: event.nft.hash,
-            paymentAmount: `${formatAmount(event.rewardPerContributor)} ${claim.settings.rewardToken}`,
-            transactionHash: claim.txHash,
-            collective: {
-              id: claim.collective.id,
-              name: getCollectiveName(claim.collective.id, claim.collective.pooltype),
-            },
-            timestamp: event.timestamp,
-          });
+      if (!subgraphCollective || !('claims' in subgraphCollective) || !subgraphCollective.claims) {
+        return;
+      }
+
+      const collectiveModel = subgraphCollectiveToModel(subgraphCollective);
+
+      subgraphCollective.claims.forEach((claim) => {
+        if (!claim.events) {
+          return;
         }
+
+        claim.events.forEach((event) => {
+          if (!event.contributors || !Array.isArray(event.contributors)) {
+            return;
+          }
+
+          const isContributor = event.contributors.some((contributor) => {
+            const contributorId = typeof contributor === 'string' ? contributor : contributor.id;
+            return contributorId.toLowerCase() === stewardId.toLowerCase();
+          });
+
+          if (isContributor && event.nft && isValidNFT(event.nft)) {
+            const nftModel = subgraphProvableNftToModel(event.nft);
+
+            const rewardToken = collectiveModel.rewardToken || 'tokens';
+
+            activities.push({
+              id: event.id,
+              name: getActivityName(collectiveModel.pooltype),
+              creationDate: formatDate(event.timestamp),
+              nftId: formatNftId(nftModel.id, nftModel.collective),
+              nftHash: nftModel.id,
+              ipfsHash: nftModel.hash,
+              paymentAmount: `${formatAmount(event.rewardPerContributor)} ${rewardToken}`,
+              transactionHash: claim.txHash,
+              collective: {
+                id: collectiveModel.address,
+                name: getCollectiveName(collectiveModel.address, collectiveModel.pooltype),
+              },
+              timestamp: event.timestamp,
+            });
+          }
+        });
       });
     });
 
     return activities.sort((a, b) => b.timestamp - a.timestamp);
-  }, [activityData, stewardId]);
+  }, [subgraphStewardData, stewardId]);
 }
 
 export function useActivityLogByCollective(stewardId: string, collectiveId: string): ActivityLogItem[] {
@@ -63,6 +87,44 @@ export function useActivityLogByCollective(stewardId: string, collectiveId: stri
   return useMemo(() => {
     return allActivities.filter((activity) => activity.collective.id.toLowerCase() === collectiveId.toLowerCase());
   }, [allActivities, collectiveId]);
+}
+
+export function useActivityLogStats(stewardId: string) {
+  const allActivities = useActivityLogData(stewardId);
+
+  return useMemo(() => {
+    const collectiveStats = allActivities.reduce((acc, activity) => {
+      const collectiveId = activity.collective.id;
+      if (!acc[collectiveId]) {
+        acc[collectiveId] = {
+          id: collectiveId,
+          name: activity.collective.name,
+          count: 0,
+          latestActivity: activity.timestamp,
+        };
+      }
+      acc[collectiveId].count += 1;
+      acc[collectiveId].latestActivity = Math.max(acc[collectiveId].latestActivity, activity.timestamp);
+      return acc;
+    }, {} as Record<string, { id: string; name: string; count: number; latestActivity: number }>);
+
+    return {
+      totalActivities: allActivities.length,
+      collectiveStats,
+      collectivesWithActivity: Object.keys(collectiveStats).length,
+    };
+  }, [allActivities]);
+}
+
+function isValidNFT(nft: any): nft is { id: string; owner: string; hash: string; collective: { id: string } } {
+  return (
+    nft &&
+    typeof nft.id === 'string' &&
+    typeof nft.owner === 'string' &&
+    typeof nft.hash === 'string' &&
+    nft.collective &&
+    typeof nft.collective.id === 'string'
+  );
 }
 
 function getActivityName(pooltype: string): string {
@@ -127,6 +189,7 @@ function formatAmount(amount: string): string {
 
     return `${wholePart}.${trimmedFractional}`;
   } catch (error) {
-    return '0.758';
+    console.warn('Error formatting amount:', error);
+    return '0';
   }
 }

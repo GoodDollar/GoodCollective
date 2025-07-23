@@ -7,7 +7,7 @@ import ActivityLog from '../components/ActivityLog';
 import Layout from '../components/Layout/Layout';
 import ProfileView from '../components/ProfileView';
 import { useCollectivesMetadataById, useIsStewardVerified, useStewardExtendedById } from '../hooks';
-import { useActivityLogByCollective, useActivityLogData } from '../hooks/useActivityLogData';
+import { useActivityLogData } from '../hooks/useActivityLogData';
 import { useFetchFullName } from '../hooks/useFetchFullName';
 import { Colors } from '../utils/colors';
 import { InterMedium, InterSemiBold, InterSmall } from '../utils/webFonts';
@@ -30,7 +30,6 @@ function ActivityLogPage() {
   const isWhitelisted = useIsStewardVerified(address as `0x${string}`);
 
   const allActivityData = useActivityLogData(profileAddress);
-  const selectedCollectiveActivities = useActivityLogByCollective(profileAddress, selectedCollective || '');
 
   const stewardIpfsCollectives = useCollectivesMetadataById(
     steward?.collectives.map((collective) => collective.collective) ?? []
@@ -53,14 +52,17 @@ function ActivityLogPage() {
 
   const displayCollectives = (() => {
     if (Object.keys(collectiveStats).length > 0) {
-      return Object.entries(collectiveStats).map(([collectiveId, stats]) => ({ id: collectiveId, ...stats }));
+      return Object.entries(collectiveStats).map(([collectiveId, stats]) => ({
+        id: collectiveId,
+        ...stats,
+      }));
     }
 
     if (steward?.collectives && steward.collectives.length > 0) {
       return steward.collectives.map((collective, index) => ({
         id: collective.collective,
         name: stewardIpfsCollectives[index]?.name || `Collective ${index + 1}`,
-        count: collective.actions || steward.nfts?.length || 0,
+        count: collective.actions || 0,
       }));
     }
 
@@ -68,28 +70,11 @@ function ActivityLogPage() {
   })();
 
   const getActivitiesForDisplay = () => {
-    if (selectedCollectiveActivities && selectedCollectiveActivities.length > 0) {
-      return selectedCollectiveActivities;
+    if (selectedCollective) {
+      return allActivityData?.filter((activity) => activity.collective.id === selectedCollective) || [];
     }
 
-    if (steward?.nfts && steward.nfts.length > 0) {
-      const filteredNfts = steward.nfts.filter((nft) => !selectedCollective || nft.collective === selectedCollective);
-
-      const mappedActivities = filteredNfts.map((nft, _index) => ({
-        id: nft.id,
-        name: nft.id,
-        creationDate: new Date().toLocaleDateString(),
-        nftId: nft.id,
-        hash: nft.hash,
-        owner: nft.owner,
-        collective: nft.collective,
-        ipfsHash: nft.hash,
-      }));
-
-      return mappedActivities;
-    }
-
-    return [];
+    return allActivityData || [];
   };
 
   const activitiesToDisplay = getActivitiesForDisplay();
@@ -147,7 +132,7 @@ function ActivityLogPage() {
           )}
         </View>
 
-        {!showAllActions && (
+        {selectedCollective && showAllActions ? (
           <View style={styles.activityContainer}>
             {activitiesToDisplay.length > 0 ? (
               activitiesToDisplay.map((activity) => (
@@ -157,15 +142,43 @@ function ActivityLogPage() {
                   id={activity.id}
                   creationDate={activity.creationDate}
                   nftId={activity.nftId}
-                  hash={'hash' in activity ? activity.hash : activity.ipfsHash}
-                  owner={'owner' in activity ? activity.owner : undefined}
-                  collective={typeof activity.collective === 'object' ? activity.collective.id : activity.collective}
+                  transactionHash={activity.transactionHash}
                   ipfsHash={activity.ipfsHash}
+                  paymentAmount={activity.paymentAmount}
+                  collective={activity.collective}
+                  nftHash={activity.nftHash}
+                  timestamp={activity.timestamp}
                 />
               ))
             ) : (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyStateText}>No detailed activities found for this collective.</Text>
+                <Text style={styles.emptyStateText}>No activities found for this collective.</Text>
+              </View>
+            )}
+          </View>
+        ) : (
+          <View style={styles.activityContainer}>
+            {activitiesToDisplay.length > 0 ? (
+              activitiesToDisplay
+                .slice(0, 0)
+                .map((activity) => (
+                  <ActivityLog
+                    key={activity.id}
+                    name={activity.name}
+                    id={activity.id}
+                    creationDate={activity.creationDate}
+                    nftId={activity.nftId}
+                    transactionHash={activity.transactionHash}
+                    ipfsHash={activity.ipfsHash}
+                    paymentAmount={activity.paymentAmount}
+                    collective={activity.collective}
+                    nftHash={activity.nftHash}
+                    timestamp={activity.timestamp}
+                  />
+                ))
+            ) : (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateText}>No detailed activities found.</Text>
               </View>
             )}
           </View>

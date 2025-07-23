@@ -68,11 +68,11 @@ export function subgraphCollectiveToModel(subgraphCollective: SubgraphCollective
     ipfs: subgraphCollective.ipfs as IpfsCollective,
     donorCollectives: subgraphCollective.donors?.map(subgraphDonorCollectiveToModel) ?? [],
     stewardCollectives: subgraphCollective.stewards?.map(subgraphStewardCollectiveToModel) ?? [],
-    timestamp: subgraphCollective.timestamp,
+    timestamp: subgraphCollective.timestamp ?? 0,
     paymentsMade: subgraphCollective.paymentsMade,
-    totalDonations: subgraphCollective.totalDonations,
-    totalRewards: subgraphCollective.totalRewards,
-    rewardToken: subgraphCollective.settings?.rewardToken || '',
+    totalDonations: subgraphCollective.totalDonations ?? '0',
+    totalRewards: subgraphCollective.totalRewards ?? '0',
+    rewardToken: subgraphCollective.settings?.rewardToken ?? '',
   };
 }
 
@@ -91,7 +91,7 @@ export function ipfsSubgraphCollectiveToModel({
     collective: id,
     name: ipfs.name || '',
     description: ipfs.description || '',
-    rewardDescription: ipfs.rewardDescription, //needs to stay null for ?? operator default text to work
+    rewardDescription: ipfs.rewardDescription,
     goodidDescription: ipfs.goodidDescription,
     email: ipfs.email,
     twitter: ipfs.twitter,
