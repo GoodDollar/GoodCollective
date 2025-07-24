@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-
+import { useDonorCollectivesFlowingBalances } from '../hooks/useFlowingBalance';
 import { useSubgraphTotalStats } from '../subgraph';
-import { formatGoodDollarAmount } from '../lib/calculateGoodDollarAmounts';
+import { useGetTokenPrice } from './useGetTokenPrice';
 
 type StatsFormatted = {
   amount: string;
@@ -19,6 +19,22 @@ export type TotalStats = {
 
 export const useTotalStats = (): TotalStats | undefined => {
   const stats = useSubgraphTotalStats();
+  const { price: tokenPrice } = useGetTokenPrice('G$');
+
+  const donorCollectivesForHook = useMemo(() => {
+    if (!stats?.donorCollectives) return [];
+
+    return stats.donorCollectives.map((dc) => ({
+      id: dc.id,
+      flowRate: dc.flowRate,
+      timestamp: dc.timestamp,
+      contribution: dc.contribution,
+      donor: dc.id,
+      collective: '',
+    }));
+  }, [stats?.donorCollectives]);
+
+  const donorCollectivesBalances = useDonorCollectivesFlowingBalances(donorCollectivesForHook, tokenPrice);
 
   return useMemo(() => {
     if (!stats) return undefined;
@@ -53,93 +69,28 @@ export const useTotalStats = (): TotalStats | undefined => {
 
     let donationsFormatted = '0';
     let donationsError: string | undefined;
+    let donationsSubtitle: string | undefined;
+    let donationsIsFlowing = false;
 
     try {
-      const currentTime = Math.floor(Date.now() / 1000);
-      let totalFromDonorCollectives = BigInt(0);
-
-      if (stats.donorCollectives && Array.isArray(stats.donorCollectives)) {
-        stats.donorCollectives.forEach((donorCollective, index) => {
-          try {
-            if (!donorCollective) {
-              console.warn(`Donor collective at index ${index} is null or undefined`);
-              return;
-            }
-
-            const flowRateStr = donorCollective.flowRate || '0';
-            if (typeof flowRateStr !== 'string' && typeof flowRateStr !== 'number') {
-              console.warn(`Invalid flowRate type for donor collective ${index}:`, typeof flowRateStr);
-              return;
-            }
-
-            let flowRate: bigint;
-            try {
-              flowRate = BigInt(flowRateStr);
-            } catch (error) {
-              console.warn(`Failed to parse flowRate for donor collective ${index}:`, flowRateStr, error);
-              return;
-            }
-
-            const lastUpdateTime = donorCollective.timestamp || 0;
-            if (typeof lastUpdateTime !== 'number' || lastUpdateTime < 0) {
-              console.warn(`Invalid timestamp for donor collective ${index}:`, lastUpdateTime);
-              return;
-            }
-
-            const contributionStr = donorCollective.contribution || '0';
-            if (typeof contributionStr !== 'string' && typeof contributionStr !== 'number') {
-              console.warn(`Invalid contribution type for donor collective ${index}:`, typeof contributionStr);
-              return;
-            }
-
-            let baseContribution: bigint;
-            try {
-              baseContribution = BigInt(contributionStr);
-            } catch (error) {
-              console.warn(`Failed to parse contribution for donor collective ${index}:`, contributionStr, error);
-              return;
-            }
-
-            if (flowRate > 0) {
-              if (currentTime < lastUpdateTime) {
-                console.warn(
-                  `Current time (${currentTime}) is before last update time (${lastUpdateTime}) for collective ${index}`
-                );
-                totalFromDonorCollectives += baseContribution;
-                return;
-              }
-
-              const timeElapsed = BigInt(currentTime - lastUpdateTime);
-
-              try {
-                const additionalStreamingAmount = flowRate * timeElapsed;
-                const totalForThisCollective = baseContribution + additionalStreamingAmount;
-                totalFromDonorCollectives += totalForThisCollective;
-              } catch (error) {
-                console.warn(`BigInt calculation overflow for donor collective ${index}:`, error);
-                totalFromDonorCollectives += baseContribution;
-              }
-            } else {
-              totalFromDonorCollectives += baseContribution;
-            }
-          } catch (error) {
-            console.error(`Error processing donor collective ${index}:`, error);
-            hasError = true;
-          }
-        });
-      }
-
-      try {
-        donationsFormatted = formatGoodDollarAmount(totalFromDonorCollectives.toString(), 2);
-      } catch (error) {
-        console.error('Error formatting donation amount:', error);
-        donationsError = 'Error formatting donation amount';
+      if (donorCollectivesBalances.hasError || donorCollectivesBalances.error) {
+        donationsError = 'Error loading donations';
         hasError = true;
         donationsFormatted = 'Error';
+      } else if (donorCollectivesBalances.wei && donorCollectivesBalances.wei !== '0') {
+        donationsFormatted = donorCollectivesBalances.wei;
+        donationsIsFlowing = true;
+
+        if (donorCollectivesBalances.usdValue && donorCollectivesBalances.usdValue > 0) {
+          donationsSubtitle = `= $${donorCollectivesBalances.usdValue.toFixed(2)} USD`;
+        }
+      } else {
+        donationsFormatted = '0';
+        donationsIsFlowing = false;
       }
     } catch (error) {
-      console.error('Error calculating total donations:', error);
-      donationsError = 'Error calculating total donations';
+      console.error('Error processing flowing donations:', error);
+      donationsError = 'Error calculating donations';
       hasError = true;
       donationsFormatted = 'Error';
     }
@@ -151,9 +102,10 @@ export const useTotalStats = (): TotalStats | undefined => {
         isFlowing: false,
       },
       totalDonations: {
-        amount: donationsError ? donationsFormatted : 'G$ ' + donationsFormatted,
+        amount: donationsFormatted,
         error: donationsError,
-        isFlowing: false,
+        subtitle: donationsSubtitle,
+        isFlowing: donationsIsFlowing,
       },
       totalMembers: {
         amount: membersCount,
@@ -162,5 +114,5 @@ export const useTotalStats = (): TotalStats | undefined => {
       },
       hasError,
     };
-  }, [stats]);
+  }, [stats, donorCollectivesBalances]);
 };

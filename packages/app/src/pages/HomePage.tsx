@@ -11,10 +11,9 @@ import CollectiveHomeCard from '../components/CollectiveHomeCard';
 import Layout from '../components/Layout/Layout';
 
 import { IpfsCollective } from '../models/models';
-import { useCollectivesMetadata, useCollectiveById } from '../hooks';
-import { useDonorCollectivesFlowingBalances } from '../hooks/useFlowingBalance';
-import { useGetTokenPrice } from '../hooks';
+import { useCollectivesMetadata } from '../hooks';
 import { GoodDollarAmount } from '../components/GoodDollarAmount';
+
 import { Colors } from '../utils/colors';
 
 const homeContainerStyles = {
@@ -31,7 +30,7 @@ const homeContainerStyles = {
   maxWidth: 1312,
 } as const;
 
-const STATS_COPY: { [K in keyof TotalStats]: { copy: string } } = {
+const STATS_COPY: { [K in keyof Omit<TotalStats, 'hasError'>]: { copy: string } } = {
   totalPools: {
     copy: 'GoodCollective pools',
   },
@@ -74,106 +73,25 @@ const CollectivesContainer: FC<PropsWithChildren> = ({ children }) => {
 const HomePage = () => {
   const collectives = useCollectivesMetadata();
   const totalStats = useTotalStats();
-  const { price: tokenPrice } = useGetTokenPrice('G$');
   const { isDesktopView } = useScreenSize();
   const collectivesSectionRef = useRef<any>(null);
 
-  const collectiveAddresses = useMemo(() => collectives?.map((c) => c.collective) || [], [collectives]);
-
-  const collectiveResults = collectiveAddresses.map((address) =>
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useCollectiveById(address)
-  );
-
-  const allDonorCollectives = useMemo(() => {
-    return collectiveResults
-      .filter((collective) => collective)
-      .flatMap((collective) => collective?.donorCollectives || []);
-  }, [collectiveResults]);
-
-  const {
-    wei: flowingTotalDonations,
-    usdValue: totalDonationsUsd,
-    error: flowingBalanceError,
-  } = useDonorCollectivesFlowingBalances(allDonorCollectives, tokenPrice || 0);
-
-  const stats = useMemo(() => {
+  const formattedStats = useMemo(() => {
     if (!totalStats) return [];
 
-    return (Object.keys(STATS_COPY) as Array<keyof TotalStats>).map((statKey) => {
+    return (Object.keys(STATS_COPY) as Array<keyof typeof STATS_COPY>).map((statKey) => {
       const stat = totalStats[statKey];
       const statCopy = STATS_COPY[statKey];
 
-      if (statKey === 'totalDonations') {
-        if (flowingBalanceError) {
-          return {
-            amount: 'Error loading donations',
-            copy: statCopy?.copy,
-            isFlowing: false,
-            hasError: true,
-          };
-        }
-
-        if (flowingTotalDonations && flowingTotalDonations !== '0') {
-          return {
-            amount: flowingTotalDonations,
-            copy: statCopy?.copy,
-            subtitle: `= ${totalDonationsUsd || 0} USD`,
-            isFlowing: true,
-            hasError: false,
-          };
-        }
-
-        if (stat && typeof stat === 'object' && 'amount' in stat) {
-          if (stat.error || stat.amount === 'Error') {
-            return {
-              amount: 'Error loading donations',
-              copy: statCopy?.copy,
-              subtitle: 'Unable to calculate donation amount',
-              isFlowing: false,
-              hasError: true,
-            };
-          }
-
-          return {
-            amount: stat.amount || '0',
-            copy: statCopy?.copy,
-            subtitle: stat.subtitle,
-            isFlowing: stat.isFlowing || false,
-            hasError: false,
-          };
-        }
-      }
-
-      if (typeof stat === 'object' && stat !== null && 'amount' in stat) {
-        if (stat.error || stat.amount === 'Error') {
-          return {
-            amount: `Error loading ${statKey === 'totalPools' ? 'pools' : 'members'}`,
-            copy: statCopy?.copy,
-            subtitle: 'Unable to load current count',
-            isFlowing: false,
-            hasError: true,
-          };
-        }
-
-        return {
-          amount: stat.amount || '0',
-          copy: statCopy?.copy,
-          isFlowing: stat.isFlowing || false,
-          subtitle: stat.subtitle,
-          hasError: false,
-        };
-      }
-
       return {
-        amount: 'Error loading data',
-        copy: statCopy?.copy,
-        isFlowing: false,
-        subtitle: 'Unable to load information',
-        hasError: true,
+        amount: stat.amount,
+        copy: statCopy.copy,
+        subtitle: stat.subtitle,
+        isFlowing: stat.isFlowing || false,
+        hasError: stat.error || false,
       };
     });
-  }, [totalStats, flowingTotalDonations, totalDonationsUsd, flowingBalanceError]);
+  }, [totalStats]);
 
   const scrollToCollectives = () => {
     if (collectivesSectionRef.current) {
@@ -189,7 +107,7 @@ const HomePage = () => {
     );
   }
 
-  const hasCriticalErrors = totalStats.hasError && stats.every((stat) => stat.hasError);
+  const hasCriticalErrors = totalStats.hasError && formattedStats.every((stat) => stat.hasError);
 
   if (hasCriticalErrors) {
     return (
@@ -236,7 +154,7 @@ const HomePage = () => {
                   Impact to Date
                 </Text>
                 <HStack space={0} justifyContent="space-evenly" flexDir={isDesktopView ? 'row' : 'column'}>
-                  {stats.map(({ amount, copy, subtitle, isFlowing, hasError }) => (
+                  {formattedStats.map(({ amount, copy, subtitle, isFlowing, hasError }) => (
                     <VStack key={copy} space={0} paddingTop={2} textAlign="center" minWidth="220">
                       {hasError ? (
                         <VStack space={1} alignItems="center">
