@@ -1,35 +1,35 @@
-import { useCallback, useMemo, useState } from 'react';
-import { Image, View } from 'react-native';
-import { Box, HStack, Link, Text, useBreakpointValue, VStack } from 'native-base';
-import { useAccount } from 'wagmi';
-import { useParams } from 'react-router-native';
-import Decimal from 'decimal.js';
 import { waitForTransactionReceipt } from '@wagmi/core';
-import { config } from './../config';
-import { TransactionReceipt } from 'viem';
+import Decimal from 'decimal.js';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
+import { Box, HStack, Link, Text, useBreakpointValue, VStack } from 'native-base';
+import { useCallback, useMemo, useState } from 'react';
+import { Image, View } from 'react-native';
+import { useParams } from 'react-router-native';
+import { TransactionReceipt } from 'viem';
+import { useAccount } from 'wagmi';
+import { config } from './../config';
 
-import RoundedButton from './RoundedButton';
 import { useScreenSize } from '../theme/hooks';
+import RoundedButton from './RoundedButton';
 
-import BaseModal from './modals/BaseModal';
-import { getDonateStyles } from '../utils';
-import { useContractCalls, useGetTokenPrice } from '../hooks';
-import { Collective } from '../models/models';
-import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
-import { acceptablePriceImpact, Frequency, GDEnvTokens, SupportedNetwork } from '../models/constants';
 import { InfoIconOrange } from '../assets';
-import { SwapRouteState, useSwapRoute } from '../hooks/useSwapRoute';
+import { useContractCalls, useGetTokenPrice } from '../hooks';
 import { useApproveSwapTokenCallback } from '../hooks/useApproveSwapTokenCallback';
+import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
+import { SwapRouteState, useSwapRoute } from '../hooks/useSwapRoute';
+import { acceptablePriceImpact, Frequency, GDEnvTokens, SupportedNetwork } from '../models/constants';
+import { Collective } from '../models/models';
+import { getDonateStyles } from '../utils';
+import BaseModal from './modals/BaseModal';
 
+import { ApproveTokenImg, PhoneImg, StreamWarning, ThankYouImg } from '../assets';
 import { useToken, useTokenList } from '../hooks/useTokenList';
 import { formatDecimalStringInput } from '../lib/formatDecimalStringInput';
+import { formatNumberWithCommas } from '../lib/formatFiatCurrency';
 import useCrossNavigate from '../routes/useCrossNavigate';
 import FrequencySelector from './DonateFrequency';
 import NumberInput from './NumberInput';
-import { ApproveTokenImg, PhoneImg, StreamWarning, ThankYouImg } from '../assets';
-import { formatNumberWithCommas } from '../lib/formatFiatCurrency';
 type ConfigChainId = (typeof config.chains)[number]['id'];
 
 interface DonateComponentProps {
@@ -113,7 +113,7 @@ const shouldWarning = (
 };
 
 const SwapValue = ({ swapValue }: { swapValue: number }) => (
-  <Text textAlign="right" fontSize="sm " color="goodGrey.25">
+  <Text textAlign="right" fontSize="sm " color="gray.400">
     =
     <Text variant="bold" fontWeight="700">
       {' '}
@@ -127,7 +127,17 @@ const WarningBox = ({ content, explanationProps = {} }: any) => {
   const Explanation = content.Explanation;
 
   return (
-    <HStack space={2} backgroundColor="goodOrange.200" maxWidth="343" paddingY={3} paddingX={2}>
+    <HStack
+      space={2}
+      backgroundColor="goodOrange.200"
+      maxWidth="500"
+      borderRadius={15}
+      display={'flex'}
+      flexDirection="row"
+      alignItems="center"
+      justifyContent="space-between"
+      paddingY={3}
+      paddingX={2}>
       <Image source={{ uri: InfoIconOrange }} style={{ width: 16, height: 16 }} />
       <VStack space={4} maxWidth="100%">
         <VStack space={1}>
@@ -176,7 +186,10 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   const [approveSwapModalVisible, setApproveSwapModalVisible] = useState(false);
   const [thankYouModalVisible, setThankYouModalVisible] = useState(false);
   const [startStreamingVisible, setStartStreamingVisible] = useState(false);
-  const [estimatedDuration, setEstimatedDuration] = useState<{ duration: number; endDate: string }>({
+  const [estimatedDuration, setEstimatedDuration] = useState<{
+    duration: number;
+    endDate: string;
+  }>({
     duration: 0,
     endDate: '',
   });
@@ -219,7 +232,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
       paddingRight: 2,
     },
     md: {
-      // maxWidth: 800,
       width: '100%',
       paddingLeft: 4,
       paddingRight: 4,
@@ -268,7 +280,6 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   );
 
   const approvalNotReady = handleApproveToken === undefined && currency.startsWith('G$') === false;
-  // const approvalNotReady = false;
 
   const { supportFlowWithSwap, supportFlow, supportSingleTransferAndCall, supportSingleWithSwap } = useContractCalls(
     collectiveId,
@@ -285,14 +296,11 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
   );
 
   const token = useToken(currency);
-  // const currencyDecimals = token.decimals;
   const donorCurrencyBalance = useGetTokenBalance(token.address, address, chain?.id, true);
 
   const totalDecimalDonation = new Decimal(decimalDonationAmount * (currency.includes('G$') ? 1 : Number(duration)));
 
   const swapValue = currency.includes('G$') ? 0 : (totalDecimalDonation.toNumber() * altTokenPrice) / tokenPrice;
-
-  // const totalDonationFormatted = totalDecimalDonation.toDecimalPlaces(currencyDecimals, Decimal.ROUND_DOWN).toString();
 
   const { isNonZeroDonation, isInsufficientBalance, isInsufficientLiquidity, isUnacceptablePriceImpact } =
     shouldWarning(currency, donorCurrencyBalance, priceImpact, swapRouteStatus, totalDecimalDonation);
@@ -425,7 +433,10 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
 
       const estimatedEndDate = moment().add(estDuration, 'months').format('DD.MM.YY HH:mm');
 
-      setEstimatedDuration({ duration: estDuration, endDate: estimatedEndDate });
+      setEstimatedDuration({
+        duration: estDuration,
+        endDate: estimatedEndDate,
+      });
     },
     [currency, donorCurrencyBalance, frequency]
   );
@@ -534,7 +545,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 <Text variant="bold" fontSize="lg">
                   Donation Frequency
                 </Text>
-                <Text>How do you want to donate</Text>
+                <Text>How do you want to donate ? </Text>
               </VStack>
               <FrequencySelector onSelect={onChangeFrequency} />
 
@@ -551,7 +562,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 <Box flexGrow={1} />
               )}
             </VStack>
-            {/* Amount and token */}
+
             <VStack space={2} mb={8} zIndex={1}>
               <VStack space={2} zIndex={1}>
                 <Text variant="bold" fontSize="lg">
@@ -562,16 +573,17 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
               <NumberInput
                 type="token"
                 dropdownValue={currency}
-                inputValue={inputAmount?.toString()}
+                inputValue={inputAmount}
                 onSelect={onChangeCurrency}
                 onChangeAmount={onChangeAmount}
                 options={currencyOptions}
                 isWarning={isWarning}
-                withDuration={frequency !== 'One-Time'}
+                withDuration={frequency !== Frequency.OneTime}
               />
-              {frequency === 'One-Time' && !currency.startsWith('G$') && isNonZeroDonation && swapValue ? (
-                <SwapValue {...{ swapValue }} />
-              ) : null}
+
+              {frequency === Frequency.OneTime && !currency.startsWith('G$') && isNonZeroDonation && swapValue > 0 && (
+                <SwapValue swapValue={swapValue} />
+              )}
             </VStack>
 
             <VStack space={2} maxWidth={650}>
@@ -586,10 +598,14 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                   <NumberInput
                     type="number"
                     dropdownValue={currency}
-                    inputValue={duration?.toString() ?? '1'}
+                    inputValue={duration.toString()}
                     onSelect={onChangeCurrency}
                     onChangeAmount={onChangeRate}
-                  />{' '}
+                  />
+                  {/* Swap value display under duration input */}
+                  {!currency.startsWith('G$') && isNonZeroDonation && swapValue > 0 && (
+                    <SwapValue swapValue={swapValue} />
+                  )}
                 </>
               ) : null}
               {currency.includes('G$') &&
@@ -617,19 +633,35 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
               ) : null}
             </VStack>
           </HStack>
-          {frequency !== 'One-Time' && currency === 'CELO' && isNonZeroDonation && swapValue ? (
-            <VStack space={2} alignItems="flex-start">
-              <Text variant="bold" fontSize="lg">
-                Total Donation Swap Amount:
-              </Text>
-              <VStack space="0">
-                <Text variant="bold" color="goodPurple.400" fontSize="2xl" textAlign="right">
-                  CELO {decimalDonationAmount}
+
+          {/* Fee Information */}
+          <VStack space={2} backgroundColor="gray.50" p={2} borderRadius="lg">
+            <Text fontSize="sm" color="gray.700">
+              All donations incur a{' '}
+              <Text fontWeight="bold" color="black">
+                5%
+              </Text>{' '}
+              protocol fee, which contributes directly to{' '}
+              <Link
+                href="https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective"
+                _text={{ color: 'blue.500', textDecoration: 'underline' }}>
+                GoodDollar UBI
+              </Link>
+              .{' '}
+              <Text>
+                All donations incur a{' '}
+                <Text fontWeight="bold" color="black">
+                  3%
                 </Text>
-                <SwapValue {...{ swapValue }} />
-              </VStack>
-            </VStack>
-          ) : null}
+              </Text>{' '}
+              <Link
+                href="https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective"
+                _text={{ color: 'blue.500', textDecoration: 'underline' }}>
+                Manager Fee
+              </Link>
+              .
+            </Text>
+          </VStack>
         </VStack>
 
         <View style={{ gap: 16, flex: 1, zIndex: -1 }}>
@@ -670,7 +702,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 </Text>
               )}
               <Text>
-                Pressing “Confirm” will begin the donation {frequency !== Frequency.OneTime ? 'streaming ' : ''}process.
+                Pressing "Confirm" will begin the donation {frequency !== Frequency.OneTime ? 'streaming ' : ''}process.
                 You will need to confirm using your connected wallet. You may be asked to sign multiple transactions.
               </Text>
             </VStack>
