@@ -98,6 +98,136 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: 0,
   },
-  formattedUsd: { ...InterSmall, fontSize: 12, color: '#959090' },
-  cardDescription: { flexDirection: 'row', gap: 8 },
+  formattedUsd: {
+    ...InterSmall,
+    fontSize: 12,
+    color: '#959090',
+  },
+  cardDescription: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+
+  supportingSection: {
+    gap: 2,
+  },
+  supportingLabel: {
+    fontSize: 14,
+    font: 'bold',
+    fontWeight: '600',
+    color: Colors.black,
+    ...InterSemiBold,
+  },
+  supportingNumber: {
+    fontSize: 16,
+    color: Colors.black,
+    ...InterSemiBold,
+  },
+  supportingText: {
+    fontSize: 14,
+    color: Colors.gray[100],
+    ...InterRegular,
+  },
+
+  feeSection: {
+    gap: 4,
+  },
+  feeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 4,
+  },
+  feeLabel: {
+    fontSize: 14,
+    paddingRight: 4,
+    color: Colors.black,
+    ...InterSemiBold,
+  },
+  feeRecipient: {
+    fontSize: 14,
+    color: Colors.gray[100],
+    ...InterRegular,
+  },
+  feeInfoIcon: {
+    width: 16,
+    height: 16,
+    tintColor: Colors.purple[200],
+  },
+  feeAmount: {
+    fontSize: 14,
+    color: Colors.gray[100],
+    ...InterRegular,
+  },
+
+  tooltipWrapper: {
+    position: 'relative',
+    alignItems: 'center',
+  },
+
+  tooltipContainer: {
+    position: 'absolute',
+    top: -8,
+    left: 24,
+    backgroundColor: Colors.purple[100],
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    maxWidth: 280,
+    minWidth: 200,
+    zIndex: 1000,
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+
+  tooltipArrow: {
+    position: 'absolute',
+    top: 16,
+    left: -6,
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderTopWidth: 6,
+    borderBottomWidth: 6,
+    borderRightWidth: 6,
+    borderTopColor: 'transparent',
+    borderBottomColor: 'transparent',
+    borderRightColor: Colors.purple[100],
+  },
+
+  tooltipTitle: {
+    fontSize: 14,
+    color: Colors.white,
+    ...InterSemiBold,
+    marginBottom: 4,
+  },
+  tooltipContent: {
+    fontSize: 12,
+    color: Colors.purple[200],
+    ...InterRegular,
+    lineHeight: 16,
+  },
+
+  tooltipLearnMore: {
+    fontSize: 12,
+    color: Colors.purple[200],
+    ...InterRegular,
+    lineHeight: 16,
+    textDecorationLine: 'underline',
+  },
+
+  tooltipOverlay: {
+    flex: 1,
+    backgroundColor: Colors.blue[100],
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
 });
