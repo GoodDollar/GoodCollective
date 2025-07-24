@@ -135,7 +135,7 @@ const WarningBox = ({ content, explanationProps = {} }: any) => {
       display={'flex'}
       flexDirection="row"
       alignItems="center"
-      justifyContent="space-between"
+      justifyContent="center"
       paddingY={3}
       paddingX={2}>
       <Image source={{ uri: InfoIconOrange }} style={{ width: 16, height: 16 }} />
