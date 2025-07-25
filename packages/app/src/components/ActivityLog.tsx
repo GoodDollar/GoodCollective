@@ -118,7 +118,7 @@ function ActivityLog({
                 <Text style={styles.actionDate}>{displayDate}</Text>
               </View>
 
-              {paymentAmount && <Text style={styles.paymentAmount}>Payment: {paymentAmount.split(' ')[0]} G$</Text>}
+              {paymentAmount && <Text style={styles.paymentAmount}>G$ {paymentAmount.split(' ')[0]} transferred</Text>}
 
               <View style={styles.chevronContainer}>
                 <ChevronDownIcon
