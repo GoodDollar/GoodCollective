@@ -35,7 +35,7 @@ function ActivityLog({
   paymentAmount,
   timestamp,
 }: ActivityLogProps) {
-  const networkName = env.REACT_APP_NETWORK || 'celo';
+  const networkName = env.REACT_APP_NETWORK || 'development-celo';
   const NFT_CA = getProvableNFTAddress(networkName);
 
   const [isExpanded, setIsExpanded] = useState(false);
