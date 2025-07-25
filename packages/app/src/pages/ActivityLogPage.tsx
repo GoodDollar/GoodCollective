@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useParams } from 'react-router-native';
 import { useEnsName } from 'wagmi';
@@ -16,6 +16,7 @@ function ActivityLogPage() {
   const profileAddress = id.toLowerCase();
   const [showAllActions, setShowAllActions] = useState(false);
   const [selectedCollective, setSelectedCollective] = useState<string | null>(null);
+  const [displayCollectives, setDisplayCollectives] = useState<any[]>([]);
 
   const steward = useStewardExtendedById(profileAddress);
   const address: `0x${string}` | undefined = profileAddress.startsWith('0x')
@@ -32,39 +33,44 @@ function ActivityLogPage() {
     steward?.collectives.map((collective) => collective.collective) ?? []
   );
 
-  const collectiveStats =
-    allActivityData && allActivityData.length > 0
-      ? allActivityData.reduce((acc, activity) => {
-          const collectiveId = activity.collective.id;
-          if (!acc[collectiveId]) {
-            acc[collectiveId] = {
-              name: activity.collective.name,
-              count: 0,
-            };
-          }
-          acc[collectiveId].count += 1;
-          return acc;
-        }, {} as Record<string, { name: string; count: number }>)
-      : {};
+  const collectiveStats = useMemo(
+    () =>
+      allActivityData && allActivityData.length > 0
+        ? allActivityData.reduce((acc, activity) => {
+            const collectiveId = activity.collective.id;
+            if (!acc[collectiveId]) {
+              acc[collectiveId] = {
+                name: activity.collective.name,
+                count: 0,
+              };
+            }
+            acc[collectiveId].count += 1;
+            return acc;
+          }, {} as Record<string, { name: string; count: number }>)
+        : {},
+    [allActivityData]
+  );
 
-  const displayCollectives = (() => {
+  useEffect(() => {
     if (Object.keys(collectiveStats).length > 0) {
-      return Object.entries(collectiveStats).map(([collectiveId, stats]) => ({
-        id: collectiveId,
-        ...stats,
-      }));
+      setDisplayCollectives(
+        Object.entries(collectiveStats).map(([collectiveId, stats]) => ({
+          id: collectiveId,
+          ...stats,
+        }))
+      );
+    } else if (steward?.collectives && steward.collectives.length > 0) {
+      setDisplayCollectives(
+        steward.collectives.map((collective, index) => ({
+          id: collective.collective,
+          name: stewardIpfsCollectives[index]?.name || `Collective ${index + 1}`,
+          count: collective.actions || 0,
+        }))
+      );
+    } else {
+      setDisplayCollectives([]);
     }
-
-    if (steward?.collectives && steward.collectives.length > 0) {
-      return steward.collectives.map((collective, index) => ({
-        id: collective.collective,
-        name: stewardIpfsCollectives[index]?.name || `Collective ${index + 1}`,
-        count: collective.actions || 0,
-      }));
-    }
-
-    return [];
-  })();
+  }, [collectiveStats, steward, stewardIpfsCollectives]);
 
   const getActivitiesForDisplay = () => {
     if (selectedCollective) {
