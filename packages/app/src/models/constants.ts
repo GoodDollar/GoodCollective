@@ -55,7 +55,7 @@ export const SUBGRAPH_POLL_INTERVAL = parseInt(process.env.IS_DONATING_POLL_INTE
 
 /**
  * Returns the ProvableNFT contract address for the given network name.
- * @param networkName - The network name (e.g., 'celo', 'alfajores', etc.)
+ * @param networkName - The network name
  */
 export function getProvableNFTAddress(networkName: string): string {
   const networkEntry = Object.values(GoodCollectiveContracts).find(
