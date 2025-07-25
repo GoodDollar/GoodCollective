@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { useSubgraphSteward } from '../subgraph';
 import { formatDate } from '../utils/formatDate';
 import { formatNftId } from '../utils/formatNftId';
-import { formatAmount } from '../utils/formatAmount';
 import { getActivityName, getCollectiveName } from '../utils/names';
 
 import { subgraphCollectiveToModel, subgraphProvableNftToModel } from '../models/transforms';
@@ -56,7 +55,9 @@ export function useActivityLogData(stewardId: string): ActivityLogItem[] {
               nftId: formatNftId(nftModel.id, collectiveModel.address, evt.timestamp),
               nftHash: nftModel.id,
               ipfsHash: nftModel.hash,
-              paymentAmount: `${formatAmount(evt.rewardPerContributor)} ${collectiveModel.rewardToken || 'tokens'}`,
+              paymentAmount: `${Number(evt.rewardPerContributor / 1e18).toFixed(3)} ${
+                collectiveModel.rewardToken || 'tokens'
+              }`,
               transactionHash: claim.txHash,
               collective: {
                 id: collectiveModel.address,
