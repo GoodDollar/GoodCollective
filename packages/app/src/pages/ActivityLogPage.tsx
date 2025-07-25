@@ -8,7 +8,6 @@ import Layout from '../components/Layout/Layout';
 import ProfileView from '../components/ProfileView';
 import { useCollectivesMetadataById, useIsStewardVerified, useStewardExtendedById } from '../hooks';
 import { useActivityLogData } from '../hooks/useActivityLogData';
-import { useFetchFullName } from '../hooks/useFetchFullName';
 import { Colors } from '../utils/colors';
 import { InterMedium, InterSemiBold, InterSmall } from '../utils/webFonts';
 
@@ -24,9 +23,7 @@ function ActivityLogPage() {
     : undefined;
 
   const { data: ensName } = useEnsName({ address, chainId: 1 });
-  const fullName = useFetchFullName(address);
-  const [firstName, lastName] = fullName?.trim().split(' ') ?? [undefined, undefined];
-  const userIdentifier = firstName ? `${firstName} ${lastName}` : ensName ?? address ?? '0x';
+  const userIdentifier = ensName ?? address ?? '0x';
   const isWhitelisted = useIsStewardVerified(address as `0x${string}`);
 
   const allActivityData = useActivityLogData(profileAddress);
@@ -98,8 +95,8 @@ function ActivityLogPage() {
       <View style={styles.body}>
         <View style={[styles.container, styles.elevation]}>
           <ProfileView
-            firstName={firstName}
-            lastName={lastName}
+            firstName={undefined}
+            lastName={undefined}
             ensDomain={ensName ?? undefined}
             userAddress={address}
             isWhitelisted={isWhitelisted}
