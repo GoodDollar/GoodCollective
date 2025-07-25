@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useSubgraphSteward } from '../subgraph';
-import { formatDate } from '../utils/formatDate';
+import { formatTime } from '../lib/formatTime';
 import { formatNftId } from '../utils/formatNftId';
 import { getActivityName, getCollectiveName } from '../utils/names';
 
@@ -51,7 +51,7 @@ export function useActivityLogData(stewardId: string): ActivityLogItem[] {
             return {
               id: evt.id,
               name: getActivityName(collectiveModel.pooltype),
-              creationDate: formatDate(evt.timestamp),
+              creationDate: formatTime(evt.timestamp),
               nftId: formatNftId(nftModel.id, collectiveModel.address, evt.timestamp),
               nftHash: nftModel.id,
               ipfsHash: nftModel.hash,
