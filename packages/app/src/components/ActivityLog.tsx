@@ -32,12 +32,12 @@ function ActivityLog({
   transactionHash,
   collective,
   ipfsHash,
+  nftHash,
   paymentAmount,
   timestamp,
 }: ActivityLogProps) {
   const networkName = env.REACT_APP_NETWORK || 'development-celo';
   const NFT_CA = getProvableNFTAddress(networkName);
-
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleExpanded = () => {
@@ -70,7 +70,7 @@ function ActivityLog({
     }
   };
 
-  const displayName = nftId || name;
+  const displayName = nftHash || name;
   const truncatedName =
     displayName.length > 20
       ? `${displayName.substring(0, 8)}...${displayName.substring(displayName.length - 8)}`
@@ -118,7 +118,7 @@ function ActivityLog({
                 <Text style={styles.actionDate}>{displayDate}</Text>
               </View>
 
-              {paymentAmount && <Text style={styles.paymentAmount}>Payment: {paymentAmount.split(' ')[0]} tokens</Text>}
+              {paymentAmount && <Text style={styles.paymentAmount}>Payment: {paymentAmount.split(' ')[0]} G$</Text>}
 
               <View style={styles.chevronContainer}>
                 <ChevronDownIcon
@@ -127,7 +127,7 @@ function ActivityLog({
                   style={{
                     transform: [{ rotate: isExpanded ? '180deg' : '0deg' }],
                   }}
-                />{' '}
+                />
               </View>
             </View>
           </View>

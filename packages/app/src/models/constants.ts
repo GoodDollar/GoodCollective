@@ -58,16 +58,23 @@ export const SUBGRAPH_POLL_INTERVAL = parseInt(process.env.IS_DONATING_POLL_INTE
  * @param networkName - The network name
  */
 export function getProvableNFTAddress(networkName: string): string {
-  const networkEntry = Object.values(GoodCollectiveContracts).find(
-    (entry: any) => Array.isArray(entry) && entry[0]?.name === networkName
-  );
-  if (
-    Array.isArray(networkEntry) &&
-    networkEntry[0]?.contracts &&
-    'ProvableNFT' in networkEntry[0].contracts &&
-    (networkEntry[0].contracts as any).ProvableNFT?.address
-  ) {
-    return (networkEntry[0].contracts as any).ProvableNFT.address;
+  const networkEntry = Object.values(GoodCollectiveContracts)
+    .flat()
+    .find((entry: any) => entry?.name === networkName);
+
+  if (!networkEntry || !networkEntry.contracts) {
+    return '';
   }
+
+  const contracts = networkEntry.contracts as any;
+
+  if (contracts.ProvableNFT?.address) {
+    return contracts.ProvableNFT.address;
+  }
+
+  if (contracts.MultiClaimModule?.address) {
+    return contracts.MultiClaimModule.address;
+  }
+
   return '';
 }
