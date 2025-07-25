@@ -53,7 +53,7 @@ export function useActivityLogData(stewardId: string): ActivityLogItem[] {
               id: evt.id,
               name: getActivityName(collectiveModel.pooltype),
               creationDate: formatDate(evt.timestamp),
-              nftId: formatNftId(nftModel.id, collectiveModel.address),
+              nftId: formatNftId(nftModel.id, collectiveModel.address, evt.timestamp),
               nftHash: nftModel.id,
               ipfsHash: nftModel.hash,
               paymentAmount: `${formatAmount(evt.rewardPerContributor)} ${collectiveModel.rewardToken || 'tokens'}`,
