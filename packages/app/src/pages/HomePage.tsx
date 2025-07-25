@@ -107,8 +107,7 @@ const HomePage = () => {
     );
   }
 
-  const hasCriticalErrors = totalStats.hasError && formattedStats.every((stat) => stat.hasError);
-
+  const hasCriticalErrors = formattedStats.every((stat) => stat.hasError);
   if (hasCriticalErrors) {
     return (
       <Layout>

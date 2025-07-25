@@ -14,7 +14,6 @@ export type TotalStats = {
   totalDonations: StatsFormatted;
   totalPools: StatsFormatted;
   totalMembers: StatsFormatted;
-  hasError?: boolean;
 };
 
 export const useTotalStats = (): TotalStats | undefined => {
@@ -39,80 +38,62 @@ export const useTotalStats = (): TotalStats | undefined => {
   return useMemo(() => {
     if (!stats) return undefined;
 
-    let hasError = false;
-
-    let poolsCount = '0';
-    let poolsError: string | undefined;
     try {
-      if (stats.activeCollectives && Array.isArray(stats.activeCollectives)) {
-        poolsCount = stats.activeCollectives.length.toString();
-      }
-    } catch (error) {
-      console.error('Error getting pools count:', error);
-      poolsError = 'Error loading pools count';
-      hasError = true;
-      poolsCount = 'Error';
-    }
+      const poolsCount =
+        stats.activeCollectives && Array.isArray(stats.activeCollectives)
+          ? stats.activeCollectives.length.toString()
+          : '0';
 
-    let membersCount = '0';
-    let membersError: string | undefined;
-    try {
-      if (stats.stewards && Array.isArray(stats.stewards)) {
-        membersCount = stats.stewards.length.toString();
-      }
-    } catch (error) {
-      console.error('Error getting members count:', error);
-      membersError = 'Error loading members count';
-      hasError = true;
-      membersCount = 'Error';
-    }
+      const membersCount = stats.stewards && Array.isArray(stats.stewards) ? stats.stewards.length.toString() : '0';
 
-    let donationsFormatted = '0';
-    let donationsError: string | undefined;
-    let donationsSubtitle: string | undefined;
-    let donationsIsFlowing = false;
+      let donationsFormatted = '0';
+      let donationsSubtitle: string | undefined;
+      let donationsIsFlowing = false;
 
-    try {
-      if (donorCollectivesBalances.hasError || donorCollectivesBalances.error) {
-        donationsError = 'Error loading donations';
-        hasError = true;
-        donationsFormatted = 'Error';
-      } else if (donorCollectivesBalances.wei && donorCollectivesBalances.wei !== '0') {
+      if (donorCollectivesBalances.wei && donorCollectivesBalances.wei !== '0') {
         donationsFormatted = donorCollectivesBalances.wei;
         donationsIsFlowing = true;
 
         if (donorCollectivesBalances.usdValue && donorCollectivesBalances.usdValue > 0) {
-          donationsSubtitle = `= $${donorCollectivesBalances.usdValue.toFixed(2)} USD`;
+          donationsSubtitle = `= ${donorCollectivesBalances.usdValue.toFixed(2)} USD`;
         }
-      } else {
-        donationsFormatted = '0';
-        donationsIsFlowing = false;
       }
-    } catch (error) {
-      console.error('Error processing flowing donations:', error);
-      donationsError = 'Error calculating donations';
-      hasError = true;
-      donationsFormatted = 'Error';
-    }
 
-    return {
-      totalPools: {
-        amount: poolsCount,
-        error: poolsError,
-        isFlowing: false,
-      },
-      totalDonations: {
-        amount: donationsFormatted,
-        error: donationsError,
-        subtitle: donationsSubtitle,
-        isFlowing: donationsIsFlowing,
-      },
-      totalMembers: {
-        amount: membersCount,
-        error: membersError,
-        isFlowing: false,
-      },
-      hasError,
-    };
+      return {
+        totalPools: {
+          amount: poolsCount,
+          isFlowing: false,
+        },
+        totalDonations: {
+          amount: donationsFormatted,
+          subtitle: donationsSubtitle,
+          isFlowing: donationsIsFlowing,
+        },
+        totalMembers: {
+          amount: membersCount,
+          isFlowing: false,
+        },
+      };
+    } catch (error: any) {
+      console.error('Error in useTotalStats:', error);
+
+      return {
+        totalPools: {
+          amount: 'Error',
+          error: 'Error loading pools count',
+          isFlowing: false,
+        },
+        totalDonations: {
+          amount: 'Error',
+          error: 'Error loading donations',
+          isFlowing: false,
+        },
+        totalMembers: {
+          amount: 'Error',
+          error: 'Error loading members count',
+          isFlowing: false,
+        },
+      };
+    }
   }, [stats, donorCollectivesBalances]);
 };
