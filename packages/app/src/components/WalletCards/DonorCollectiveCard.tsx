@@ -9,6 +9,8 @@ import { defaultInfoLabel } from '../../models/constants';
 import { ActiveStreamCard } from '../ActiveStreamCard';
 import { WalletDonatedCard } from './WalletDonatedCard';
 import { useState } from 'react';
+import { useCollectiveFees } from '../../hooks/useCollectiveFees';
+import { calculateFeeAmounts, formatFlowRateToDaily } from '../../lib/calculateFeeAmounts';
 
 interface DonorCollectiveCardProps {
   donorCollective: DonorCollective;
@@ -75,8 +77,25 @@ function DonorCollectiveCard({ ipfsCollective, donorCollective, ensName, tokenPr
     );
   };
 
-  const protocolFeeAmount = 'G$ xxxx';
-  const managerFeeAmount = 'G$ xxxx';
+  const { fees, loading: feesLoading } = useCollectiveFees(donorCollective.collective);
+
+  // Calculate actual fee amounts based on current flow rate
+  const feeAmounts =
+    fees && donorCollective.flowRate
+      ? calculateFeeAmounts(donorCollective.flowRate, fees.protocolFeeBps, fees.managerFeeBps)
+      : null;
+
+  const protocolFeeAmount = feeAmounts
+    ? formatFlowRateToDaily(feeAmounts.protocolFeeAmount, tokenPrice)
+    : fees
+    ? `${fees.protocolFeeBps / 100}%`
+    : 'Loading...';
+
+  const managerFeeAmount = feeAmounts
+    ? formatFlowRateToDaily(feeAmounts.managerFeeAmount, tokenPrice)
+    : fees
+    ? `${fees.managerFeeBps / 100}%`
+    : 'Loading...';
 
   return (
     <TouchableOpacity
@@ -117,7 +136,13 @@ function DonorCollectiveCard({ ipfsCollective, donorCollective, ensName, tokenPr
                 <Tooltip
                   visible={activeTooltip === 'protocol'}
                   title="Protocol Fee"
-                  content="All donations incur a 5% network fee, which contributes directly to GoodDollar UBI."
+                  content={`All donations incur a ${
+                    fees?.protocolFeeBps ? fees.protocolFeeBps / 100 : 5
+                  }% network fee, which contributes directly to GoodDollar UBI.${
+                    feeAmounts
+                      ? ` Current daily fee: ${formatFlowRateToDaily(feeAmounts.protocolFeeAmount, tokenPrice)}`
+                      : ''
+                  }`}
                   onLearnMore={handleProtocolLearnMore}
                 />
               </View>
@@ -139,7 +164,13 @@ function DonorCollectiveCard({ ipfsCollective, donorCollective, ensName, tokenPr
                 <Tooltip
                   visible={activeTooltip === 'manager'}
                   title="Manager Fee"
-                  content="This pool charges a 3% administrative fee."
+                  content={`This pool charges a ${
+                    fees?.managerFeeBps ? fees.managerFeeBps / 100 : 3
+                  }% administrative fee.${
+                    feeAmounts
+                      ? ` Current daily fee: ${formatFlowRateToDaily(feeAmounts.managerFeeAmount, tokenPrice)}`
+                      : ''
+                  }`}
                   onLearnMore={handleManagerLearnMore}
                 />
               </View>
