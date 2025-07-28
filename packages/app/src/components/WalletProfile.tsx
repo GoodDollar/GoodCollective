@@ -70,6 +70,7 @@ function WalletProfile({ address, ensName, firstName, lastName, donor, steward, 
           stewardIpfsCollectives={stewardIpfsCollectives}
           ensName={ensName ?? undefined}
           tokenPrice={tokenPrice}
+          stewardAddress={address}
         />
       </View>
     );
@@ -100,6 +101,7 @@ function WalletProfile({ address, ensName, firstName, lastName, donor, steward, 
         stewardIpfsCollectives={stewardIpfsCollectives}
         ensName={ensName ?? undefined}
         tokenPrice={tokenPrice}
+        stewardAddress={address}
       />
     </View>
   );

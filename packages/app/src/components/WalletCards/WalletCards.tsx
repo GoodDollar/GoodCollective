@@ -14,6 +14,7 @@ interface WalletCardsProps {
   stewardIpfsCollectives: IpfsCollective[];
   ensName?: string;
   tokenPrice?: number;
+  stewardAddress?: string;
 }
 
 function WalletCards({
@@ -23,6 +24,7 @@ function WalletCards({
   stewardIpfsCollectives,
   ensName,
   tokenPrice,
+  stewardAddress,
 }: WalletCardsProps) {
   const { isDesktopView } = useScreenSize();
 
@@ -51,6 +53,7 @@ function WalletCards({
               ensName={ensName ?? undefined}
               tokenPrice={tokenPrice}
               isDesktopResolution={isDesktopView}
+              stewardAddress={stewardAddress}
             />
           </View>
         ))}

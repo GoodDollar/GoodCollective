@@ -1,5 +1,7 @@
 import { Token } from '@uniswap/sdk-core';
 import GdContracts from '@gooddollar/goodprotocol/releases/deployment.json';
+import GoodCollectiveContracts from '../../../contracts/releases/deployment.json';
+
 import env from '../lib/env';
 
 // 5%
@@ -50,3 +52,29 @@ export const frequencyOptions: { value: Frequency; label: Frequency }[] = Object
 export const defaultInfoLabel = 'Please see the smart contract for information regarding payment logic.';
 
 export const SUBGRAPH_POLL_INTERVAL = parseInt(process.env.IS_DONATING_POLL_INTERVAL ?? '30000', 10);
+
+/**
+ * Returns the ProvableNFT contract address for the given network name.
+ * @param networkName - The network name
+ */
+export function getProvableNFTAddress(networkName: string): string {
+  const networkEntry = Object.values(GoodCollectiveContracts)
+    .flat()
+    .find((entry: any) => entry?.name === networkName);
+
+  if (!networkEntry || !networkEntry.contracts) {
+    return '';
+  }
+
+  const contracts = networkEntry.contracts as any;
+
+  if (contracts.ProvableNFT?.address) {
+    return contracts.ProvableNFT.address;
+  }
+
+  if (contracts.MultiClaimModule?.address) {
+    return contracts.MultiClaimModule.address;
+  }
+
+  return '';
+}
