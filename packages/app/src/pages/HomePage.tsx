@@ -171,13 +171,11 @@ const HomePage = () => {
                               fontSize: 32,
                               color: Colors.purple[200],
                               fontWeight: '900',
-                              fontFamily: 'heading',
                             }}
                             lastDigitsProps={{
                               style: {
                                 fontSize: 24,
                                 color: Colors.purple[200],
-                                fontFamily: 'heading',
                               },
                             }}
                             amount={amount || '0'}
