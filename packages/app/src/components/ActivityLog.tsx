@@ -64,9 +64,8 @@ function ActivityLog({
   };
 
   const handleNftDetailsPress = () => {
-    if (nftId) {
-      const cleanNftId = nftId.replace('#', '');
-      openExternalLink(`https://celoscan.io/token/${NFT_CA}?a=${cleanNftId}`);
+    if (nftHash) {
+      openExternalLink(`https://celoscan.io/nft/${NFT_CA}/${nftHash}`);
     }
   };
 
