@@ -102,4 +102,4 @@ const styles = {
   currency: {
     fontWeight: 700,
   },
-};
+} as const;

@@ -91,6 +91,6 @@ const styles = {
     lineHeight: 18,
     ...InterRegular,
   },
-};
+} as const;
 
 export default RowItem;

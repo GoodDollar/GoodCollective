@@ -62,4 +62,4 @@ const styles = {
     width: '100%',
     color: 'goodGrey.400',
   },
-};
+} as const;

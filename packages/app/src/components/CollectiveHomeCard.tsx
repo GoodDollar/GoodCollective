@@ -92,6 +92,6 @@ const styles = {
     shadowRadius: 15,
     elevation: 24,
   },
-};
+} as const;
 
 export default CollectiveHomeCard;

@@ -52,6 +52,6 @@ const styles = {
     transform: [{ rotate: '180deg' }],
     tintColor: 'goodPurple.500',
   },
-};
+} as const;
 
 export default Breadcrumb;

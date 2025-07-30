@@ -73,5 +73,5 @@ const styles = {
   },
   logProfileDetails: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   logDate: { alignItems: 'flex-end' },
-};
+} as const;
 export default ActivityLog;

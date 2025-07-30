@@ -42,6 +42,6 @@ const styles = {
       default: 'auto',
     }),
   },
-};
+} as const;
 
 export default DonorsList;

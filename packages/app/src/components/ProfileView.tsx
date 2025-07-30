@@ -74,6 +74,6 @@ const styles = {
     height: 16,
     width: 16,
   },
-};
+} as const;
 
 export default ProfileView;

@@ -49,4 +49,4 @@ export const styles = {
     color: 'goodGrey.25',
     ...InterRegular,
   },
-};
+} as const;

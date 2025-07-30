@@ -40,6 +40,6 @@ const styles = {
     width: 230,
     alignSelf: 'center',
   },
-};
+} as const;
 
 export default EmptyProfile;

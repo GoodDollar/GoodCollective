@@ -69,6 +69,6 @@ const styles = {
     height: 24,
     color: 'black',
   },
-};
+} as const;
 
 export default ImpactButton;

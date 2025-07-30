@@ -114,6 +114,6 @@ const styles = {
     color: 'goodPurple.500',
     textAlign: 'center',
   },
-};
+} as const;
 
 export default Dropdown;

@@ -113,6 +113,6 @@ const styles = {
     justifyContent: 'space-between',
     flexDirection: 'row',
   },
-};
+} as const;
 
 export default Header;
