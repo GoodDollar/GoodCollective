@@ -86,8 +86,8 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
     )
       return;
 
-    // TODO
-    const projectId = 'redtent';
+    const projectId =
+      form.projectName.replace(' ', '/').toLowerCase() + (Math.random() * 1e32).toString(36).substring(0, 6);
     const poolAttributes = {
       name: form.projectName,
       description: form.projectDescription,
