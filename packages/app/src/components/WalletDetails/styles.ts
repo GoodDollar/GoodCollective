@@ -1,8 +1,6 @@
-import { StyleSheet } from 'react-native';
-import { Colors } from '../../utils/colors';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 
-export const styles = StyleSheet.create({
+export const styles = {
   walletDetailsContainer: {
     flex: 1,
     flexDirection: 'column',
@@ -13,13 +11,13 @@ export const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   greenBar: {
-    backgroundColor: Colors.green[100],
+    backgroundColor: 'goodGreen.200',
   },
   orangeBar: {
-    backgroundColor: Colors.orange[100],
+    backgroundColor: 'goodOrange.200',
   },
   blueBar: {
-    backgroundColor: Colors.purple[300],
+    backgroundColor: 'goodPurple.250',
   },
   row: {
     flexDirection: 'row',
@@ -35,20 +33,20 @@ export const styles = StyleSheet.create({
   rowBoldText: {
     fontSize: 18,
     ...InterSemiBold,
-    color: Colors.gray[100],
+    color: 'goodGrey.400',
     lineHeight: 27,
   },
   rowText: {
     fontSize: 18,
     fontWeight: '400',
     fontFamily: 'Inter',
-    color: Colors.gray[100],
+    color: 'goodGrey.400',
     lineHeight: 27,
   },
   formattedUsd: {
     fontSize: 12,
     lineHeight: 18,
-    color: Colors.gray[200],
+    color: 'goodGrey.25',
     ...InterRegular,
   },
-});
+} as const;

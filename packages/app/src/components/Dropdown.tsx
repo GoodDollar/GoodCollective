@@ -1,8 +1,7 @@
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform } from 'react-native';
+import { HStack, Pressable, Image, Text, View } from 'native-base';
 import { useState } from 'react';
-import { HStack, Pressable } from 'native-base';
 
-import { Colors } from '../utils/colors';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import { chevronDown } from '../assets';
 
@@ -43,7 +42,7 @@ const Dropdown = ({ onSelect, value, options }: DropdownProps) => {
       {open ? (
         <View style={styles.dropdownContainer}>
           {options.map((option) => (
-            <TouchableOpacity
+            <Pressable
               key={option.value}
               style={styles.dropdownItem}
               onPress={() => {
@@ -51,7 +50,7 @@ const Dropdown = ({ onSelect, value, options }: DropdownProps) => {
                 setOpen(false);
               }}>
               {renderDropdownItemText(value, option.label)}
-            </TouchableOpacity>
+            </Pressable>
           ))}
         </View>
       ) : null}
@@ -59,9 +58,9 @@ const Dropdown = ({ onSelect, value, options }: DropdownProps) => {
   );
 };
 
-const styles = StyleSheet.create({
+const styles = {
   buttonText: {
-    color: Colors.purple[400],
+    color: 'goodPurple.500',
     fontSize: 18,
     lineHeight: 27,
     ...InterSemiBold,
@@ -79,7 +78,7 @@ const styles = StyleSheet.create({
       native: 'scroll',
       default: 'auto',
     }),
-    backgroundColor: Colors.white,
+    backgroundColor: 'white',
     paddingTop: 10,
     paddingBottom: 10,
     position: 'absolute',
@@ -87,7 +86,7 @@ const styles = StyleSheet.create({
     top: 50,
     left: 0,
     borderRadius: 12,
-    shadowColor: Colors.black,
+    shadowColor: 'black',
     shadowOffset: {
       width: 0,
       height: 12,
@@ -107,14 +106,14 @@ const styles = StyleSheet.create({
   dropdownMyProfileText: {
     fontSize: 18,
     marginLeft: 15,
-    color: Colors.purple[400],
+    color: 'goodPurple.500',
   },
   dropdownText: {
     ...InterSmall,
     fontSize: 14,
-    color: Colors.purple[400],
+    color: 'goodPurple.500',
     textAlign: 'center',
   },
-});
+} as const;
 
 export default Dropdown;

@@ -4,7 +4,19 @@
     "jsx": "react-jsx",
     "lib": ["DOM", "es2019"],
     "module": "ESNext",
-    "types": ["vite/client", "jest"]
+    "types": ["vite/client", "jest"],
+    "skipLibCheck": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@gooddollar/goodcollective-sdk": ["../../sdk-js/src"],
+      "@gooddollar/goodcollective-contracts/*": ["../../contracts/*"],
+      "@gooddollar/goodcollective-contracts/typechain-types/*": [
+        "../../contracts/typechain-types/*"
+      ],
+      "@gooddollar/goodcollective-contracts/artifacts/*": [
+        "../../contracts/artifacts/*"
+      ]
+    }
   },
   "exclude": [".vercel", "dist", "node_modules"]
 }

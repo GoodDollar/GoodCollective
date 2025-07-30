@@ -1,8 +1,7 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, Text, View } from 'native-base';
 
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import useCrossNavigate from '../routes/useCrossNavigate';
-import { Colors } from '../utils/colors';
 import { Ocean } from '../assets';
 import { useScreenSize } from '../theme/hooks';
 import BannerPool from './BannerPool';
@@ -21,29 +20,29 @@ function CollectiveHomeCard({ name, description, headerImage, route, poolType }:
 
   const headerImg = headerImage ? { uri: headerImage } : Ocean;
 
+  const containerStyle = {
+    ...styles.cardContainer,
+    ...styles.elevation,
+    ...(isDesktopView ? styles.cardContainerDesktop : {}),
+    ...(isTabletView ? { marginBottom: 20 } : {}),
+  };
+
   return (
-    <TouchableOpacity
-      style={[
-        styles.cardContainer,
-        styles.elevation,
-        isDesktopView ? styles.cardContainerDesktop : {},
-        isTabletView ? { marginBottom: 20 } : {},
-      ]}
-      onPress={() => navigate(`/collective/${route}`)}>
+    <Pressable {...containerStyle} onPress={() => navigate(`/collective/${route}`)}>
       <BannerPool isDesktopView={isDesktopView} poolType={poolType} headerImg={headerImg} homePage={true} />
       <View style={styles.cardDescriptionContainer}>
         <Text style={styles.cardTitle}>{name}</Text>
         <Text style={styles.cardDescription}>{description}</Text>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   cardContainer: {
     width: '100%',
     minHeight: 330,
-    backgroundColor: Colors.white,
+    backgroundColor: 'white',
     paddingTop: 0,
     borderRadius: 20,
     marginBottom: 20,
@@ -65,7 +64,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 16,
     fontWeight: '400',
-    color: Colors.gray[100],
+    color: 'goodGrey.400',
     ...InterSmall,
     lineHeight: 24,
     maxHeight: 'auto',
@@ -74,7 +73,7 @@ const styles = StyleSheet.create({
   sectionImage: {
     resizeMode: 'cover',
     height: 192,
-    backgroundColor: Colors.white,
+    backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
@@ -84,7 +83,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   elevation: {
-    shadowColor: Colors.black,
+    shadowColor: 'black',
     shadowOffset: {
       width: 0,
       height: 12,
@@ -93,6 +92,6 @@ const styles = StyleSheet.create({
     shadowRadius: 15,
     elevation: 24,
   },
-});
+} as const;
 
 export default CollectiveHomeCard;

@@ -1,8 +1,7 @@
-import { Image, Text, View, StyleSheet } from 'react-native';
+import { Image, Text, View } from 'native-base';
 import Decimal from 'decimal.js';
 
 import { InterRegular, InterSemiBold } from '../utils/webFonts';
-import { Colors } from '../utils/colors';
 import { useScreenSize } from '../theme/hooks';
 
 import { useDonorCollectivesFlowingBalancesWithAltStaticBalance } from '../hooks/useFlowingBalance';
@@ -45,33 +44,33 @@ function FlowingDonationsRowItem({
   );
 
   return (
-    <View style={styles.row}>
-      <View style={styles.imageTitleRow}>
-        <Image source={{ uri: imageUrl }} style={styles.rowIcon} />
-        <Text style={styles.rowInfo}>{rowInfo}</Text>
+    <View {...styles.row}>
+      <View {...styles.imageTitleRow}>
+        <Image source={{ uri: imageUrl }} alt="icon" {...styles.rowIcon} />
+        <Text {...styles.rowInfo}>{rowInfo}</Text>
       </View>
-      <Text style={styles.rowData}>
+      <Text {...styles.rowData}>
         <View style={{ gap: 2 }}>
           <Text>
             <Text>{token.symbol}</Text>{' '}
             <GoodDollarAmount
               style={{ ...InterRegular }}
-              lastDigitsProps={{ style: { ...InterRegular, color: Colors.gray[200], fontWeight: 400 } }}
+              lastDigitsProps={{ style: { ...InterRegular, color: 'goodGrey.25', fontWeight: 400 } }}
               amount={wei || '0'}
             />
-            {isDesktopView && currency && <Text style={styles.rowBalance}> = {usdValueCurrentPool} USD</Text>}
+            {isDesktopView && currency && <Text {...styles.rowBalance}> = {usdValueCurrentPool} USD</Text>}
           </Text>
-          {!isDesktopView && currency && <Text style={styles.rowBalance}>= {usdValueCurrentPool} USD</Text>}
+          {!isDesktopView && currency && <Text {...styles.rowBalance}>= {usdValueCurrentPool} USD</Text>}
         </View>
       </Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   row: {
     width: '100%',
-    backgroundColor: Colors.white,
+    backgroundColor: 'white',
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -91,7 +90,7 @@ const styles = StyleSheet.create({
     maxWidth: '60%',
     fontWeight: '700',
     fontSize: 16,
-    color: Colors.black,
+    color: 'black',
     ...InterSemiBold,
   },
   rightItem: {
@@ -99,7 +98,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   rowData: {
-    color: Colors.gray[100],
+    color: 'goodGrey.400',
     textAlign: 'right',
     fontSize: 16,
     ...InterSemiBold,
@@ -108,9 +107,9 @@ const styles = StyleSheet.create({
   rowBalance: {
     fontSize: 12,
     textAlign: 'right',
-    color: Colors.gray[200],
+    color: 'goodGrey.25',
     ...InterRegular,
   },
-});
+} as const;
 
 export default FlowingDonationsRowItem;
