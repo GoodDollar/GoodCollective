@@ -18,8 +18,6 @@ import { StyleSheet } from 'react-native';
 import ActionButton from '../../ActionButton';
 import { useScreenSize } from '../../../theme/hooks';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
-import FileUpload from '../../FileUpload';
-import { uploadImg } from '../../../hooks/useCreatePool/util';
 
 const Warning = ({ width }: { width: string }) => {
   return (
@@ -64,15 +62,18 @@ const GetStarted = ({}: {}) => {
   const [rewardDescription, setRewardDescription] = useState<string>(form.rewardDescription ?? '');
   const [projectDescription, setProjectDescription] = useState<string>(form.projectDescription ?? '');
   const [logo, setLogo] = useState<File | undefined>();
+  const [logoUrl, setLogoUrl] = useState<string>();
   const [coverPhoto, setCoverPhoto] = useState<File | undefined>();
+  const [coverPhotoUrl, setCoverPhotoUrl] = useState<string>();
   const [errors, setErrors] = useState<FormError>({});
   const [showWarning, setShowWarning] = useState(false);
 
   useEffect(() => {
     (async () => {
-      if (form.logo && !logo) {
+      if (form.logo && !logoUrl) {
         try {
           const resp = await fetchImageAsFile(form.logo, form.logo.split('/').pop());
+          setLogoUrl(form.logo);
           setLogo(resp);
         } catch (error) {
           const errorMsg = `Error fetching ${form.logo
@@ -82,9 +83,10 @@ const GetStarted = ({}: {}) => {
           if (!errors.logo) setErrors({ ...errors, logo: errorMsg });
         }
       }
-      if (form.coverPhoto && !coverPhoto) {
+      if (form.coverPhoto && !coverPhotoUrl) {
         try {
           const resp = await fetchImageAsFile(form.coverPhoto, form.coverPhoto.split('/').pop());
+          setCoverPhotoUrl(form.coverPhoto);
           setCoverPhoto(resp);
         } catch (error) {
           const errorMsg = `Error fetching ${form.coverPhoto
@@ -95,22 +97,23 @@ const GetStarted = ({}: {}) => {
         }
       }
     })();
-  }, [coverPhoto, errors, form.coverPhoto, form.logo, logo]);
+  }, [logoUrl, errors, form.coverPhoto, form.logo, coverPhotoUrl]);
 
   useEffect(() => {
-    if (!logo) return;
+    if (!logoUrl) return;
     (async () => {
-      console.log('here');
-      await uploadImg(logo, logo.name);
+      const resp = await fetchImageAsFile(logoUrl, logoUrl.split('/').pop());
+      setLogo(resp);
     })();
-  }, [logo]);
+  }, [logoUrl]);
 
   useEffect(() => {
-    if (!coverPhoto) return;
+    if (!coverPhotoUrl) return;
     (async () => {
-      await uploadImg(coverPhoto, coverPhoto.name);
+      const resp = await fetchImageAsFile(coverPhotoUrl, coverPhotoUrl.split('/').pop());
+      setCoverPhoto(resp);
     })();
-  }, [coverPhoto]);
+  }, [coverPhotoUrl]);
 
   const submitForm = () => {
     setShowWarning(true);
@@ -119,8 +122,8 @@ const GetStarted = ({}: {}) => {
         projectName,
         tagline,
         projectDescription,
-        logo: logo?.name,
-        coverPhoto: coverPhoto?.name,
+        logo: logoUrl,
+        coverPhoto: coverPhotoUrl,
       });
       nextStep();
     }
@@ -340,15 +343,25 @@ const GetStarted = ({}: {}) => {
             SVG, PNG, JPG or GIF(500x500px)
           </FormControl.HelperText>
 
-          <Box marginTop="auto">
-            <FileUpload
+          <FormControl.HelperText mt={0} mb={2}>
+            Upload your logo to IPFS or a CDN provider. Only submit a publicly accessible link to your logo.
+          </FormControl.HelperText>
+
+          <Box marginTop="auto" backgroundColor="white" alignItems="center" height="200px" padding={2}>
+            <Input
+              placeholder="URL"
+              width="full"
               style={errors.logo ? styles.error : {}}
-              onUpload={(file: File) => {
-                setLogo(file);
-                validate();
-              }}
+              backgroundColor="white"
+              value={logoUrl}
+              onChangeText={(val) => setLogoUrl(val)}
+              onBlur={() => validate()}
+              autoComplete={undefined}
+              borderRadius={8}
             />
+            {logoUrl && <img src={logoUrl} alt="Logo" style={{ margin: 'auto' }} />}
           </Box>
+
           {!!errors.coverPhoto && !errors.logo && <Box height={18} />}
           {errors.logo && (
             <HStack alignItems="center" space={1} marginTop={1}>
@@ -370,8 +383,23 @@ const GetStarted = ({}: {}) => {
           <FormControl.HelperText mt={0} mb={2}>
             SVG, PNG, JPG or GIF (1400x256px)
           </FormControl.HelperText>
-          <Box marginTop="auto">
-            <FileUpload style={errors.coverPhoto ? styles.error : {}} onUpload={setCoverPhoto} />
+          <FormControl.HelperText mt={0} mb={2}>
+            Upload your cover photo to IPFS or a CDN provider. Only submit a publicly accessible link to your cover
+            photo.
+          </FormControl.HelperText>
+          <Box marginTop="auto" backgroundColor="white" alignItems="center" height="200px" padding={2}>
+            <Input
+              placeholder="URL"
+              width="full"
+              style={errors.coverPhoto ? styles.error : {}}
+              backgroundColor="white"
+              value={coverPhotoUrl}
+              onChangeText={(val) => setCoverPhotoUrl(val)}
+              onBlur={() => validate()}
+              autoComplete={undefined}
+              borderRadius={8}
+            />
+            {coverPhotoUrl && <img src={coverPhotoUrl} style={{ margin: 'auto' }} alt="Cover photo" />}
           </Box>
           {!errors.coverPhoto && !!errors.logo && <Box height={26} />}
           {errors.coverPhoto && (
