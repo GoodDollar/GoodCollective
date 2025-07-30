@@ -11,13 +11,16 @@ import {
   WebsiteIcon,
 } from '../../../assets';
 import { useScreenSize } from '@gooddollar/good-design';
-
-// TODO Show something when executing
+import { useState } from 'react';
+import BaseModal from '../../modals/BaseModal';
 
 const ReviewLaunch = () => {
   const { form, nextStep, startOver, previousStep, goToBasics, goToProjectDetails, goToPoolConfiguration, createPool } =
     useCreatePool();
   const { isDesktopView } = useScreenSize();
+
+  const [showModal, setShowModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
 
   const socials = [
     !!form.website && {
@@ -213,8 +216,14 @@ const ReviewLaunch = () => {
         />
         <ActionButton
           onPress={async () => {
-            await createPool();
-            nextStep();
+            setShowModal(true);
+            const resp = await createPool();
+            if (!resp) {
+              setShowErrorModal(true);
+            } else {
+              setShowModal(false);
+              nextStep();
+            }
           }}
           text={
             <HStack alignItems="center" space={1}>
@@ -232,6 +241,15 @@ const ReviewLaunch = () => {
           Start over.
         </Text>
       </Text>
+      <BaseModal
+        type={showErrorModal ? 'error' : undefined}
+        errorMessage="Error creating pool"
+        openModal={showModal}
+        onClose={() => setShowModal(false)}
+        onConfirm={goToBasics}
+        title="APPROVE POOL CREATION"
+        paragraphs={['To create a GoodCollective pool, sign with your wallet.']}
+      />
     </VStack>
   );
 };
