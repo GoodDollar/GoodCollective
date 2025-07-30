@@ -20,13 +20,26 @@ export const nbTheme = extendTheme({
       400: '#5A5A5A',
       500: '#1F2937',
       600: '#D4D4D4',
+      700: '#C7D4D8',
     },
     goodPurple: {
       100: '#E2EAFF',
       200: '#D6E1FF',
       300: '#CBDAFF',
+      250: '#B8C8F2',
       400: '#5B7AC6',
       500: '#2B4483',
+    },
+    goodBlue: {
+      200: '#3B7587',
+    },
+    goodYellow: {
+      100: '#FFDD28',
+      200: '#B29706',
+    },
+    goodBrown: {
+      100: '#945C29',
+      200: '#F2F2F2',
     },
     goodGreen: {
       100: '#DBFDF4',
@@ -39,6 +52,7 @@ export const nbTheme = extendTheme({
       100: '#FFE2C8',
       200: '#FFC48E',
       300: '#FFAD62',
+      350: '#FFB674',
       400: '#D86800',
       500: '#AB5200',
     },

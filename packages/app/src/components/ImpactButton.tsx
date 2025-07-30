@@ -1,7 +1,7 @@
-import { Image, Platform, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import { Platform } from 'react-native';
+import { Image, Pressable, Text, View } from 'native-base';
 
 import { InterSemiBold } from '../utils/webFonts';
-import { Colors } from '../utils/colors';
 import { chevronRight } from '../assets';
 import { useScreenSize } from '../theme/hooks';
 
@@ -14,27 +14,28 @@ function ImpactButton({ title, onClick }: ImpactButtonProps) {
   const { isDesktopView } = useScreenSize();
 
   return (
-    <TouchableOpacity
-      style={[
-        styles.button,
-        isDesktopView && styles.desktopButton,
-        !isDesktopView ? Platform.select({ web: { position: 'fixed' } }) : {},
-      ]}
+    <Pressable
+      {...styles.button}
+      {...(isDesktopView
+        ? styles.desktopButton
+        : !isDesktopView
+        ? Platform.select({ web: { position: 'fixed' } })
+        : {})}
       onPress={onClick}>
-      <View style={[styles.buttonContent, isDesktopView && styles.buttonDesktopContent]}>
-        <Text style={styles.buttonText}>{title}</Text>
-        <Image source={chevronRight} style={styles.icon} />
+      <View {...styles.buttonContent} {...(isDesktopView ? styles.buttonDesktopContent : {})}>
+        <Text {...styles.buttonText}>{title}</Text>
+        <Image source={chevronRight} alt="icon" {...styles.icon} />
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   button: {
     width: '100%',
     height: 56,
-    backgroundColor: Colors.purple[200],
-    color: Colors.purple[100],
+    backgroundColor: 'goodPurple.400',
+    color: 'goodPurple.100',
     position: 'absolute',
     bottom: 0,
     paddingVertical: 8,
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: Colors.purple[100],
+    color: 'goodPurple.100',
     fontSize: 18,
     ...InterSemiBold,
     lineHeight: 27,
@@ -66,8 +67,8 @@ const styles = StyleSheet.create({
   icon: {
     width: 24,
     height: 24,
-    color: Colors.black,
+    color: 'black',
   },
-});
+};
 
 export default ImpactButton;

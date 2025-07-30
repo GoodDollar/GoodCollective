@@ -1,6 +1,5 @@
-import { Image, Linking, StyleSheet, TouchableOpacity } from 'react-native';
-import { View } from 'native-base';
-import { Colors } from '../utils/colors';
+import { Linking } from 'react-native';
+import { Image, Pressable, View } from 'native-base';
 import { DirectPayments, Segmented, Community } from '../assets/poolTypes';
 
 const getPoolType = (pool: string) => {
@@ -26,30 +25,28 @@ function BannerPool({
   poolType: string;
 }) {
   const poolTypes = getPoolType(poolType);
+  const imgStyles = !homePage ? (isDesktopView ? styles.imageDesktop : styles.image) : styles.sectionImage;
   return (
-    <View style={styles.imageContainer}>
-      <Image
-        source={headerImg}
-        style={!homePage ? (isDesktopView ? styles.imageDesktop : styles.image) : styles.sectionImage}
-      />
-      <TouchableOpacity
+    <View {...styles.imageContainer}>
+      <Image source={headerImg} alt="header" {...imgStyles} />
+      <Pressable
         onPress={(e) => {
           e.stopPropagation();
           Linking.openURL('https://www.gooddollar.org/goodcollective-how-it-work');
         }}>
-        <View style={styles.poolTypeContainer}>
-          <Image source={poolTypes} style={styles.poolTypeImg} />
+        <View {...styles.poolTypeContainer}>
+          <Image source={poolTypes} alt="pool" {...styles.poolTypeImg} />
         </View>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   sectionImage: {
     resizeMode: 'cover',
     height: 192,
-    backgroundColor: Colors.white,
+    backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
@@ -80,13 +77,13 @@ const styles = StyleSheet.create({
     right: 12,
     padding: 5,
     cursor: 'pointer',
-    backgroundColor: '#ffffff',
+    backgroundColor: 'white',
     borderRadius: 8,
   },
   poolTypeImg: {
     width: '100%',
     height: '100%',
   },
-});
+};
 
 export default BannerPool;

@@ -1,11 +1,10 @@
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, Pressable, View } from 'native-base';
 import { useAccount } from 'wagmi';
 
 import { ConnectedAccountDisplay } from './ConnectedAccountDisplay';
 import { ConnectWalletMenu } from './ConnectWalletMenu';
 import { DropdownMenu } from './DropdownMenu';
 import useCrossNavigate from '../../routes/useCrossNavigate';
-import { Colors } from '../../utils/colors';
 import { BackIcon, HeaderLogo } from '../../assets';
 import { useScreenSize } from '../../theme/hooks';
 
@@ -15,15 +14,20 @@ function Header(): JSX.Element {
   const { navigate } = useCrossNavigate();
 
   return (
-    <View style={styles.headerOverlay}>
+    <View {...styles.headerOverlay}>
       {isDesktopView && (
-        <View style={[styles.headerMobileContainer, styles.desktopWrapper]}>
-          <View style={[styles.logoContainerImage, styles.logoContainerImageDesktop]}>
-            <TouchableOpacity onPress={() => navigate('/')}>
-              <Image source={HeaderLogo} resizeMode="contain" style={[styles.logoImage, styles.logoImageDesktop]} />
-            </TouchableOpacity>
+        <View {...styles.headerMobileContainer} {...styles.desktopWrapper}>
+          <View {...styles.logoContainerImage} {...styles.logoContainerImageDesktop}>
+            <Pressable onPress={() => navigate('/')}>
+              <Image
+                source={HeaderLogo}
+                alt="logo"
+                resizeMode="contain"
+                style={[styles.logoImage, styles.logoImageDesktop]}
+              />
+            </Pressable>
           </View>
-          <View style={[styles.walletInfoContainer, styles.walletInfoContainerDesktop]}>
+          <View {...styles.walletInfoContainer} {...styles.walletInfoContainerDesktop}>
             {address && <ConnectedAccountDisplay isDesktopResolution={isDesktopView} address={address} />}
             {!address && <ConnectWalletMenu dropdownOffset={{ top: 40, right: 50 }} />}
             <DropdownMenu
@@ -35,8 +39,8 @@ function Header(): JSX.Element {
         </View>
       )}
       {!isDesktopView && (
-        <View style={styles.headerMobileContainer}>
-          <View style={[styles.walletInfoContainer, styles.desktopWrapper]}>
+        <View {...styles.headerMobileContainer}>
+          <View {...styles.walletInfoContainer} {...styles.desktopWrapper}>
             {address && <ConnectedAccountDisplay isDesktopResolution={isDesktopView} address={address} />}
             {!address && <ConnectWalletMenu dropdownOffset={{ top: 37, left: 0 }} />}
             <DropdownMenu
@@ -45,11 +49,11 @@ function Header(): JSX.Element {
               dropdownOffset={{ top: 40, right: -15 }}
             />
           </View>
-          <View style={styles.logoContainer}>
-            <TouchableOpacity onPress={() => navigate(-1)}>
-              <Image source={BackIcon} resizeMode="contain" style={styles.backIcon} />
-            </TouchableOpacity>
-            <View style={styles.logoContainerImage}>
+          <View {...styles.logoContainer}>
+            <Pressable onPress={() => navigate(-1)}>
+              <Image source={BackIcon} alt="back" resizeMode="contain" style={styles.backIcon} />
+            </Pressable>
+            <View {...styles.logoContainerImage}>
               <Image source={HeaderLogo} resizeMode="contain" style={styles.logoImage} />
             </View>
           </View>
@@ -59,10 +63,10 @@ function Header(): JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   headerMobileContainer: {
     height: 105,
-    backgroundColor: Colors.blue[100],
+    backgroundColor: 'goodPurple.300',
     paddingTop: 10,
     paddingBottom: 10,
     paddingLeft: 20,
@@ -109,6 +113,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flexDirection: 'row',
   },
-});
+};
 
 export default Header;

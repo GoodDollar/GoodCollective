@@ -1,6 +1,5 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { Text, View, Image, Pressable } from 'native-base';
 import { InterSemiBold, InterSmall } from '../utils/webFonts';
-import { Colors } from '../utils/colors';
 import { Link } from 'native-base';
 import { VerifiedIcon } from '../assets';
 import env from '../lib/env';
@@ -21,7 +20,7 @@ function ProfileView({ firstName, lastName, ensDomain, userAddress, isWhiteliste
   const secondary = firstName ? ensDomain ?? formattedAddress : ensDomain ? formattedAddress : undefined;
   return (
     <Link href={`${env.REACT_APP_CELO_EXPLORER}/address/${userAddress}`} isExternal>
-      <TouchableOpacity style={styles.profileView}>
+      <Pressable style={styles.profileView}>
         <RandomAvatar seed={userAddress || ''} width={16} height={16} backgroundColor="white" />
         <View style={styles.profileText}>
           {
@@ -33,23 +32,23 @@ function ProfileView({ firstName, lastName, ensDomain, userAddress, isWhiteliste
             </>
           }
         </View>
-      </TouchableOpacity>
+      </Pressable>
     </Link>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   pfp: {
     width: 64,
     height: 64,
-    backgroundColor: Colors.white,
+    backgroundColor: 'white',
     borderRadius: 32,
   },
   profileView: {
     width: '100%',
     height: 80,
     minHeight: 80,
-    backgroundColor: Colors.gray[400],
+    backgroundColor: 'goodGrey.100',
     flex: 1,
     flexDirection: 'row',
     paddingHorizontal: 8,
@@ -63,7 +62,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   line: {
-    color: Colors.gray[100],
+    color: 'goodGrey.400',
     fontSize: 16,
     ...InterSmall,
   },
@@ -75,6 +74,6 @@ const styles = StyleSheet.create({
     height: 16,
     width: 16,
   },
-});
+};
 
 export default ProfileView;

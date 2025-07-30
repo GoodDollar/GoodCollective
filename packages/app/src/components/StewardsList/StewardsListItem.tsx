@@ -1,5 +1,4 @@
-import { Image, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { Colors } from '../../utils/colors';
+import { Text, Pressable, Image } from 'native-base';
 import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 import { StewardCollective } from '../../models/models';
 import { VerifiedIcon } from '../../assets';
@@ -26,17 +25,17 @@ export const StewardsListItem = (props: StewardListItemProps) => {
   const onClickSteward = () => navigate(`/profile/${steward.steward}`);
 
   return (
-    <TouchableOpacity style={styles.row} onPress={onClickSteward}>
+    <Pressable style={styles.row} onPress={onClickSteward}>
       <RandomAvatar seed={steward.steward} width={12} height={12} marginRight={4} />
       <Text style={styles.title}>
         {userIdentifier} {isVerified && <Image source={VerifiedIcon} style={styles.verifiedIcon} />}
       </Text>
       {showActions && <Text style={styles.totalActions}>{steward.actions ?? 0} actions</Text>}
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
-const styles = StyleSheet.create({
+const styles = {
   verifiedIcon: {
     height: 16,
     width: 16,
@@ -44,7 +43,7 @@ const styles = StyleSheet.create({
   row: {
     minHeight: 48,
     width: '100%',
-    backgroundColor: Colors.white,
+    backgroundColor: 'white',
     flex: 1,
     flexDirection: 'row',
     marginVertical: 8,
@@ -54,13 +53,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     ...InterSemiBold,
     width: '100%',
-    color: Colors.black,
+    color: 'black',
   },
   totalActions: {
     fontSize: 14,
     ...InterRegular,
     textAlign: 'right',
     width: '100%',
-    color: Colors.gray[100],
+    color: 'goodGrey.400',
   },
-});
+};
