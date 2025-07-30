@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import {
   VStack,
@@ -14,17 +14,31 @@ import {
   ArrowForwardIcon,
   Box,
   WarningTwoIcon,
+  InfoIcon,
 } from 'native-base';
 import { useAccount } from 'wagmi';
+import { mainnet } from '@wagmi/core/chains';
 
 import ActionButton from '../../ActionButton';
 import { useScreenSize } from '../../../theme/hooks';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
+import { createConfig, getEnsName, http } from '@wagmi/core';
 
 type FormError = {
   social?: string;
   adminWalletAddress?: string;
   website?: string;
+};
+
+const Disclaimer = ({ hideIcon, text }: { hideIcon?: boolean; text: string | ReactNode }) => {
+  return (
+    <Box backgroundColor="goodPurple.100" padding={4}>
+      <HStack space={2} alignItems="center">
+        {!hideIcon && <InfoIcon color="goodPurple.400" style={{ width: 40 }} />}
+        <Text fontSize="xs">{text}</Text>
+      </HStack>
+    </Box>
+  );
 };
 
 const Warning = ({ width, message }: { width: string; message?: string }) => {
@@ -54,6 +68,28 @@ const ProjectDetails = () => {
   const [additionalInfo, setAdditionalInfo] = useState<string>(form.additionalInfo ?? '');
   const [errors, setErrors] = useState<FormError>({});
   const [showWarning, setShowWarning] = useState(false);
+  const [ensName, setEnsName] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      if (!adminWalletAddress || ensName) return;
+      const resp = await getEnsName(
+        createConfig({
+          chains: [mainnet],
+          transports: {
+            [mainnet.id]: http(),
+          },
+        }),
+        {
+          address: adminWalletAddress as `0x${string}`,
+        }
+      );
+      if (typeof resp === 'string') setEnsName(resp);
+    })();
+  }, [ensName, adminWalletAddress]);
+
+  // {/* TODO Programmatically disconnect and open walletconnect modal */}
+  const changeWallet = () => {};
 
   const submitForm = () => {
     setShowWarning(true);
@@ -216,33 +252,22 @@ const ProjectDetails = () => {
       </Text>
       <Divider mb={8} />
 
-      <FormControl mb="5" isRequired>
-        <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
-            Admin Wallet Address
+      <VStack space="4">
+        <Text fontSize="lg" fontWeight="500">
+          Admin Wallet Address
+        </Text>
+
+        <Disclaimer text="Make sure your wallet that is connected is the wallet that you want to manage your pool with." />
+        <ActionButton text="Change Wallet" bg="goodPurple.400" textColor="white" onPress={changeWallet} />
+        <Box borderWidth={2} borderColor="gray.200" backgroundColor="white" padding={4} borderRadius={4}>
+          <Text fontSize="md" fontWeight="400" color="gray.400">
+            {ensName}
           </Text>
-        </FormControl.Label>
-        <FormControl.HelperText mt={0} mb={2}>
-          Fill this out with an Ethereum address to make that address this project's owner.
-        </FormControl.HelperText>
-        <Input
-          backgroundColor="white"
-          style={errors.adminWalletAddress ? styles.error : {}}
-          value={adminWalletAddress}
-          onChangeText={(value) => {
-            setAdminWalletAddress(value);
-            validate();
-          }}
-        />
-        {errors.adminWalletAddress && (
-          <HStack alignItems="center" space={1} marginTop={1}>
-            <WarningOutlineIcon size="xs" color="red.500" />
-            <Text fontSize="xs" color="red.500">
-              {errors.adminWalletAddress}
-            </Text>
-          </HStack>
-        )}
-      </FormControl>
+          <Text fontSize="sm" fontWeight="500" color="gray.400">
+            {adminWalletAddress}
+          </Text>
+        </Box>
+      </VStack>
 
       <FormControl mb="5">
         <FormControl.Label>

@@ -60,7 +60,7 @@ const PoolConfiguration = () => {
   const [claimFrequency, setClaimFrequency] = useState<1 | 7 | 14 | 30 | number>(form.claimFrequency ?? 1);
   const [joinStatus, setJoinStatus] = useState<'closed' | 'open'>(form.joinStatus ?? 'closed');
   const [maximumMembers, setMaximumMembers] = useState(form.maximumMembers ?? 1);
-  const [managerAddress, setManagerAddress] = useState(form.managerAddress ?? address);
+  const [managerAddress] = useState(form.managerAddress ?? address);
   const [poolRecipients, setPoolRecipients] = useState(form.poolRecipients ?? '');
   const [managerFeePercentage, setManagerFeePercentage] = useState(form.managerFeePercentage ?? 0);
   const [claimAmountPerWeek, setClaimAmountPerWeek] = useState(form.claimAmountPerWeek ?? 10);
@@ -167,9 +167,6 @@ const PoolConfiguration = () => {
     },
   ]);
 
-  // {/* TODO Programmatically disconnect and open walletconnect modal */}
-  const changeWallet = () => {};
-
   return (
     <VStack
       padding={2}
@@ -190,8 +187,6 @@ const PoolConfiguration = () => {
       <Text fontSize="sm" color="gray.500">
         Wallet address(es) that can change pool configuration, add and remove members
       </Text>
-      <Disclaimer text="Make sure your wallet that is connected is the wallet that you want to manage your pool with." />
-      <ActionButton text="Change Wallet" bg="goodPurple.400" textColor="white" onPress={changeWallet} />
       <Box borderWidth={2} borderColor="gray.200" backgroundColor="white" padding={4} borderRadius={4}>
         <Text fontSize="md" fontWeight="400" color="gray.400">
           {ensName}
