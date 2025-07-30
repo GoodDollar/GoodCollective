@@ -85,8 +85,12 @@ Let the SDK resolve all addresses. Always load addresses/ABIs by network via the
 
 3. **Lint & Format:**  
    Follow Prettier/ESLint (2-space, single quotes, <=120 chars).
+   Make sure typescript compiles by running `tsc` in the affected packages or apps.
 
-4. **Pull Requests:**
+4. **Build related packages/apps**
+   Run build script for the affected package or app.
+
+5. **Pull Requests:**
    - Clear description of changes.
    - All tests AND lint must pass.
 
