@@ -6,6 +6,7 @@ import { SupportedNetwork, SupportedNetworkNames } from '../../models/constants'
 import { useAccount } from 'wagmi';
 import { useEthersSigner } from '../useEthers';
 import { validateConnection } from '../useContractCalls/util';
+import { UBIPool } from '../../../../contracts/typechain-types/contracts/UBI/UBIPool';
 
 type CreatePoolContextType = {
   step: number;
@@ -18,7 +19,7 @@ type CreatePoolContextType = {
   goToBasics: () => void;
   goToPoolConfiguration: () => void;
   goToProjectDetails: () => void;
-  createPool: () => void;
+  createPool: () => Promise<UBIPool | false>;
 };
 
 export const CreatePoolContext = createContext<CreatePoolContextType | undefined>(undefined);
@@ -62,7 +63,7 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
   const createPool = async () => {
     const validation = validateConnection(maybeAddress, chain?.id, maybeSigner);
     if (typeof validation === 'string') {
-      return;
+      return false;
     }
     const { chainId, signer } = validation;
     // const { signer } = validation;
@@ -76,15 +77,15 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
     console.log(form);
 
     // Form validation
-    if (!form.projectName || !form.projectDescription) return;
-    if (!form.logo) return;
+    if (!form.projectName || !form.projectDescription) return false;
+    if (!form.logo) return false;
     if (
       !form.maximumMembers ||
       !form.claimAmountPerWeek ||
       !form.claimFrequency ||
       typeof form.managerFeePercentage !== 'number'
     )
-      return;
+      return false;
 
     const projectId =
       form.projectName.replace(' ', '/').toLowerCase() + (Math.random() * 1e32).toString(36).substring(0, 6);
@@ -126,16 +127,21 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
       managerFeeBps: form.managerFeePercentage * 100,
     };
 
-    const pool = await sdk.createUbiPoolWithAttributes(
-      signer,
-      projectId,
-      poolAttributes,
-      poolSettings,
-      ubiSettings,
-      extendedUBISettings,
-      false
-    );
-    console.log('pool:', pool.address);
+    try {
+      const pool = await sdk.createUbiPoolWithAttributes(
+        signer,
+        projectId,
+        poolAttributes,
+        poolSettings,
+        ubiSettings,
+        extendedUBISettings,
+        false
+      );
+      console.log('pool:', pool.address);
+      return pool;
+    } catch (error) {
+      return false;
+    }
   };
 
   return (
