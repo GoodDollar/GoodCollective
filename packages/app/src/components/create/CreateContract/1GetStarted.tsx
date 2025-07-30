@@ -137,13 +137,17 @@ const GetStarted = ({}: {}) => {
     let pass = true;
 
     // Pool Name* - 100 character max
+    // (Can have spaces, no special characters allowed, 0-9/a-z/A-Z)
     if (!projectName) {
       if (checkEmpty) {
         currErrors.projectName = 'Project name is required';
         pass = false;
       }
-    } else if (projectName.length > 100) {
-      currErrors.projectName = 'Project name length (max 100 characteres)';
+    } else if (projectName.length > 30) {
+      currErrors.projectName = 'Project name length (max 30 characters)';
+      pass = false;
+    } else if (!/^[a-zA-Z0-9]*$/.test(projectName)) {
+      currErrors.projectName = 'Project name cannot contain special characters';
       pass = false;
     }
 
