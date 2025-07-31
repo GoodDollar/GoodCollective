@@ -1,5 +1,4 @@
-import { Image, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { Colors } from '../../utils/colors';
+import { Image, Pressable, Text } from 'native-base';
 import { useNavigate } from 'react-router-dom';
 import { chevronRight } from '../../assets';
 
@@ -18,41 +17,41 @@ function Breadcrumb({ path }: BreadcrumbProps) {
   const onClickHome = () => navigate('/');
 
   return (
-    <TouchableOpacity style={styles.container}>
-      <TouchableOpacity onPress={onClickBack}>
-        <Image source={chevronRight} style={styles.backIcon} />
-      </TouchableOpacity>
-      <Text style={path.length === 0 ? styles.activePage : styles.previousPage} onPress={onClickHome}>
+    <Pressable {...styles.container}>
+      <Pressable onPress={onClickBack}>
+        <Image source={chevronRight} alt="back" {...styles.backIcon} />
+      </Pressable>
+      <Text {...(path.length === 0 ? styles.activePage : styles.previousPage)} onPress={onClickHome}>
         GoodCollective Home
       </Text>
       {path.map((entry, index) => (
         <Text
           key={index}
-          style={index === path.length - 1 ? styles.activePage : styles.previousPage}
+          {...(index === path.length - 1 ? styles.activePage : styles.previousPage)}
           onPress={() => navigate(entry.route)}>
           {` / ${entry.text}`}
         </Text>
       ))}
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     height: 24,
     alignItems: 'center',
     flexDirection: 'row',
     marginBottom: 12,
   },
-  previousPage: { color: Colors.purple[200] },
-  activePage: { color: Colors.gray[200] },
+  previousPage: { color: 'goodPurple.400' },
+  activePage: { color: 'goodGrey.25' },
   backIcon: {
     width: 20,
     height: 20,
     marginRight: 10,
     transform: [{ rotate: '180deg' }],
-    tintColor: Colors.purple[400],
+    tintColor: 'goodPurple.500',
   },
-});
+} as const;
 
 export default Breadcrumb;

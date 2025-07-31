@@ -1,4 +1,5 @@
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform } from 'react-native';
+import { View } from 'native-base';
 import { DonorCollective } from '../../models/models';
 import { DonorsListItem } from './DonorsListItem';
 import { useMemo } from 'react';
@@ -22,7 +23,7 @@ function DonorsList({ donors, listStyle }: DonorsListProps) {
   const userFullNames = useFetchFullNames(userAddresses);
 
   return (
-    <View style={[styles.list, { ...(listStyle ?? {}) }]}>
+    <View {...styles.list} {...(listStyle ?? {})}>
       {sortedDonors.map((donor, index) => (
         <DonorsListItem key={donor.donor} donor={donor} rank={index + 1} userFullName={userFullNames[donor.donor]} />
       ))}
@@ -30,7 +31,7 @@ function DonorsList({ donors, listStyle }: DonorsListProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   donorsListContainer: { width: '100%' },
   list: {
     width: '100%',
@@ -41,6 +42,6 @@ const styles = StyleSheet.create({
       default: 'auto',
     }),
   },
-});
+} as const;
 
 export default DonorsList;

@@ -1,6 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../utils/colors';
-import { InterRegular, InterSemiBold } from '../../utils/webFonts';
+import { Text, Pressable, View } from 'native-base';
 import { DonorCollective } from '../../models/models';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { formatAddress } from '../../lib/formatAddress';
@@ -23,27 +21,31 @@ export const DonorsListItem = ({ donor, rank, userFullName }: DonorsListItemProp
   const userIdentifier = userFullName ?? ensName ?? formatAddress(donor.donor);
 
   const circleBackgroundColor =
-    rank === 1 ? Colors.yellow[100] : rank === 2 ? Colors.gray[700] : rank === 3 ? Colors.orange[400] : 'none';
+    rank === 1 ? 'goodYellow.100' : rank === 2 ? 'goodGrey.700' : rank === 3 ? 'goodOrange.350' : 'none';
   const circleTextColor =
-    rank === 1 ? Colors.yellow[200] : rank === 2 ? Colors.blue[200] : rank === 3 ? Colors.brown[100] : Colors.black;
+    rank === 1 ? 'goodYellow.200' : rank === 2 ? 'goodBlue.200' : rank === 3 ? 'goodBrown.100' : 'black';
 
   return (
-    <TouchableOpacity style={styles.rowBetween} onPress={() => navigate(`/profile/${donor.donor}`)}>
-      <View style={styles.rowTogether}>
-        <View style={[styles.circle, { backgroundColor: circleBackgroundColor }]}>
-          <Text style={[styles.circleText, { color: circleTextColor }]}>{rank}</Text>
+    <Pressable {...styles.rowBetween} onPress={() => navigate(`/profile/${donor.donor}`)}>
+      <View {...styles.rowTogether}>
+        <View {...styles.circle} style={{ backgroundColor: circleBackgroundColor }}>
+          <Text {...styles.circleText} style={{ color: circleTextColor }}>
+            {rank}
+          </Text>
         </View>
-        <Text style={[styles.title, { color: circleTextColor }]}>{userIdentifier}</Text>
+        <Text {...styles.title} style={{ color: circleTextColor }}>
+          {userIdentifier}
+        </Text>
       </View>
-      <Text style={styles.totalDonated}>
-        <Text style={styles.currency}>G$ </Text>
+      <Text {...styles.totalDonated}>
+        <Text {...styles.currency}>G$ </Text>
         <GoodDollarAmount amount={formattedDonations || '0'} />
       </Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
-const styles = StyleSheet.create({
+const styles = {
   circle: {
     paddingVertical: 2,
     paddingHorizontal: 10,
@@ -52,17 +54,17 @@ const styles = StyleSheet.create({
   circleText: {
     lineHeight: 24,
     fontSize: 16,
-    ...InterRegular,
+    fontWeight: 500,
   },
   rowNumber: {
     fontSize: 16,
     lineHeight: 24,
-    color: Colors.black,
-    ...InterRegular,
+    color: 'black',
+    fontWeight: 500,
   },
   rowBetween: {
     width: '100%',
-    backgroundColor: Colors.white,
+    backgroundColor: 'white',
     flex: 1,
     flexDirection: 'row',
     marginVertical: 8,
@@ -77,7 +79,7 @@ const styles = StyleSheet.create({
   row: {
     minHeight: 48,
     width: '100%',
-    backgroundColor: Colors.white,
+    backgroundColor: 'white',
     flex: 1,
     flexDirection: 'row',
     marginVertical: 8,
@@ -85,19 +87,19 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    ...InterSemiBold,
+    fontWeight: 700,
     width: '100%',
-    color: Colors.black,
+    color: 'black',
     marginLeft: 8,
   },
   totalDonated: {
     fontSize: 14,
-    ...InterRegular,
+    fontWeight: 500,
     textAlign: 'right',
     width: '100%',
-    color: Colors.gray[100],
+    color: 'goodGrey.400',
   },
   currency: {
-    ...InterSemiBold,
+    fontWeight: 700,
   },
-});
+} as const;
