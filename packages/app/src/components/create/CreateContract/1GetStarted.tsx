@@ -147,6 +147,9 @@ const GetStarted = ({}: {}) => {
           ...errors,
           [imgType]: 'Logo height, width wrong',
         });
+        if (imgType === 'logo') {
+          setLogo('');
+        } else setCoverPhoto('');
       }
     };
     img.src = imgUrl;
