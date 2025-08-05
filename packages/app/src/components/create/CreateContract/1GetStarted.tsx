@@ -12,6 +12,7 @@ import {
   ChevronLeftIcon,
   WarningTwoIcon,
   ArrowForwardIcon,
+  Button,
 } from 'native-base';
 import { StyleSheet } from 'react-native';
 
@@ -38,20 +39,6 @@ type FormError = {
   coverPhoto?: string;
 };
 
-async function fetchImageAsFile(url: string, filename = 'image.jpg') {
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch image: ${response.statusText}`);
-  }
-
-  const blob = await response.blob();
-  const contentType = response.headers.get('Content-Type') || 'image/jpeg';
-  const file = new File([blob], filename, { type: contentType });
-
-  return file;
-}
-
 const GetStarted = ({}: {}) => {
   const { form, nextStep, previousStep, submitPartial } = useCreatePool();
 
@@ -61,75 +48,32 @@ const GetStarted = ({}: {}) => {
   const [tagline, setTagline] = useState<string>(form.tagline ?? '');
   const [rewardDescription, setRewardDescription] = useState<string>(form.rewardDescription ?? '');
   const [projectDescription, setProjectDescription] = useState<string>(form.projectDescription ?? '');
-  const [logo, setLogo] = useState<File | undefined>();
-  const [logoUrl, setLogoUrl] = useState<string>();
-  const [coverPhoto, setCoverPhoto] = useState<File | undefined>();
-  const [coverPhotoUrl, setCoverPhotoUrl] = useState<string>();
+  const [logo, setLogo] = useState<string>(form.logo ?? '');
+  const [coverPhoto, setCoverPhoto] = useState<string>(form.coverPhoto ?? '');
   const [errors, setErrors] = useState<FormError>({});
   const [showWarning, setShowWarning] = useState(false);
-
-  useEffect(() => {
-    (async () => {
-      if (form.logo && !logoUrl) {
-        try {
-          const resp = await fetchImageAsFile(form.logo, form.logo.split('/').pop());
-          setLogoUrl(form.logo);
-          setLogo(resp);
-        } catch (error) {
-          const errorMsg = `Error fetching ${form.logo
-            .split('/')
-            .pop()}! Please reupload it or upload a different one.`;
-          console.log(errorMsg);
-          if (!errors.logo) setErrors({ ...errors, logo: errorMsg });
-        }
-      }
-      if (form.coverPhoto && !coverPhotoUrl) {
-        try {
-          const resp = await fetchImageAsFile(form.coverPhoto, form.coverPhoto.split('/').pop());
-          setCoverPhotoUrl(form.coverPhoto);
-          setCoverPhoto(resp);
-        } catch (error) {
-          const errorMsg = `Error fetching ${form.coverPhoto
-            .split('/')
-            .pop()}! Please reupload it or upload a different one.`;
-          console.log(errorMsg);
-          if (!errors.logo) setErrors({ ...errors, logo: errorMsg });
-        }
-      }
-    })();
-  }, [logoUrl, errors, form.coverPhoto, form.logo, coverPhotoUrl]);
-
-  useEffect(() => {
-    if (!logoUrl) return;
-    (async () => {
-      const resp = await fetchImageAsFile(logoUrl, logoUrl.split('/').pop());
-      setLogo(resp);
-    })();
-  }, [logoUrl]);
-
-  useEffect(() => {
-    if (!coverPhotoUrl) return;
-    (async () => {
-      const resp = await fetchImageAsFile(coverPhotoUrl, coverPhotoUrl.split('/').pop());
-      setCoverPhoto(resp);
-    })();
-  }, [coverPhotoUrl]);
+  const [hasErrors, setHasErrors] = useState(false);
+  const [logoInput, setLogoInput] = useState<string>();
+  const [coverPhotoInput, setCoverPhotoInput] = useState<string>();
+  const [isValidating, setIsValidating] = useState(false);
 
   const submitForm = () => {
+    // Only show warning after the form has been submitted
     setShowWarning(true);
     if (validate(true)) {
       submitPartial({
         projectName,
         tagline,
         projectDescription,
-        logo: logoUrl,
-        coverPhoto: coverPhotoUrl,
+        logo,
+        coverPhoto,
       });
       nextStep();
     }
   };
 
   const validate = (checkEmpty = false) => {
+    setIsValidating(true);
     const currErrors: FormError = {
       projectName: '',
       projectDescription: '',
@@ -156,7 +100,6 @@ const GetStarted = ({}: {}) => {
 
     // Pool Description* - 500 character max
     if (!projectDescription) {
-      console.log('here, ', showWarning);
       if (checkEmpty) {
         currErrors.projectDescription = 'Project description is required';
         pass = false;
@@ -166,55 +109,79 @@ const GetStarted = ({}: {}) => {
       pass = false;
     }
 
-    // Logo* - jpg, gif, png; max file size 1MB, (500x500px)
     if (!logo) {
       if (checkEmpty) {
         currErrors.logo = 'Logo is required';
         pass = false;
       }
-    } else {
-      if (logo.size > 1 * 1024 * 1024) {
-        currErrors.logo = 'Logo size (max 1 MB)';
-        pass = false;
-      }
-      const img = new Image();
-      img.onload = function () {
-        if (img.width > 500 || img.height > 500) {
-          setErrors({
-            ...errors,
-            logo: 'Logo height, width wrong',
-          });
-        }
-      };
-      img.src = URL.createObjectURL(logo);
-    }
-
-    // Image* - jpg, gif, png; max file size 20MB, (1400x256px)
-    if (coverPhoto) {
-      if (coverPhoto.size > 20 * 1024 * 1024) {
-        currErrors.coverPhoto = 'Cover photo size (max 20MB)';
-        pass = false;
-      }
-
-      const img2 = new Image();
-      img2.onload = function () {
-        if (img2.width > 1400 || img2.height > 256) {
-          setErrors({
-            ...errors,
-            coverPhoto: 'Cover photo height, width wrong',
-          });
-        }
-      };
-      img2.src = URL.createObjectURL(coverPhoto);
     }
 
     setErrors({
       ...errors,
       ...currErrors,
     });
+    setIsValidating(false);
 
     return pass;
   };
+
+  const validateImg = async (
+    imgUrl: string,
+    maxSize: number,
+    maxWidth: number,
+    maxHeight: number,
+    imgType: 'logo' | 'coverPhoto'
+  ) => {
+    const response = await fetch(imgUrl, { method: 'HEAD' });
+    const contentLength = response.headers.get('content-length');
+    const size = contentLength ? parseInt(contentLength, 10) : null;
+    if (!size) throw new Error('Error: Image size 0');
+    if (size > maxSize * 1024 * 1024) {
+      throw new Error("'Image size (max ${maxSize} MB)'");
+    }
+
+    const img = new Image();
+    img.onload = function () {
+      if (img.width > maxWidth || img.height > maxHeight) {
+        setErrors({
+          ...errors,
+          [imgType]: 'Logo height, width wrong',
+        });
+      }
+    };
+    img.src = imgUrl;
+    if (img.complete && img.naturalWidth !== 0) {
+      console.log(img);
+    }
+  };
+
+  const onSubmitLogo = async () => {
+    try {
+      validateImg(logoInput!, 1, 500, 500, 'logo');
+      setLogo(logoInput!);
+    } catch (error: Error | any) {
+      setErrors({
+        ...errors,
+        logo: error.message,
+      });
+    }
+  };
+
+  const onSubmitCoverPhoto = async () => {
+    try {
+      validateImg(coverPhotoInput!, 20, 1400, 256, 'coverPhoto');
+      setCoverPhoto(coverPhotoInput!);
+    } catch (error: Error | any) {
+      setErrors({
+        ...errors,
+        coverPhoto: error.message,
+      });
+    }
+  };
+
+  useEffect(() => {
+    setHasErrors(Object.values(errors).filter((value) => value).length !== 0);
+  }, [errors]);
 
   return (
     <VStack
@@ -348,18 +315,36 @@ const GetStarted = ({}: {}) => {
           </FormControl.HelperText>
 
           <Box marginTop="auto" backgroundColor="white" alignItems="center" height="200px" padding={2}>
-            <Input
-              placeholder="URL"
-              width="full"
-              style={errors.logo ? styles.error : {}}
-              backgroundColor="white"
-              value={logoUrl}
-              onChangeText={(val) => setLogoUrl(val)}
-              onBlur={() => validate()}
-              autoComplete={undefined}
-              borderRadius={8}
-            />
-            {logoUrl && <img src={logoUrl} alt="Logo" style={{ margin: 'auto' }} />}
+            <Box alignItems="center">
+              <Input
+                placeholder="URL"
+                type="text"
+                w="100%"
+                py="0"
+                style={errors.logo ? styles.error : {}}
+                backgroundColor="white"
+                value={logoInput}
+                onChangeText={(val) => setLogoInput(val)}
+                borderRadius={8}
+                InputRightElement={
+                  <Button
+                    size="xs"
+                    rounded="none"
+                    w="2/6"
+                    h="full"
+                    disabled={!logoInput}
+                    backgroundColor="gray.200"
+                    onPress={onSubmitLogo}>
+                    <Text color="black" style={{ fontSize: 8 }}>
+                      Submit
+                    </Text>
+                  </Button>
+                }
+              />
+            </Box>
+            {logo && !errors.logo && !isValidating && (
+              <img src={logo} alt="Logo" style={{ margin: 'auto', maxWidth: '100%', maxHeight: '120px' }} />
+            )}
           </Box>
 
           {!!errors.coverPhoto && !errors.logo && <Box height={18} />}
@@ -390,18 +375,38 @@ const GetStarted = ({}: {}) => {
           <Box marginTop="auto" backgroundColor="white" alignItems="center" height="200px" padding={2}>
             <Input
               placeholder="URL"
-              width="full"
+              type="text"
+              minW="100%"
+              py="0"
               style={errors.coverPhoto ? styles.error : {}}
               backgroundColor="white"
-              value={coverPhotoUrl}
-              onChangeText={(val) => setCoverPhotoUrl(val)}
-              onBlur={() => validate()}
-              autoComplete={undefined}
+              value={coverPhotoInput}
+              onChangeText={(val) => setCoverPhotoInput(val)}
               borderRadius={8}
+              InputRightElement={
+                <Button
+                  size="xs"
+                  rounded="none"
+                  w="2/6"
+                  h="full"
+                  disabled={!coverPhotoInput}
+                  backgroundColor="gray.200"
+                  onPress={onSubmitCoverPhoto}>
+                  <Text color="black" style={{ fontSize: 8 }}>
+                    Submit
+                  </Text>
+                </Button>
+              }
             />
-            {coverPhotoUrl && <img src={coverPhotoUrl} style={{ margin: 'auto' }} alt="Cover photo" />}
+            {coverPhoto && !errors.coverPhoto && !isValidating && (
+              <img
+                src={coverPhoto}
+                style={{ margin: 'auto', maxWidth: '100%', maxHeight: '120px' }}
+                alt="Cover photo"
+              />
+            )}
           </Box>
-          {!errors.coverPhoto && !!errors.logo && <Box height={26} />}
+          {!errors.coverPhoto && !!errors.logo && <Box height={10} />}
           {errors.coverPhoto && (
             <HStack alignItems="center" space={1} marginTop={1}>
               <WarningOutlineIcon size="xs" color="red.500" />
@@ -436,7 +441,7 @@ const GetStarted = ({}: {}) => {
         />
       </HStack>
       <Box flexDir="row-reverse" paddingY={2}>
-        {showWarning && Object.values(errors).filter((value) => value).length !== 0 && <Warning width="1/2" />}
+        {showWarning && hasErrors && <Warning width="1/2" />}
       </Box>
     </VStack>
   );
