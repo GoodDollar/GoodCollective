@@ -11,11 +11,14 @@ import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/ac
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import "../Interfaces.sol";
+import "../GoodCollective/GoodCollectiveSuperApp.sol";
+import "../GoodCollective/SuperAppBaseFlow.sol";
 
 // import "hardhat/console.sol";
 
 contract UBIPoolFactory is AccessControlUpgradeable, UUPSUpgradeable {
     error NOT_PROJECT_OWNER();
+    error NOT_PROJECT_MANAGER();
     error NOT_POOL();
 
     event PoolCreated(
@@ -58,8 +61,8 @@ contract UBIPoolFactory is AccessControlUpgradeable, UUPSUpgradeable {
         _;
     }
 
-    modifier onlyPoolOwner(UBIPool pool) {
-        if (pool.hasRole(pool.DEFAULT_ADMIN_ROLE(), msg.sender) == false) {
+    modifier onlyPoolManager(UBIPool pool) {
+        if (pool.hasRole(pool.MANAGER_ROLE(), msg.sender) == false) {
             revert NOT_PROJECT_OWNER();
         }
 
@@ -121,6 +124,9 @@ contract UBIPoolFactory is AccessControlUpgradeable, UUPSUpgradeable {
             pool = UBIPool(address(new ERC1967Proxy(impl.implementation(), initCall)));
         }
 
+        // Register the app with the host
+        IRegisterSuperapp(address(pool.host())).registerApp(address(pool), SuperAppDefinitions.APP_LEVEL_FINAL);
+
         //access control to project is determinted by the first pool access control rules
         if (address(projectIdToControlPool[keccak256(bytes(_projectId))]) == address(0))
             projectIdToControlPool[keccak256(bytes(_projectId))] = pool;
@@ -134,7 +140,7 @@ contract UBIPoolFactory is AccessControlUpgradeable, UUPSUpgradeable {
         emit PoolCreated(address(pool), _projectId, _ipfs, _settings, _limits);
     }
 
-    function changePoolDetails(UBIPool _pool, string memory _ipfs) external onlyPoolOwner(_pool) {
+    function changePoolDetails(UBIPool _pool, string memory _ipfs) external onlyPoolManager(_pool) {
         registry[address(_pool)].ipfs = _ipfs;
         emit PoolDetailsChanged(address(_pool), _ipfs);
     }

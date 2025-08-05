@@ -3,7 +3,7 @@
 pragma solidity >=0.8.0;
 
 import { SuperAppBaseFlow } from "./SuperAppBaseFlow.sol";
-import { ISuperfluid, ISuperToken, SuperAppDefinitions } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
+import { ISuperfluid, ISuperToken, SuperAppDefinitions, ISuperApp } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 import { ISuperGoodDollar } from "@gooddollar/goodprotocol/contracts/token/superfluid/ISuperGoodDollar.sol";
 import { SuperTokenV1Library } from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperTokenV1Library.sol";
 import { CFAv1Library, IConstantFlowAgreementV1 } from "@superfluid-finance/ethereum-contracts/contracts/apps/CFAv1Library.sol";
@@ -90,11 +90,11 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         // Set the super token address
         superToken = _superToken;
 
-        // Define the callback definitions for the app
-        uint256 callBackDefinitions = SuperAppDefinitions.APP_LEVEL_FINAL;
+        // // Define the callback definitions for the app
+        // uint256 callBackDefinitions = SuperAppDefinitions.APP_LEVEL_FINAL;
 
-        // Register the app with the host
-        host.registerApp(callBackDefinitions);
+        // // Register the app with the host
+        // host.registerApp(callBackDefinitions);
 
         //initialize InitData struct, and set equal to cfaV1
         cfaV1 = CFAv1Library.InitData(
