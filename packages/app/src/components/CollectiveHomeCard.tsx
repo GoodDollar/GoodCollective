@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     marginTop: 0,
     ...InterSemiBold,
     lineHeight: 25,
-    maxHeight: 25,
+    // maxHeight: 25,
     overflow: 'hidden',
   },
   cardDescription: {
