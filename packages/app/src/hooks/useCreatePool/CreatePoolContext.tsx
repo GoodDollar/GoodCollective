@@ -7,6 +7,8 @@ import { useAccount } from 'wagmi';
 import { useEthersSigner } from '../useEthers';
 import { validateConnection } from '../useContractCalls/util';
 import { UBIPool } from '../../../../contracts/typechain-types/contracts/UBI/UBIPool';
+import { useAppKitAccount } from '@reown/appkit/react';
+import useCrossNavigate from '../../routes/useCrossNavigate';
 
 type CreatePoolContextType = {
   step: number;
@@ -28,6 +30,8 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
   const { address: maybeAddress } = useAccount();
   const { chain } = useAccount();
   const maybeSigner = useEthersSigner({ chainId: chain?.id });
+  const { isConnected } = useAppKitAccount();
+  const { navigate } = useCrossNavigate();
 
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<Form>({});
@@ -36,8 +40,13 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
     setForm((prev) => ({ ...prev, ...partialForm }));
   };
 
-  // TODO Check each step if the user has wallet connected
-  const nextStep = () => setStep((prev) => prev + 1);
+  const nextStep = () => {
+    if (isConnected) {
+      setStep((prev) => prev + 1);
+    } else {
+      navigate(`/create`);
+    }
+  };
   const previousStep = () => setStep((prev) => prev - 1);
   const startOver = () => {
     setStep(2);
@@ -58,7 +67,6 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
     if (step !== 5) return;
     setStep(4);
   };
-  // TODO Switch to hardhat and try create
 
   const createPool = async () => {
     const validation = validateConnection(maybeAddress, chain?.id, maybeSigner);
@@ -66,17 +74,12 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
       return false;
     }
     const { chainId, signer } = validation;
-    // const { signer } = validation;
-    // const readProvider = new ethers.providers.JsonRpcProvider('https://alfajores-forno.celo-testnet.org');
-    // const chainId = 44787;
     const chainIdString = chainId.toString() as `${SupportedNetwork}`;
     const network = SupportedNetworkNames[chainId as SupportedNetwork];
 
     const sdk = new GoodCollectiveSDK(chainIdString, signer.provider as ethers.providers.Provider, { network });
 
-    console.log(form);
-
-    // Form validation
+    // Final form validation
     if (!form.projectName || !form.projectDescription) return false;
     if (!form.logo) return false;
     if (
@@ -102,7 +105,6 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
       logo: form.logo,
     };
 
-    // production identity/G$ token contracts are used here
     const poolSettings: UBIPoolSettings = {
       manager: signer.getAddress(),
       membersValidator: ethers.constants.AddressZero,
@@ -112,7 +114,6 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
 
     const ubiSettings: UBISettings = {
       claimPeriodDays: ethers.BigNumber.from(form.claimFrequency),
-      // TODO
       minActiveUsers: ethers.BigNumber.from(1),
       maxClaimAmount: ethers.utils.parseEther(String(form.claimAmountPerWeek)),
       maxMembers: form.maximumMembers,
