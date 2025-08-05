@@ -16,8 +16,8 @@ import {
   WarningTwoIcon,
   InfoIcon,
 } from 'native-base';
-import { useAccount } from 'wagmi';
 import { mainnet } from '@wagmi/core/chains';
+import { useAppKit, useAppKitAccount, useDisconnect } from '@reown/appkit/react';
 
 import ActionButton from '../../ActionButton';
 import { useScreenSize } from '../../../theme/hooks';
@@ -57,7 +57,9 @@ const Warning = ({ width, message }: { width: string; message?: string }) => {
 const ProjectDetails = () => {
   const { form, nextStep, submitPartial, previousStep } = useCreatePool();
   const { isDesktopView } = useScreenSize();
-  const { address } = useAccount();
+  const { address } = useAppKitAccount();
+  const { open } = useAppKit();
+  const { disconnect } = useDisconnect();
 
   const [website, setWebsite] = useState<string>(form.website ?? '');
   const [twitter, setTwitter] = useState<string>(form.twitter ?? '');
@@ -88,8 +90,14 @@ const ProjectDetails = () => {
     })();
   }, [ensName, adminWalletAddress]);
 
-  // {/* TODO Programmatically disconnect and open walletconnect modal */}
-  const changeWallet = () => {};
+  const changeWallet = async () => {
+    await disconnect();
+    open({ view: 'Connect' });
+  };
+
+  useEffect(() => {
+    if (address) setAdminWalletAddress(address);
+  }, [address]);
 
   const submitForm = () => {
     setShowWarning(true);
@@ -179,6 +187,7 @@ const ProjectDetails = () => {
         <InputGroup width="full" backgroundColor="white">
           <InputLeftAddon children={'https://'} />
           <Input
+            style={errors.website ? styles.error : {}}
             flex={1}
             value={website}
             onChangeText={(value) => {
