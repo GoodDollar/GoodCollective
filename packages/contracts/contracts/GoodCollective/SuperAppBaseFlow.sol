@@ -8,6 +8,8 @@ import { SuperTokenV1Library } from "@superfluid-finance/ethereum-contracts/cont
 
 interface IRegisterSuperapp {
     function registerApp(address app, uint256 configWord) external;
+
+    function registerAppByFactory(address app, uint256 configWord) external;
 }
 
 abstract contract SuperAppBaseFlow is ISuperApp {
