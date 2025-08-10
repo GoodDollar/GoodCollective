@@ -90,11 +90,8 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         // Set the super token address
         superToken = _superToken;
 
-        // // Define the callback definitions for the app
-        // uint256 callBackDefinitions = SuperAppDefinitions.APP_LEVEL_FINAL;
-
-        // // Register the app with the host
-        // host.registerApp(callBackDefinitions);
+        // // try to register the app with the host, required for backward compatability with unit tests
+        if (host.isApp(this) == false) try host.registerApp(SuperAppDefinitions.APP_LEVEL_FINAL) {} catch {}
 
         //initialize InitData struct, and set equal to cfaV1
         cfaV1 = CFAv1Library.InitData(
@@ -364,6 +361,10 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
 
         uint256 fee = (_amount * feeBps) / 10000;
         TransferHelper.safeTransfer(address(superToken), recipient, fee);
+    }
+
+    function recoverFunds(address _recipient, uint256 amount) external {
+        HelperLibrary.recoverFunds(superToken, _recipient, amount);
     }
 
     /**
