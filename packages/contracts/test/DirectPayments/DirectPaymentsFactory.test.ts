@@ -37,9 +37,9 @@ describe('DirectPaymentsFactory', () => {
     const f = await ethers.getContractFactory('DirectPaymentsFactory');
     const swapMock = await ethers.deployContract('SwapRouterMock', [gdframework.GoodDollar.address]);
     const helper = await ethers.deployContract('HelperLibrary');
-
+    const helper2 = await ethers.deployContract('DirectPaymentsLibrary');
     const dpimpl = await ethers.deployContract('DirectPaymentsPool', [sfFramework['host'], swapMock.address], {
-      libraries: { HelperLibrary: helper.address },
+      libraries: { HelperLibrary: helper.address, DirectPaymentsLibrary: helper2.address },
     });
     const nft = (await upgrades.deployProxy(await ethers.getContractFactory('ProvableNFT'), ['nft', 'cc'], {
       kind: 'uups',
