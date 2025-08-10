@@ -6,6 +6,10 @@ import { SuperTokenV1Library } from "@superfluid-finance/ethereum-contracts/cont
 
 // import "hardhat/console.sol";
 
+interface IRegisterSuperapp {
+    function registerApp(address app, uint256 configWord) external;
+}
+
 abstract contract SuperAppBaseFlow is ISuperApp {
     using SuperTokenV1Library for ISuperToken;
 
