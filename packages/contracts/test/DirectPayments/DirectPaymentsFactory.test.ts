@@ -74,7 +74,7 @@ describe('DirectPaymentsFactory', () => {
       validEvents: [1, 2],
       manager: signers[1].address,
       membersValidator: ethers.constants.AddressZero,
-      rewardToken: '0x03d3daB843e6c03b3d271eff9178e6A96c28D25f',
+      rewardToken: gdframework.GoodDollar.address,
       allowRewardOverride: false,
     };
 
@@ -136,5 +136,16 @@ describe('DirectPaymentsFactory', () => {
     const poolAddr = (await (await tx).wait()).events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
     const pool = (await ethers.getContractAt('DirectPaymentsPool', poolAddr)) as DirectPaymentsPool;
     await expect(pool.connect(signers[1]).mintNFT(pool.address, nftSample, false)).not.reverted;
+  });
+
+  it('should only allow factory admin to withdraw pool funds', async () => {
+    const tx = await factory.createPool('test', 'pool1', poolSettings, poolLimits, 0);
+    const poolAddr = (await (await tx).wait()).events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
+    const pool = (await ethers.getContractAt('DirectPaymentsPool', poolAddr)) as DirectPaymentsPool;
+    await gdframework.GoodDollar.mint(pool.address, ethers.constants.WeiPerEther.mul(100000)).then((_: any) =>
+      _.wait()
+    );
+    await expect(pool.recoverFunds(signer.address, 1)).not.reverted;
+    await expect(pool.connect(signers[1]).recoverFunds(signer.address, 1)).revertedWith('not owner');
   });
 });
