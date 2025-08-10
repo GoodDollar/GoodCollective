@@ -4618,7 +4618,7 @@ __metadata:
     hardhat-abi-exporter: ^2.10.1
     hardhat-celo: ^0.0.4
     hardhat-contract-sizer: ^2.10.0
-    hardhat-deploy: ^0.12.4
+    hardhat-deploy: ^1.0.4
     hardhat-gas-reporter: ^1.0.8
     prettier: ^2.8.8
     prettier-plugin-solidity: ^1.1.3
@@ -11711,7 +11711,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/qs@npm:^6, @types/qs@npm:^6.2.31, @types/qs@npm:^6.9.7":
+"@types/qs@npm:^6, @types/qs@npm:^6.2.31":
   version: 6.9.10
   resolution: "@types/qs@npm:6.9.10"
   checksum: 3e479ee056bd2b60894baa119d12ecd33f20a25231b836af04654e784c886f28a356477630430152a86fba253da65d7ecd18acffbc2a8877a336e75aa0272c67
@@ -24778,9 +24778,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat-deploy@npm:^0.12.4":
-  version: 0.12.4
-  resolution: "hardhat-deploy@npm:0.12.4"
+"hardhat-deploy@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "hardhat-deploy@npm:1.0.4"
   dependencies:
     "@ethersproject/abi": ^5.7.0
     "@ethersproject/abstract-signer": ^5.7.0
@@ -24793,7 +24793,6 @@ __metadata:
     "@ethersproject/solidity": ^5.7.0
     "@ethersproject/transactions": ^5.7.0
     "@ethersproject/wallet": ^5.7.0
-    "@types/qs": ^6.9.7
     axios: ^0.21.1
     chalk: ^4.1.2
     chokidar: ^3.5.2
@@ -24804,9 +24803,9 @@ __metadata:
     fs-extra: ^10.0.0
     match-all: ^1.2.6
     murmur-128: ^0.2.1
-    qs: ^6.9.4
+    neoqs: ^6.13.0
     zksync-ethers: ^5.0.0
-  checksum: 995a20a7ae8d10d2b961690e0903cd2a4a07198bc3d20a15d4734f2d9aade261b6f0ffb9e01b8fc013de34b687e401ed0c90dfc4d592571576f133ce8cbf3003
+  checksum: d91410a82b0a37c64eef235c4a8d457dee52ea67a67d4d9e32b710070d054e94defba5d60e034c6e10190e3c1c8183c36f576e83d88cfee539decd3dab801853
   languageName: node
   linkType: hard
 
@@ -31094,6 +31093,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"neoqs@npm:^6.13.0":
+  version: 6.13.0
+  resolution: "neoqs@npm:6.13.0"
+  checksum: 2b1ba202dbe839f80fae3065b08f3fdcb8993af720340ffd71a4136c5c084c81f691bcc04594e1547b1ff2562f458367427da7f4bcca0c6b8a8d214a329a377e
+  languageName: node
+  linkType: hard
+
 "next-tick@npm:1, next-tick@npm:^1.1.0":
   version: 1.1.0
   resolution: "next-tick@npm:1.1.0"
@@ -33570,7 +33576,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.10.3, qs@npm:^6.11.2, qs@npm:^6.4.0, qs@npm:^6.5.1, qs@npm:^6.9.4":
+"qs@npm:^6.10.3, qs@npm:^6.11.2, qs@npm:^6.4.0, qs@npm:^6.5.1":
   version: 6.11.2
   resolution: "qs@npm:6.11.2"
   dependencies:

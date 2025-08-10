@@ -39,7 +39,7 @@
         "hardhat-abi-exporter": "^2.10.1",
         "hardhat-celo": "^0.0.4",
         "hardhat-contract-sizer": "^2.10.0",
-        "hardhat-deploy": "^0.12.4",
+        "hardhat-deploy": "^1.0.4",
         "hardhat-gas-reporter": "^1.0.8",
         "prettier": "^2.8.8",
         "prettier-plugin-solidity": "^1.1.3",
