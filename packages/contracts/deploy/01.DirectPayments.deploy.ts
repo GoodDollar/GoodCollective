@@ -18,20 +18,25 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   let feeRecipient = GDContracts[hre.network.name]?.UBIScheme || deployer;
   let feeBps = 1000;
   if (hre.network.live === false) {
-    swapMock = (await deployments.get("SwapRouterMock")).address
-    const gd = await ethers.getContractAt("ISuperGoodDollar", (await deployments.get("GoodDollar")).address)
-    sfHost = await gd.getHost()
-    console.log("deployed test gd and sf host", gd.address, sfHost, swapMock)
+    swapMock = (await deployments.get('SwapRouterMock')).address;
+    const gd = await ethers.getContractAt('ISuperGoodDollar', (await deployments.get('GoodDollar')).address);
+    sfHost = await gd.getHost();
+    console.log('deployed test gd and sf host', gd.address, sfHost, swapMock);
   } else {
+    const networkId = await ethers.provider.getNetwork();
     const sfFramework = await Framework.create({
-      chainId: network.config.chainId || 0,
+      chainId: networkId.chainId || 0,
       provider: ethers.provider,
-      resolverAddress: network.config.chainId === 44787 ? '0x6e9CaBE4172344Db81a1E1D735a6AD763700064A' : undefined,
+      resolverAddress: networkId.chainId === 44787 ? '0x6e9CaBE4172344Db81a1E1D735a6AD763700064A' : undefined,
     });
     sfHost = sfFramework.host.contract.address;
   }
 
   const helplib = await deploy('HelperLibrary', {
+    from: deployer,
+    log: true,
+  });
+  const dplib = await deploy('DirectPaymentsLibrary', {
     from: deployer,
     log: true,
   });
@@ -44,6 +49,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log: true,
     libraries: {
       HelperLibrary: helplib.address,
+      DirectPaymentsLibrary: dplib.address,
     },
   });
 
@@ -80,7 +86,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log: true,
   });
 
-  if (factory.newlyDeployed) {
+  const deployedNft = await ethers.getContractAt('ProvableNFT', nft.address);
+  const hasNftAdmin = await deployedNft.hasRole(ethers.constants.HashZero, factory.address);
+  if (!hasNftAdmin) {
     console.log('granting nft admin rights to factory');
     await execute('ProvableNFT', { from: deployer }, 'grantRole', ethers.constants.HashZero, factory.address);
   }

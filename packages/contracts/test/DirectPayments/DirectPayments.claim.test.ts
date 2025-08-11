@@ -54,7 +54,7 @@ describe('DirectPaymentsPool Claim', () => {
       manager: signer.address,
       membersValidator: ethers.constants.AddressZero,
       rewardToken: gdframework.GoodDollar.address,
-      allowRewardOverride: false
+      allowRewardOverride: false,
     };
 
     poolLimits = {
@@ -65,44 +65,48 @@ describe('DirectPaymentsPool Claim', () => {
   });
 
   const fixture = async () => {
-
     const factory = await ethers.getContractFactory('ProvableNFT');
     nft = (await upgrades.deployProxy(factory, ['nft', 'cc'], { kind: 'uups' })) as ProvableNFT;
     const helper = await ethers.deployContract('HelperLibrary');
+    const helper2 = await ethers.deployContract('DirectPaymentsLibrary');
+
     const Pool = await ethers.getContractFactory('DirectPaymentsPool', {
-      libraries: { HelperLibrary: helper.address },
+      libraries: { HelperLibrary: helper.address, DirectPaymentsLibrary: helper2.address },
     });
     membersValidator = await deployMockContract(signers[0], [
       'function isMemberValid(address pool,address operator,address member,bytes memory extraData) external returns (bool)',
     ]);
-    const poolImpl = await Pool.deploy(await gdframework.GoodDollar.getHost(), ethers.constants.AddressZero)
+    const poolImpl = await Pool.deploy(await gdframework.GoodDollar.getHost(), ethers.constants.AddressZero);
 
-    const poolFactory = await upgrades.deployProxy(await ethers.getContractFactory("DirectPaymentsFactory"), [
-      signer.address,
-      poolImpl.address,
-      nft.address,
-      ethers.constants.AddressZero,
-      0
-    ], { kind: 'uups' }) as DirectPaymentsFactory
+    const poolFactory = (await upgrades.deployProxy(
+      await ethers.getContractFactory('DirectPaymentsFactory'),
+      [signer.address, poolImpl.address, nft.address, ethers.constants.AddressZero, 0],
+      { kind: 'uups' }
+    )) as DirectPaymentsFactory;
 
     // console.log("deployed factory:", poolFactory.address)
 
-    await nft.grantRole(ethers.constants.HashZero, poolFactory.address)
+    await nft.grantRole(ethers.constants.HashZero, poolFactory.address);
     // all members are valid by default
     membersValidator.mock['isMemberValid'].returns(true);
 
-
-    const poolTx = await (await poolFactory.createPool("xx", "ipfs",
-      { ...poolSettings, membersValidator: membersValidator.address },
-      poolLimits,
-      0
-    )).wait()
+    const poolTx = await (
+      await poolFactory.createPool(
+        'xx',
+        'ipfs',
+        { ...poolSettings, membersValidator: membersValidator.address },
+        poolLimits,
+        0
+      )
+    ).wait();
     // console.log("created pool:", poolTx.events)
-    const poolAddress = poolTx.events?.find(_ => _.event === "PoolCreated")?.args?.[0]
-    pool = Pool.attach(poolAddress) as DirectPaymentsPool
+    const poolAddress = poolTx.events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
+    pool = Pool.attach(poolAddress) as DirectPaymentsPool;
 
     const tx = await nft.mintPermissioned(signers[0].address, nftSample, true, []).then((_) => _.wait());
-    await gdframework.GoodDollar.mint(pool.address, ethers.constants.WeiPerEther.mul(100000)).then((_: any) => _.wait());
+    await gdframework.GoodDollar.mint(pool.address, ethers.constants.WeiPerEther.mul(100000)).then((_: any) =>
+      _.wait()
+    );
     nftSampleId = tx.events?.find((e) => e.event === 'Transfer')?.args?.tokenId;
     // return { pool, nft, membersValidator };
   };
@@ -179,10 +183,13 @@ describe('DirectPaymentsPool Claim', () => {
         const tx = await (await nft.mintPermissioned(signers[0].address, newNft, true, [])).wait();
         const nftId = tx.events?.[0].args?.[2];
         // Member 1 claims rewards, which should not exceed the monthly limit
-        if (i === 11) {
-          await expect(pool['claim(uint256)'](nftId)).revertedWithCustomError(pool, 'OVER_MEMBER_LIMITS');
-        } else await pool['claim(uint256)'](nftId);
-        await time.increase(86400);
+        const claimTx = await pool['claim(uint256)'](nftId);
+        if (i >= 11) {
+          await expect(claimTx).to.emit(pool, 'NOT_MEMBER_OR_WHITELISTED_OR_LIMITS');
+        } else {
+          await expect(claimTx).not.to.emit(pool, 'NOT_MEMBER_OR_WHITELISTED_OR_LIMITS');
+          await time.increase(86400);
+        }
       }
     });
 
@@ -197,9 +204,12 @@ describe('DirectPaymentsPool Claim', () => {
         const tx = await (await nft.mintPermissioned(signers[0].address, newNft, true, [])).wait();
         const nftId = tx.events?.[0].args?.[2];
         // Member 1 claims rewards, which should not exceed the monthly limit
-        if (i === 4) {
-          await expect(pool['claim(uint256)'](nftId)).revertedWithCustomError(pool, 'OVER_MEMBER_LIMITS');
-        } else await pool['claim(uint256)'](nftId);
+        const claimTx = await pool['claim(uint256)'](nftId);
+        if (i >= 4) {
+          await expect(claimTx).to.emit(pool, 'NOT_MEMBER_OR_WHITELISTED_OR_LIMITS');
+        } else {
+          await expect(claimTx).not.to.emit(pool, 'NOT_MEMBER_OR_WHITELISTED_OR_LIMITS');
+        }
       }
     });
 

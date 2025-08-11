@@ -9,7 +9,7 @@ import { IERC721ReceiverUpgradeable } from "@openzeppelin/contracts-upgradeable/
 
 import { ProvableNFT } from "./ProvableNFT.sol";
 import { DirectPaymentsFactory } from "./DirectPaymentsFactory.sol";
-import { DirectPayemntsLibrary } from "./DirectPaymentsLibrary.sol";
+import { DirectPaymentsLibrary } from "./DirectPaymentsLibrary.sol";
 import "../GoodCollective/GoodCollectiveSuperApp.sol";
 
 interface IMembersValidator {
@@ -18,7 +18,7 @@ interface IMembersValidator {
         address operator,
         address member,
         bytes memory extraData
-    ) external returns (bool);
+    ) external view returns (bool);
 }
 
 interface IIdentityV2 {
@@ -74,7 +74,7 @@ contract DirectPaymentsPool is
         uint256 rewardPerContributer
     );
     event NFTClaimed(uint256 indexed tokenId, uint256 totalRewards);
-    event NOT_MEMBER_OR_WHITELISTED(address contributer);
+    event NOT_MEMBER_OR_WHITELISTED_OR_LIMITS(address contributer);
 
     // Define functions
     struct PoolSettings {
@@ -181,126 +181,19 @@ contract DirectPaymentsPool is
     function claim(uint256 _nftId, ProvableNFT.NFTData memory _data) public {
         nft.proveNFTData(_nftId, _data);
         if (claimedNfts[_nftId]) revert ALREADY_CLAIMED(_nftId);
-
+        claimedNfts[_nftId] = true;
         // TODO: should pool own the NFTs?
         // if (settings.collectNfts && nft.ownerOf(_nftId) != address(this)) revert NFT_MISSING(_nftId);
 
-        _claim(_nftId, _data);
-    }
-
-    /**
-     * @dev Claims rewards for the specified NFT ID.
-     * @param _nftId The ID of the NFT to claim rewards for.
-     * @param _data The NFTData struct containing data about the NFT.
-     */
-    function _claim(uint256 _nftId, ProvableNFT.NFTData memory _data) internal {
-        claimedNfts[_nftId] = true;
-        uint totalRewards;
-        uint rewardsBalance = settings.rewardToken.balanceOf(address(this));
-
-        bool allowRewardOverride = settings.allowRewardOverride;
+        // Loop through the events in the NFT data and add members
         for (uint256 i = 0; i < _data.events.length; i++) {
-            uint reward = (
-                allowRewardOverride && _data.events[i].rewardOverride > 0
-                    ? _data.events[i].rewardOverride
-                    : _eventReward(_data.events[i].subtype)
-            ) * _data.events[i].quantity;
-            if (reward > 0) {
-                totalRewards += reward;
-                if (totalRewards > rewardsBalance) revert NO_BALANCE();
-                rewardsBalance -= totalRewards;
-                _sendReward(_data.events[i].contributers, uint128(reward));
-                emit EventRewardClaimed(
-                    _nftId,
-                    _data.events[i].subtype,
-                    _data.events[i].timestamp,
-                    _data.events[i].quantity,
-                    _data.events[i].eventUri,
-                    _data.events[i].contributers,
-                    uint128(reward / _data.events[i].contributers.length)
-                );
+            for (uint j = 0; j < _data.events[i].contributers.length; j++) {
+                //dont revert on non valid members, just dont reward them (their reward is lost)
+                _addMember(_data.events[i].contributers[j], "");
             }
         }
-
-        emit NFTClaimed(_nftId, totalRewards);
+        DirectPaymentsLibrary._claim(globalLimits, limits, memberLimits, settings, _nftId, _data);
     }
-
-    /**
-     * @dev Returns the reward amount for the specified event type.
-     * @param _eventType The type of the event to get the reward for.
-     * @return reward amount for the specified event type.
-     */
-    function _eventReward(uint16 _eventType) internal view returns (uint128 reward) {
-        for (uint i = 0; i < settings.validEvents.length; i++) {
-            if (_eventType == settings.validEvents[i]) return settings.rewardPerEvent[i];
-        }
-        return 0;
-    }
-
-    /**
-     * @dev Sends rewards to the specified recipients.
-     * @param recipients The addresses of the recipients to send rewards to.
-     * @param reward The total amount of rewards to send.
-     */
-    function _sendReward(address[] memory recipients, uint128 reward) internal {
-        uint128 perReward = uint128(reward / recipients.length);
-        uint128 totalSent;
-        for (uint i = 0; i < recipients.length; i++) {
-            bool valid = _enforceAndUpdateMemberLimits(recipients[i], perReward);
-            if (valid) {
-                settings.rewardToken.safeTransfer(recipients[i], perReward);
-                totalSent += perReward;
-            } else {
-                emit NOT_MEMBER_OR_WHITELISTED(recipients[i]);
-            }
-        }
-        _enforceAndUpdateGlobalLimits(totalSent);
-    }
-
-    /**
-     * @dev Enforces and updates the reward limits for the specified member.
-     * @param member The address of the member to enforce and update limits for.
-     * @param reward The amount of rewards to enforce and update limits for.
-     */
-    function _enforceAndUpdateMemberLimits(address member, uint128 reward) internal returns (bool) {
-        //dont revert on non valid members, just dont reward them (their reward is lost)
-        if (_addMember(member, "") == false) {
-            return false;
-        }
-
-        DirectPayemntsLibrary._updateMemberLimits(memberLimits[member], reward, _month());
-
-        if (
-            memberLimits[member].daily > limits.maxMemberPerDay ||
-            memberLimits[member].monthly > limits.maxMemberPerMonth
-        ) revert OVER_MEMBER_LIMITS(member);
-
-        return true;
-    }
-
-    /**
-     * @dev Enforces and updates the global reward limits.
-     * @param reward The amount of rewards to enforce and update limits for.
-     */
-    function _enforceAndUpdateGlobalLimits(uint128 reward) internal {
-        DirectPayemntsLibrary._updateGlobalLimits(globalLimits, reward, _month());
-
-        if (globalLimits.monthly > limits.maxTotalPerMonth) revert OVER_GLOBAL_LIMITS();
-    }
-
-    /**
-     * @dev Returns the current month.
-     * @return month current month as a uint64 value.
-     */
-    function _month() internal view returns (uint64 month) {
-        return uint64(block.timestamp / (60 * 60 * 24 * 30));
-    }
-
-    /**
-     * @dev Adds a member to the contract.
-     * @param member The address of the member to add.
-     * @param extraData Additional data to validate the member.
-     */
 
     function _addMember(address member, bytes memory extraData) internal returns (bool isMember) {
         if (hasRole(MEMBER_ROLE, member)) return true;

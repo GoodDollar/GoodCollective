@@ -73,8 +73,8 @@ yarn-error.log*
 # misc
 .DS_Store
 *.pem
-packages/contracts/deployments
 **/types
 packages/sdk-js/.yarn/install-state.gz
 .vercel
 .vscode/settings.json
+packages/contracts/deployments/*/solcInputs

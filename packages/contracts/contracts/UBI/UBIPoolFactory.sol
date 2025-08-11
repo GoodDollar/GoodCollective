@@ -125,7 +125,17 @@ contract UBIPoolFactory is AccessControlUpgradeable, UUPSUpgradeable {
         }
 
         // Register the app with the host
-        IRegisterSuperapp(address(pool.host())).registerApp(address(pool), SuperAppDefinitions.APP_LEVEL_FINAL);
+        if (pool.host().isApp(pool) == false) {
+            try
+                IRegisterSuperapp(address(pool.host())).registerApp(address(pool), SuperAppDefinitions.APP_LEVEL_FINAL)
+            {} catch {
+                //fallback for older versions of superfluid used in unit tests
+                IRegisterSuperapp(address(pool.host())).registerAppByFactory(
+                    address(pool),
+                    SuperAppDefinitions.APP_LEVEL_FINAL
+                );
+            }
+        }
 
         //access control to project is determinted by the first pool access control rules
         if (address(projectIdToControlPool[keccak256(bytes(_projectId))]) == address(0))

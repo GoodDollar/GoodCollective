@@ -86,8 +86,7 @@ const config: HardhatUserConfig = {
       accounts: [privateKey],
       verify: {
         etherscan: {
-          apiKey: process.env.CELOSCAN_KEY,
-          apiUrl: 'https://api.celoscan.io/',
+          apiKey: process.env.ETHERSCAN_KEY,
         },
       },
     },
@@ -100,8 +99,7 @@ const config: HardhatUserConfig = {
       },
       verify: {
         etherscan: {
-          apiKey: process.env.CELOSCAN_KEY,
-          apiUrl: 'https://api.celoscan.io/',
+          apiKey: process.env.ETHERSCAN_KEY,
         },
       },
     },

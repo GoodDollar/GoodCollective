@@ -5,6 +5,8 @@ interface IRegistry {
     function feeRecipient() external view returns (address);
 
     function feeBps() external view returns (uint32);
+
+    function hasRole(bytes32 role, address account) external view returns (bool);
 }
 
 interface IGoodCollectiveSuperApp {
@@ -21,4 +23,6 @@ interface IGoodCollectiveSuperApp {
     }
 
     function getAdminFee() external view returns (address admin, uint32 feeBps);
+
+    function getRegistry() external view returns (IRegistry);
 }

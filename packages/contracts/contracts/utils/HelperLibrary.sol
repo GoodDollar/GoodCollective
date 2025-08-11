@@ -16,6 +16,9 @@ library HelperLibrary {
     using SuperTokenV1Library for ISuperToken;
     using CFAv1Library for CFAv1Library.InitData;
 
+    error ZERO_AMOUNT();
+    error ZERO_ADDRESS();
+
     /**
      * @dev A struct containing information about a token swap
      * @param swapFrom The address of the token being swapped
@@ -178,5 +181,12 @@ library HelperLibrary {
                 newCtx = cfaV1.updateFlowWithCtx(newCtx, recipient, superToken, newFeeRate); //passing in the ctx which is sent to the callback here
             }
         } else if (newFeeRate > 0) newCtx = cfaV1.createFlowWithCtx(newCtx, recipient, superToken, newFeeRate); //passing in the ctx which is sent to the callback here
+    }
+
+    function recoverFunds(ISuperToken superToken, address recipient, uint256 amount) external {
+        require(IGoodCollectiveSuperApp(address(this)).getRegistry().hasRole(0x00, msg.sender), "not owner");
+        if (amount == 0) revert ZERO_AMOUNT();
+        if (recipient == address(0)) revert ZERO_ADDRESS();
+        superToken.transfer(recipient, amount);
     }
 }

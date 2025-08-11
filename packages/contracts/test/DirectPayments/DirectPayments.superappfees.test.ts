@@ -76,9 +76,10 @@ describe('DirectPaymentsPool Superapp with Fees', () => {
     const swapMock = await ethers.deployContract('SwapRouterMock', [gdframework.GoodDollar.address]);
 
     const helper = await ethers.deployContract('HelperLibrary');
+    const helper2 = await ethers.deployContract('DirectPaymentsLibrary');
 
     const dpimpl = await ethers.deployContract('DirectPaymentsPool', [sfFramework['host'], swapMock.address], {
-      libraries: { HelperLibrary: helper.address },
+      libraries: { HelperLibrary: helper.address, DirectPaymentsLibrary: helper2.address },
     });
 
     nft = (await upgrades.deployProxy(await ethers.getContractFactory('ProvableNFT'), ['nft', 'cc'], {
@@ -96,7 +97,7 @@ describe('DirectPaymentsPool Superapp with Fees', () => {
   const fixture = async () => {
     const tx = await factory.createPool('testfees', 'ipfs', poolSettings, poolLimits, 0);
     const poolAddr = (await tx.wait()).events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
-    pool = await ethers.getContractAt('DirectPaymentsPool', poolAddr) as DirectPaymentsPool;
+    pool = (await ethers.getContractAt('DirectPaymentsPool', poolAddr)) as DirectPaymentsPool;
   };
 
   beforeEach(async function () {
