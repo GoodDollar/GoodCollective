@@ -650,4 +650,128 @@ export class GoodCollectiveSDK {
     const token = new ethers.Contract(tokenAddress, ['function approve(address spender, uint256 amount)'], signer);
     return token.approve(poolAddress, amount, { ...CHAIN_OVERRIDES[this.chainId], gasLimit: 100000 });
   }
+
+  /**
+   * Get protocol and manager fees for a collective
+   * @param {string} poolAddress - The address of the pool contract.
+   * @returns {Promise<{protocolFeeBps: number, managerFeeBps: number, managerFeeRecipient: string}>} A promise that resolves to fee information.
+   */
+  async getCollectiveFees(poolAddress: string) {
+    try {
+      // Debug: Log the contract addresses being used
+      console.log(`SDK Debug - Chain ID: ${this.chainId}`);
+      console.log(`SDK Debug - DirectPaymentsFactory address: ${this.factory.address}`);
+      console.log(`SDK Debug - UBIPoolFactory address: ${this.ubifactory?.address || 'undefined'}`);
+      console.log(`SDK Debug - Pool address to check: ${poolAddress}`);
+
+      // Check if contracts are properly initialized
+      if (this.factory.address === ethers.constants.AddressZero) {
+        console.warn('DirectPaymentsFactory not properly initialized');
+        return {
+          protocolFeeBps: 500, // Default 5% protocol fee
+          managerFeeBps: 300, // Default 3% manager fee
+          managerFeeRecipient: ethers.constants.AddressZero,
+          poolType: 'unknown',
+        };
+      }
+
+      // Get the pool contract to determine its type and get manager fees
+      const poolContract = this.pool.attach(poolAddress);
+
+      // Get manager fee from the pool contract
+      const [managerFeeRecipient, managerFeeBps] = await poolContract.getManagerFee();
+
+      // Determine which factory to use based on the pool type
+      // We need to check if this is a UBI pool or DirectPayments pool
+      let protocolFeeBps = 0;
+      let poolType = 'unknown';
+
+      try {
+        // First, try to determine pool type by checking if the pool has UBI-specific functions
+        let isUBIPool = false;
+        try {
+          // Try to call a UBI-specific function to determine if this is a UBI pool
+          await this.ubipool.attach(poolAddress).getCurrentDay();
+          isUBIPool = true;
+          console.log(`SDK Debug - Pool detected as UBI pool via interface check`);
+        } catch (error) {
+          console.log(`SDK Debug - Pool is not a UBI pool (interface check failed)`);
+        }
+
+        if (isUBIPool) {
+          // This is a UBI pool
+          if (this.ubifactory) {
+            console.log(`SDK Debug - Getting protocol fee from UBIPoolFactory`);
+            protocolFeeBps = await this.ubifactory.feeBps();
+            poolType = 'ubi';
+            console.log(`SDK Debug - Found UBI pool, protocol fee: ${protocolFeeBps}`);
+          } else {
+            console.warn(`UBI factory not available for UBI pool: ${poolAddress}`);
+            return {
+              protocolFeeBps: 500, // Default 5% protocol fee
+              managerFeeBps: Number(managerFeeBps),
+              managerFeeRecipient: managerFeeRecipient,
+              poolType: 'ubi',
+            };
+          }
+        } else {
+          // Try to check if it's a DirectPayments pool via factory registry
+          console.log(`SDK Debug - Checking DirectPaymentsFactory registry for pool: ${poolAddress}`);
+          const directPaymentsRegistry = await this.factory.registry(poolAddress);
+
+          if (directPaymentsRegistry.projectId !== '') {
+            poolType = 'directPayments';
+            protocolFeeBps = await this.factory.feeBps();
+            console.log(`SDK Debug - Found pool in DirectPaymentsFactory, protocol fee: ${protocolFeeBps}`);
+          } else {
+            // Pool not found in DirectPaymentsFactory registry, but we know it's not a UBI pool
+            // This might be a pool from a different factory or an old deployment
+            console.warn(`Pool not found in DirectPaymentsFactory registry: ${poolAddress}`);
+
+            // Try to get protocol fee from DirectPaymentsFactory anyway (might be a legacy pool)
+            try {
+              protocolFeeBps = await this.factory.feeBps();
+              poolType = 'directPayments';
+              console.log(`SDK Debug - Using DirectPaymentsFactory protocol fee for legacy pool: ${protocolFeeBps}`);
+            } catch (error) {
+              console.warn(`Could not get protocol fee from DirectPaymentsFactory: ${error}`);
+              // Return default values for unknown pool types
+              return {
+                protocolFeeBps: 500, // Default 5% protocol fee
+                managerFeeBps: Number(managerFeeBps),
+                managerFeeRecipient: managerFeeRecipient,
+                poolType: 'unknown',
+              };
+            }
+          }
+        }
+      } catch (factoryError) {
+        console.warn(`Error checking factory registries for pool ${poolAddress}:`, factoryError);
+        // Return default values if we can't determine the pool type
+        return {
+          protocolFeeBps: 500, // Default 5% protocol fee
+          managerFeeBps: Number(managerFeeBps),
+          managerFeeRecipient: managerFeeRecipient,
+          poolType: 'unknown',
+        };
+      }
+
+      return {
+        protocolFeeBps: Number(protocolFeeBps),
+        managerFeeBps: Number(managerFeeBps),
+        managerFeeRecipient: managerFeeRecipient,
+        poolType: poolType,
+      };
+    } catch (error) {
+      console.error(`Error getting collective fees for pool ${poolAddress}:`, error);
+
+      // Return default values if we can't get the fees
+      return {
+        protocolFeeBps: 500, // Default 5% protocol fee
+        managerFeeBps: 300, // Default 3% manager fee
+        managerFeeRecipient: ethers.constants.AddressZero,
+        poolType: 'unknown',
+      };
+    }
+  }
 }
