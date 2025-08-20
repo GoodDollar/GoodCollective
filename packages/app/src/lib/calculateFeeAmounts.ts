@@ -48,10 +48,12 @@ export function formatFlowRateToDaily(flowRate: string, tokenPrice?: number): st
   // Convert from wei to G$ (assuming 18 decimals)
   const dailyAmountInGd = ethers.utils.formatEther(dailyAmount);
 
+  const dailyAmountFloat = parseFloat(dailyAmountInGd);
+
   if (tokenPrice) {
-    const dailyAmountUSD = parseFloat(dailyAmountInGd) * tokenPrice;
-    return `G$ ${parseFloat(dailyAmountInGd).toFixed(2)}/day ($${dailyAmountUSD.toFixed(2)})`;
+    const dailyAmountUSD = dailyAmountFloat * tokenPrice;
+    return `G$ ${dailyAmountFloat.toFixed(2)}/day ($${dailyAmountUSD.toFixed(2)})`;
   }
 
-  return `G$ ${parseFloat(dailyAmountInGd).toFixed(2)}/day`;
+  return `G$ ${dailyAmountFloat.toFixed(2)}/day`;
 }
