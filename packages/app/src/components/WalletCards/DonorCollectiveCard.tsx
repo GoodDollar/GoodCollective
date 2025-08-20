@@ -77,25 +77,37 @@ function DonorCollectiveCard({ ipfsCollective, donorCollective, ensName, tokenPr
     );
   };
 
-  const { fees, loading: feesLoading } = useCollectiveFees(donorCollective.collective);
+  const { fees, loading: feesLoading, error: feesError } = useCollectiveFees(donorCollective.collective);
 
-  // Calculate actual fee amounts based on current flow rate
   const feeAmounts =
-    fees && donorCollective.flowRate
+    fees && donorCollective.flowRate && Number(donorCollective.flowRate) > 0
       ? calculateFeeAmounts(donorCollective.flowRate, fees.protocolFeeBps, fees.managerFeeBps)
       : null;
 
-  const protocolFeeAmount = feeAmounts
-    ? formatFlowRateToDaily(feeAmounts.protocolFeeAmount, tokenPrice)
-    : fees
-    ? `${fees.protocolFeeBps / 100}%`
-    : 'Loading...';
+  const protocolFeeAmount =
+    feeAmounts && Number(feeAmounts.protocolFeeAmount) > 0
+      ? formatFlowRateToDaily(feeAmounts.protocolFeeAmount, tokenPrice)
+      : fees
+      ? `${fees.protocolFeeBps / 100}%`
+      : feesLoading
+      ? 'Loading...'
+      : feesError
+      ? 'Error loading fees'
+      : 'Unknown';
 
-  const managerFeeAmount = feeAmounts
-    ? formatFlowRateToDaily(feeAmounts.managerFeeAmount, tokenPrice)
-    : fees
-    ? `${fees.managerFeeBps / 100}%`
-    : 'Loading...';
+  const managerFeeAmount =
+    feeAmounts && Number(feeAmounts.managerFeeAmount) > 0
+      ? formatFlowRateToDaily(feeAmounts.managerFeeAmount, tokenPrice)
+      : fees
+      ? `${fees.managerFeeBps / 100}%`
+      : feesLoading
+      ? 'Loading...'
+      : feesError
+      ? 'Error loading fees'
+      : 'Unknown';
+
+  // Debug: Show if we're using actual fees or fallback values
+  const isUsingActualFees = fees && fees.protocolFeeBps !== 500 && fees.managerFeeBps !== 300;
 
   return (
     <TouchableOpacity
@@ -127,6 +139,7 @@ function DonorCollectiveCard({ ipfsCollective, donorCollective, ensName, tokenPr
               <View style={styles.row}>
                 <Text style={styles.feeLabel}>Protocol Fee</Text>
                 <Text style={styles.feeRecipient}>(to GoodDollar UBI)</Text>
+                {isUsingActualFees && <Text style={{ fontSize: 10, color: 'green', marginLeft: 5 }}>✓ Live</Text>}
               </View>
 
               <View style={styles.tooltipWrapper}>
@@ -137,7 +150,13 @@ function DonorCollectiveCard({ ipfsCollective, donorCollective, ensName, tokenPr
                   visible={activeTooltip === 'protocol'}
                   title="Protocol Fee"
                   content={`All donations incur a ${
-                    fees?.protocolFeeBps ? fees.protocolFeeBps / 100 : 5
+                    fees?.protocolFeeBps
+                      ? fees.protocolFeeBps / 100
+                      : feesLoading
+                      ? '...'
+                      : feesError
+                      ? 'Error'
+                      : 'Unknown'
                   }% network fee, which contributes directly to GoodDollar UBI.${
                     feeAmounts
                       ? ` Current daily fee: ${formatFlowRateToDaily(feeAmounts.protocolFeeAmount, tokenPrice)}`
@@ -155,6 +174,7 @@ function DonorCollectiveCard({ ipfsCollective, donorCollective, ensName, tokenPr
               <View style={styles.row}>
                 <Text style={styles.feeLabel}>Manager Fee</Text>
                 <Text style={styles.feeRecipient}>(to Pool Administrator)</Text>
+                {isUsingActualFees && <Text style={{ fontSize: 10, color: 'green', marginLeft: 5 }}>✓ Live</Text>}
               </View>
 
               <View style={styles.tooltipWrapper}>
@@ -165,7 +185,13 @@ function DonorCollectiveCard({ ipfsCollective, donorCollective, ensName, tokenPr
                   visible={activeTooltip === 'manager'}
                   title="Manager Fee"
                   content={`This pool charges a ${
-                    fees?.managerFeeBps ? fees.managerFeeBps / 100 : 3
+                    fees?.managerFeeBps
+                      ? fees.managerFeeBps / 100
+                      : feesLoading
+                      ? '...'
+                      : feesError
+                      ? 'Error'
+                      : 'Unknown'
                   }% administrative fee.${
                     feeAmounts
                       ? ` Current daily fee: ${formatFlowRateToDaily(feeAmounts.managerFeeAmount, tokenPrice)}`
