@@ -113,7 +113,6 @@ export const styles = StyleSheet.create({
   },
   supportingLabel: {
     fontSize: 14,
-    font: 'bold',
     fontWeight: '600',
     color: Colors.black,
     ...InterSemiBold,
