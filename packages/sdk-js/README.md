@@ -31,6 +31,31 @@ const pool = await sdk.createPool(wallet, projectId, projectAttributesIpfs, pool
 // console.log(await pool.settings()) // view the assigned nftType
 ```
 
+### Getting Collective Fees
+
+To retrieve protocol and manager fees for a collective:
+
+```typescript
+import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
+
+const sdk = new GoodCollectiveSDK(chainId, provider, { network });
+const fees = await sdk.getCollectiveFees(poolAddress);
+
+console.log('Protocol Fee (basis points):', fees.protocolFeeBps);
+console.log('Manager Fee (basis points):', fees.managerFeeBps);
+console.log('Manager Fee Recipient:', fees.managerFeeRecipient);
+
+// Convert basis points to percentage
+const protocolFeePercentage = fees.protocolFeeBps / 100;
+const managerFeePercentage = fees.managerFeeBps / 100;
+```
+
+The `getCollectiveFees` function returns:
+
+- `protocolFeeBps`: Protocol fee in basis points (e.g., 500 = 5%)
+- `managerFeeBps`: Manager fee in basis points (e.g., 300 = 3%)
+- `managerFeeRecipient`: Address that receives the manager fees
+
 ### Minting an nft
 
 <!-- a script is setup in scripts/mintNft -->
