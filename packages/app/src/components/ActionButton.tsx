@@ -9,6 +9,7 @@ type ActionButtonProps = {
   bg: string;
   textColor: string;
   onPress?: any;
+  width?: string;
 };
 
 export const buttonStyles = {
@@ -39,7 +40,7 @@ export const buttonStyles = {
   },
 };
 
-const ActionButton = ({ href, text, bg, textColor, onPress }: ActionButtonProps) => {
+const ActionButton = ({ href, text, bg, textColor, onPress, width = '100%' }: ActionButtonProps) => {
   const responsiveStyles = useBreakpointValue({
     base: {
       button: {
@@ -54,7 +55,7 @@ const ActionButton = ({ href, text, bg, textColor, onPress }: ActionButtonProps)
       },
       buttonContainer: {
         ...buttonStyles.buttonContainer,
-        width: '100%',
+        width,
       },
     },
     lg: buttonStyles,

@@ -420,9 +420,10 @@ const GetStarted = ({}: {}) => {
           )}
         </FormControl>
       </Flex>
-      <HStack maxWidth="full" justifyContent="space-between">
+      <HStack width="full" justifyContent="space-between">
         <ActionButton
           onPress={() => previousStep()}
+          width=""
           text={
             <HStack alignItems="center" space={1}>
               <ChevronLeftIcon /> <Text>Back</Text>
@@ -433,6 +434,7 @@ const GetStarted = ({}: {}) => {
         />
         <ActionButton
           onPress={submitForm}
+          width=""
           text={
             <HStack alignItems="center" space={1}>
               <Text>Next: Details</Text>

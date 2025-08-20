@@ -206,6 +206,7 @@ const ReviewLaunch = () => {
       <HStack w="full" justifyContent="space-between">
         <ActionButton
           onPress={() => previousStep()}
+          width=""
           text={
             <HStack alignItems="center" space={1}>
               <ChevronLeftIcon /> <Text>Back</Text>
@@ -225,6 +226,7 @@ const ReviewLaunch = () => {
               nextStep();
             }
           }}
+          width=""
           text={
             <HStack alignItems="center" space={1}>
               <img src={RocketLaunchIcon} />
