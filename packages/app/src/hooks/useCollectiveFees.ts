@@ -114,16 +114,9 @@ export function useCollectiveFees(poolAddress: string) {
           // This is a UBI pool
           if (sdk.ubifactory) {
             console.log(`useCollectiveFees: Getting protocol fee from UBIPoolFactory`);
-            try {
-              protocolFeeBps = await sdk.ubifactory.feeBps();
-              poolType = 'ubi';
-              console.log(`useCollectiveFees: Found UBI pool, protocol fee: ${protocolFeeBps}`);
-            } catch (factoryError) {
-              console.warn(`useCollectiveFees: Failed to get UBI factory fee, using fallback:`, factoryError);
-              // Use fallback protocol fee for UBI pools
-              protocolFeeBps = 1000; // 10% fallback
-              poolType = 'ubi';
-            }
+            protocolFeeBps = await sdk.ubifactory.feeBps();
+            poolType = 'ubi';
+            console.log(`useCollectiveFees: Found UBI pool, protocol fee: ${protocolFeeBps}`);
           } else {
             console.warn(`useCollectiveFees: UBI factory not available for UBI pool: ${poolAddress}`);
             setError('UBI factory not available');
@@ -132,54 +125,35 @@ export function useCollectiveFees(poolAddress: string) {
         } else {
           // Try to check if it's a DirectPayments pool via factory registry
           console.log(`useCollectiveFees: Checking DirectPaymentsFactory registry for pool: ${poolAddress}`);
-          try {
-            const directPaymentsRegistry = await sdk.factory.registry(poolAddress);
+          const directPaymentsRegistry = await sdk.factory.registry(poolAddress);
 
-            if (directPaymentsRegistry.projectId !== '') {
-              poolType = 'directPayments';
-              try {
-                protocolFeeBps = await sdk.factory.feeBps();
-                console.log(`useCollectiveFees: Found pool in DirectPaymentsFactory, protocol fee: ${protocolFeeBps}`);
-              } catch (factoryError) {
-                console.warn(
-                  `useCollectiveFees: Failed to get DirectPaymentsFactory fee, using fallback:`,
-                  factoryError
-                );
-                protocolFeeBps = 1000; // 10% fallback
-              }
-            } else {
-              // Pool not found in DirectPaymentsFactory registry, but we know it's not a UBI pool
-              // This might be a pool from a different factory or an old deployment
-              console.warn(`useCollectiveFees: Pool not found in DirectPaymentsFactory registry: ${poolAddress}`);
-
-              // Try to get protocol fee from DirectPaymentsFactory anyway (might be a legacy pool)
-              try {
-                protocolFeeBps = await sdk.factory.feeBps();
-                poolType = 'directPayments';
-                console.log(
-                  `useCollectiveFees: Using DirectPaymentsFactory protocol fee for legacy pool: ${protocolFeeBps}`
-                );
-              } catch (factoryError) {
-                console.warn(
-                  `useCollectiveFees: Could not get protocol fee from DirectPaymentsFactory: ${factoryError}`
-                );
-                // Use fallback protocol fee
-                protocolFeeBps = 1000; // 10% fallback
-                poolType = 'directPayments';
-              }
-            }
-          } catch (registryError) {
-            console.warn(`useCollectiveFees: RPC error checking registry, using fallback:`, registryError);
-            // RPC node issue - use fallback values
-            protocolFeeBps = 1000; // 10% fallback
+          if (directPaymentsRegistry.projectId !== '') {
             poolType = 'directPayments';
+            protocolFeeBps = await sdk.factory.feeBps();
+            console.log(`useCollectiveFees: Found pool in DirectPaymentsFactory, protocol fee: ${protocolFeeBps}`);
+          } else {
+            // Pool not found in DirectPaymentsFactory registry, but we know it's not a UBI pool
+            // This might be a pool from a different factory or an old deployment
+            console.warn(`useCollectiveFees: Pool not found in DirectPaymentsFactory registry: ${poolAddress}`);
+
+            // Try to get protocol fee from DirectPaymentsFactory anyway (might be a legacy pool)
+            try {
+              protocolFeeBps = await sdk.factory.feeBps();
+              poolType = 'directPayments';
+              console.log(
+                `useCollectiveFees: Using DirectPaymentsFactory protocol fee for legacy pool: ${protocolFeeBps}`
+              );
+            } catch (factoryError) {
+              console.warn(`useCollectiveFees: Could not get protocol fee from DirectPaymentsFactory: ${factoryError}`);
+              setError('Could not determine pool type or get protocol fees');
+              return;
+            }
           }
         }
       } catch (factoryError) {
         console.warn(`useCollectiveFees: Error checking factory registries for pool ${poolAddress}:`, factoryError);
-        // Use fallback values when we can't determine pool type
-        protocolFeeBps = 1000; // 10% fallback
-        poolType = 'unknown';
+        setError('Error determining pool type');
+        return;
       }
 
       // Get manager fees from the pool contract
