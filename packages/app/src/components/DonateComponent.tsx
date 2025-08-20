@@ -18,6 +18,7 @@ import { useContractCalls, useGetTokenPrice } from '../hooks';
 import { useApproveSwapTokenCallback } from '../hooks/useApproveSwapTokenCallback';
 import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
 import { SwapRouteState, useSwapRoute } from '../hooks/useSwapRoute';
+import { useCollectiveFees } from '../hooks/useCollectiveFees';
 import { acceptablePriceImpact, Frequency, GDEnvTokens, SupportedNetwork } from '../models/constants';
 import { Collective } from '../models/models';
 import { getDonateStyles } from '../utils';
@@ -218,6 +219,9 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
 
   const [currency, setCurrency] = useState<string>(gdEnvSymbol || 'G$');
   const { price: altTokenPrice = 0 } = useGetTokenPrice(currency);
+
+  // Get dynamic fee information from the collective
+  const { fees: collectiveFees, loading: feesLoading, error: feesError } = useCollectiveFees(collective.address);
 
   const decimalDonationAmount = formatDecimalStringInput(inputAmount || '0');
 
@@ -636,31 +640,67 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
 
           {/* Fee Information */}
           <VStack space={2} backgroundColor="gray.50" p={2} borderRadius="lg">
-            <Text fontSize="sm" color="gray.700">
-              All donations incur a{' '}
-              <Text fontWeight="bold" color="black">
-                5%
-              </Text>{' '}
-              protocol fee, which contributes directly to{' '}
-              <Link
-                href="https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective"
-                _text={{ color: 'blue.500', textDecoration: 'underline' }}>
-                GoodDollar UBI
-              </Link>
-              .{' '}
-              <Text>
+            {feesLoading ? (
+              <Text fontSize="sm" color="gray.700">
+                Loading fee information...
+              </Text>
+            ) : feesError ? (
+              <Text fontSize="sm" color="gray.700">
+                Unable to load fee information. Using default fees.
+              </Text>
+            ) : collectiveFees ? (
+              <Text fontSize="sm" color="gray.700">
                 All donations incur a{' '}
                 <Text fontWeight="bold" color="black">
-                  3%
-                </Text>
-              </Text>{' '}
-              <Link
-                href="https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective"
-                _text={{ color: 'blue.500', textDecoration: 'underline' }}>
-                Manager Fee
-              </Link>
-              .
-            </Text>
+                  {(collectiveFees.protocolFeeBps / 100).toFixed(1)}%
+                </Text>{' '}
+                protocol fee, which contributes directly to{' '}
+                <Link
+                  href="https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective"
+                  _text={{ color: 'blue.500', textDecoration: 'underline' }}>
+                  GoodDollar UBI
+                </Link>
+                .{' '}
+                <Text>
+                  All donations incur a{' '}
+                  <Text fontWeight="bold" color="black">
+                    {(collectiveFees.managerFeeBps / 100).toFixed(1)}%
+                  </Text>
+                </Text>{' '}
+                <Link
+                  href="https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective"
+                  _text={{ color: 'blue.500', textDecoration: 'underline' }}>
+                  Manager Fee
+                </Link>
+                .
+              </Text>
+            ) : (
+              <Text fontSize="sm" color="gray.700">
+                All donations incur a{' '}
+                <Text fontWeight="bold" color="black">
+                  5.0%
+                </Text>{' '}
+                protocol fee, which contributes directly to{' '}
+                <Link
+                  href="https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective"
+                  _text={{ color: 'blue.500', textDecoration: 'underline' }}>
+                  GoodDollar UBI
+                </Link>
+                .{' '}
+                <Text>
+                  All donations incur a{' '}
+                  <Text fontWeight="bold" color="black">
+                    3.0%
+                  </Text>
+                </Text>{' '}
+                <Link
+                  href="https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective"
+                  _text={{ color: 'blue.500', textDecoration: 'underline' }}>
+                  Manager Fee
+                </Link>
+                .
+              </Text>
+            )}
           </VStack>
         </VStack>
 
