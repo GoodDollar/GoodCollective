@@ -143,9 +143,14 @@ const GetStarted = ({}: {}) => {
     const img = new Image();
     img.onload = function () {
       if (img.width > maxWidth || img.height > maxHeight) {
+        console.log(
+          `${imgType === 'logo' ? 'Logo' : 'Cover Photo'}  height(${img.height}), width(${img.width}) exceedes limit!`
+        );
         setErrors({
           ...errors,
-          [imgType]: 'Logo height, width wrong',
+          [imgType]: `${imgType === 'logo' ? 'Logo' : 'Cover Photo'} height(${img.height}), width(${
+            img.width
+          }) exceedes limit!`,
         });
         if (imgType === 'logo') {
           setLogo('');
