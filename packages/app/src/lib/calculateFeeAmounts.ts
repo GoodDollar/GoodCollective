@@ -16,18 +16,27 @@ export function calculateFeeAmounts(flowRate: string, protocolFeeBps: number, ma
     };
   }
 
-  const flowRateBN = ethers.BigNumber.from(flowRate);
+  try {
+    const flowRateBN = ethers.BigNumber.from(flowRate);
 
-  // Calculate fees in basis points
-  const protocolFeeAmount = flowRateBN.mul(protocolFeeBps).div(10000);
-  const managerFeeAmount = flowRateBN.mul(managerFeeBps).div(10000);
-  const totalFeeAmount = protocolFeeAmount.add(managerFeeAmount);
+    // Calculate fees in basis points
+    const protocolFeeAmount = flowRateBN.mul(protocolFeeBps).div(10000);
+    const managerFeeAmount = flowRateBN.mul(managerFeeBps).div(10000);
+    const totalFeeAmount = protocolFeeAmount.add(managerFeeAmount);
 
-  return {
-    protocolFeeAmount: protocolFeeAmount.toString(),
-    managerFeeAmount: managerFeeAmount.toString(),
-    totalFeeAmount: totalFeeAmount.toString(),
-  };
+    return {
+      protocolFeeAmount: protocolFeeAmount.toString(),
+      managerFeeAmount: managerFeeAmount.toString(),
+      totalFeeAmount: totalFeeAmount.toString(),
+    };
+  } catch (error) {
+    console.error('Invalid flowRate format:', error);
+    return {
+      protocolFeeAmount: '0',
+      managerFeeAmount: '0',
+      totalFeeAmount: '0',
+    };
+  }
 }
 
 /**
@@ -41,19 +50,24 @@ export function formatFlowRateToDaily(flowRate: string, tokenPrice?: number): st
     return 'G$ 0/day';
   }
 
-  const flowRateBN = ethers.BigNumber.from(flowRate);
-  const secondsPerDay = 86400;
-  const dailyAmount = flowRateBN.mul(secondsPerDay);
+  try {
+    const flowRateBN = ethers.BigNumber.from(flowRate);
+    const secondsPerDay = 86400;
+    const dailyAmount = flowRateBN.mul(secondsPerDay);
 
-  // Convert from wei to G$ (assuming 18 decimals)
-  const dailyAmountInGd = ethers.utils.formatEther(dailyAmount);
+    // Convert from wei to G$ (assuming 18 decimals)
+    const dailyAmountInGd = ethers.utils.formatEther(dailyAmount);
 
-  const dailyAmountFloat = parseFloat(dailyAmountInGd);
+    const dailyAmountFloat = parseFloat(dailyAmountInGd);
 
-  if (tokenPrice) {
-    const dailyAmountUSD = dailyAmountFloat * tokenPrice;
-    return `G$ ${dailyAmountFloat.toFixed(2)}/day ($${dailyAmountUSD.toFixed(2)})`;
+    if (tokenPrice) {
+      const dailyAmountUSD = dailyAmountFloat * tokenPrice;
+      return `G$ ${dailyAmountFloat.toFixed(2)}/day ($${dailyAmountUSD.toFixed(2)})`;
+    }
+
+    return `G$ ${dailyAmountFloat.toFixed(2)}/day`;
+  } catch (error) {
+    console.error('Invalid flowRate format:', error);
+    return 'G$ 0/day';
   }
-
-  return `G$ ${dailyAmountFloat.toFixed(2)}/day`;
 }
