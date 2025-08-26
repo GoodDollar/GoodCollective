@@ -658,12 +658,6 @@ export class GoodCollectiveSDK {
    */
   async getCollectiveFees(poolAddress: string) {
     try {
-      // Debug: Log the contract addresses being used
-      console.log(`SDK Debug - Chain ID: ${this.chainId}`);
-      console.log(`SDK Debug - DirectPaymentsFactory address: ${this.factory.address}`);
-      console.log(`SDK Debug - UBIPoolFactory address: ${this.ubifactory?.address || 'undefined'}`);
-      console.log(`SDK Debug - Pool address to check: ${poolAddress}`);
-
       // Check if contracts are properly initialized
       if (this.factory.address === ethers.constants.AddressZero) {
         console.warn('DirectPaymentsFactory not properly initialized');
@@ -693,18 +687,15 @@ export class GoodCollectiveSDK {
           // Try to call a UBI-specific function to determine if this is a UBI pool
           await this.ubipool.attach(poolAddress).getCurrentDay();
           isUBIPool = true;
-          console.log(`SDK Debug - Pool detected as UBI pool via interface check`);
         } catch (error) {
-          console.log(`SDK Debug - Pool is not a UBI pool (interface check failed)`);
+          // Pool is not a UBI pool
         }
 
         if (isUBIPool) {
           // This is a UBI pool
           if (this.ubifactory) {
-            console.log(`SDK Debug - Getting protocol fee from UBIPoolFactory`);
             protocolFeeBps = await this.ubifactory.feeBps();
             poolType = 'ubi';
-            console.log(`SDK Debug - Found UBI pool, protocol fee: ${protocolFeeBps}`);
           } else {
             console.warn(`UBI factory not available for UBI pool: ${poolAddress}`);
             return {
@@ -716,13 +707,11 @@ export class GoodCollectiveSDK {
           }
         } else {
           // Try to check if it's a DirectPayments pool via factory registry
-          console.log(`SDK Debug - Checking DirectPaymentsFactory registry for pool: ${poolAddress}`);
           const directPaymentsRegistry = await this.factory.registry(poolAddress);
 
           if (directPaymentsRegistry.projectId !== '') {
             poolType = 'directPayments';
             protocolFeeBps = await this.factory.feeBps();
-            console.log(`SDK Debug - Found pool in DirectPaymentsFactory, protocol fee: ${protocolFeeBps}`);
           } else {
             // Pool not found in DirectPaymentsFactory registry, but we know it's not a UBI pool
             // This might be a pool from a different factory or an old deployment
@@ -732,7 +721,6 @@ export class GoodCollectiveSDK {
             try {
               protocolFeeBps = await this.factory.feeBps();
               poolType = 'directPayments';
-              console.log(`SDK Debug - Using DirectPaymentsFactory protocol fee for legacy pool: ${protocolFeeBps}`);
             } catch (error) {
               console.warn(`Could not get protocol fee from DirectPaymentsFactory: ${error}`);
               // Return default values for unknown pool types

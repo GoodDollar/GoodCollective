@@ -20,11 +20,6 @@ export function useCollectiveFees(poolAddress: string) {
 
   const fetchFees = useCallback(async () => {
     if (!chain?.id || !maybeSigner?.provider || !poolAddress) {
-      console.log('useCollectiveFees: Missing required data', {
-        chainId: chain?.id,
-        hasProvider: !!maybeSigner?.provider,
-        poolAddress,
-      });
       setError('Missing required data for fetching fees');
       return;
     }
@@ -33,21 +28,9 @@ export function useCollectiveFees(poolAddress: string) {
     setError(null);
 
     try {
-      console.log('useCollectiveFees: Initializing SDK', {
-        chainId: chain.id,
-        poolAddress,
-        networkName: chain.name,
-      });
-
       // Convert chain ID to string and check if it's supported
       const chainIdString = chain.id.toString();
       const supportedChainIds = ['42220', '122', '44787']; // Supported by SDK
-
-      console.log('useCollectiveFees: Chain validation', {
-        chainId: chainIdString,
-        isSupported: supportedChainIds.includes(chainIdString),
-        supportedChains: supportedChainIds,
-      });
 
       if (!supportedChainIds.includes(chainIdString)) {
         const errorMsg = `Unsupported chain ID: ${chainIdString}`;
@@ -77,22 +60,7 @@ export function useCollectiveFees(poolAddress: string) {
         }
       }
 
-      console.log('useCollectiveFees: Creating SDK with network', {
-        chainId: chainIdString,
-        networkName: networkName,
-        isProduction:
-          chainIdString === '42220'
-            ? window.location.hostname === 'goodcollective.org' ||
-              window.location.hostname === 'app.goodcollective.org' ||
-              process.env.NODE_ENV === 'production'
-            : 'N/A',
-      });
-
       const sdk = new GoodCollectiveSDK(chainIdString as any, maybeSigner.provider, { network: networkName });
-
-      console.log('useCollectiveFees: SDK initialized with network', networkName);
-      console.log('useCollectiveFees: Factory address', sdk.factory.address);
-      console.log('useCollectiveFees: UBI Factory address', sdk.ubifactory?.address);
 
       // Get protocol fees directly from factories
       let protocolFeeBps = 0;
@@ -105,18 +73,15 @@ export function useCollectiveFees(poolAddress: string) {
           // Try to call a UBI-specific function to determine if this is a UBI pool
           await sdk.ubipool.attach(poolAddress).getCurrentDay();
           isUBIPool = true;
-          console.log(`useCollectiveFees: Pool detected as UBI pool via interface check`);
         } catch (poolError) {
-          console.log(`useCollectiveFees: Pool is not a UBI pool (interface check failed)`);
+          // Pool is not a UBI pool
         }
 
         if (isUBIPool) {
           // This is a UBI pool
           if (sdk.ubifactory) {
-            console.log(`useCollectiveFees: Getting protocol fee from UBIPoolFactory`);
             protocolFeeBps = await sdk.ubifactory.feeBps();
             poolType = 'ubi';
-            console.log(`useCollectiveFees: Found UBI pool, protocol fee: ${protocolFeeBps}`);
           } else {
             console.warn(`useCollectiveFees: UBI factory not available for UBI pool: ${poolAddress}`);
             setError('UBI factory not available');
@@ -124,13 +89,11 @@ export function useCollectiveFees(poolAddress: string) {
           }
         } else {
           // Try to check if it's a DirectPayments pool via factory registry
-          console.log(`useCollectiveFees: Checking DirectPaymentsFactory registry for pool: ${poolAddress}`);
           const directPaymentsRegistry = await sdk.factory.registry(poolAddress);
 
           if (directPaymentsRegistry.projectId !== '') {
             poolType = 'directPayments';
             protocolFeeBps = await sdk.factory.feeBps();
-            console.log(`useCollectiveFees: Found pool in DirectPaymentsFactory, protocol fee: ${protocolFeeBps}`);
           } else {
             // Pool not found in DirectPaymentsFactory registry, but we know it's not a UBI pool
             // This might be a pool from a different factory or an old deployment
@@ -140,9 +103,6 @@ export function useCollectiveFees(poolAddress: string) {
             try {
               protocolFeeBps = await sdk.factory.feeBps();
               poolType = 'directPayments';
-              console.log(
-                `useCollectiveFees: Using DirectPaymentsFactory protocol fee for legacy pool: ${protocolFeeBps}`
-              );
             } catch (factoryError) {
               console.warn(`useCollectiveFees: Could not get protocol fee from DirectPaymentsFactory: ${factoryError}`);
               setError('Could not determine pool type or get protocol fees');
@@ -165,9 +125,6 @@ export function useCollectiveFees(poolAddress: string) {
         const [recipient, feeBps] = await poolContract.getManagerFee();
         managerFeeRecipient = recipient;
         managerFeeBps = Number(feeBps);
-        console.log(
-          `useCollectiveFees: Got manager fees from pool: ${managerFeeBps} bps, recipient: ${managerFeeRecipient}`
-        );
       } catch (poolError) {
         console.warn(`useCollectiveFees: Could not get manager fees from pool ${poolAddress}:`, poolError);
         // Don't fail completely, just use default manager fees
@@ -182,7 +139,6 @@ export function useCollectiveFees(poolAddress: string) {
         poolType: poolType,
       };
 
-      console.log('useCollectiveFees: Final fees result', result);
       setFees(result);
     } catch (err) {
       console.error('useCollectiveFees: Failed to fetch collective fees:', err);
@@ -194,7 +150,7 @@ export function useCollectiveFees(poolAddress: string) {
     } finally {
       setLoading(false);
     }
-  }, [chain?.id, chain?.name, maybeSigner?.provider, poolAddress]);
+  }, [chain?.id, maybeSigner?.provider, poolAddress]);
 
   useEffect(() => {
     fetchFees();
