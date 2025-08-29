@@ -1,4 +1,4 @@
-import { BigNumberish, ContractTransaction, ethers } from 'ethers';
+import { BigNumberish, ContractTransaction, ContractInterface, ethers } from 'ethers';
 
 import GoodCollectiveContracts from '@gooddollar/goodcollective-contracts/releases/deployment.json' assert { type: 'json' };
 import {
@@ -8,8 +8,7 @@ import {
   UBIPool,
   UBIPoolFactory,
 } from '@gooddollar/goodcollective-contracts/typechain-types/index.ts';
-import UBIPoolJson from '@gooddollar/goodcollective-contracts/artifacts/contracts/UBI/UBIPool.sol/UBIPool.json' assert { type: 'json' };
-const UBIPoolAbi = UBIPoolJson.abi;
+// removed direct JSON import; use deployed contract ABIs from releases file
 
 import { Framework } from '@superfluid-finance/sdk-core';
 import { HelperLibrary } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/GoodCollective/GoodCollectiveSuperApp.ts';
@@ -99,15 +98,20 @@ export class GoodCollectiveSDK {
   // w3Storage: Promise<W3Client.Client | void>;
   constructor(chainId: Key, readProvider: ethers.providers.Provider, options: SDKOptions = {}) {
     this.chainId = chainId;
-    this.contracts = (GoodCollectiveContracts[chainId] as Array<any>).find((_) =>
-      options.network ? _.name === options.network : true
-    )?.contracts as Contracts;
+    const deployments = GoodCollectiveContracts[chainId as unknown as keyof typeof GoodCollectiveContracts] as
+      | Array<{
+          name: string;
+          contracts: Contracts;
+        }>
+      | undefined;
+    this.contracts = (deployments || []).find((d) => (options.network ? d.name === options.network : true))
+      ?.contracts as Contracts;
 
-    const factory = this.contracts.DirectPaymentsFactory || ({} as any);
+    const factory: Partial<{ address: string; abi: unknown[] }> = this.contracts.DirectPaymentsFactory || {};
 
     this.factory = new ethers.Contract(
       factory.address || ethers.constants.AddressZero,
-      factory.abi || [],
+      (factory.abi || []) as unknown as ContractInterface,
       readProvider
     ) as DirectPaymentsFactory;
 
@@ -115,15 +119,15 @@ export class GoodCollectiveSDK {
     this.ubifactory =
       ubifactory && (new ethers.Contract(ubifactory.address, ubifactory.abi, readProvider) as UBIPoolFactory);
 
-    const nftEvents = this.contracts.ProvableNFT?.abi.filter((_) => _.type === 'event') || [];
-    this.pool = new ethers.Contract(
-      ethers.constants.AddressZero,
-      (this.contracts.DirectPaymentsPool?.abi || []).concat(nftEvents as []), //add events of nft so they are parsable
-      readProvider
-    ) as DirectPaymentsPool;
+    const nftEvents =
+      (this.contracts.ProvableNFT?.abi as Array<{ type: string }> | undefined)?.filter((_) => _.type === 'event') || [];
+    const directPoolAbi = ((this.contracts.DirectPaymentsPool?.abi || []) as unknown as Array<string | object>).concat(
+      nftEvents as unknown as Array<string | object>
+    ) as unknown as ContractInterface;
+    this.pool = new ethers.Contract(ethers.constants.AddressZero, directPoolAbi, readProvider) as DirectPaymentsPool;
     this.ubipool = new ethers.Contract(
       ethers.constants.AddressZero,
-      this.contracts.UBIPool?.abi || UBIPoolAbi || [],
+      (this.contracts.UBIPool?.abi || []) as unknown as ContractInterface,
       readProvider
     ) as UBIPool;
     // initialize framework
@@ -597,6 +601,32 @@ export class GoodCollectiveSDK {
   }
 
   /**
+   * Wraps GoodCollectiveSuperApp.getRealtimeStats to return live pool stats
+   * @param {string} poolAddress - The address of the pool contract
+   * @returns {Promise<{netIncome:string,totalFees:string,protocolFees:string,managerFees:string,incomeFlowRate:string,feeRate:string,managerFeeRate:string}>}
+   */
+  async getRealtimeStats(poolAddress: string) {
+    const pool = this.pool.attach(poolAddress);
+    const [netIncome, totalFees, protocolFees, managerFees, incomeFlowRate, feeRate, managerFeeRate] =
+      await pool.getRealtimeStats();
+
+    // Normalize to strings to avoid downstream BigNumber typing issues
+    const bnToString = (v: unknown) =>
+      typeof v === 'object' && v !== null && (v as { _isBigNumber?: boolean })._isBigNumber
+        ? (v as unknown as { toString: () => string }).toString()
+        : String(v);
+    return {
+      netIncome: bnToString(netIncome),
+      totalFees: bnToString(totalFees),
+      protocolFees: bnToString(protocolFees),
+      managerFees: bnToString(managerFees),
+      incomeFlowRate: bnToString(incomeFlowRate),
+      feeRate: bnToString(feeRate),
+      managerFeeRate: bnToString(managerFeeRate),
+    };
+  }
+
+  /**
    * Single donation using superfluid batch call
    * Executes a batch of operations including token approval and calling a function on the pool contract.
    * @param {ethers.Signer} signer - The signer object for the transaction.
@@ -657,6 +687,7 @@ export class GoodCollectiveSDK {
    * @returns {Promise<{protocolFeeBps: number, managerFeeBps: number, managerFeeRecipient: string}>} A promise that resolves to fee information.
    */
   async getCollectiveFees(poolAddress: string) {
+    // Legacy behavior: derive protocol and manager fee bps via factories and pool
     try {
       // Check if contracts are properly initialized
       if (this.factory.address === ethers.constants.AddressZero) {

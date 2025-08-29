@@ -10,6 +10,7 @@ import { ActiveStreamCard } from '../ActiveStreamCard';
 import { WalletDonatedCard } from './WalletDonatedCard';
 import { useState } from 'react';
 import { useCollectiveFees } from '../../hooks/useCollectiveFees';
+import { useRealtimeStats } from '../../hooks/useRealtimeStats';
 import { calculateFeeAmounts, formatFlowRateToDaily } from '../../lib/calculateFeeAmounts';
 
 interface DonorCollectiveCardProps {
@@ -78,6 +79,7 @@ function DonorCollectiveCard({ ipfsCollective, donorCollective, ensName, tokenPr
   };
 
   const { fees, loading: feesLoading, error: feesError } = useCollectiveFees(donorCollective.collective);
+  const { stats: realtimeStats } = useRealtimeStats(donorCollective.collective);
 
   const feeAmounts =
     fees && donorCollective.flowRate && Number(donorCollective.flowRate) > 0
@@ -107,7 +109,8 @@ function DonorCollectiveCard({ ipfsCollective, donorCollective, ensName, tokenPr
       : 'Unknown';
 
   // Debug: Show if we're using actual fees or fallback values
-  const isUsingActualFees = fees && fees.protocolFeeBps !== 500 && fees.managerFeeBps !== 300;
+  const isUsingActualFees =
+    Boolean(realtimeStats) || (fees && fees.protocolFeeBps !== 500 && fees.managerFeeBps !== 300);
 
   return (
     <TouchableOpacity
