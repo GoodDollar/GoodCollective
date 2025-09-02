@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { useEthersSigner } from './useEthers';
 import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
+import { SupportedNetwork, SupportedNetworkNames } from '../models/constants';
 
 export type RealtimeStats = {
   netIncome: string;
@@ -21,30 +22,15 @@ export function useRealtimeStats(poolAddress: string) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const networkName = useMemo(() => {
-    if (!chain?.id) return undefined;
-    const chainIdString = chain.id.toString();
-    if (chainIdString === '44787') return 'alfajores';
-    if (chainIdString === '122') return 'fuse';
-    if (chainIdString === '42220') {
-      const isProduction =
-        typeof window !== 'undefined' &&
-        (window.location.hostname === 'goodcollective.org' ||
-          window.location.hostname === 'app.goodcollective.org' ||
-          process.env.NODE_ENV === 'production');
-      return isProduction ? 'production-celo' : 'development-celo';
-    }
-    return undefined;
-  }, [chain?.id]);
-
   const fetchStats = useCallback(async () => {
-    if (!poolAddress || !chain?.id || !maybeSigner?.provider || !networkName) {
+    if (!poolAddress || !chain?.id || !maybeSigner?.provider) {
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      const sdk = new GoodCollectiveSDK(chain.id.toString() as any, maybeSigner.provider, { network: networkName });
+      const network = SupportedNetworkNames[chain.id as SupportedNetwork];
+      const sdk = new GoodCollectiveSDK(chain.id.toString() as any, maybeSigner.provider, { network });
       const result = await sdk.getRealtimeStats(poolAddress);
       setStats(result as RealtimeStats);
     } catch (e) {
@@ -54,7 +40,7 @@ export function useRealtimeStats(poolAddress: string) {
     } finally {
       setLoading(false);
     }
-  }, [poolAddress, chain?.id, maybeSigner?.provider, networkName]);
+  }, [poolAddress, chain?.id, maybeSigner?.provider]);
 
   useEffect(() => {
     fetchStats();
