@@ -10,7 +10,6 @@ import { ActiveStreamCard } from '../ActiveStreamCard';
 import { WalletDonatedCard } from './WalletDonatedCard';
 import { useState } from 'react';
 import { useCollectiveFees } from '../../hooks/useCollectiveFees';
-import { useRealtimeStats } from '../../hooks/useRealtimeStats';
 import { calculateFeeAmounts, formatFlowRateToDaily } from '../../lib/calculateFeeAmounts';
 
 interface DonorCollectiveCardProps {
@@ -79,7 +78,6 @@ function DonorCollectiveCard({ ipfsCollective, donorCollective, ensName, tokenPr
   };
 
   const { fees, loading: feesLoading, error: feesError } = useCollectiveFees(donorCollective.collective);
-  const { stats: realtimeStats } = useRealtimeStats(donorCollective.collective);
 
   const feeAmounts =
     fees && donorCollective.flowRate && Number(donorCollective.flowRate) > 0
@@ -107,10 +105,6 @@ function DonorCollectiveCard({ ipfsCollective, donorCollective, ensName, tokenPr
       : feesError
       ? 'Error loading fees'
       : 'Unknown';
-
-  // Debug: Show if we're using actual fees or fallback values
-  const isUsingActualFees =
-    Boolean(realtimeStats) || (fees && fees.protocolFeeBps !== 500 && fees.managerFeeBps !== 300);
 
   return (
     <TouchableOpacity
@@ -142,7 +136,6 @@ function DonorCollectiveCard({ ipfsCollective, donorCollective, ensName, tokenPr
               <View style={styles.row}>
                 <Text style={styles.feeLabel}>Protocol Fee</Text>
                 <Text style={styles.feeRecipient}>(to GoodDollar UBI)</Text>
-                {isUsingActualFees && <Text style={{ fontSize: 10, color: 'green', marginLeft: 5 }}>✓ Live</Text>}
               </View>
 
               <View style={styles.tooltipWrapper}>
@@ -177,7 +170,6 @@ function DonorCollectiveCard({ ipfsCollective, donorCollective, ensName, tokenPr
               <View style={styles.row}>
                 <Text style={styles.feeLabel}>Manager Fee</Text>
                 <Text style={styles.feeRecipient}>(to Pool Administrator)</Text>
-                {isUsingActualFees && <Text style={{ fontSize: 10, color: 'green', marginLeft: 5 }}>✓ Live</Text>}
               </View>
 
               <View style={styles.tooltipWrapper}>
