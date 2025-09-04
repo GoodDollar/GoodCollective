@@ -1,4 +1,4 @@
-import { BigNumberish, ContractTransaction, ethers } from 'ethers';
+import { BigNumberish, ContractTransaction, ContractInterface, ethers } from 'ethers';
 
 import GoodCollectiveContracts from '@gooddollar/goodcollective-contracts/releases/deployment.json' assert { type: 'json' };
 import {
@@ -8,8 +8,7 @@ import {
   UBIPool,
   UBIPoolFactory,
 } from '@gooddollar/goodcollective-contracts/typechain-types/index.ts';
-import UBIPoolJson from '@gooddollar/goodcollective-contracts/artifacts/contracts/UBI/UBIPool.sol/UBIPool.json' assert { type: 'json' };
-const UBIPoolAbi = UBIPoolJson.abi;
+// removed direct JSON import; use deployed contract ABIs from releases file
 
 import { Framework } from '@superfluid-finance/sdk-core';
 import { HelperLibrary } from '@gooddollar/goodcollective-contracts/typechain-types/contracts/GoodCollective/GoodCollectiveSuperApp.ts';
@@ -99,15 +98,20 @@ export class GoodCollectiveSDK {
   // w3Storage: Promise<W3Client.Client | void>;
   constructor(chainId: Key, readProvider: ethers.providers.Provider, options: SDKOptions = {}) {
     this.chainId = chainId;
-    this.contracts = (GoodCollectiveContracts[chainId] as Array<any>).find((_) =>
-      options.network ? _.name === options.network : true
-    )?.contracts as Contracts;
+    const deployments = GoodCollectiveContracts[chainId as unknown as keyof typeof GoodCollectiveContracts] as
+      | Array<{
+          name: string;
+          contracts: Contracts;
+        }>
+      | undefined;
+    this.contracts = (deployments || []).find((d) => (options.network ? d.name === options.network : true))
+      ?.contracts as Contracts;
 
-    const factory = this.contracts.DirectPaymentsFactory || ({} as any);
+    const factory: Partial<{ address: string; abi: unknown[] }> = this.contracts.DirectPaymentsFactory || {};
 
     this.factory = new ethers.Contract(
       factory.address || ethers.constants.AddressZero,
-      factory.abi || [],
+      (factory.abi || []) as unknown as ContractInterface,
       readProvider
     ) as DirectPaymentsFactory;
 
@@ -115,15 +119,15 @@ export class GoodCollectiveSDK {
     this.ubifactory =
       ubifactory && (new ethers.Contract(ubifactory.address, ubifactory.abi, readProvider) as UBIPoolFactory);
 
-    const nftEvents = this.contracts.ProvableNFT?.abi.filter((_) => _.type === 'event') || [];
-    this.pool = new ethers.Contract(
-      ethers.constants.AddressZero,
-      (this.contracts.DirectPaymentsPool?.abi || []).concat(nftEvents as []), //add events of nft so they are parsable
-      readProvider
-    ) as DirectPaymentsPool;
+    const nftEvents =
+      (this.contracts.ProvableNFT?.abi as Array<{ type: string }> | undefined)?.filter((_) => _.type === 'event') || [];
+    const directPoolAbi = ((this.contracts.DirectPaymentsPool?.abi || []) as unknown as Array<string | object>).concat(
+      nftEvents as unknown as Array<string | object>
+    ) as unknown as ContractInterface;
+    this.pool = new ethers.Contract(ethers.constants.AddressZero, directPoolAbi, readProvider) as DirectPaymentsPool;
     this.ubipool = new ethers.Contract(
       ethers.constants.AddressZero,
-      this.contracts.UBIPool?.abi || UBIPoolAbi || [],
+      (this.contracts.UBIPool?.abi || []) as unknown as ContractInterface,
       readProvider
     ) as UBIPool;
     // initialize framework
@@ -597,6 +601,32 @@ export class GoodCollectiveSDK {
   }
 
   /**
+   * Wraps GoodCollectiveSuperApp.getRealtimeStats to return live pool stats
+   * @param {string} poolAddress - The address of the pool contract
+   * @returns {Promise<{netIncome:string,totalFees:string,protocolFees:string,managerFees:string,incomeFlowRate:string,feeRate:string,managerFeeRate:string}>}
+   */
+  async getRealtimeStats(poolAddress: string) {
+    const pool = this.pool.attach(poolAddress);
+    const [netIncome, totalFees, protocolFees, managerFees, incomeFlowRate, feeRate, managerFeeRate] =
+      await pool.getRealtimeStats();
+
+    // Normalize to strings to avoid downstream BigNumber typing issues
+    const bnToString = (v: unknown) =>
+      typeof v === 'object' && v !== null && (v as { _isBigNumber?: boolean })._isBigNumber
+        ? (v as unknown as { toString: () => string }).toString()
+        : String(v);
+    return {
+      netIncome: bnToString(netIncome),
+      totalFees: bnToString(totalFees),
+      protocolFees: bnToString(protocolFees),
+      managerFees: bnToString(managerFees),
+      incomeFlowRate: bnToString(incomeFlowRate),
+      feeRate: bnToString(feeRate),
+      managerFeeRate: bnToString(managerFeeRate),
+    };
+  }
+
+  /**
    * Single donation using superfluid batch call
    * Executes a batch of operations including token approval and calling a function on the pool contract.
    * @param {ethers.Signer} signer - The signer object for the transaction.
@@ -649,5 +679,118 @@ export class GoodCollectiveSDK {
   ): Promise<ContractTransaction> {
     const token = new ethers.Contract(tokenAddress, ['function approve(address spender, uint256 amount)'], signer);
     return token.approve(poolAddress, amount, { ...CHAIN_OVERRIDES[this.chainId], gasLimit: 100000 });
+  }
+
+  /**
+   * Get protocol and manager fees for a collective
+   * @param {string} poolAddress - The address of the pool contract.
+   * @returns {Promise<{protocolFeeBps: number, managerFeeBps: number, managerFeeRecipient: string}>} A promise that resolves to fee information.
+   */
+  async getCollectiveFees(poolAddress: string) {
+    // Legacy behavior: derive protocol and manager fee bps via factories and pool
+    try {
+      // Check if contracts are properly initialized
+      if (this.factory.address === ethers.constants.AddressZero) {
+        console.warn('DirectPaymentsFactory not properly initialized');
+        return {
+          protocolFeeBps: 500, // Default 5% protocol fee
+          managerFeeBps: 300, // Default 3% manager fee
+          managerFeeRecipient: ethers.constants.AddressZero,
+          poolType: 'unknown',
+        };
+      }
+
+      // Get the pool contract to determine its type and get manager fees
+      const poolContract = this.pool.attach(poolAddress);
+
+      // Get manager fee from the pool contract
+      const [managerFeeRecipient, managerFeeBps] = await poolContract.getManagerFee();
+
+      // Determine which factory to use based on the pool type
+      // We need to check if this is a UBI pool or DirectPayments pool
+      let protocolFeeBps = 0;
+      let poolType = 'unknown';
+
+      try {
+        // First, try to determine pool type by checking if the pool has UBI-specific functions
+        let isUBIPool = false;
+        try {
+          // Try to call a UBI-specific function to determine if this is a UBI pool
+          await this.ubipool.attach(poolAddress).getCurrentDay();
+          isUBIPool = true;
+        } catch (error) {
+          // Pool is not a UBI pool
+        }
+
+        if (isUBIPool) {
+          // This is a UBI pool
+          if (this.ubifactory) {
+            protocolFeeBps = await this.ubifactory.feeBps();
+            poolType = 'ubi';
+          } else {
+            console.warn(`UBI factory not available for UBI pool: ${poolAddress}`);
+            return {
+              protocolFeeBps: 500, // Default 5% protocol fee
+              managerFeeBps: Number(managerFeeBps),
+              managerFeeRecipient: managerFeeRecipient,
+              poolType: 'ubi',
+            };
+          }
+        } else {
+          // Try to check if it's a DirectPayments pool via factory registry
+          const directPaymentsRegistry = await this.factory.registry(poolAddress);
+
+          if (directPaymentsRegistry.projectId !== '') {
+            poolType = 'directPayments';
+            protocolFeeBps = await this.factory.feeBps();
+          } else {
+            // Pool not found in DirectPaymentsFactory registry, but we know it's not a UBI pool
+            // This might be a pool from a different factory or an old deployment
+            console.warn(`Pool not found in DirectPaymentsFactory registry: ${poolAddress}`);
+
+            // Try to get protocol fee from DirectPaymentsFactory anyway (might be a legacy pool)
+            try {
+              protocolFeeBps = await this.factory.feeBps();
+              poolType = 'directPayments';
+            } catch (error) {
+              console.warn(`Could not get protocol fee from DirectPaymentsFactory: ${error}`);
+              // Return default values for unknown pool types
+              return {
+                protocolFeeBps: 500, // Default 5% protocol fee
+                managerFeeBps: Number(managerFeeBps),
+                managerFeeRecipient: managerFeeRecipient,
+                poolType: 'unknown',
+              };
+            }
+          }
+        }
+      } catch (factoryError) {
+        console.warn(`Error checking factory registries for pool ${poolAddress}:`, factoryError);
+        // Return default values if we can't determine the pool type
+        return {
+          protocolFeeBps: 500, // Default 5% protocol fee
+          managerFeeBps: Number(managerFeeBps),
+          managerFeeRecipient: managerFeeRecipient,
+          poolType: 'unknown',
+        };
+      }
+
+      return {
+        protocolFeeBps: Number(protocolFeeBps),
+        managerFeeBps: Number(managerFeeBps),
+        managerFeeRecipient: managerFeeRecipient,
+        poolType: poolType,
+      };
+    } catch (error) {
+      console.error(`Error getting collective fees for pool ${poolAddress}:`, error);
+
+      // Return default values if we can't get the fees
+      return {
+        protocolFeeBps: 500, // Default 5% protocol fee
+        managerFeeBps: 300, // Default 3% manager fee
+        managerFeeRecipient: ethers.constants.AddressZero,
+        poolType: 'unknown',
+      };
+    }
   }
 }

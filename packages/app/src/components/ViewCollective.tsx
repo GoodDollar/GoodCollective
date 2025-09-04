@@ -37,6 +37,7 @@ import { defaultInfoLabel, GDToken, SUBGRAPH_POLL_INTERVAL } from '../models/con
 import env from '../lib/env';
 import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
 import { useFlowingBalance } from '../hooks/useFlowingBalance';
+import { useRealtimeStats } from '../hooks/useRealtimeStats';
 import { GoodDollarAmount } from './GoodDollarAmount';
 import { styles as walletCardStyles } from '../components/WalletCards/styles';
 import { formatFlowRate } from '../lib/formatFlowRate';
@@ -207,9 +208,16 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress, SUBGRAPH_POLL_INTERVAL);
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
+  const { stats } = useRealtimeStats(poolAddress);
 
   const { wei: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateGoodDollarAmounts(
     totalRewards,
+    tokenPrice,
+    2
+  );
+
+  const { wei: formattedTotalFees, usdValue: totalFeesUsdValue } = calculateGoodDollarAmounts(
+    stats?.totalFees || '0',
     tokenPrice,
     2
   );
@@ -301,6 +309,13 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 rowData={formattedTotalRewards ?? '0'}
                 currency="G$"
                 balance={totalRewardsUsdValue ?? 0}
+              />
+              <RowItem
+                imageUrl={ListGreenIcon}
+                rowInfo="Accumulated Fees"
+                rowData={formattedTotalFees ?? '0'}
+                currency="G$"
+                balance={totalFeesUsdValue ?? 0}
               />
               <FlowingDonationsRowItem
                 imageUrl={SquaresIcon}
