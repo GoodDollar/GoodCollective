@@ -23,7 +23,6 @@ import { acceptablePriceImpact, Frequency, GDEnvTokens, SupportedNetwork } from 
 import { Collective } from '../models/models';
 import { getDonateStyles } from '../utils';
 import BaseModal from './modals/BaseModal';
-import env from '../lib/env'
 import { ApproveTokenImg, PhoneImg, StreamWarning, ThankYouImg } from '../assets';
 import { useToken, useTokenList } from '../hooks/useTokenList';
 import { formatDecimalStringInput } from '../lib/formatDecimalStringInput';
@@ -31,6 +30,7 @@ import { formatNumberWithCommas } from '../lib/formatFiatCurrency';
 import useCrossNavigate from '../routes/useCrossNavigate';
 import FrequencySelector from './DonateFrequency';
 import NumberInput from './NumberInput';
+import env from '../lib/env';
 type ConfigChainId = (typeof config.chains)[number]['id'];
 
 interface DonateComponentProps {
@@ -41,7 +41,7 @@ const PriceImpact = ({ priceImpact }: any) => (
   <Text color="goodOrange.500" display="flex" flexWrap="wrap">
     <Text>Due to low liquidity between your chosen currency and GoodDollar, </Text>
     <Text variant="bold" fontWeight="700">
-      your donation amount will reduce by {priceImpact?.toFixed(2)}%{' '}
+      your donation amount will reduce by {priceImpact?.toFixed(2)}%
     </Text>
     when swapped.
   </Text>
@@ -117,8 +117,7 @@ const SwapValue = ({ swapValue }: { swapValue: number }) => (
   <Text textAlign="right" fontSize="sm " color="gray.400">
     =
     <Text variant="bold" fontWeight="700">
-      {' '}
-      G${' '}
+      G$
     </Text>
     {formatNumberWithCommas(swapValue.toString(), 2)}
   </Text>
@@ -650,52 +649,44 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
               </Text>
             ) : collectiveFees ? (
               <Text fontSize="sm" color="gray.700">
-                All donations incur a{' '}
+                All donations incur a {''}
                 <Text fontWeight="bold" color="black">
                   {(collectiveFees.protocolFeeBps / 100).toFixed(1)}%
-                </Text>{' '}
-                protocol fee, which contributes directly to{' '}
-                <Link
-                  href={feeDocsLink}
-                  _text={{ color: 'blue.500', textDecoration: 'underline' }}>
+                </Text>
+                protocol fee, which contributes directly to {''}
+                <Link href={env.REACT_APP_FEE_DOCS_LINK} _text={{ color: 'blue.500', textDecoration: 'underline' }}>
                   GoodDollar UBI
                 </Link>
-                .{' '}
+                .
                 <Text>
-                  All donations incur a{' '}
+                  All donations incur a {''}
                   <Text fontWeight="bold" color="black">
                     {(collectiveFees.managerFeeBps / 100).toFixed(1)}%
                   </Text>
-                </Text>{' '}
-                <Link
-                  href={env.REACT_APP_FEE_DOCS_LINK}
-                  _text={{ color: 'blue.500', textDecoration: 'underline' }}>
+                </Text>
+                <Link href={env.REACT_APP_FEE_DOCS_LINK} _text={{ color: 'blue.500', textDecoration: 'underline' }}>
                   Manager Fee
                 </Link>
                 .
               </Text>
             ) : (
               <Text fontSize="sm" color="gray.700">
-                All donations incur a{' '}
+                All donations incur a {''}
                 <Text fontWeight="bold" color="black">
                   5.0%
-                </Text>{' '}
-                protocol fee, which contributes directly to{' '}
-                <Link
-                  href={env.REACT_APP_FEE_DOCS_LINK
-                  _text={{ color: 'blue.500', textDecoration: 'underline' }}>
+                </Text>
+                protocol fee, which contributes directly to {''}
+                <Link href={env.REACT_APP_FEE_DOCS_LINK} _text={{ color: 'blue.500', textDecoration: 'underline' }}>
                   GoodDollar UBI
                 </Link>
-                .{' '}
+                .
                 <Text>
-                  All donations incur a{' '}
+                  All donations incur a {''}
                   <Text fontWeight="bold" color="black">
                     3.0%
                   </Text>
-                </Text>{' '}
-                <Link
-                  href={env.REACT_APP_FEE_DOCS_LINK}
-                  _text={{ color: 'blue.500', textDecoration: 'underline' }}>
+                </Text>
+                <Link href={env.REACT_APP_FEE_DOCS_LINK} _text={{ color: 'blue.500', textDecoration: 'underline' }}>
                   Manager Fee
                 </Link>
                 .

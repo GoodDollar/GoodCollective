@@ -11,7 +11,7 @@ import { WalletDonatedCard } from './WalletDonatedCard';
 import { useState } from 'react';
 import { useCollectiveFees } from '../../hooks/useCollectiveFees';
 import { calculateFeeAmounts, formatFlowRateToDaily } from '../../lib/calculateFeeAmounts';
-import env from '../../lib/env'
+import env from '../../lib/env';
 interface DonorCollectiveCardProps {
   donorCollective: DonorCollective;
   ipfsCollective: IpfsCollective;
