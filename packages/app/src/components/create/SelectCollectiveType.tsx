@@ -1,6 +1,13 @@
 import { Text, Checkbox, HStack, VStack, Box, Button } from 'native-base';
 import { Pressable, View } from 'react-native';
-import { CommunityFundsIcon, SegmentedAidIcon, ResultsBasedIcon, ArrowRightIcon, BackIcon } from '../../assets';
+import {
+  CommunityFundsIcon,
+  SegmentedAidIcon,
+  ResultsBasedIcon,
+  ArrowRightIcon,
+  BackIcon,
+  ArrowLeftIcon,
+} from '../../assets';
 import { PoolType, useCreatePool } from '../../hooks/useCreatePool/useCreatePool';
 import { selectCollectiveTypeStyles as styles } from './styles';
 import GetStarted from './CreateContract/1GetStarted';
@@ -125,8 +132,8 @@ const SelectType = () => {
           <ActionButton
             text={
               <HStack space={2} alignItems="center">
-                <img src={BackIcon} width={20} height={20} alt="Back" />
-                <Text color="white" fontSize="md" fontWeight="600">
+                <img src={ArrowLeftIcon} width={20} height={20} alt="Back" />
+                <Text color="black" fontSize="md" fontWeight="600">
                   Back
                 </Text>
               </HStack>

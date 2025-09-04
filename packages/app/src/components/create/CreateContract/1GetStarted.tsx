@@ -12,7 +12,7 @@ import {
   WarningTwoIcon,
 } from 'native-base';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Pressable } from 'react-native';
 
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { Colors } from '../../../utils/colors';
@@ -44,14 +44,14 @@ const GetStarted = ({}: {}) => {
   const [tagline, setTagline] = useState<string>(form.tagline ?? '');
   const [rewardDescription, setRewardDescription] = useState<string>(form.rewardDescription ?? '');
   const [projectDescription, setProjectDescription] = useState<string>(form.projectDescription ?? '');
-  const [logo, _setLogo] = useState<string>(form.logo ?? '');
-  const [coverPhoto, _setCoverPhoto] = useState<string>(form.coverPhoto ?? '');
+  const [logo, setLogo] = useState<string>(form.logo ?? '');
+  const [coverPhoto, setCoverPhoto] = useState<string>(form.coverPhoto ?? '');
   const [errors, setErrors] = useState<FormError>({});
   const [showWarning, setShowWarning] = useState(false);
   const [hasErrors, setHasErrors] = useState(false);
-  const [_logoInput, _setLogoInput] = useState<string>();
-  const [_coverPhotoInput, _setCoverPhotoInput] = useState<string>();
-  const [_isValidating, _setIsValidating] = useState(false);
+  const [logoInput, setLogoInput] = useState<string>('');
+  const [coverPhotoInput, setCoverPhotoInput] = useState<string>('');
+  const [isValidating, setIsValidating] = useState(false);
 
   const submitForm = () => {
     // Only show warning after the form has been submitted
@@ -69,7 +69,7 @@ const GetStarted = ({}: {}) => {
   };
 
   const validate = (checkEmpty = false) => {
-    _setIsValidating(true);
+    setIsValidating(true);
     const currErrors: FormError = {
       projectName: '',
       projectDescription: '',
@@ -112,13 +112,44 @@ const GetStarted = ({}: {}) => {
       }
     }
 
+    if (!coverPhoto) {
+      if (checkEmpty) {
+        currErrors.coverPhoto = 'Cover photo is required';
+        pass = false;
+      }
+    }
+
     setErrors({
       ...errors,
       ...currErrors,
     });
-    _setIsValidating(false);
+    setIsValidating(false);
 
     return pass;
+  };
+
+  const handleLogoUpload = () => {
+    if (logoInput.trim()) {
+      setLogo(logoInput.trim());
+      setLogoInput('');
+      setErrors({ ...errors, logo: '' });
+    }
+  };
+
+  const handleCoverPhotoUpload = () => {
+    if (coverPhotoInput.trim()) {
+      setCoverPhoto(coverPhotoInput.trim());
+      setCoverPhotoInput('');
+      setErrors({ ...errors, coverPhoto: '' });
+    }
+  };
+
+  const removeLogo = () => {
+    setLogo('');
+  };
+
+  const removeCoverPhoto = () => {
+    setCoverPhoto('');
   };
 
   useEffect(() => {
@@ -225,12 +256,36 @@ const GetStarted = ({}: {}) => {
               <Text style={styles.fieldLabel}>Logo</Text>
             </FormControl.Label>
             <Text style={styles.helperText}>SVG, PNG, JPG Or GIF (500x500px)</Text>
-            <View style={styles.uploadArea}>
-              <View style={styles.uploadContent}>
-                <Text style={styles.uploadIcon}>☁️</Text>
-                <Text style={styles.uploadText}>Click to upload</Text>
+
+            {logo ? (
+              <View style={styles.uploadArea}>
+                <View style={styles.uploadedContent}>
+                  <img src={logo} alt="Logo" style={styles.uploadedImage} />
+                  <Pressable onPress={removeLogo} style={styles.removeButton}>
+                    <Text style={styles.removeButtonText}>Remove</Text>
+                  </Pressable>
+                </View>
               </View>
-            </View>
+            ) : (
+              <View style={styles.uploadArea}>
+                <VStack space={3} alignItems="center">
+                  <Text style={styles.uploadIcon}>☁️</Text>
+                  <Text style={styles.uploadText}>Click to upload</Text>
+                  <Input
+                    placeholder="Enter image URL"
+                    value={logoInput}
+                    onChangeText={setLogoInput}
+                    style={styles.urlInput}
+                    InputRightElement={
+                      <Pressable onPress={handleLogoUpload} style={styles.uploadButton}>
+                        <Text style={styles.uploadButtonText}>Upload</Text>
+                      </Pressable>
+                    }
+                  />
+                </VStack>
+              </View>
+            )}
+
             {errors.logo && (
               <HStack alignItems="center" space={1} marginTop={1}>
                 <WarningOutlineIcon size="xs" color="red.500" />
@@ -246,12 +301,36 @@ const GetStarted = ({}: {}) => {
               <Text style={styles.fieldLabel}>Cover Photo</Text>
             </FormControl.Label>
             <Text style={styles.helperText}>SVG, PNG, JPG or GIF (1400x256px)</Text>
-            <View style={styles.uploadArea}>
-              <View style={styles.uploadContent}>
-                <Text style={styles.uploadIcon}>☁️</Text>
-                <Text style={styles.uploadText}>Click to upload</Text>
+
+            {coverPhoto ? (
+              <View style={styles.uploadArea}>
+                <View style={styles.uploadedContent}>
+                  <img src={coverPhoto} alt="Cover Photo" style={styles.uploadedImage} />
+                  <Pressable onPress={removeCoverPhoto} style={styles.removeButton}>
+                    <Text style={styles.removeButtonText}>Remove</Text>
+                  </Pressable>
+                </View>
               </View>
-            </View>
+            ) : (
+              <View style={styles.uploadArea}>
+                <VStack space={3} alignItems="center">
+                  <Text style={styles.uploadIcon}>☁️</Text>
+                  <Text style={styles.uploadText}>Click to upload</Text>
+                  <Input
+                    placeholder="Enter image URL"
+                    value={coverPhotoInput}
+                    onChangeText={setCoverPhotoInput}
+                    style={styles.urlInput}
+                    InputRightElement={
+                      <Pressable onPress={handleCoverPhotoUpload} style={styles.uploadButton}>
+                        <Text style={styles.uploadButtonText}>Upload</Text>
+                      </Pressable>
+                    }
+                  />
+                </VStack>
+              </View>
+            )}
+
             {errors.coverPhoto && (
               <HStack alignItems="center" space={1} marginTop={1}>
                 <WarningOutlineIcon size="xs" color="red.500" />
@@ -443,6 +522,50 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6B7280',
     fontWeight: '500',
+  },
+  urlInput: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    fontSize: 14,
+    backgroundColor: Colors.white,
+    width: '100%',
+  },
+  uploadButton: {
+    backgroundColor: '#5B7AC6',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+    marginRight: 4,
+  },
+  uploadButtonText: {
+    color: Colors.white,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  uploadedContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+  },
+  uploadedImage: {
+    maxWidth: '100%',
+    maxHeight: 80,
+    borderRadius: 4,
+    marginBottom: 8,
+  },
+  removeButton: {
+    backgroundColor: '#EF4444',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 4,
+  },
+  removeButtonText: {
+    color: Colors.white,
+    fontSize: 12,
+    fontWeight: '600',
   },
   navigationContainer: {
     marginTop: 40,
