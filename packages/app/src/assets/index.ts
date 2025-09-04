@@ -1,4 +1,5 @@
 export { default as ApproveTokenImg } from './ApproveTokenImg.svg';
+export { default as ArrowRightIcon } from './ArrowRightIcon.svg';
 export { default as AtIcon } from './AtIcon.svg';
 export { default as BackIcon } from './BackIcon.svg';
 export { default as CalendarIcon } from './CalendarIcon.svg';
