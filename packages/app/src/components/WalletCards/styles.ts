@@ -6,6 +6,7 @@ export const styles = StyleSheet.create({
   walletCardsContainer: {
     flex: 1,
     gap: 24,
+    zIndex: -1,
     align: 'center',
   },
   cardContainer: {

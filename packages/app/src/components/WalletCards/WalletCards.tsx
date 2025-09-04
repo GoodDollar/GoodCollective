@@ -32,18 +32,24 @@ function WalletCards({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-around',
+        zIndex: -1,
+        overflow: 'visible',
       }
     : {
         marginVertical: 24,
         marginHorizontal: 20,
+        zIndex: -1,
+        overflow: 'visible',
       };
-
   return (
     <View style={[styles.walletCardsContainer, dynamicContainerStyle]}>
       {steward &&
         stewardIpfsCollectives.length > 0 &&
         steward.collectives?.map((collective, i) => (
-          <View style={{ flexGrow: 1, flexShrink: 0 }} maxWidth={{ lg: 400 }} minWidth={{ lg: 300 }}>
+          <View
+            style={{ flexGrow: 1, flexShrink: 0, zIndex: -1, overflow: 'visible' }}
+            maxWidth={{ lg: 400 }}
+            minWidth={{ lg: 300 }}>
             <StewardCollectiveCard
               key={collective.collective}
               collective={collective}
@@ -57,7 +63,10 @@ function WalletCards({
       {donor &&
         donorIpfsCollectives.length > 0 &&
         donor.collectives?.map((collective, i) => (
-          <View style={{ flexGrow: 1, flexShrink: 0 }} maxWidth={{ lg: 400 }} minWidth={{ lg: 300 }}>
+          <View
+            style={{ flexGrow: 1, flexShrink: 0, zIndex: -1, overflow: 'visible' }}
+            maxWidth={{ lg: 400 }}
+            minWidth={{ lg: 300 }}>
             <DonorCollectiveCard
               key={collective.collective}
               donorCollective={collective}
