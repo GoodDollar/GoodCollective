@@ -23,7 +23,7 @@ import { acceptablePriceImpact, Frequency, GDEnvTokens, SupportedNetwork } from 
 import { Collective } from '../models/models';
 import { getDonateStyles } from '../utils';
 import BaseModal from './modals/BaseModal';
-
+import env from '../lib/env'
 import { ApproveTokenImg, PhoneImg, StreamWarning, ThankYouImg } from '../assets';
 import { useToken, useTokenList } from '../hooks/useTokenList';
 import { formatDecimalStringInput } from '../lib/formatDecimalStringInput';
