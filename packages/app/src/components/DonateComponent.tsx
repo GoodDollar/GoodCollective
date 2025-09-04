@@ -23,7 +23,7 @@ import { acceptablePriceImpact, Frequency, GDEnvTokens, SupportedNetwork } from 
 import { Collective } from '../models/models';
 import { getDonateStyles } from '../utils';
 import BaseModal from './modals/BaseModal';
-
+import env from '../lib/env'
 import { ApproveTokenImg, PhoneImg, StreamWarning, ThankYouImg } from '../assets';
 import { useToken, useTokenList } from '../hooks/useTokenList';
 import { formatDecimalStringInput } from '../lib/formatDecimalStringInput';
@@ -656,7 +656,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 </Text>{' '}
                 protocol fee, which contributes directly to{' '}
                 <Link
-                  href="https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective"
+                  href={feeDocsLink}
                   _text={{ color: 'blue.500', textDecoration: 'underline' }}>
                   GoodDollar UBI
                 </Link>
@@ -668,7 +668,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                   </Text>
                 </Text>{' '}
                 <Link
-                  href="https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective"
+                  href={env.REACT_APP_FEE_DOCS_LINK}
                   _text={{ color: 'blue.500', textDecoration: 'underline' }}>
                   Manager Fee
                 </Link>
@@ -682,7 +682,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 </Text>{' '}
                 protocol fee, which contributes directly to{' '}
                 <Link
-                  href="https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective"
+                  href={env.REACT_APP_FEE_DOCS_LINK
                   _text={{ color: 'blue.500', textDecoration: 'underline' }}>
                   GoodDollar UBI
                 </Link>
@@ -694,7 +694,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                   </Text>
                 </Text>{' '}
                 <Link
-                  href="https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective"
+                  href={env.REACT_APP_FEE_DOCS_LINK}
                   _text={{ color: 'blue.500', textDecoration: 'underline' }}>
                   Manager Fee
                 </Link>
