@@ -31,6 +31,7 @@ import { formatNumberWithCommas } from '../lib/formatFiatCurrency';
 import useCrossNavigate from '../routes/useCrossNavigate';
 import FrequencySelector from './DonateFrequency';
 import NumberInput from './NumberInput';
+import env from '../lib/env';
 type ConfigChainId = (typeof config.chains)[number]['id'];
 
 interface DonateComponentProps {
@@ -656,7 +657,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 </Text>{' '}
                 protocol fee, which contributes directly to{' '}
                 <Link
-                  href="https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective"
+                  href={feeDocsLink}
                   _text={{ color: 'blue.500', textDecoration: 'underline' }}>
                   GoodDollar UBI
                 </Link>
@@ -668,7 +669,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                   </Text>
                 </Text>{' '}
                 <Link
-                  href="https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective"
+                  href={env.REACT_APP_FEE_DOCS_LINK}
                   _text={{ color: 'blue.500', textDecoration: 'underline' }}>
                   Manager Fee
                 </Link>
@@ -682,7 +683,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                 </Text>{' '}
                 protocol fee, which contributes directly to{' '}
                 <Link
-                  href="https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective"
+                  href={env.REACT_APP_FEE_DOCS_LINK
                   _text={{ color: 'blue.500', textDecoration: 'underline' }}>
                   GoodDollar UBI
                 </Link>
@@ -694,7 +695,7 @@ const DonateComponent = ({ collective }: DonateComponentProps) => {
                   </Text>
                 </Text>{' '}
                 <Link
-                  href="https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective"
+                  href={env.REACT_APP_FEE_DOCS_LINK}
                   _text={{ color: 'blue.500', textDecoration: 'underline' }}>
                   Manager Fee
                 </Link>

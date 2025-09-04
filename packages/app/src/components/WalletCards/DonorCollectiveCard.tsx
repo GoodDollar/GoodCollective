@@ -11,7 +11,7 @@ import { WalletDonatedCard } from './WalletDonatedCard';
 import { useState } from 'react';
 import { useCollectiveFees } from '../../hooks/useCollectiveFees';
 import { calculateFeeAmounts, formatFlowRateToDaily } from '../../lib/calculateFeeAmounts';
-
+import env from '../../lib/env'
 interface DonorCollectiveCardProps {
   donorCollective: DonorCollective;
   ipfsCollective: IpfsCollective;
@@ -66,15 +66,11 @@ function DonorCollectiveCard({ ipfsCollective, donorCollective, ensName, tokenPr
   };
 
   const handleProtocolLearnMore = () => {
-    Linking.openURL(
-      'https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective'
-    );
+    Linking.openURL(env.REACT_APP_FEE_DOCS_LINK);
   };
 
   const handleManagerLearnMore = () => {
-    Linking.openURL(
-      'https://docs.gooddollar.org/wallet-and-products/goodcollective#what-are-the-fees-associated-with-starting-or-funding-a-goodcollective'
-    );
+    Linking.openURL(env.REACT_APP_FEE_DOCS_LINK);
   };
 
   const { fees, loading: feesLoading, error: feesError } = useCollectiveFees(donorCollective.collective);
