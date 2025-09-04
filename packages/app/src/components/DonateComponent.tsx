@@ -31,8 +31,6 @@ import { formatNumberWithCommas } from '../lib/formatFiatCurrency';
 import useCrossNavigate from '../routes/useCrossNavigate';
 import FrequencySelector from './DonateFrequency';
 import NumberInput from './NumberInput';
-import env from '../lib/env';
-import env from '../lib/env';
 type ConfigChainId = (typeof config.chains)[number]['id'];
 
 interface DonateComponentProps {
