@@ -1,7 +1,7 @@
 import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
 import { useCallback, useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
-import { useEthersSigner } from './useEthers';
+import { useEthersProvider } from './useEthers';
 import { SupportedNetwork, SupportedNetworkNames } from '../models/constants';
 
 export interface CollectiveFees {
@@ -17,11 +17,13 @@ export function useCollectiveFees(poolAddress: string) {
   const [error, setError] = useState<string | null>(null);
 
   const { chain } = useAccount();
-  const maybeSigner = useEthersSigner({ chainId: chain?.id });
+  // Fallback to CELO public provider when no wallet is connected
+  const chainId = chain?.id ?? SupportedNetwork.CELO;
+  const provider = useEthersProvider({ chainId });
 
   const fetchFees = useCallback(async () => {
-    if (!chain?.id || !maybeSigner?.provider || !poolAddress) {
-      setError('Missing required data for fetching fees');
+    if (!poolAddress) {
+      setError('Missing pool address for fetching fees');
       return;
     }
 
@@ -29,8 +31,11 @@ export function useCollectiveFees(poolAddress: string) {
     setError(null);
 
     try {
-      const chainIdString = chain.id.toString();
-      const network = SupportedNetworkNames[chain.id as SupportedNetwork];
+      if (!provider) {
+        throw new Error('No RPC provider available');
+      }
+      const chainIdString = chainId.toString();
+      const network = SupportedNetworkNames[chainId as SupportedNetwork];
       if (!network) {
         const errorMsg = `Unsupported or unknown network for chain ID: ${chainIdString}`;
         console.warn(`useCollectiveFees: ${errorMsg}`);
@@ -38,7 +43,7 @@ export function useCollectiveFees(poolAddress: string) {
         return;
       }
 
-      const sdk = new GoodCollectiveSDK(chainIdString as any, maybeSigner.provider, { network });
+      const sdk = new GoodCollectiveSDK(chainIdString as any, provider, { network });
       const result = await sdk.getCollectiveFees(poolAddress);
       setFees(result);
     } catch (err) {
@@ -49,7 +54,7 @@ export function useCollectiveFees(poolAddress: string) {
     } finally {
       setLoading(false);
     }
-  }, [chain?.id, maybeSigner?.provider, poolAddress]);
+  }, [chainId, provider, poolAddress]);
 
   useEffect(() => {
     fetchFees();
