@@ -1,24 +1,22 @@
-import { useEffect, useState } from 'react';
 import {
-  VStack,
-  Text,
-  FormControl,
-  Input,
-  WarningOutlineIcon,
-  TextArea,
-  HStack,
-  Box,
-  Flex,
-  ChevronLeftIcon,
-  WarningTwoIcon,
   ArrowForwardIcon,
-  Button,
+  Box,
+  ChevronLeftIcon,
+  FormControl,
+  HStack,
+  Input,
+  Text,
+  TextArea,
+  VStack,
+  WarningOutlineIcon,
+  WarningTwoIcon,
 } from 'native-base';
-import { StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 
-import ActionButton from '../../ActionButton';
-import { useScreenSize } from '../../../theme/hooks';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
+import { Colors } from '../../../utils/colors';
+import ActionButton from '../../ActionButton';
 
 const Warning = ({ width }: { width: string }) => {
   return (
@@ -42,20 +40,18 @@ type FormError = {
 const GetStarted = ({}: {}) => {
   const { form, nextStep, previousStep, submitPartial } = useCreatePool();
 
-  const { isDesktopView } = useScreenSize();
-
   const [projectName, setProjectName] = useState<string>(form.projectName ?? '');
   const [tagline, setTagline] = useState<string>(form.tagline ?? '');
   const [rewardDescription, setRewardDescription] = useState<string>(form.rewardDescription ?? '');
   const [projectDescription, setProjectDescription] = useState<string>(form.projectDescription ?? '');
-  const [logo, setLogo] = useState<string>(form.logo ?? '');
-  const [coverPhoto, setCoverPhoto] = useState<string>(form.coverPhoto ?? '');
+  const [logo, _setLogo] = useState<string>(form.logo ?? '');
+  const [coverPhoto, _setCoverPhoto] = useState<string>(form.coverPhoto ?? '');
   const [errors, setErrors] = useState<FormError>({});
   const [showWarning, setShowWarning] = useState(false);
   const [hasErrors, setHasErrors] = useState(false);
-  const [logoInput, setLogoInput] = useState<string>();
-  const [coverPhotoInput, setCoverPhotoInput] = useState<string>();
-  const [isValidating, setIsValidating] = useState(false);
+  const [_logoInput, _setLogoInput] = useState<string>();
+  const [_coverPhotoInput, _setCoverPhotoInput] = useState<string>();
+  const [_isValidating, _setIsValidating] = useState(false);
 
   const submitForm = () => {
     // Only show warning after the form has been submitted
@@ -73,7 +69,7 @@ const GetStarted = ({}: {}) => {
   };
 
   const validate = (checkEmpty = false) => {
-    setIsValidating(true);
+    _setIsValidating(true);
     const currErrors: FormError = {
       projectName: '',
       projectDescription: '',
@@ -120,71 +116,9 @@ const GetStarted = ({}: {}) => {
       ...errors,
       ...currErrors,
     });
-    setIsValidating(false);
+    _setIsValidating(false);
 
     return pass;
-  };
-
-  const validateImg = async (
-    imgUrl: string,
-    maxSize: number,
-    maxWidth: number,
-    maxHeight: number,
-    imgType: 'logo' | 'coverPhoto'
-  ) => {
-    const response = await fetch(imgUrl, { method: 'HEAD' });
-    const contentLength = response.headers.get('content-length');
-    const size = contentLength ? parseInt(contentLength, 10) : null;
-    if (!size) throw new Error('Error: Image size 0');
-    if (size > maxSize * 1024 * 1024) {
-      throw new Error("'Image size (max ${maxSize} MB)'");
-    }
-
-    const img = new Image();
-    img.onload = function () {
-      if (img.width > maxWidth || img.height > maxHeight) {
-        console.log(
-          `${imgType === 'logo' ? 'Logo' : 'Cover Photo'}  height(${img.height}), width(${img.width}) exceedes limit!`
-        );
-        setErrors({
-          ...errors,
-          [imgType]: `${imgType === 'logo' ? 'Logo' : 'Cover Photo'} height(${img.height}), width(${
-            img.width
-          }) exceedes limit!`,
-        });
-        if (imgType === 'logo') {
-          setLogo('');
-        } else setCoverPhoto('');
-      }
-    };
-    img.src = imgUrl;
-    if (img.complete && img.naturalWidth !== 0) {
-      console.log(img);
-    }
-  };
-
-  const onSubmitLogo = async () => {
-    try {
-      validateImg(logoInput!, 1, 500, 500, 'logo');
-      setLogo(logoInput!);
-    } catch (error: Error | any) {
-      setErrors({
-        ...errors,
-        logo: error.message,
-      });
-    }
-  };
-
-  const onSubmitCoverPhoto = async () => {
-    try {
-      validateImg(coverPhotoInput!, 20, 1400, 256, 'coverPhoto');
-      setCoverPhoto(coverPhotoInput!);
-    } catch (error: Error | any) {
-      setErrors({
-        ...errors,
-        coverPhoto: error.message,
-      });
-    }
   };
 
   useEffect(() => {
@@ -192,272 +126,327 @@ const GetStarted = ({}: {}) => {
   }, [errors]);
 
   return (
-    <VStack
-      padding={2}
-      style={{ minWidth: isDesktopView ? '600px' : '150px' }}
-      width={isDesktopView ? '1/2' : 'full'}
-      marginX="auto">
-      <Text fontSize="2xl" fontWeight="700">
-        Get Started
-      </Text>
-      <Text mb={6} fontSize="xs" color="gray.500">
-        Add basic information about your project, details can be edited later
-      </Text>
-      <FormControl mb="5" isRequired>
-        <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
-            Project Name
-          </Text>
-        </FormControl.Label>
-        {isDesktopView && (
-          <FormControl.HelperText mt={0} mb={2}>
-            Give a brief name to your project that it can be identified with.
-          </FormControl.HelperText>
-        )}
-        <Input
-          style={errors.projectName ? styles.error : {}}
-          backgroundColor="white"
-          value={projectName}
-          onChangeText={(val) => setProjectName(val)}
-          onBlur={() => validate()}
-          autoComplete={undefined}
-          borderRadius={8}
-        />
-        {errors.projectName && (
-          <HStack alignItems="center" space={1} marginTop={1}>
-            <WarningOutlineIcon size="xs" color="red.500" />
-            <Text fontSize="xs" color="red.500">
-              {errors.projectName}
-            </Text>
-          </HStack>
-        )}
-      </FormControl>
-      <FormControl mb="5">
-        <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
-            Tagline
-          </Text>
-        </FormControl.Label>
-        <Input
-          style={errors.tagline ? styles.error : {}}
-          backgroundColor="white"
-          value={tagline}
-          onChangeText={(val) => setTagline(val)}
-          onBlur={() => validate()}
-          borderRadius={8}
-        />
-        {errors.tagline && (
-          <HStack alignItems="center" space={1} marginTop={1}>
-            <WarningOutlineIcon size="xs" color="red.500" />
-            <Text fontSize="xs" color="red.500">
-              Something is wrong.
-            </Text>
-          </HStack>
-        )}
-      </FormControl>
-      <FormControl mb="5">
-        <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
-            Reward Description
-          </Text>
-        </FormControl.Label>
-        <Input
-          style={errors.tagline ? styles.error : {}}
-          backgroundColor="white"
-          value={rewardDescription}
-          onChangeText={(val) => setRewardDescription(val)}
-          onBlur={() => validate()}
-          borderRadius={8}
-        />
-        {errors.tagline && (
-          <HStack alignItems="center" space={1} marginTop={1}>
-            <WarningOutlineIcon size="xs" color="red.500" />
-            <Text fontSize="xs" color="red.500">
-              Something is wrong.
-            </Text>
-          </HStack>
-        )}
-      </FormControl>
-      <FormControl mb="5" isRequired>
-        <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
-            Project Description
-          </Text>
-        </FormControl.Label>
-        <TextArea
-          style={errors.projectDescription ? styles.error : {}}
-          backgroundColor="white"
-          value={projectDescription}
-          autoCompleteType={undefined}
-          onChangeText={(val) => setProjectDescription(val)}
-          onBlur={() => validate()}
-          borderRadius={8}
-        />
-        {errors.projectDescription && (
-          <HStack alignItems="center" space={1} marginTop={1}>
-            <WarningOutlineIcon size="xs" color="red.500" />
-            <Text fontSize="xs" color="red.500">
-              {errors.projectDescription}
-            </Text>
-          </HStack>
-        )}
-      </FormControl>
-      <Flex
-        direction={isDesktopView ? 'row' : 'column'}
-        style={{ maxWidth: '100%', gap: 32 }}
-        justifyContent="space-between"
-        alignItems="stretch">
-        <FormControl width={isDesktopView ? '2/6' : '4/6'} isRequired>
+    <VStack style={styles.container}>
+      <VStack style={styles.content}>
+        <Text style={styles.title}>Get Started</Text>
+        <Text style={styles.subtitle}>
+          Add basic information about your project, these details can be edited later.
+        </Text>
+        <FormControl mb="5" isRequired>
           <FormControl.Label>
-            <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
-              Logo
-            </Text>
+            <Text style={styles.fieldLabel}>Project Name</Text>
           </FormControl.Label>
-
-          <FormControl.HelperText mt={0} mb={2}>
-            SVG, PNG, JPG or GIF(500x500px)
-          </FormControl.HelperText>
-
-          <FormControl.HelperText mt={0} mb={2}>
-            Upload your logo to IPFS or a CDN provider. Only submit a publicly accessible link to your logo.
-          </FormControl.HelperText>
-
-          <Box marginTop="auto" backgroundColor="white" alignItems="center" height="200px" padding={2}>
-            <Box alignItems="center">
-              <Input
-                placeholder="URL"
-                type="text"
-                w="100%"
-                py="0"
-                style={errors.logo ? styles.error : {}}
-                backgroundColor="white"
-                value={logoInput}
-                onChangeText={(val) => setLogoInput(val)}
-                borderRadius={8}
-                InputRightElement={
-                  <Button
-                    size="xs"
-                    rounded="none"
-                    w="2/6"
-                    h="full"
-                    disabled={!logoInput}
-                    backgroundColor="gray.200"
-                    onPress={onSubmitLogo}>
-                    <Text color="black" style={{ fontSize: 8 }}>
-                      Submit
-                    </Text>
-                  </Button>
-                }
-              />
-            </Box>
-            {logo && !errors.logo && !isValidating && (
-              <img src={logo} alt="Logo" style={{ margin: 'auto', maxWidth: '100%', maxHeight: '120px' }} />
-            )}
-          </Box>
-
-          {!!errors.coverPhoto && !errors.logo && <Box height={18} />}
-          {errors.logo && (
+          <Input
+            style={[styles.input, errors.projectName ? styles.error : {}]}
+            backgroundColor="white"
+            value={projectName}
+            onChangeText={(val) => setProjectName(val)}
+            onBlur={() => validate()}
+            autoComplete={undefined}
+            borderRadius={8}
+          />
+          {errors.projectName && (
             <HStack alignItems="center" space={1} marginTop={1}>
               <WarningOutlineIcon size="xs" color="red.500" />
               <Text fontSize="xs" color="red.500">
-                {errors.logo}
+                {errors.projectName}
               </Text>
             </HStack>
           )}
         </FormControl>
-
-        <FormControl flex={1}>
+        <FormControl mb="5">
           <FormControl.Label>
-            <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
-              Cover Photo
-            </Text>
+            <Text style={styles.fieldLabel}>Tagline</Text>
           </FormControl.Label>
-
-          <FormControl.HelperText mt={0} mb={2}>
-            SVG, PNG, JPG or GIF (1400x256px)
-          </FormControl.HelperText>
-          <FormControl.HelperText mt={0} mb={2}>
-            Upload your cover photo to IPFS or a CDN provider. Only submit a publicly accessible link to your cover
-            photo.
-          </FormControl.HelperText>
-          <Box marginTop="auto" backgroundColor="white" alignItems="center" height="200px" padding={2}>
-            <Input
-              placeholder="URL"
-              type="text"
-              minW="100%"
-              py="0"
-              style={errors.coverPhoto ? styles.error : {}}
-              backgroundColor="white"
-              value={coverPhotoInput}
-              onChangeText={(val) => setCoverPhotoInput(val)}
-              borderRadius={8}
-              InputRightElement={
-                <Button
-                  size="xs"
-                  rounded="none"
-                  w="2/6"
-                  h="full"
-                  disabled={!coverPhotoInput}
-                  backgroundColor="gray.200"
-                  onPress={onSubmitCoverPhoto}>
-                  <Text color="black" style={{ fontSize: 8 }}>
-                    Submit
-                  </Text>
-                </Button>
-              }
-            />
-            {coverPhoto && !errors.coverPhoto && !isValidating && (
-              <img
-                src={coverPhoto}
-                style={{ margin: 'auto', maxWidth: '100%', maxHeight: '120px' }}
-                alt="Cover photo"
-              />
-            )}
-          </Box>
-          {!errors.coverPhoto && !!errors.logo && <Box height={10} />}
-          {errors.coverPhoto && (
+          <Input
+            style={[styles.input, errors.tagline ? styles.error : {}]}
+            backgroundColor="white"
+            value={tagline}
+            onChangeText={(val) => setTagline(val)}
+            onBlur={() => validate()}
+            borderRadius={8}
+          />
+          {errors.tagline && (
             <HStack alignItems="center" space={1} marginTop={1}>
               <WarningOutlineIcon size="xs" color="red.500" />
               <Text fontSize="xs" color="red.500">
-                {errors.coverPhoto}
+                Something is wrong.
               </Text>
             </HStack>
           )}
         </FormControl>
-      </Flex>
-      <HStack width="full" justifyContent="space-between">
-        <ActionButton
-          onPress={() => previousStep()}
-          width=""
-          text={
-            <HStack alignItems="center" space={1}>
-              <ChevronLeftIcon /> <Text>Back</Text>
+        <FormControl mb="5">
+          <FormControl.Label>
+            <Text style={styles.fieldLabel}>Reward Description</Text>
+          </FormControl.Label>
+          <Input
+            style={[styles.input, errors.tagline ? styles.error : {}]}
+            backgroundColor="white"
+            value={rewardDescription}
+            onChangeText={(val) => setRewardDescription(val)}
+            onBlur={() => validate()}
+            borderRadius={8}
+          />
+          {errors.tagline && (
+            <HStack alignItems="center" space={1} marginTop={1}>
+              <WarningOutlineIcon size="xs" color="red.500" />
+              <Text fontSize="xs" color="red.500">
+                Something is wrong.
+              </Text>
             </HStack>
-          }
-          bg="white"
-          textColor="black"
-        />
-        <ActionButton
-          onPress={submitForm}
-          width=""
-          text={
-            <HStack alignItems="center" space={1}>
-              <Text>Next: Details</Text>
-              <ArrowForwardIcon />
+          )}
+        </FormControl>
+        <FormControl mb="5" isRequired>
+          <FormControl.Label>
+            <Text style={styles.fieldLabel}>Project Description</Text>
+          </FormControl.Label>
+          <TextArea
+            style={[styles.textArea, errors.projectDescription ? styles.error : {}]}
+            backgroundColor="white"
+            value={projectDescription}
+            autoCompleteType={undefined}
+            onChangeText={(val) => setProjectDescription(val)}
+            onBlur={() => validate()}
+            borderRadius={8}
+            placeholder="Enter project description..."
+          />
+          {errors.projectDescription && (
+            <HStack alignItems="center" space={1} marginTop={1}>
+              <WarningOutlineIcon size="xs" color="red.500" />
+              <Text fontSize="xs" color="red.500">
+                {errors.projectDescription}
+              </Text>
             </HStack>
-          }
-          bg="goodPurple.400"
-          textColor="white"
-        />
-      </HStack>
-      <Box flexDir="row-reverse" paddingY={2}>
-        {showWarning && hasErrors && <Warning width="1/2" />}
-      </Box>
+          )}
+        </FormControl>
+        <HStack space={6} alignItems="flex-start">
+          <FormControl flex={1} isRequired>
+            <FormControl.Label>
+              <Text style={styles.fieldLabel}>Logo</Text>
+            </FormControl.Label>
+            <Text style={styles.helperText}>SVG, PNG, JPG Or GIF (500x500px)</Text>
+            <View style={styles.uploadArea}>
+              <View style={styles.uploadContent}>
+                <Text style={styles.uploadIcon}>☁️</Text>
+                <Text style={styles.uploadText}>Click to upload</Text>
+              </View>
+            </View>
+            {errors.logo && (
+              <HStack alignItems="center" space={1} marginTop={1}>
+                <WarningOutlineIcon size="xs" color="red.500" />
+                <Text fontSize="xs" color="red.500">
+                  {errors.logo}
+                </Text>
+              </HStack>
+            )}
+          </FormControl>
+
+          <FormControl flex={1} isRequired>
+            <FormControl.Label>
+              <Text style={styles.fieldLabel}>Cover Photo</Text>
+            </FormControl.Label>
+            <Text style={styles.helperText}>SVG, PNG, JPG or GIF (1400x256px)</Text>
+            <View style={styles.uploadArea}>
+              <View style={styles.uploadContent}>
+                <Text style={styles.uploadIcon}>☁️</Text>
+                <Text style={styles.uploadText}>Click to upload</Text>
+              </View>
+            </View>
+            {errors.coverPhoto && (
+              <HStack alignItems="center" space={1} marginTop={1}>
+                <WarningOutlineIcon size="xs" color="red.500" />
+                <Text fontSize="xs" color="red.500">
+                  {errors.coverPhoto}
+                </Text>
+              </HStack>
+            )}
+          </FormControl>
+        </HStack>
+        <HStack width="full" justifyContent="space-between" style={styles.navigationContainer}>
+          <ActionButton
+            onPress={() => previousStep()}
+            width="120px"
+            text={
+              <HStack alignItems="center" space={2}>
+                <ChevronLeftIcon size="4" color="black" />
+                <Text color="black" fontSize="md" fontWeight="600">
+                  Back
+                </Text>
+              </HStack>
+            }
+            bg="#D6D6D6"
+            textColor="black"
+          />
+          <ActionButton
+            onPress={submitForm}
+            width="120px"
+            text={
+              <HStack alignItems="center" space={2}>
+                <Text color="white" fontSize="md" fontWeight="600">
+                  Details
+                </Text>
+                <ArrowForwardIcon size="4" color="white" />
+              </HStack>
+            }
+            bg="#5B7AC6"
+            textColor="white"
+          />
+        </HStack>
+        <Box flexDir="row-reverse" paddingY={2}>
+          {showWarning && hasErrors && <Warning width="1/2" />}
+        </Box>
+      </VStack>
     </VStack>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  progressContainer: {
+    backgroundColor: '#6933FF',
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+  },
+  progressBar: {
+    maxWidth: 800,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  progressBarBackground: {
+    height: 8,
+    backgroundColor: 'white',
+    borderRadius: 4,
+    position: 'relative',
+    marginBottom: 16,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    height: '100%',
+    width: '25%',
+    backgroundColor: '#1A85FF',
+    borderRadius: 4,
+  },
+  stepIndicator: {
+    position: 'absolute',
+    left: '25%',
+    top: -8,
+    transform: [{ translateX: -12 }],
+  },
+  stepCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 3,
+    borderColor: 'white',
+    backgroundColor: '#1A85FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepCircleInner: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'white',
+  },
+  stepLabels: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 0,
+  },
+  stepText: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 12,
+    fontWeight: '500',
+    textAlign: 'center',
+    flex: 1,
+  },
+  activeStepText: {
+    color: 'white',
+    fontWeight: '600',
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+    maxWidth: 800,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: Colors.black,
+    marginBottom: 16,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: Colors.gray[200],
+    marginBottom: 32,
+    lineHeight: 24,
+  },
+  fieldLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.black,
+    marginBottom: 8,
+  },
+  helperText: {
+    fontSize: 12,
+    color: Colors.gray[200],
+    marginBottom: 12,
+  },
+  input: {
+    height: 48,
+    borderWidth: 0,
+    borderColor: 'transparent',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    backgroundColor: Colors.white,
+  },
+  textArea: {
+    height: 80,
+    borderWidth: 0,
+    borderColor: 'transparent',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    textAlignVertical: 'top',
+    backgroundColor: Colors.white,
+  },
+  uploadArea: {
+    height: 120,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: '#000000',
+    borderRadius: 8,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  uploadContent: {
+    alignItems: 'center',
+  },
+  uploadIcon: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  uploadText: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '500',
+  },
+  navigationContainer: {
+    marginTop: 40,
+  },
   error: {
     borderWidth: 2,
     borderStyle: 'dotted',
