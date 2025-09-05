@@ -1,14 +1,14 @@
-import { createContext, ReactNode, useState } from 'react';
-import { Form } from './useCreatePool';
 import { ExtendedUBISettings, GoodCollectiveSDK, UBIPoolSettings, UBISettings } from '@gooddollar/goodcollective-sdk';
-import { ethers } from 'ethers';
-import { SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
-import { useAccount } from 'wagmi';
-import { useEthersSigner } from '../useEthers';
-import { validateConnection } from '../useContractCalls/util';
-import { UBIPool } from '../../../../contracts/typechain-types/contracts/UBI/UBIPool';
 import { useAppKitAccount } from '@reown/appkit/react';
+import { ethers } from 'ethers';
+import { createContext, ReactNode, useState } from 'react';
+import { useAccount } from 'wagmi';
+import { UBIPool } from '../../../../contracts/typechain-types/contracts/UBI/UBIPool';
+import { GDEnvTokens, SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
 import useCrossNavigate from '../../routes/useCrossNavigate';
+import { validateConnection } from '../useContractCalls/util';
+import { useEthersSigner } from '../useEthers';
+import { Form } from './useCreatePool';
 
 type CreatePoolContextType = {
   step: number;
@@ -113,11 +113,10 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
       logo: form.logo,
     };
 
-    // Get the correct reward token based on environment
-    const rewardToken =
-      network === 'production-celo'
-        ? '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A' // Production G$ token
-        : '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A'; // Development G$ token (same for now)
+    // Get the correct reward token based on environment (following DonateComponent pattern)
+    const gdEnvSymbol = network === 'production-celo' ? 'G$' : 'G$-Dev';
+    const GDToken = GDEnvTokens[gdEnvSymbol];
+    const rewardToken = GDToken?.address || '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A';
 
     const poolSettings: UBIPoolSettings = {
       manager: await signer.getAddress(),

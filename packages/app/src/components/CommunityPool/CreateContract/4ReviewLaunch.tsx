@@ -9,13 +9,13 @@ import {
   RocketLaunchIcon,
   TwitterIcon,
   WebsiteIcon,
-  ThankYouImg,
   PhoneImg,
 } from '../../../assets';
 import { useScreenSize } from '@gooddollar/good-design';
 import { useState, useCallback } from 'react';
 import BaseModal from '../../modals/BaseModal';
 import useCrossNavigate from '../../../routes/useCrossNavigate';
+import SuccessModal from '../Success';
 
 const ReviewLaunch = () => {
   const { form, startOver, previousStep, goToBasics, goToProjectDetails, goToPoolConfiguration, createPool } =
@@ -457,19 +457,19 @@ const ReviewLaunch = () => {
       />
 
       {/* Success Modal */}
-      <BaseModal
+      <SuccessModal
         openModal={thankYouModalVisible}
-        onClose={() => navigate('/create')}
-        onConfirm={onCloseThankYouModal}
-        title="Pool Created Successfully!"
-        paragraphs={[
-          `Your ${form.projectName} GoodCollective pool has been created!`,
-          'You can now share your pool with potential members and start receiving donations.',
-          'Visit your pool page to manage settings and view activity.',
-        ]}
-        confirmButtonText="GO TO POOLS"
-        message="Your pool is now live and ready for members to join!"
-        image={ThankYouImg}
+        onClose={onCloseThankYouModal}
+        projectName={form.projectName}
+        buttonText="GO TO POOLS"
+        onButtonPress={onCloseThankYouModal}
+        socials={{
+          website: form.website,
+          twitter: form.twitter,
+          instagram: form.instagram,
+          discord: form.discord,
+          threads: form.threads,
+        }}
       />
     </VStack>
   );
