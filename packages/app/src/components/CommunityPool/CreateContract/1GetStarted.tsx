@@ -17,6 +17,8 @@ import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { Colors } from '../../../utils/colors';
 import ActionButton from '../../ActionButton';
 import InfoBox from '../../InfoBox';
+import FileUpload from '../../FileUpload';
+import { uploadFileToIPFS, validateLogoFile, getIPFSUrl } from '../../../lib/ipfsUpload';
 
 type FormError = {
   projectName?: string;
@@ -38,9 +40,8 @@ const GetStarted = ({}: {}) => {
   const [errors, setErrors] = useState<FormError>({});
   const [showWarning, setShowWarning] = useState(false);
   const [hasErrors, setHasErrors] = useState(false);
-  const [logoInput, setLogoInput] = useState<string>('');
-  const [coverPhotoInput, setCoverPhotoInput] = useState<string>('');
   const [_isValidating, setIsValidating] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
   const submitForm = () => {
     // Only show warning after the form has been submitted
@@ -117,28 +118,35 @@ const GetStarted = ({}: {}) => {
     return pass;
   };
 
-  const handleLogoUpload = () => {
-    if (logoInput.trim()) {
-      setLogo(logoInput.trim());
-      setLogoInput('');
-      setErrors({ ...errors, logo: '' });
-    }
-  };
+  const handleLogoFileUpload = async (file: File) => {
+    setIsUploadingLogo(true);
+    setErrors({ ...errors, logo: '' });
 
-  const handleCoverPhotoUpload = () => {
-    if (coverPhotoInput.trim()) {
-      setCoverPhoto(coverPhotoInput.trim());
-      setCoverPhotoInput('');
-      setErrors({ ...errors, coverPhoto: '' });
+    try {
+      // Validate file
+      const validation = validateLogoFile(file, 1); // 1MB max for logo
+      if (!validation.isValid) {
+        setErrors({ ...errors, logo: validation.error });
+        setIsUploadingLogo(false);
+        return;
+      }
+
+      // Upload to IPFS
+      const ipfsHash = await uploadFileToIPFS(file);
+      const ipfsUrl = getIPFSUrl(ipfsHash);
+
+      setLogo(ipfsUrl);
+      setErrors({ ...errors, logo: '' });
+    } catch (error) {
+      console.error('Logo upload failed:', error);
+      setErrors({ ...errors, logo: 'Failed to upload logo. Please try again.' });
+    } finally {
+      setIsUploadingLogo(false);
     }
   };
 
   const removeLogo = () => {
     setLogo('');
-  };
-
-  const removeCoverPhoto = () => {
-    setCoverPhoto('');
   };
 
   useEffect(() => {
@@ -239,117 +247,67 @@ const GetStarted = ({}: {}) => {
             </HStack>
           )}
         </FormControl>
-        <HStack space={6} alignItems="flex-start">
-          <FormControl flex={1} isRequired>
-            <FormControl.Label>
-              <Text style={styles.fieldLabel}>Logo</Text>
-            </FormControl.Label>
-            <Text style={styles.helperText}>
-              SVG, PNG, JPG Or GIF (500x500px). Host your image on{' '}
-              <Text style={styles.linkText} onPress={() => window.open('https://ipfs.io/', '_blank')}>
-                IPFS
-              </Text>{' '}
-              (free tier) or{' '}
-              <Text style={styles.linkText} onPress={() => window.open('https://cloudinary.com/', '_blank')}>
-                Cloudinary
-              </Text>{' '}
-              (CDN)
-            </Text>
 
-            {logo ? (
-              <View style={styles.uploadArea}>
-                <View style={styles.uploadedContent}>
-                  <img src={logo} alt="Logo" style={styles.uploadedImage} />
-                  <Pressable onPress={removeLogo} style={styles.removeButton}>
-                    <Text style={styles.removeButtonText}>Remove</Text>
-                  </Pressable>
-                </View>
+        <FormControl mb="5" flex={1} isRequired>
+          <FormControl.Label>
+            <Text style={styles.fieldLabel}>Cover Photo</Text>
+          </FormControl.Label>
+          <Text style={styles.helperText}>Provide image URL for your cover photo.</Text>
+
+          <Input
+            style={[styles.input, errors.coverPhoto ? styles.error : {}]}
+            backgroundColor="white"
+            value={coverPhoto}
+            onChangeText={(val) => setCoverPhoto(val)}
+            onBlur={() => validate()}
+            placeholder="Enter image URL"
+            borderRadius={8}
+          />
+
+          {errors.coverPhoto && (
+            <HStack alignItems="center" space={1} marginTop={1}>
+              <WarningOutlineIcon size="xs" color="red.500" />
+              <Text fontSize="xs" color="red.500">
+                {errors.coverPhoto}
+              </Text>
+            </HStack>
+          )}
+        </FormControl>
+        <FormControl flex={1} isRequired>
+          <FormControl.Label>
+            <Text style={styles.fieldLabel}>Logo</Text>
+          </FormControl.Label>
+          <Text style={styles.helperText}>
+            JPG, PNG, GIF (max 1MB, 500x500px recommended). Upload directly or provide URL.
+          </Text>
+
+          {logo ? (
+            <View style={styles.uploadArea}>
+              <View style={styles.uploadedContent}>
+                <img src={logo} alt="Logo" style={styles.uploadedImage} />
+                <Pressable onPress={removeLogo} style={styles.removeButton}>
+                  <Text style={styles.removeButtonText}>Remove</Text>
+                </Pressable>
               </View>
-            ) : (
-              <View style={styles.uploadArea}>
-                <VStack space={3} alignItems="center">
-                  <Text style={styles.uploadIcon}>☁️</Text>
-                  <Text style={styles.uploadText}>Click to upload</Text>
-                  <Input
-                    placeholder="Enter image URL"
-                    value={logoInput}
-                    onChangeText={setLogoInput}
-                    style={styles.urlInput}
-                    InputRightElement={
-                      <Pressable onPress={handleLogoUpload} style={styles.uploadButton}>
-                        <Text style={styles.uploadButtonText}>Upload</Text>
-                      </Pressable>
-                    }
-                  />
-                </VStack>
-              </View>
-            )}
+            </View>
+          ) : (
+            <VStack space={3}>
+              {/* File Upload Option */}
+              <FileUpload style={styles.uploadArea} onUpload={handleLogoFileUpload} />
+              {isUploadingLogo && <Text style={styles.uploadText}>Uploading to IPFS...</Text>}
+            </VStack>
+          )}
 
-            {errors.logo && (
-              <HStack alignItems="center" space={1} marginTop={1}>
-                <WarningOutlineIcon size="xs" color="red.500" />
-                <Text fontSize="xs" color="red.500">
-                  {errors.logo}
-                </Text>
-              </HStack>
-            )}
-          </FormControl>
+          {errors.logo && (
+            <HStack alignItems="center" space={1} marginTop={1}>
+              <WarningOutlineIcon size="xs" color="red.500" />
+              <Text fontSize="xs" color="red.500">
+                {errors.logo}
+              </Text>
+            </HStack>
+          )}
+        </FormControl>
 
-          <FormControl flex={1} isRequired>
-            <FormControl.Label>
-              <Text style={styles.fieldLabel}>Cover Photo</Text>
-            </FormControl.Label>
-            <Text style={styles.helperText}>
-              SVG, PNG, JPG or GIF (1400x256px). Host your image on{' '}
-              <Text style={styles.linkText} onPress={() => window.open('https://ipfs.io/', '_blank')}>
-                IPFS
-              </Text>{' '}
-              (free tier) or{' '}
-              <Text style={styles.linkText} onPress={() => window.open('https://cloudinary.com/', '_blank')}>
-                Cloudinary
-              </Text>{' '}
-              (CDN)
-            </Text>
-
-            {coverPhoto ? (
-              <View style={styles.uploadArea}>
-                <View style={styles.uploadedContent}>
-                  <img src={coverPhoto} alt="Cover Photo" style={styles.uploadedImage} />
-                  <Pressable onPress={removeCoverPhoto} style={styles.removeButton}>
-                    <Text style={styles.removeButtonText}>Remove</Text>
-                  </Pressable>
-                </View>
-              </View>
-            ) : (
-              <View style={styles.uploadArea}>
-                <VStack space={3} alignItems="center">
-                  <Text style={styles.uploadIcon}>☁️</Text>
-                  <Text style={styles.uploadText}>Click to upload</Text>
-                  <Input
-                    placeholder="Enter image URL"
-                    value={coverPhotoInput}
-                    onChangeText={setCoverPhotoInput}
-                    style={styles.urlInput}
-                    InputRightElement={
-                      <Pressable onPress={handleCoverPhotoUpload} style={styles.uploadButton}>
-                        <Text style={styles.uploadButtonText}>Upload</Text>
-                      </Pressable>
-                    }
-                  />
-                </VStack>
-              </View>
-            )}
-
-            {errors.coverPhoto && (
-              <HStack alignItems="center" space={1} marginTop={1}>
-                <WarningOutlineIcon size="xs" color="red.500" />
-                <Text fontSize="xs" color="red.500">
-                  {errors.coverPhoto}
-                </Text>
-              </HStack>
-            )}
-          </FormControl>
-        </HStack>
         <HStack width="full" justifyContent="space-between" style={styles.navigationContainer}>
           <ActionButton
             onPress={() => previousStep()}
