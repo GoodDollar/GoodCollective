@@ -1,4 +1,4 @@
-import CreateGoodCollective from '../components/create/CreateGoodCollective';
+import CreateGoodCollective from '../components/CommunityPool/CreateGoodCollective';
 import Layout from '../components/Layout/Layout';
 
 function CreateGoodCollectivePage() {
