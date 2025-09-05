@@ -9,7 +9,6 @@ import {
   TextArea,
   VStack,
   WarningOutlineIcon,
-  WarningTwoIcon,
 } from 'native-base';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
@@ -17,17 +16,7 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { Colors } from '../../../utils/colors';
 import ActionButton from '../../ActionButton';
-
-const Warning = ({ width }: { width: string }) => {
-  return (
-    <HStack backgroundColor="goodPurple.100" padding={6} alignItems="center" space={2} width={width}>
-      <WarningTwoIcon color="red.600" size="md" />
-      <Text fontSize="md" color="goodPurple.400">
-        Please fill all required fields before proceedings to details section
-      </Text>
-    </HStack>
-  );
-};
+import InfoBox from '../../InfoBox';
 
 type FormError = {
   projectName?: string;
@@ -51,7 +40,7 @@ const GetStarted = ({}: {}) => {
   const [hasErrors, setHasErrors] = useState(false);
   const [logoInput, setLogoInput] = useState<string>('');
   const [coverPhotoInput, setCoverPhotoInput] = useState<string>('');
-  const [isValidating, setIsValidating] = useState(false);
+  const [_isValidating, setIsValidating] = useState(false);
 
   const submitForm = () => {
     // Only show warning after the form has been submitted
@@ -372,7 +361,9 @@ const GetStarted = ({}: {}) => {
           />
         </HStack>
         <Box flexDir="row-reverse" paddingY={2}>
-          {showWarning && hasErrors && <Warning width="1/2" />}
+          {showWarning && hasErrors && (
+            <InfoBox type="warning" message="Please fill all required fields before proceeding to details section" />
+          )}
         </Box>
       </VStack>
     </VStack>
@@ -384,71 +375,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  progressContainer: {
-    backgroundColor: '#6933FF',
-    paddingVertical: 24,
-    paddingHorizontal: 20,
-  },
-  progressBar: {
-    maxWidth: 800,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  progressBarBackground: {
-    height: 8,
-    backgroundColor: 'white',
-    borderRadius: 4,
-    position: 'relative',
-    marginBottom: 16,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    height: '100%',
-    width: '25%',
-    backgroundColor: '#1A85FF',
-    borderRadius: 4,
-  },
-  stepIndicator: {
-    position: 'absolute',
-    left: '25%',
-    top: -8,
-    transform: [{ translateX: -12 }],
-  },
-  stepCircle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 3,
-    borderColor: 'white',
-    backgroundColor: '#1A85FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stepCircleInner: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'white',
-  },
-  stepLabels: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 0,
-  },
-  stepText: {
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontSize: 12,
-    fontWeight: '500',
-    textAlign: 'center',
-    flex: 1,
-  },
-  activeStepText: {
-    color: 'white',
-    fontWeight: '600',
-  },
+
   content: {
     flex: 1,
     paddingHorizontal: 20,

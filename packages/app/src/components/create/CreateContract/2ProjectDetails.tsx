@@ -1,28 +1,26 @@
-import { ReactNode, useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
-import {
-  VStack,
-  Text,
-  FormControl,
-  Input,
-  WarningOutlineIcon,
-  Divider,
-  HStack,
-  InputLeftAddon,
-  InputGroup,
-  ChevronLeftIcon,
-  ArrowForwardIcon,
-  Box,
-  WarningTwoIcon,
-  InfoIcon,
-} from 'native-base';
-import { mainnet } from '@wagmi/core/chains';
 import { useAppKit, useAppKitAccount, useDisconnect } from '@reown/appkit/react';
+import { mainnet } from '@wagmi/core/chains';
+import {
+  ArrowForwardIcon,
+  ChevronLeftIcon,
+  FormControl,
+  HStack,
+  Input,
+  InputGroup,
+  InputLeftAddon,
+  Text,
+  TextArea,
+  VStack,
+  WarningOutlineIcon,
+} from 'native-base';
+import { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 
-import ActionButton from '../../ActionButton';
-import { useScreenSize } from '../../../theme/hooks';
-import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { createConfig, getEnsName, http } from '@wagmi/core';
+import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
+import { Colors } from '../../../utils/colors';
+import ActionButton from '../../ActionButton';
+import InfoBox from '../../InfoBox';
 
 type FormError = {
   social?: string;
@@ -30,33 +28,8 @@ type FormError = {
   website?: string;
 };
 
-const Disclaimer = ({ hideIcon, text }: { hideIcon?: boolean; text: string | ReactNode }) => {
-  return (
-    <Box backgroundColor="goodPurple.100" padding={4}>
-      <HStack space={2} alignItems="center">
-        {!hideIcon && <InfoIcon color="goodPurple.400" style={{ width: 40 }} />}
-        <Text fontSize="xs">{text}</Text>
-      </HStack>
-    </Box>
-  );
-};
-
-const Warning = ({ width, message }: { width: string; message?: string }) => {
-  return (
-    <HStack backgroundColor="goodPurple.100" padding={6} alignItems="center" space={2} width={width}>
-      <WarningTwoIcon color="red.600" size="md" />
-      <Text fontSize="md" color="goodPurple.400">
-        Please fill out all required fields before proceeding:
-        <br />
-        <Text fontWeight="700">{message}</Text>
-      </Text>
-    </HStack>
-  );
-};
-
 const ProjectDetails = () => {
   const { form, nextStep, submitPartial, previousStep } = useCreatePool();
-  const { isDesktopView } = useScreenSize();
   const { address } = useAppKitAccount();
   const { open } = useAppKit();
   const { disconnect } = useDisconnect();
@@ -66,6 +39,7 @@ const ProjectDetails = () => {
   const [telegram, setTelegram] = useState<string>(form.telegram ?? '');
   const [discord, setDiscord] = useState<string>(form.discord ?? '');
   const [facebook, setFacebook] = useState<string>(form.facebook ?? '');
+  const [threads, setThreads] = useState<string>(form.threads ?? '');
   const [adminWalletAddress, setAdminWalletAddress] = useState<string>(form.adminWalletAddress ?? address ?? '');
   const [additionalInfo, setAdditionalInfo] = useState<string>(form.additionalInfo ?? '');
   const [errors, setErrors] = useState<FormError>({});
@@ -108,6 +82,7 @@ const ProjectDetails = () => {
         telegram,
         discord,
         facebook,
+        threads,
         adminWalletAddress,
         additionalInfo,
       });
@@ -122,7 +97,7 @@ const ProjectDetails = () => {
       website: '',
     };
     let pass = true;
-    if (!website && !twitter && !telegram && !discord && !facebook) {
+    if (!website && !twitter && !telegram && !discord && !facebook && !threads) {
       currErrors.social = 'One social channel is required';
       pass = false;
     }
@@ -166,162 +141,277 @@ const ProjectDetails = () => {
   };
 
   return (
-    <VStack
-      padding={2}
-      style={{ minWidth: isDesktopView ? '600px' : '150px' }}
-      width={isDesktopView ? '1/2' : 'full'}
-      marginX="auto">
-      <Text fontSize={isDesktopView ? '2xl' : 'lg'} fontWeight="700">
-        Project Details
-      </Text>
-      <Text mb={6} fontSize="xs" color="gray.500">
-        Add a detalied description, project links and disclaimer to help educate contributors about your project and
-        it's goals
-      </Text>
-      <FormControl mb="5" isRequired>
-        <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
-            Website
-          </Text>
-        </FormControl.Label>
-        <InputGroup width="full" backgroundColor="white">
-          <InputLeftAddon children={'https://'} />
-          <Input
-            style={errors.website ? styles.error : {}}
-            flex={1}
-            value={website}
-            onChangeText={(value) => {
-              setWebsite(value);
-              validate();
-            }}
-          />
-        </InputGroup>
-        {errors.website && (
-          <HStack alignItems="center" space={1} marginTop={1}>
-            <WarningOutlineIcon size="xs" color="red.500" />
-            <Text fontSize="xs" color="red.500">
-              {errors.website}
-            </Text>
-          </HStack>
-        )}
-      </FormControl>
-
-      <FormControl mb="5">
-        <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
-            Twitter (X) Handle
-          </Text>
-        </FormControl.Label>
-
-        <InputGroup width="full" backgroundColor="white">
-          <InputLeftAddon children={'@'} />
-          <Input flex={1} value={twitter} onChangeText={(value) => setTwitter(value)} />
-        </InputGroup>
-      </FormControl>
-
-      <FormControl mb="5">
-        <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
-            Telegram
-          </Text>
-        </FormControl.Label>
-
-        <InputGroup width="full" backgroundColor="white">
-          <InputLeftAddon children={'@'} />
-          <Input flex={1} value={telegram} onChangeText={(value) => setTelegram(value)} />
-        </InputGroup>
-      </FormControl>
-
-      <FormControl mb="5">
-        <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
-            Discord
-          </Text>
-        </FormControl.Label>
-        <InputGroup width="full" backgroundColor="white">
-          <InputLeftAddon children={'@'} />
-          <Input flex={1} value={discord} onChangeText={(value) => setDiscord(value)} />
-        </InputGroup>
-      </FormControl>
-
-      <FormControl mb="5">
-        <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
-            Facebook
-          </Text>
-        </FormControl.Label>
-        <InputGroup width="full" backgroundColor="white">
-          <InputLeftAddon children={'@'} />
-          <Input flex={1} value={facebook} onChangeText={(value) => setFacebook(value)} />
-        </InputGroup>
-      </FormControl>
-
-      <Text textTransform={isDesktopView ? 'uppercase' : 'none'} fontSize="md" fontWeight="600" mt={2}>
-        Project Owner Details
-      </Text>
-      <Divider mb={8} />
-
-      <VStack space="4">
-        <Text fontSize="lg" fontWeight="500">
-          Admin Wallet Address
+    <View style={styles.container}>
+      <VStack style={styles.content}>
+        <Text style={styles.title}>Project Details</Text>
+        <Text style={styles.subtitle}>
+          Add a detailed description, project links and disclaimer to help educate contributors about your project and
+          it's goals.
         </Text>
+        <FormControl mb="5" isRequired>
+          <FormControl.Label>
+            <Text style={styles.fieldLabel}>Website*</Text>
+          </FormControl.Label>
+          <InputGroup width="full" backgroundColor="white" style={styles.inputGroup}>
+            <InputLeftAddon children={'https://'} style={styles.inputAddon} />
+            <Input
+              style={[styles.input, errors.website ? styles.error : {}]}
+              flex={1}
+              value={website}
+              onChangeText={(value) => {
+                setWebsite(value);
+                validate();
+              }}
+              placeholder="www.gooddollar.org"
+            />
+          </InputGroup>
+          {errors.website && (
+            <HStack alignItems="center" space={1} marginTop={1}>
+              <WarningOutlineIcon size="xs" color="red.500" />
+              <Text fontSize="xs" color="red.500">
+                {errors.website}
+              </Text>
+            </HStack>
+          )}
+        </FormControl>
 
-        <Disclaimer text="Make sure your wallet that is connected is the wallet that you want to manage your pool with." />
-        <ActionButton text="Change Wallet" bg="goodPurple.400" textColor="white" onPress={changeWallet} />
-        <Box borderWidth={2} borderColor="gray.200" backgroundColor="white" padding={4} borderRadius={4}>
-          <Text fontSize="md" fontWeight="400" color="gray.400">
-            {ensName}
-          </Text>
-          <Text fontSize="sm" fontWeight="500" color="gray.400">
-            {adminWalletAddress}
-          </Text>
-        </Box>
+        <FormControl mb="5">
+          <FormControl.Label>
+            <Text style={styles.fieldLabel}>Twitter (X) Handle</Text>
+          </FormControl.Label>
+          <InputGroup width="full" backgroundColor="white" style={styles.inputGroup}>
+            <InputLeftAddon children={'@'} style={styles.inputAddon} />
+            <Input
+              style={styles.input}
+              flex={1}
+              value={twitter}
+              onChangeText={(value) => setTwitter(value)}
+              placeholder="@Gooddollar"
+            />
+          </InputGroup>
+        </FormControl>
+
+        <FormControl mb="5">
+          <FormControl.Label>
+            <Text style={styles.fieldLabel}>Discord</Text>
+          </FormControl.Label>
+          <InputGroup width="full" backgroundColor="white" style={styles.inputGroup}>
+            <InputLeftAddon children={'https://'} style={styles.inputAddon} />
+            <Input
+              style={styles.input}
+              flex={1}
+              value={discord}
+              onChangeText={(value) => setDiscord(value)}
+              placeholder="www.gooddollar.org"
+            />
+          </InputGroup>
+        </FormControl>
+
+        <FormControl mb="5">
+          <FormControl.Label>
+            <Text style={styles.fieldLabel}>Telegram</Text>
+          </FormControl.Label>
+          <InputGroup width="full" backgroundColor="white" style={styles.inputGroup}>
+            <InputLeftAddon children={'https://'} style={styles.inputAddon} />
+            <Input
+              style={styles.input}
+              flex={1}
+              value={telegram}
+              onChangeText={(value) => setTelegram(value)}
+              placeholder="www.gooddollar.org"
+            />
+          </InputGroup>
+        </FormControl>
+
+        <FormControl mb="5">
+          <FormControl.Label>
+            <Text style={styles.fieldLabel}>Facebook</Text>
+          </FormControl.Label>
+          <InputGroup width="full" backgroundColor="white" style={styles.inputGroup}>
+            <InputLeftAddon children={'https://'} style={styles.inputAddon} />
+            <Input
+              style={styles.input}
+              flex={1}
+              value={facebook}
+              onChangeText={(value) => setFacebook(value)}
+              placeholder="www.gooddollar.org"
+            />
+          </InputGroup>
+        </FormControl>
+
+        <FormControl mb="5">
+          <FormControl.Label>
+            <Text style={styles.fieldLabel}>Threads</Text>
+          </FormControl.Label>
+          <InputGroup width="full" backgroundColor="white" style={styles.inputGroup}>
+            <InputLeftAddon children={'https://'} style={styles.inputAddon} />
+            <Input
+              style={styles.input}
+              flex={1}
+              value={threads}
+              onChangeText={(value) => setThreads(value)}
+              placeholder="www.gooddollar.org"
+            />
+          </InputGroup>
+        </FormControl>
+
+        <Text style={styles.sectionTitle}>Project Owner Details</Text>
+        <Text style={styles.sectionSubtitle}>Admin Wallet Address</Text>
+
+        <InfoBox
+          type="info"
+          message="Make sure the wallet that is connected is the wallet that you want to manage the pool with."
+        />
+
+        <ActionButton text="Change Wallet" bg="#5B7AC6" textColor="white" onPress={changeWallet} width="150px" />
+
+        <View style={styles.walletAddressBox}>
+          <Text style={styles.walletAddressText}>{adminWalletAddress}</Text>
+        </View>
+
+        <FormControl mb="5">
+          <FormControl.Label>
+            <Text style={styles.fieldLabel}>
+              Please provide any additional information about your project that you would like us to know (Optional)
+            </Text>
+          </FormControl.Label>
+          <TextArea
+            style={styles.textArea}
+            value={additionalInfo}
+            onChangeText={(value) => setAdditionalInfo(value)}
+            placeholder="Enter additional information..."
+            autoCompleteType="off"
+          />
+        </FormControl>
+
+        <HStack width="full" justifyContent="space-between" style={styles.navigationContainer}>
+          <ActionButton
+            onPress={() => previousStep()}
+            width="120px"
+            text={
+              <HStack alignItems="center" space={2}>
+                <ChevronLeftIcon size="4" color="black" />
+                <Text color="black" fontSize="md" fontWeight="600">
+                  Back
+                </Text>
+              </HStack>
+            }
+            bg="#D6D6D6"
+            textColor="black"
+          />
+          <ActionButton
+            onPress={submitForm}
+            width="120px"
+            text={
+              <HStack alignItems="center" space={2}>
+                <Text color="white" fontSize="md" fontWeight="600">
+                  Configure Pool
+                </Text>
+                <ArrowForwardIcon size="4" color="white" />
+              </HStack>
+            }
+            bg="#5B7AC6"
+            textColor="white"
+          />
+        </HStack>
+
+        {showWarning && Object.keys(errors).length > 0 && (
+          <InfoBox type="warning" message="Please fill all required fields before proceeding to the details section" />
+        )}
       </VStack>
-
-      <FormControl mb="5">
-        <FormControl.Label>
-          <Text fontSize="xs" fontWeight="700" textTransform={isDesktopView ? 'uppercase' : 'none'}>
-            Please provide any additional information about your project that you would like us to know (optional)
-          </Text>
-        </FormControl.Label>
-        <Input backgroundColor="white" value={additionalInfo} onChangeText={(value) => setAdditionalInfo(value)} />
-        <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-          Something is wrong.
-        </FormControl.ErrorMessage>
-      </FormControl>
-      <HStack w="full" justifyContent="space-between">
-        <ActionButton
-          onPress={() => previousStep()}
-          width=""
-          text={
-            <HStack alignItems="center" space={1}>
-              <ChevronLeftIcon /> <Text>Back</Text>
-            </HStack>
-          }
-          bg="white"
-          textColor="black"
-        />
-        <ActionButton
-          onPress={submitForm}
-          width=""
-          text={
-            <HStack alignItems="center" space={1}>
-              <Text>Next: Configure Pool</Text>
-              <ArrowForwardIcon />
-            </HStack>
-          }
-          bg="goodPurple.400"
-          textColor="white"
-        />
-      </HStack>
-      <Box flexDir="row-reverse" paddingY={2}>
-        {showWarning && Object.keys(errors).length > 0 && <Warning width="1/2" message={errors.social} />}
-      </Box>
-    </VStack>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+    maxWidth: 800,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: Colors.black,
+    marginBottom: 16,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: Colors.gray[200],
+    marginBottom: 32,
+    lineHeight: 24,
+  },
+  fieldLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.black,
+    marginBottom: 8,
+  },
+  inputGroup: {
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+  },
+  inputAddon: {
+    backgroundColor: '#F9FAFB',
+    borderColor: '#D1D5DB',
+    borderRightWidth: 1,
+    paddingHorizontal: 12,
+  },
+  input: {
+    height: 48,
+    borderWidth: 0,
+    borderColor: 'transparent',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    backgroundColor: Colors.white,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: Colors.black,
+    marginTop: 24,
+    marginBottom: 8,
+  },
+  sectionSubtitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: Colors.black,
+    marginBottom: 16,
+  },
+  walletAddressBox: {
+    backgroundColor: '#F3F4F6',
+    padding: 16,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  walletAddressText: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontFamily: 'monospace',
+  },
+  textArea: {
+    height: 100,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    textAlignVertical: 'top',
+    backgroundColor: Colors.white,
+  },
+  navigationContainer: {
+    marginTop: 40,
+  },
   error: {
     borderWidth: 2,
     borderStyle: 'dotted',

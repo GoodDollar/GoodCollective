@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { mainnet } from '@wagmi/core/chains';
 import { createConfig, getEnsName, http } from '@wagmi/core';
@@ -10,7 +10,6 @@ import {
   Divider,
   FormControl,
   HStack,
-  InfoIcon,
   Input,
   InputGroup,
   InputRightAddon,
@@ -27,17 +26,7 @@ import ActionButton from '../../ActionButton';
 import { useScreenSize } from '../../../theme/hooks';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { DefaultIcon, SettingsIcon } from '../../../assets';
-
-const Disclaimer = ({ hideIcon, text }: { hideIcon?: boolean; text: string | ReactNode }) => {
-  return (
-    <Box backgroundColor="goodPurple.100" padding={4}>
-      <HStack space={2} alignItems="center">
-        {!hideIcon && <InfoIcon color="goodPurple.400" style={{ width: 40 }} />}
-        <Text fontSize="xs">{text}</Text>
-      </HStack>
-    </Box>
-  );
-};
+import InfoBox from '../../InfoBox';
 
 type FormError = {
   maximumMembers?: string;
@@ -273,7 +262,10 @@ const PoolConfiguration = () => {
         <Text color="gray.500">
           Pool manager can take a certain percentage by setting up the Pool which is optional
         </Text>
-        <Disclaimer text="Pool manager can take fee payout for setting up the pool in custom mode or prefer not to take any manager fee in the default mode" />
+        <InfoBox
+          type="info"
+          message="Pool manager can take fee payout for setting up the pool in custom mode or prefer not to take any manager fee in the default mode"
+        />
         <Radio.Group
           name="myRadioGroup"
           accessibilityLabel="favorite number"
@@ -346,9 +338,10 @@ const PoolConfiguration = () => {
       </VStack>
       {poolManagerFeeType === 'custom' && (
         <Box>
-          <Disclaimer
+          <InfoBox
+            type="info"
+            message="Pool manager takes a payout from the pool for setting it up, which the maximum is 30% which is charged from the pool"
             hideIcon
-            text="Pool manager takes a payout from the pool for setting it up, which the maximum is 30% which is charged from the pool"
           />
           <Box marginY={4} backgroundColor="white" padding={4}>
             <Text fontWeight="600">Manager Fee Percentage</Text>
@@ -465,20 +458,9 @@ const PoolConfiguration = () => {
         </Text>
         <Divider marginBottom={4} />
 
-        <Disclaimer
-          text={
-            <VStack space={4}>
-              <Text>
-                For a fixed amount per claimFrequency the pool needs to be funded with a minimum amount to sustain
-                expected amount of members in one cycle. The pool will be paused if you choose to fund less money then
-                this minimum and more members then you expect to join.
-              </Text>
-              <Text>
-                Use the widget below to configure this settings. It will also show you the minimum amount of funding
-                needed to sustain the pool with your chosen settings
-              </Text>
-            </VStack>
-          }
+        <InfoBox
+          type="info"
+          message="For a fixed amount per claimFrequency the pool needs to be funded with a minimum amount to sustain expected amount of members in one cycle. The pool will be paused if you choose to fund less money then this minimum and more members then you expect to join. Use the widget below to configure this settings. It will also show you the minimum amount of funding needed to sustain the pool with your chosen settings"
         />
 
         <VStack backgroundColor="goodPurple.100" padding={4} space={2}>

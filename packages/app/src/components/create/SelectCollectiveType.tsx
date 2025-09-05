@@ -1,13 +1,6 @@
 import { Text, Checkbox, HStack, VStack, Box, Button } from 'native-base';
 import { Pressable, View } from 'react-native';
-import {
-  CommunityFundsIcon,
-  SegmentedAidIcon,
-  ResultsBasedIcon,
-  ArrowRightIcon,
-  BackIcon,
-  ArrowLeftIcon,
-} from '../../assets';
+import { CommunityFundsIcon, SegmentedAidIcon, ResultsBasedIcon, ArrowRightIcon, ArrowLeftIcon } from '../../assets';
 import { PoolType, useCreatePool } from '../../hooks/useCreatePool/useCreatePool';
 import { selectCollectiveTypeStyles as styles } from './styles';
 import GetStarted from './CreateContract/1GetStarted';
