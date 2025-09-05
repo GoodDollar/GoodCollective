@@ -77,9 +77,21 @@ const ReviewLaunch = () => {
     } catch (error) {
       console.error('Pool creation error:', error);
       setApprovePoolModalVisible(false);
-      setErrorMessage(
-        error instanceof Error ? error.message : 'Something went wrong while creating your pool. Please try again.'
-      );
+
+      // Provide more specific error messages
+      let errorMsg = 'Something went wrong while creating your pool. Please try again.';
+      if (error instanceof Error) {
+        if (error.message.includes('DirectPaymentsFactory')) {
+          errorMsg = 'Contract configuration error. Please try again later.';
+        } else if (error.message.includes('insufficient funds')) {
+          errorMsg = 'Insufficient funds for transaction. Please check your wallet balance.';
+        } else if (error.message.includes('user rejected')) {
+          errorMsg = 'Transaction was rejected. Please try again.';
+        } else {
+          errorMsg = error.message;
+        }
+      }
+      setErrorMessage(errorMsg);
     } finally {
       setIsCreating(false);
     }

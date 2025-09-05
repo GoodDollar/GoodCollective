@@ -80,15 +80,23 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
     const sdk = new GoodCollectiveSDK(chainIdString, signer.provider as ethers.providers.Provider, { network });
 
     // Final form validation
-    if (!form.projectName || !form.projectDescription) return false;
-    if (!form.logo) return false;
+    if (!form.projectName || !form.projectDescription) {
+      console.error('Missing required project details');
+      return false;
+    }
+    if (!form.logo) {
+      console.error('Missing required logo');
+      return false;
+    }
     if (
       !form.maximumMembers ||
       !form.claimAmountPerWeek ||
       !form.claimFrequency ||
       typeof form.managerFeePercentage !== 'number'
-    )
+    ) {
+      console.error('Missing required pool configuration');
       return false;
+    }
 
     const projectId =
       form.projectName.replace(' ', '/').toLowerCase() + (Math.random() * 1e32).toString(36).substring(0, 6);
@@ -105,30 +113,47 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
       logo: form.logo,
     };
 
+    // Get the correct reward token based on environment
+    const rewardToken =
+      network === 'production-celo'
+        ? '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A' // Production G$ token
+        : '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A'; // Development G$ token (same for now)
+
     const poolSettings: UBIPoolSettings = {
-      manager: signer.getAddress(),
+      manager: await signer.getAddress(),
       membersValidator: ethers.constants.AddressZero,
       uniquenessValidator: '0xC361A6E67822a0EDc17D899227dd9FC50BD62F42',
-      rewardToken: '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A',
+      rewardToken: rewardToken,
     };
 
+    // Calculate cycle length based on claim frequency
+    const cycleLengthDays = form.claimFrequency && form.claimFrequency <= 7 ? 7 : form.claimFrequency || 1;
+
     const ubiSettings: UBISettings = {
-      claimPeriodDays: ethers.BigNumber.from(form.claimFrequency),
+      claimPeriodDays: ethers.BigNumber.from(form.claimFrequency || 1),
       minActiveUsers: ethers.BigNumber.from(1),
-      maxClaimAmount: ethers.utils.parseEther(String(form.claimAmountPerWeek)),
-      maxMembers: form.maximumMembers,
-      onlyMembers: form.canNewMembersJoin ?? false,
-      cycleLengthDays: ethers.BigNumber.from(form.claimFrequency <= 7 ? 7 : form.claimFrequency),
+      maxClaimAmount: ethers.utils.parseEther(String(form.claimAmountPerWeek || 0)),
+      maxMembers: form.maximumMembers || form.expectedMembers || 100,
+      onlyMembers: form.poolRecipients ? form.canNewMembersJoin ?? false : false,
+      cycleLengthDays: ethers.BigNumber.from(cycleLengthDays),
       claimForEnabled: false,
     };
 
     const extendedUBISettings: ExtendedUBISettings = {
       maxPeriodClaimers: 0,
       minClaimAmount: ubiSettings.maxClaimAmount,
-      managerFeeBps: form.managerFeePercentage * 100,
+      managerFeeBps: (form.managerFeePercentage || 0) * 100,
     };
 
     try {
+      console.log('Creating UBI pool with settings:', {
+        projectId,
+        poolSettings,
+        ubiSettings,
+        extendedUBISettings,
+        network,
+      });
+
       const pool = await sdk.createUbiPoolWithAttributes(
         signer,
         projectId,
@@ -136,12 +161,13 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
         poolSettings,
         ubiSettings,
         extendedUBISettings,
-        false
+        false // isBeacon should always be false as per requirements
       );
-      console.log('pool:', pool.address);
+      console.log('Pool created successfully:', pool.address);
       return pool;
     } catch (error) {
-      return false;
+      console.error('Pool creation failed:', error);
+      throw error; // Re-throw to let the UI handle the error properly
     }
   };
 
