@@ -9,18 +9,31 @@ import {
   RocketLaunchIcon,
   TwitterIcon,
   WebsiteIcon,
+  ThankYouImg,
+  PhoneImg,
 } from '../../../assets';
 import { useScreenSize } from '@gooddollar/good-design';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import BaseModal from '../../modals/BaseModal';
+import useCrossNavigate from '../../../routes/useCrossNavigate';
 
 const ReviewLaunch = () => {
-  const { form, nextStep, startOver, previousStep, goToBasics, goToProjectDetails, goToPoolConfiguration, createPool } =
+  const { form, startOver, previousStep, goToBasics, goToProjectDetails, goToPoolConfiguration, createPool } =
     useCreatePool();
   const { isDesktopView } = useScreenSize();
+  const { navigate } = useCrossNavigate();
 
-  const [showModal, setShowModal] = useState(false);
-  const [showErrorModal, setShowErrorModal] = useState(false);
+  // Modal states following DonateComponent patterns
+  const [approvePoolModalVisible, setApprovePoolModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+  const [thankYouModalVisible, setThankYouModalVisible] = useState(false);
+  const [isPoolCreationComplete, setIsPoolCreationComplete] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+
+  // Navigation handling for completion
+  if (isPoolCreationComplete) {
+    navigate('/create');
+  }
 
   const socials = [
     !!form.website && {
@@ -44,6 +57,40 @@ const ReviewLaunch = () => {
       icon: AtIcon,
     },
   ].filter((val) => !!val);
+
+  // Enhanced pool creation handler following DonateComponent patterns
+  const handleCreatePool = useCallback(async () => {
+    setIsCreating(true);
+    setApprovePoolModalVisible(true);
+
+    try {
+      const pool = await createPool();
+
+      if (pool) {
+        setApprovePoolModalVisible(false);
+        setThankYouModalVisible(true);
+        setIsPoolCreationComplete(true);
+      } else {
+        setApprovePoolModalVisible(false);
+        setErrorMessage('Failed to create pool. Please check your wallet connection and try again.');
+      }
+    } catch (error) {
+      console.error('Pool creation error:', error);
+      setApprovePoolModalVisible(false);
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Something went wrong while creating your pool. Please try again.'
+      );
+    } finally {
+      setIsCreating(false);
+    }
+  }, [createPool]);
+
+  // Modal handlers
+  const onCloseErrorModal = () => setErrorMessage(undefined);
+  const onCloseThankYouModal = () => {
+    setThankYouModalVisible(false);
+    navigate('/create');
+  };
 
   return (
     <VStack
@@ -305,22 +352,13 @@ const ReviewLaunch = () => {
           textColor="gray.600"
         />
         <ActionButton
-          onPress={async () => {
-            setShowModal(true);
-            const resp = await createPool();
-            if (!resp) {
-              setShowErrorModal(true);
-            } else {
-              setShowModal(false);
-              nextStep();
-            }
-          }}
+          onPress={handleCreatePool}
           width="140px"
           text={
             <HStack alignItems="center" space={2}>
               <img src={RocketLaunchIcon} width={16} height={16} />
               <Text color="white" fontSize="md" fontWeight="600">
-                Launch Pool
+                {isCreating ? 'Creating...' : 'Launch Pool'}
               </Text>
             </HStack>
           }
@@ -334,14 +372,41 @@ const ReviewLaunch = () => {
           Start over.
         </Text>
       </Text>
+      {/* Error Modal */}
       <BaseModal
-        type={showErrorModal ? 'error' : undefined}
-        errorMessage="Error creating pool"
-        openModal={showModal}
-        onClose={() => setShowModal(false)}
-        onConfirm={goToBasics}
+        type="error"
+        openModal={!!errorMessage}
+        onClose={onCloseErrorModal}
+        errorMessage={errorMessage ?? ''}
+        onConfirm={onCloseErrorModal}
+      />
+
+      {/* Approval Modal */}
+      <BaseModal
+        openModal={approvePoolModalVisible}
+        onClose={() => setApprovePoolModalVisible(false)}
         title="APPROVE POOL CREATION"
-        paragraphs={['To create a GoodCollective pool, sign with your wallet.']}
+        paragraphs={[
+          'To create your GoodCollective pool, sign with your wallet.',
+          'This will deploy your pool contract and make it available for members to join.',
+        ]}
+        image={PhoneImg}
+      />
+
+      {/* Success Modal */}
+      <BaseModal
+        openModal={thankYouModalVisible}
+        onClose={() => navigate('/create')}
+        onConfirm={onCloseThankYouModal}
+        title="Pool Created Successfully!"
+        paragraphs={[
+          `Your ${form.projectName} GoodCollective pool has been created!`,
+          'You can now share your pool with potential members and start receiving donations.',
+          'Visit your pool page to manage settings and view activity.',
+        ]}
+        confirmButtonText="GO TO POOLS"
+        message="Your pool is now live and ready for members to join!"
+        image={ThankYouImg}
       />
     </VStack>
   );
