@@ -1,8 +1,8 @@
 import { useAppKit, useAppKitAccount, useDisconnect } from '@reown/appkit/react';
 import { mainnet } from '@wagmi/core/chains';
 import {
+  ArrowBackIcon,
   ArrowForwardIcon,
-  ChevronLeftIcon,
   FormControl,
   HStack,
   Input,
@@ -290,7 +290,7 @@ const ProjectDetails = () => {
             width="120px"
             text={
               <HStack alignItems="center" space={2}>
-                <ChevronLeftIcon size="4" color="black" />
+                <ArrowBackIcon size="4" color="black" />
                 <Text color="black" fontSize="md" fontWeight="600">
                   Back
                 </Text>

@@ -1,7 +1,7 @@
 import {
+  ArrowBackIcon,
   ArrowForwardIcon,
   Box,
-  ChevronLeftIcon,
   FormControl,
   HStack,
   Input,
@@ -11,7 +11,7 @@ import {
   WarningOutlineIcon,
 } from 'native-base';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View, Pressable } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { Colors } from '../../../utils/colors';
@@ -244,7 +244,17 @@ const GetStarted = ({}: {}) => {
             <FormControl.Label>
               <Text style={styles.fieldLabel}>Logo</Text>
             </FormControl.Label>
-            <Text style={styles.helperText}>SVG, PNG, JPG Or GIF (500x500px)</Text>
+            <Text style={styles.helperText}>
+              SVG, PNG, JPG Or GIF (500x500px). Host your image on{' '}
+              <Text style={styles.linkText} onPress={() => window.open('https://ipfs.io/', '_blank')}>
+                IPFS
+              </Text>{' '}
+              (free tier) or{' '}
+              <Text style={styles.linkText} onPress={() => window.open('https://cloudinary.com/', '_blank')}>
+                Cloudinary
+              </Text>{' '}
+              (CDN)
+            </Text>
 
             {logo ? (
               <View style={styles.uploadArea}>
@@ -289,7 +299,17 @@ const GetStarted = ({}: {}) => {
             <FormControl.Label>
               <Text style={styles.fieldLabel}>Cover Photo</Text>
             </FormControl.Label>
-            <Text style={styles.helperText}>SVG, PNG, JPG or GIF (1400x256px)</Text>
+            <Text style={styles.helperText}>
+              SVG, PNG, JPG or GIF (1400x256px). Host your image on{' '}
+              <Text style={styles.linkText} onPress={() => window.open('https://ipfs.io/', '_blank')}>
+                IPFS
+              </Text>{' '}
+              (free tier) or{' '}
+              <Text style={styles.linkText} onPress={() => window.open('https://cloudinary.com/', '_blank')}>
+                Cloudinary
+              </Text>{' '}
+              (CDN)
+            </Text>
 
             {coverPhoto ? (
               <View style={styles.uploadArea}>
@@ -336,7 +356,7 @@ const GetStarted = ({}: {}) => {
             width="120px"
             text={
               <HStack alignItems="center" space={2}>
-                <ChevronLeftIcon size="4" color="black" />
+                <ArrowBackIcon size="4" color="black" />
                 <Text color="black" fontSize="md" fontWeight="600">
                   Back
                 </Text>
@@ -501,6 +521,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderStyle: 'dotted',
     borderColor: 'red',
+  },
+  linkText: {
+    color: '#5B7AC6',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   },
 });
 

@@ -19,6 +19,8 @@ export { default as InfoIconOrange } from './InfoIconOrange.svg';
 export { default as InstagramIcon } from './InstagramIcon.svg';
 export { default as LastRowIcon } from './LastRowIcon.svg';
 export { default as LightningIcon } from './LightningIcon.svg';
+export { default as LightBulbIcon } from './LightBulbIcon.svg';
+
 export { default as ListGreenIcon } from './List-greenIcon.svg';
 export { default as Logout } from './Logout.svg';
 export { default as MenuIcon } from './MenuIcon.svg';

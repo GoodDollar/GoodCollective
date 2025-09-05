@@ -186,6 +186,22 @@ const ReviewLaunch = () => {
             </HStack>
             <HStack space={4}>
               <Text fontSize="sm" fontWeight="500" textTransform="uppercase" flex={1}>
+                Expected Members
+              </Text>
+              <Box
+                borderWidth={1}
+                borderRadius={4}
+                borderColor="gray.200"
+                backgroundColor="gray.100"
+                paddingX={2}
+                width={75}>
+                <Text fontSize="xs" textAlign="center">
+                  {form.expectedMembers}
+                </Text>
+              </Box>
+            </HStack>
+            <HStack space={4}>
+              <Text fontSize="sm" fontWeight="500" textTransform="uppercase" flex={1}>
                 Amount To Fund
               </Text>
               <Box
@@ -196,7 +212,15 @@ const ReviewLaunch = () => {
                 paddingX={2}
                 width={75}>
                 <Text fontSize="xs" textAlign="center">
-                  {form.claimAmountPerWeek}G$
+                  {(() => {
+                    const daysInCycle = form.claimFrequency === 2 ? form.customClaimFrequency : form.claimFrequency;
+                    const weeklyAmount = form.claimAmountPerWeek || 0;
+                    const dailyAmount = weeklyAmount / 7;
+                    const cycleAmount = dailyAmount * daysInCycle;
+                    const totalForAllMembers = cycleAmount * (form.expectedMembers || 0);
+                    return Math.ceil(totalForAllMembers);
+                  })()}
+                  G$
                 </Text>
               </Box>
             </HStack>

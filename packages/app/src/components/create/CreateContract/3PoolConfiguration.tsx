@@ -1,12 +1,10 @@
-import { useEffect, useState } from 'react';
-import { useAccount } from 'wagmi';
-import { mainnet } from '@wagmi/core/chains';
 import { createConfig, getEnsName, http } from '@wagmi/core';
+import { mainnet } from '@wagmi/core/chains';
 import {
+  ArrowBackIcon,
   ArrowForwardIcon,
   Box,
   CheckCircleIcon,
-  ChevronLeftIcon,
   Divider,
   FormControl,
   HStack,
@@ -16,16 +14,19 @@ import {
   Pressable,
   Radio,
   Slider,
+  Text,
   VStack,
   WarningOutlineIcon,
   WarningTwoIcon,
-  Text,
 } from 'native-base';
+import { useEffect, useState } from 'react';
+import { useAccount } from 'wagmi';
 
-import ActionButton from '../../ActionButton';
-import { useScreenSize } from '../../../theme/hooks';
+import { StyleSheet } from 'react-native';
+import { DefaultIcon, LightBulbIcon, SettingsIcon } from '../../../assets';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
-import { DefaultIcon, SettingsIcon } from '../../../assets';
+import { useScreenSize } from '../../../theme/hooks';
+import ActionButton from '../../ActionButton';
 import InfoBox from '../../InfoBox';
 
 type FormError = {
@@ -36,6 +37,7 @@ type FormError = {
   claimAmountPerWeek?: string;
   customClaimFrequency?: string;
   expectedMembers?: string;
+  managerFeePercentage?: string;
 };
 
 const PoolConfiguration = () => {
@@ -51,7 +53,7 @@ const PoolConfiguration = () => {
   const [maximumMembers, setMaximumMembers] = useState(form.maximumMembers ?? 1);
   const [managerAddress] = useState(form.managerAddress ?? address);
   const [poolRecipients, setPoolRecipients] = useState(form.poolRecipients ?? '');
-  const [managerFeePercentage, setManagerFeePercentage] = useState(form.managerFeePercentage ?? 0);
+  const [managerFeePercentage, setManagerFeePercentage] = useState(form.managerFeePercentage ?? 10);
   const [claimAmountPerWeek, setClaimAmountPerWeek] = useState(form.claimAmountPerWeek ?? 10);
   const [expectedMembers, setExpectedMembers] = useState(form.expectedMembers ?? 10);
   const [customClaimFrequency, setCustomClaimFrequency] = useState(form.customClaimFrequency ?? 1);
@@ -61,77 +63,99 @@ const PoolConfiguration = () => {
   useEffect(() => {
     (async () => {
       if (!managerAddress || ensName) return;
-      const resp = await getEnsName(
-        createConfig({
-          chains: [mainnet],
-          transports: {
-            [mainnet.id]: http(),
-          },
-        }),
-        {
-          address: managerAddress as `0x${string}`,
-        }
-      );
-      if (typeof resp === 'string') setEnsName(resp);
+      try {
+        const resp = await getEnsName(
+          createConfig({
+            chains: [mainnet],
+            transports: {
+              [mainnet.id]: http(),
+            },
+          }),
+          {
+            address: managerAddress as `0x${string}`,
+          }
+        );
+        if (typeof resp === 'string') setEnsName(resp);
+      } catch (error) {
+        console.error('Error fetching ENS name:', error);
+      }
     })();
   }, [ensName, managerAddress]);
 
   const validate = () => {
-    const currErrors: FormError = {
-      customClaimFrequency: '',
-      poolRecipients: '',
-      claimAmountPerWeek: '',
-      expectedMembers: '',
-    };
+    const currErrors: FormError = {};
     let pass = true;
 
-    const regex = /^[a-zA-Z0-9]+$/;
-    const addresses = poolRecipients.split(',');
-    for (let i = 0; i < addresses.length; i++) {
-      if (!regex.test(addresses[i])) {
-        currErrors.poolRecipients = 'Invalid format';
-        break;
+    // Validate pool recipients (only if provided)
+    if (poolRecipients.trim()) {
+      const addresses = poolRecipients.split(',').map((addr) => addr.trim());
+      const validAddressRegex = /^0x[a-fA-F0-9]{40}$/;
+
+      for (const addr of addresses) {
+        if (!validAddressRegex.test(addr)) {
+          currErrors.poolRecipients = 'Invalid address format. Please use valid Ethereum addresses.';
+          pass = false;
+          break;
+        }
+      }
+
+      // Check if number of addresses matches maximum members (only if recipients are provided)
+      if (addresses.length !== maximumMembers) {
+        currErrors.poolRecipients = `Number of addresses (${addresses.length}) must match maximum members (${maximumMembers})`;
+        pass = false;
       }
     }
 
-    if (form.expectedMembers && expectedMembers !== addresses.length) {
-      currErrors.poolRecipients = 'Number of addresses must match the amount of members';
+    // Validate maximum members
+    if (maximumMembers < 1 || maximumMembers > 1000) {
+      currErrors.maximumMembers = 'Maximum members must be between 1 and 1000';
+      pass = false;
     }
 
-    if (isNaN(+customClaimFrequency)) {
-      currErrors.customClaimFrequency = 'Invalid value';
+    // Validate custom claim frequency
+    if (claimFrequency === 2 && (customClaimFrequency < 1 || customClaimFrequency > 365)) {
+      currErrors.customClaimFrequency = 'Custom frequency must be between 1 and 365 days';
+      pass = false;
     }
 
-    if (isNaN(+claimAmountPerWeek)) {
-      currErrors.claimAmountPerWeek = 'Invalid value';
+    // Validate claim amount per week
+    if (claimAmountPerWeek < 1 || claimAmountPerWeek > 10000) {
+      currErrors.claimAmountPerWeek = 'Claim amount must be between 1 and 10,000 G$';
+      pass = false;
     }
 
-    if (isNaN(+expectedMembers)) {
-      currErrors.expectedMembers = 'Invalid value';
+    // Validate expected members
+    if (expectedMembers < 1 || expectedMembers > maximumMembers) {
+      currErrors.expectedMembers = `Expected members must be between 1 and ${maximumMembers}`;
+      pass = false;
     }
 
-    setErrors({
-      ...errors,
-      ...currErrors,
-    });
+    // Validate manager fee percentage
+    if (poolManagerFeeType === 'custom' && (managerFeePercentage < 0 || managerFeePercentage > 100)) {
+      currErrors.managerFeePercentage = 'Manager fee must be between 0% and 100%';
+      pass = false;
+    }
 
+    setErrors(currErrors);
     return pass;
   };
 
   const submitForm = () => {
-    if (validate())
+    if (validate()) {
       submitPartial({
         poolManagerFeeType,
-        claimFrequency: claimFrequency !== 2 ? claimFrequency : customClaimFrequency,
+        claimFrequency: claimFrequency === 2 ? customClaimFrequency : claimFrequency,
         joinStatus,
         maximumMembers,
         managerAddress,
         poolRecipients,
-        managerFeePercentage,
+        managerFeePercentage: poolManagerFeeType === 'default' ? 0 : managerFeePercentage,
         claimAmountPerWeek: claimAmountPerWeek,
         expectedMembers,
+        customClaimFrequency,
       });
-    nextStep();
+      nextStep();
+    }
   };
 
   const baseFrequencies = [
@@ -141,7 +165,11 @@ const PoolConfiguration = () => {
     },
   ];
 
-  const claimFrequencies = baseFrequencies.concat([
+  const claimFrequencies = [
+    {
+      name: 'Every day',
+      value: 1,
+    },
     {
       name: 'Every week',
       value: 7,
@@ -154,40 +182,61 @@ const PoolConfiguration = () => {
       name: 'Every 30 days',
       value: 30,
     },
-  ]);
+  ];
+
+  // Calculate minimum funding needed
+  const calculateMinimumFunding = () => {
+    const daysInCycle = claimFrequency === 2 ? customClaimFrequency : claimFrequency;
+    const weeklyAmount = claimAmountPerWeek || 0;
+    const dailyAmount = weeklyAmount / 7;
+    const cycleAmount = dailyAmount * daysInCycle;
+    const totalForAllMembers = cycleAmount * (expectedMembers || 0);
+    return Math.ceil(totalForAllMembers);
+  };
 
   return (
     <VStack
-      padding={2}
-      style={{ minWidth: isDesktopView ? '600px' : '150px' }}
+      padding={6}
+      style={{ minWidth: isDesktopView ? '600px' : '350px' }}
       width={isDesktopView ? '1/2' : 'full'}
       marginX="auto"
-      space={2}>
-      <Text fontSize={isDesktopView ? '2xl' : 'lg'} fontWeight="700">
-        Pool Configuration
-      </Text>
-      <Text mb={6} fontSize="xs" color="gray.500">
-        Add a detalied description, project links and disclaimer to help educate contributors about your project and
-        it's goals
-      </Text>
-      <Text fontSize="md" fontWeight="600" textTransform="uppercase">
-        Pool Manager
-      </Text>
-      <Text fontSize="sm" color="gray.500">
-        Wallet address(es) that can change pool configuration, add and remove members
-      </Text>
-      <Box borderWidth={2} borderColor="gray.200" backgroundColor="white" padding={4} borderRadius={4}>
-        <Text fontSize="md" fontWeight="400" color="gray.400">
-          {ensName}
+      space={6}>
+      {/* Header */}
+      <VStack space={2}>
+        <Text fontSize={isDesktopView ? '2xl' : 'lg'} fontWeight="700">
+          Pool Configuration
         </Text>
-        <Text fontSize="sm" fontWeight="500" color="gray.400">
-          {managerAddress}
+        <Text fontSize="sm" color="gray.500">
+          Configure pool recipients and pool rules that they should follow. Note that pool contributors might leave the
+          pool any time but they will be receiving less.
         </Text>
-      </Box>
+      </VStack>
+
+      {/* Pool Manager Section */}
+      <VStack space={3}>
+        <Text fontSize="md" fontWeight="600" textTransform="uppercase" color="gray.700">
+          Pool Manager
+        </Text>
+        <Text fontSize="sm" color="gray.500">
+          Wallet address(es) that can change pool configuration, add and remove members
+        </Text>
+        <Box borderWidth={1} borderColor="gray.300" backgroundColor="gray.50" padding={4} borderRadius={8}>
+          {ensName && (
+            <Text fontSize="md" fontWeight="500" color="gray.800">
+              {ensName}
+            </Text>
+          )}
+          <Text fontSize="sm" fontWeight="400" color="gray.600" fontFamily="mono">
+            {managerAddress}
+          </Text>
+        </Box>
+      </VStack>
+
+      {/* Maximum Members */}
       <Box backgroundColor="white" padding={4} borderWidth={1} borderColor="gray.200" borderRadius={8}>
-        <FormControl mb="5" isRequired isInvalid={!!errors.maximumMembers}>
+        <FormControl mb="4" isRequired isInvalid={!!errors.maximumMembers}>
           <FormControl.Label>
-            <Text fontSize="sm" fontWeight="600">
+            <Text fontSize="sm" fontWeight="600" color="gray.700">
               Maximum amount of members
             </Text>
           </FormControl.Label>
@@ -196,10 +245,29 @@ const PoolConfiguration = () => {
               Total amount of members that can be recipients of this pool.
             </Text>
           </FormControl.HelperText>
-          <Input flex={1} value={String(maximumMembers)} onChangeText={(value) => setMaximumMembers(+value)} />
+          <Input
+            value={String(maximumMembers)}
+            onChangeText={(value) => {
+              if (value === '') {
+                setMaximumMembers(1);
+                return;
+              }
+              const num = parseInt(value, 10);
+              if (!isNaN(num) && num >= 1) {
+                setMaximumMembers(num);
+              }
+            }}
+            onBlur={() => {
+              if (maximumMembers < 1 || isNaN(maximumMembers)) {
+                setMaximumMembers(1);
+              }
+            }}
+            keyboardType="numeric"
+            placeholder="Enter maximum members"
+          />
           <FormControl.HelperText>
             <Text fontSize="xs" color="gray.600">
-              Make sure the total amount of recipients, tallies with the number of addresses in the pool recipients.
+              Make sure the total amount of recipients matches the number of addresses in the pool recipients.
             </Text>
           </FormControl.HelperText>
           <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
@@ -207,308 +275,160 @@ const PoolConfiguration = () => {
           </FormControl.ErrorMessage>
         </FormControl>
       </Box>
-      <VStack space={2} padding={2} backgroundColor="white" borderWidth={1} borderColor="gray.200" borderRadius={8}>
-        <FormControl mb="5" isRequired isInvalid={!!errors.poolRecipients}>
+
+      {/* Pool Recipients and Join Status */}
+      <VStack space={4} padding={4} backgroundColor="white" borderWidth={1} borderColor="gray.200" borderRadius={8}>
+        <FormControl mb="4" isInvalid={!!errors.poolRecipients}>
           <FormControl.Label>
-            <Text fontSize="sm" fontWeight="600">
+            <Text fontSize="sm" fontWeight="600" color="gray.700">
               Pool Recipients
             </Text>
           </FormControl.Label>
           <FormControl.HelperText>
-            <Text color="gray.500">
-              Wallet address(es) of all pool recipients, Split the confirmed addresses of recipients in the form field
-              with ','
+            <Text fontSize="xs" color="gray.500">
+              Wallet address(es) of all pool recipients. Split the confirmed addresses of recipients in the form field
+              with commas.
             </Text>
           </FormControl.HelperText>
           <Input
             value={poolRecipients}
-            onChangeText={(value) => setPoolRecipients(value)}
-            color="gray.400"
-            backgroundColor="white"
-            fontWeight="500"
+            onChangeText={setPoolRecipients}
+            placeholder="0x1234...,0x5678...,0x9abc..."
+            multiline
+            numberOfLines={3}
           />
           <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
             {errors.poolRecipients}
           </FormControl.ErrorMessage>
         </FormControl>
 
-        <FormControl mb="5" isRequired isInvalid={!!errors.joinStatus}>
+        <FormControl>
           <FormControl.Label>
-            <Text fontWeight="500">New members after launch</Text>
+            <Text fontSize="sm" fontWeight="600" color="gray.700">
+              New members after launch
+            </Text>
           </FormControl.Label>
           <Radio.Group
-            name="myRadioGroup"
-            accessibilityLabel="favorite number"
+            name="joinStatus"
             value={joinStatus}
-            onChange={(nextValue) => {
-              setJoinStatus(nextValue as 'closed' | 'open');
-            }}>
-            <Radio size="sm" value="closed" my={1}>
-              Closed for new members
-            </Radio>
-            <Radio size="sm" value="open" my={1} isDisabled={!poolRecipients}>
-              New members can join
-            </Radio>
+            onChange={(nextValue) => setJoinStatus(nextValue as 'closed' | 'open')}>
+            <VStack space={2}>
+              <Radio size="sm" value="closed">
+                <Text fontSize="sm">Closed for new members</Text>
+              </Radio>
+              <Radio size="sm" value="open">
+                <Text fontSize="sm">New members can join</Text>
+              </Radio>
+            </VStack>
           </Radio.Group>
-          <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-            {errors.joinStatus}
-          </FormControl.ErrorMessage>
         </FormControl>
       </VStack>
-      <VStack space={2}>
-        <Text textTransform="uppercase" fontWeight="700">
-          Pool Manager Fee
-        </Text>
-        <Text color="gray.500">
-          Pool manager can take a certain percentage by setting up the Pool which is optional
-        </Text>
+
+      {/* Pool Manager Fee */}
+      <VStack space={4}>
+        <VStack space={2}>
+          <Text fontSize="md" fontWeight="600" textTransform="uppercase" color="gray.700">
+            Pool Manager Fee
+          </Text>
+          <Text fontSize="sm" color="gray.500">
+            Pool manager can take a certain percentage by setting up the Pool which is optional
+          </Text>
+        </VStack>
+
         <InfoBox
           type="info"
+          icon={<img src={LightBulbIcon} width={20} height={20} />}
           message="Pool manager can take fee payout for setting up the pool in custom mode or prefer not to take any manager fee in the default mode"
         />
-        <Radio.Group
-          name="myRadioGroup"
-          accessibilityLabel="favorite number"
-          value={poolManagerFeeType}
-          onChange={(nextValue) => {
-            setPoolManagerFeeType(nextValue as 'default' | 'custom');
-          }}>
-          <HStack space={8}>
-            <Pressable
-              alignItems="center"
-              padding={4}
-              my={1}
-              borderWidth={1}
-              borderRadius={8}
-              borderColor={poolManagerFeeType === 'default' ? 'goodPurple.400' : 'gray.200'}
-              flexDirection="row"
-              backgroundColor="white"
-              onPress={() => {
-                setClaimFrequency(1);
-                setPoolManagerFeeType('default');
-              }}>
+
+        <HStack space={4} flexWrap="wrap">
+          <Pressable
+            flex={1}
+            minW="200px"
+            alignItems="center"
+            padding={4}
+            borderWidth={2}
+            borderRadius={12}
+            borderColor={poolManagerFeeType === 'default' ? 'blue.400' : 'gray.200'}
+            backgroundColor={poolManagerFeeType === 'default' ? 'blue.50' : 'white'}
+            onPress={() => {
+              setPoolManagerFeeType('default');
+              setManagerFeePercentage(0);
+            }}>
+            <HStack alignItems="center" space={3}>
               <Box
                 backgroundColor="gray.100"
-                width={30}
-                height={30}
+                width={8}
+                height={8}
                 justifyContent="center"
                 alignItems="center"
-                borderRadius={15}>
-                <img src={DefaultIcon} width={20} />
+                borderRadius={16}>
+                <img src={DefaultIcon} width={20} height={20} />
               </Box>
-              <Text fontSize="md" marginX={2}>
+              <Text fontSize="md" fontWeight="500">
                 Default
               </Text>
               {poolManagerFeeType === 'default' ? (
-                <CheckCircleIcon color="goodPurple.400" />
+                <CheckCircleIcon color="blue.400" size="5" />
               ) : (
-                <Box size="4" borderRadius={12} borderWidth={1} borderColor="gray.300" />
+                <Box size="5" borderRadius={12} borderWidth={2} borderColor="gray.300" />
               )}
-            </Pressable>
-            <Pressable
-              alignItems="center"
-              padding={4}
-              my={1}
-              borderWidth={1}
-              borderRadius={8}
-              borderColor={poolManagerFeeType === 'custom' ? 'goodPurple.400' : 'gray.200'}
-              flexDirection="row"
-              backgroundColor="white"
-              onPress={() => setPoolManagerFeeType('custom')}>
+            </HStack>
+          </Pressable>
+
+          <Pressable
+            flex={1}
+            minW="200px"
+            alignItems="center"
+            padding={4}
+            borderWidth={2}
+            borderRadius={12}
+            borderColor={poolManagerFeeType === 'custom' ? 'blue.400' : 'gray.200'}
+            backgroundColor={poolManagerFeeType === 'custom' ? 'blue.50' : 'white'}
+            onPress={() => setPoolManagerFeeType('custom')}>
+            <HStack alignItems="center" space={3}>
               <Box
                 backgroundColor="gray.100"
-                width={30}
-                height={30}
+                width={8}
+                height={8}
                 justifyContent="center"
                 alignItems="center"
-                borderRadius={15}>
-                <img src={SettingsIcon} width={20} />
+                borderRadius={16}>
+                <img src={SettingsIcon} width={20} height={20} />
               </Box>
-              <Text fontSize="md" marginX={2}>
+              <Text fontSize="md" fontWeight="500">
                 Custom
               </Text>
               {poolManagerFeeType === 'custom' ? (
-                <CheckCircleIcon color="goodPurple.400" />
+                <CheckCircleIcon color="blue.400" size="5" />
               ) : (
-                <Box size="4" borderRadius={12} borderWidth={1} borderColor="gray.300" />
+                <Box size="5" borderRadius={12} borderWidth={2} borderColor="gray.300" />
               )}
-            </Pressable>
-          </HStack>
-        </Radio.Group>
-      </VStack>
-      {poolManagerFeeType === 'custom' && (
-        <Box>
-          <InfoBox
-            type="info"
-            message="Pool manager takes a payout from the pool for setting it up, which the maximum is 30% which is charged from the pool"
-            hideIcon
-          />
-          <Box marginY={4} backgroundColor="white" padding={4}>
-            <Text fontWeight="600">Manager Fee Percentage</Text>
-            <HStack alignItems="center" space={4}>
-              <Slider
-                flex={1}
-                maxW="300"
-                colorScheme="darkBlue"
-                accessibilityLabel="hello world"
-                value={managerFeePercentage}
-                onChange={(val) => {
-                  setManagerFeePercentage(val);
-                  validate();
-                }}>
-                <Slider.Track>
-                  <Slider.FilledTrack />
-                </Slider.Track>
-                <Slider.Thumb />
-              </Slider>
-              <Input value={`${managerFeePercentage}%`} borderRadius={8} width="16" isDisabled />
             </HStack>
-          </Box>
-        </Box>
-      )}
-      <Box marginY={2}>
-        <Text fontSize="sm" fontWeight="600" textTransform="uppercase">
-          Claim Frequency
-        </Text>
-        <Text>Note that all claims will happen based on GoodDollar UBI clock which resets at 12 UTC</Text>
-        <Radio.Group
-          name="myRadioGroup"
-          accessibilityLabel="favorite number"
-          value={String(claimFrequency)}
-          space={4}
-          direction="column"
-          onChange={(nextValue) => {
-            setClaimFrequency(+nextValue as 1 | 7 | 14 | 30 | number);
-          }}>
-          <HStack flexWrap="wrap" space={4}>
-            {poolManagerFeeType === 'default' &&
-              baseFrequencies.map((fq, index) => (
-                <Box
-                  minW={200}
-                  width="1/3"
-                  marginY={2}
-                  key={index}
-                  backgroundColor="goodPurple.100"
-                  padding={2}
-                  borderRadius={8}
-                  borderColor="gray.200"
-                  borderWidth={1}>
-                  <Radio size="sm" value={String(fq.value)} my={1}>
-                    {fq.name}
-                  </Radio>
-                </Box>
-              ))}
-            {poolManagerFeeType === 'custom' &&
-              claimFrequencies.map((fq, index) => (
-                <Box
-                  width="1/3"
-                  marginY={2}
-                  key={index}
-                  borderWidth={1}
-                  borderColor="gray.300"
-                  padding={2}
-                  backgroundColor="goodPurple.100"
-                  borderRadius={8}>
-                  <Radio value={String(fq.value)} my={1} size="sm">
-                    {fq.name}
-                  </Radio>
-                </Box>
-              ))}
-          </HStack>
-          {poolManagerFeeType === 'custom' && (
-            <Box
-              marginTop={2}
-              width="2/3"
-              borderWidth={1}
-              borderColor="gray.300"
-              padding={2}
-              backgroundColor="goodPurple.100"
-              borderRadius={8}>
-              <Radio value="2" my={1} size="sm">
-                <FormControl mb="5" isRequired isInvalid={!!errors.customClaimFrequency}>
-                  <FormControl.Label>
-                    <Text fontWeight="500">Custom (per days)</Text>
-                  </FormControl.Label>
-                  <FormControl.HelperText>
-                    <Text color="gray.500">Customize the days for the pool payouts</Text>
-                  </FormControl.HelperText>
-                  <HStack alignItems="center" space={4}>
-                    <Input
-                      isDisabled={[1, 7, 14, 30].includes(claimFrequency) || !claimFrequency}
-                      onChangeText={(val) => {
-                        setCustomClaimFrequency(+val);
-                        validate();
-                      }}
-                      value={String(customClaimFrequency)}
-                    />
-                    <Text>Day</Text>
-                  </HStack>
-                  <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-                    {errors.customClaimFrequency}
-                  </FormControl.ErrorMessage>
-                </FormControl>
-              </Radio>
-            </Box>
-          )}
-        </Radio.Group>
-      </Box>
-      <VStack space={2}>
-        <Text fontSize="md" fontWeight="500" textTransform="uppercase">
-          Payout Settings
-        </Text>
-        <Divider marginBottom={4} />
+          </Pressable>
+        </HStack>
 
-        <InfoBox
-          type="info"
-          message="For a fixed amount per claimFrequency the pool needs to be funded with a minimum amount to sustain expected amount of members in one cycle. The pool will be paused if you choose to fund less money then this minimum and more members then you expect to join. Use the widget below to configure this settings. It will also show you the minimum amount of funding needed to sustain the pool with your chosen settings"
-        />
-
-        <VStack backgroundColor="goodPurple.100" padding={4} space={2}>
-          <FormControl mb="5" isRequired isInvalid={!!errors.claimAmountPerWeek}>
-            <FormControl.Label>
-              <Text fontSize="md" textTransform="uppercase" fontWeight="600">
-                Claim Amount Per Week
+        {poolManagerFeeType === 'custom' && (
+          <VStack space={4}>
+            <InfoBox
+              type="info"
+              message="Pool manager takes a payout from the pool for setting it up, with a maximum of 100% which is charged from the pool"
+            />
+            <Box backgroundColor="white" padding={4} borderWidth={1} borderColor="gray.200" borderRadius={8}>
+              <Text fontWeight="600" mb={4}>
+                Manager Fee Percentage
               </Text>
-            </FormControl.Label>
-            <InputGroup
-              w={{
-                base: '70%',
-                md: '285',
-              }}>
-              <Input
-                backgroundColor="white"
-                value={String(claimAmountPerWeek)}
-                onChangeText={(val) => {
-                  setClaimAmountPerWeek(+val);
-                  validate();
-                }}
-                borderRadius={8}
-                maxWidth="16"
-              />
-              <InputRightAddon children={'G$'} />
-            </InputGroup>
-            <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-              {errors.claimAmountPerWeek}
-            </FormControl.ErrorMessage>
-          </FormControl>
-
-          <FormControl mb="5" isRequired isInvalid={!!errors.expectedMembers} width="full">
-            <FormControl.Label>
-              <Text fontSize="sm" textTransform="uppercase" fontWeight="600">
-                Expected Members
-              </Text>
-            </FormControl.Label>
-            <InputGroup w="3/4">
-              <HStack alignItems="center" space={4} w="full">
+              <HStack alignItems="center" space={4}>
                 <Slider
                   flex={1}
-                  colorScheme="darkBlue"
-                  accessibilityLabel="hello world"
+                  colorScheme="blue"
                   minValue={0}
                   maxValue={100}
-                  value={expectedMembers}
+                  value={managerFeePercentage}
                   onChange={(val) => {
-                    setExpectedMembers(val);
+                    if (!isNaN(val)) {
+                      setManagerFeePercentage(Math.min(100, Math.max(0, val)));
+                    }
                   }}>
                   <Slider.Track>
                     <Slider.FilledTrack />
@@ -516,57 +436,304 @@ const PoolConfiguration = () => {
                   <Slider.Thumb />
                 </Slider>
                 <Input
-                  value={String(expectedMembers)}
+                  value={String(managerFeePercentage)}
                   onChangeText={(val) => {
-                    setExpectedMembers(+val);
-                    validate();
+                    // Handle empty string
+                    if (val === '' || val === '0') {
+                      setManagerFeePercentage(0);
+                      return;
+                    }
+
+                    // Parse and validate the input
+                    const num = parseFloat(val);
+                    if (!isNaN(num) && num >= 0) {
+                      const boundedValue = Math.min(100, Math.max(0, num));
+                      setManagerFeePercentage(boundedValue);
+                    }
                   }}
-                  borderRadius={8}
-                  width="16"
+                  onBlur={() => {
+                    // Ensure valid value on blur
+                    if (managerFeePercentage < 0 || managerFeePercentage > 100 || isNaN(managerFeePercentage)) {
+                      setManagerFeePercentage(Math.min(100, Math.max(0, managerFeePercentage || 0)));
+                    }
+                  }}
+                  keyboardType="numeric"
                   backgroundColor="white"
+                  width="20"
+                  textAlign="center"
                 />
+                <Text fontWeight="500" minW="8">
+                  %
+                </Text>
               </HStack>
+              {errors.managerFeePercentage && (
+                <Text fontSize="xs" color="red.500" mt={2}>
+                  {errors.managerFeePercentage}
+                </Text>
+              )}
+            </Box>
+          </VStack>
+        )}
+      </VStack>
+
+      {/* Claim Frequency */}
+      <VStack space={4}>
+        <VStack space={2}>
+          <Text fontSize="md" fontWeight="600" textTransform="uppercase" color="gray.700">
+            Claim Frequency
+          </Text>
+          <Text fontSize="sm" color="gray.500">
+            Note that all claims will happen based on GoodDollar UBI clock which resets at 12 UTC
+          </Text>
+        </VStack>
+
+        <Radio.Group
+          name="claimFrequency"
+          value={String(claimFrequency)}
+          onChange={(nextValue) => setClaimFrequency(+nextValue as 1 | 7 | 14 | 30 | number)}
+          width="full">
+          <VStack space={3} width="full">
+            {/* Default mode shows only "Every day" */}
+            {poolManagerFeeType === 'default' &&
+              baseFrequencies.map((freq) => (
+                <Box
+                  key={freq.value}
+                  width="full"
+                  backgroundColor="blue.50"
+                  padding={3}
+                  borderRadius={8}
+                  borderWidth={1}
+                  borderColor="gray.200">
+                  <Radio value={String(freq.value)} size="sm">
+                    <Text fontSize="sm">{freq.name}</Text>
+                  </Radio>
+                </Box>
+              ))}
+
+            {/* Custom mode shows all frequencies */}
+            {poolManagerFeeType === 'custom' && (
+              <>
+                <VStack space={3} width="full">
+                  <HStack space={3} width="full">
+                    {claimFrequencies.slice(0, 2).map((freq) => (
+                      <Box
+                        key={freq.value}
+                        flex={1}
+                        backgroundColor="blue.50"
+                        padding={3}
+                        borderRadius={8}
+                        borderWidth={1}
+                        borderColor="gray.200">
+                        <Radio value={String(freq.value)} size="sm">
+                          <Text fontSize="sm">{freq.name}</Text>
+                        </Radio>
+                      </Box>
+                    ))}
+                  </HStack>
+                  <HStack space={3} width="full">
+                    {claimFrequencies.slice(2, 4).map((freq) => (
+                      <Box
+                        key={freq.value}
+                        flex={1}
+                        backgroundColor="blue.50"
+                        padding={3}
+                        borderRadius={8}
+                        borderWidth={1}
+                        borderColor="gray.200">
+                        <Radio value={String(freq.value)} size="sm">
+                          <Text fontSize="sm">{freq.name}</Text>
+                        </Radio>
+                      </Box>
+                    ))}
+                  </HStack>
+                </VStack>
+
+                {/* Custom frequency option */}
+                <Box backgroundColor="blue.50" padding={3} borderRadius={8} borderWidth={1} borderColor="gray.200">
+                  <Radio value="2" size="sm">
+                    <VStack space={2} flex={1}>
+                      <Text fontSize="sm" fontWeight="500">
+                        Custom (per days)
+                      </Text>
+                      <Text fontSize="xs" color="gray.600">
+                        Customize the days for the pool payouts
+                      </Text>
+                      <HStack alignItems="center" space={2} maxW="200px">
+                        <Input
+                          flex={1}
+                          value={String(customClaimFrequency)}
+                          onChangeText={(val) => setCustomClaimFrequency(Math.max(1, parseInt(val, 10) || 1))}
+                          keyboardType="numeric"
+                          isDisabled={claimFrequency !== 2}
+                          backgroundColor="white"
+                        />
+                        <Text fontSize="sm">Days</Text>
+                      </HStack>
+                      {errors.customClaimFrequency && (
+                        <Text fontSize="xs" color="red.500">
+                          {errors.customClaimFrequency}
+                        </Text>
+                      )}
+                    </VStack>
+                  </Radio>
+                </Box>
+              </>
+            )}
+          </VStack>
+        </Radio.Group>
+      </VStack>
+
+      {/* Payout Settings */}
+      <VStack space={4}>
+        <VStack space={2}>
+          <Text fontSize="md" fontWeight="600" textTransform="uppercase" color="gray.700">
+            Payout Settings
+          </Text>
+          <Divider />
+        </VStack>
+
+        <InfoBox
+          type="info"
+          icon={<img src={LightBulbIcon} width={20} height={20} />}
+          message="For a fixed amount per claim frequency, the pool needs to be funded with a minimum amount to sustain expected amount of members in one cycle. The pool will be paused if you choose to fund less money than this minimum and more members than you expect join. Use the widget below to configure these settings."
+        />
+
+        <VStack backgroundColor="blue.50" padding={4} space={4} borderRadius={8}>
+          <FormControl isRequired isInvalid={!!errors.claimAmountPerWeek}>
+            <FormControl.Label>
+              <Text fontSize="sm" fontWeight="600" textTransform="uppercase">
+                Claim Amount Per Week
+              </Text>
+            </FormControl.Label>
+            <InputGroup maxW="200px">
+              <Input
+                backgroundColor="white"
+                value={String(claimAmountPerWeek)}
+                onChangeText={(val) => setClaimAmountPerWeek(Math.max(1, parseFloat(val) || 1))}
+                keyboardType="numeric"
+              />
+              <InputRightAddon children="G$" />
             </InputGroup>
+            <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+              {errors.claimAmountPerWeek}
+            </FormControl.ErrorMessage>
+          </FormControl>
+          <FormControl isRequired isInvalid={!!errors.expectedMembers}>
+            <FormControl.Label>
+              <Text fontSize="sm" fontWeight="600" textTransform="uppercase">
+                Expected Members
+              </Text>
+            </FormControl.Label>
+            <FormControl.HelperText>
+              <Text fontSize="xs" color="gray.500">
+                Number of members you expect to join the pool (max: {maximumMembers})
+              </Text>
+            </FormControl.HelperText>
+            <HStack alignItems="center" space={4}>
+              <Slider
+                flex={1}
+                colorScheme="blue"
+                minValue={1}
+                maxValue={maximumMembers}
+                step={1}
+                value={expectedMembers}
+                onChange={(val) => {
+                  // Ensure val is a valid number and within bounds
+                  const newValue = Math.round(val);
+                  const boundedValue = Math.min(maximumMembers, Math.max(1, newValue));
+                  setExpectedMembers(boundedValue);
+                }}
+                onChangeEnd={(val) => {
+                  // Final validation on release
+                  const newValue = Math.round(val);
+                  const boundedValue = Math.min(maximumMembers, Math.max(1, newValue));
+                  setExpectedMembers(boundedValue);
+                }}>
+                <Slider.Track>
+                  <Slider.FilledTrack />
+                </Slider.Track>
+                <Slider.Thumb />
+              </Slider>
+              <Input
+                value={String(expectedMembers)}
+                onChangeText={(val) => {
+                  // Handle empty string
+                  if (val === '' || val === '0') {
+                    setExpectedMembers(1);
+                    return;
+                  }
+
+                  // Parse and validate the input
+                  const num = parseInt(val, 10);
+                  if (!isNaN(num) && num > 0) {
+                    const boundedValue = Math.min(maximumMembers, Math.max(1, num));
+                    setExpectedMembers(boundedValue);
+                  }
+                }}
+                onBlur={() => {
+                  // Ensure valid value on blur
+                  if (expectedMembers < 1 || expectedMembers > maximumMembers || isNaN(expectedMembers)) {
+                    setExpectedMembers(Math.min(maximumMembers, Math.max(1, expectedMembers || 1)));
+                  }
+                }}
+                keyboardType="numeric"
+                backgroundColor="white"
+                width="20"
+                textAlign="center"
+              />
+              <Text fontSize="sm" color="gray.600" minW="12">
+                / {maximumMembers}
+              </Text>
+            </HStack>
             <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
               {errors.expectedMembers}
             </FormControl.ErrorMessage>
           </FormControl>
-          <Box backgroundColor="goodPurple.200" padding={4}>
-            <Text>
-              {/* TODO Verify these */}
-              For a fixed amount of <Text bold> {claimAmountPerWeek}G$ per week</Text>, your pool needs at least{' '}
-              <Text bold>{(claimAmountPerWeek ?? 0) * (maximumMembers ?? 0)}G$</Text> to support{' '}
-              <Text bold>{maximumMembers} members</Text> per cycle.
+          {/* Funding calculation display */}
+          <Box backgroundColor="blue.100" padding={4} borderRadius={8}>
+            <Text fontSize="sm" mb={2}>
+              For a fixed amount of <Text bold>{claimAmountPerWeek}G$ per week</Text>, your pool needs at least{' '}
+              <Text bold>{calculateMinimumFunding()}G$</Text> to support <Text bold>{expectedMembers} members</Text> per
+              cycle.
             </Text>
-            <HStack paddingY={2} space={2}>
-              <WarningTwoIcon color="red.600" size="md" />
-              <Text>Funding below this may pause the pool if more members join.</Text>
+            <HStack alignItems="flex-start" space={2}>
+              <WarningTwoIcon color="orange.500" size="4" mt="1" />
+              <Text fontSize="xs" color="orange.700" flex={1}>
+                Funding below this amount may pause the pool if more members join.
+              </Text>
             </HStack>
           </Box>
         </VStack>
       </VStack>
-      <HStack w="full" justifyContent="space-between">
+
+      {/* Navigation Buttons */}
+      <HStack width="full" justifyContent="space-between" style={styles.navigationContainer}>
         <ActionButton
-          onPress={() => previousStep()}
-          width=""
+          onPress={previousStep}
+          width="140px"
           text={
-            <HStack alignItems="center" space={1}>
-              <ChevronLeftIcon /> <Text>Back</Text>
+            <HStack alignItems="center" space={2}>
+              <ArrowBackIcon size="4" color="gray.600" />
+              <Text color="gray.600" fontSize="md" fontWeight="600">
+                Back
+              </Text>
             </HStack>
           }
-          bg="white"
-          textColor="black"
+          bg="gray.200"
+          textColor="gray.600"
         />
         <ActionButton
           onPress={submitForm}
-          width=""
+          width="140px"
           text={
-            <HStack alignItems="center" space={1}>
-              <Text>Next: Review</Text>
-              <ArrowForwardIcon color="white" />
+            <HStack alignItems="center" space={2}>
+              <Text color="white" fontSize="md" fontWeight="600">
+                Next: Review
+              </Text>
+              <ArrowForwardIcon size="4" color="white" />
             </HStack>
           }
-          bg="goodPurple.400"
+          bg="blue.500"
           textColor="white"
         />
       </HStack>
@@ -575,3 +742,9 @@ const PoolConfiguration = () => {
 };
 
 export default PoolConfiguration;
+
+const styles = StyleSheet.create({
+  navigationContainer: {
+    marginTop: 24,
+  },
+});
