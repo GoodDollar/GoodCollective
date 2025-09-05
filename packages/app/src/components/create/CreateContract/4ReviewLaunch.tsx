@@ -213,7 +213,8 @@ const ReviewLaunch = () => {
                 width={75}>
                 <Text fontSize="xs" textAlign="center">
                   {(() => {
-                    const daysInCycle = form.claimFrequency === 2 ? form.customClaimFrequency : form.claimFrequency;
+                    const daysInCycle =
+                      form.claimFrequency === 2 ? form.customClaimFrequency || 1 : form.claimFrequency || 1;
                     const weeklyAmount = form.claimAmountPerWeek || 0;
                     const dailyAmount = weeklyAmount / 7;
                     const cycleAmount = dailyAmount * daysInCycle;
