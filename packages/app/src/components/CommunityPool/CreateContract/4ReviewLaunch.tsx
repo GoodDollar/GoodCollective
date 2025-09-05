@@ -153,6 +153,38 @@ const ReviewLaunch = () => {
               </Text>
               <Text fontSize="md">{form.projectDescription}</Text>
             </VStack>
+            {form.rewardDescription && (
+              <VStack space={1}>
+                <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
+                  Reward Description
+                </Text>
+                <Text fontSize="md">{form.rewardDescription}</Text>
+              </VStack>
+            )}
+            <VStack space={1}>
+              <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
+                Logo
+              </Text>
+              {form.logo ? (
+                <img src={form.logo} alt="Logo" style={{ width: 60, height: 60, borderRadius: 8 }} />
+              ) : (
+                <Text fontSize="md" color="gray.400">
+                  No logo provided
+                </Text>
+              )}
+            </VStack>
+            <VStack space={1}>
+              <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
+                Cover Photo
+              </Text>
+              {form.coverPhoto ? (
+                <img src={form.coverPhoto} alt="Cover Photo" style={{ width: 200, height: 60, borderRadius: 8 }} />
+              ) : (
+                <Text fontSize="md" color="gray.400">
+                  No cover photo provided
+                </Text>
+              )}
+            </VStack>
           </VStack>
         </VStack>
 
@@ -220,6 +252,24 @@ const ReviewLaunch = () => {
           <VStack space={4}>
             <VStack space={1}>
               <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
+                Pool Type
+              </Text>
+              <Text fontWeight="600" fontSize="md">
+                {form.poolType
+                  ? form.poolType.replace('-', ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+                  : 'Community Funds'}
+              </Text>
+            </VStack>
+            <VStack space={1}>
+              <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
+                Join Status
+              </Text>
+              <Text fontWeight="600" fontSize="md">
+                {form.joinStatus === 'open' ? 'Open to New Members' : 'Closed to New Members'}
+              </Text>
+            </VStack>
+            <VStack space={1}>
+              <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
                 Maximum Amount of Members
               </Text>
               <Text fontWeight="600" fontSize="md">
@@ -277,7 +327,8 @@ const ReviewLaunch = () => {
                       if (form.claimFrequency === 7) return 'Every week';
                       if (form.claimFrequency === 14) return 'Every 14 days';
                       if (form.claimFrequency === 30) return 'Every 30 days';
-                      if (form.claimFrequency === 2) return `${form.customClaimFrequency || 1} days`;
+                      if (form.claimFrequency === 2) return `Every ${form.customClaimFrequency || 1} days`;
+                      if (form.claimFrequency && form.claimFrequency > 30) return `Every ${form.claimFrequency} days`;
                       return 'Every day';
                     })()}
                   </Text>
