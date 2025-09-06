@@ -1,5 +1,4 @@
 import { useAppKit, useAppKitAccount, useDisconnect } from '@reown/appkit/react';
-import { mainnet } from '@wagmi/core/chains';
 import {
   FormControl,
   Input,
@@ -13,12 +12,13 @@ import {
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { createConfig, getEnsName, http } from '@wagmi/core';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
+import { useEnsName } from '../../../hooks/useEnsName';
 import { Colors } from '../../../utils/colors';
 import ActionButton from '../../ActionButton';
 import NavigationButtons from '../NavigationButtons';
 import InfoBox from '../../InfoBox';
+import { SocialField } from '../../SocialField';
 
 type FormError = {
   social?: string;
@@ -42,25 +42,8 @@ const ProjectDetails = () => {
   const [additionalInfo, setAdditionalInfo] = useState<string>(form.additionalInfo ?? '');
   const [errors, setErrors] = useState<FormError>({});
   const [showWarning, setShowWarning] = useState(false);
-  const [ensName, setEnsName] = useState('');
 
-  useEffect(() => {
-    (async () => {
-      if (!adminWalletAddress || ensName) return;
-      const resp = await getEnsName(
-        createConfig({
-          chains: [mainnet],
-          transports: {
-            [mainnet.id]: http(),
-          },
-        }),
-        {
-          address: adminWalletAddress as `0x${string}`,
-        }
-      );
-      if (typeof resp === 'string') setEnsName(resp);
-    })();
-  }, [ensName, adminWalletAddress]);
+  const ensName = useEnsName(adminWalletAddress);
 
   const changeWallet = async () => {
     await disconnect();
@@ -176,90 +159,50 @@ const ProjectDetails = () => {
           </FormControl.ErrorMessage>
         </FormControl>
 
-        <FormControl mb="5">
-          <FormControl.Label>
-            <Text style={styles.fieldLabel}>Twitter (X) Handle</Text>
-          </FormControl.Label>
-          <InputGroup width="full" backgroundColor="white" style={styles.inputGroup}>
-            <InputLeftAddon children={'@'} style={styles.inputAddon} />
-            <Input
-              style={styles.input}
-              flex={1}
-              value={twitter}
-              onChangeText={(value) => setTwitter(value)}
-              onBlur={() => validate()}
-              placeholder="@Gooddollar"
-            />
-          </InputGroup>
-        </FormControl>
+        <SocialField
+          label="Twitter (X) Handle"
+          addon="@"
+          value={twitter}
+          onChange={setTwitter}
+          onBlur={() => validate()}
+          placeholder="@Gooddollar"
+        />
 
-        <FormControl mb="5">
-          <FormControl.Label>
-            <Text style={styles.fieldLabel}>Discord</Text>
-          </FormControl.Label>
-          <InputGroup width="full" backgroundColor="white" style={styles.inputGroup}>
-            <InputLeftAddon children={'https://'} style={styles.inputAddon} />
-            <Input
-              style={styles.input}
-              flex={1}
-              value={discord}
-              onChangeText={(value) => setDiscord(value)}
-              onBlur={() => validate()}
-              placeholder="discord.gg/gooddollar"
-            />
-          </InputGroup>
-        </FormControl>
+        <SocialField
+          label="Discord"
+          addon="https://"
+          value={discord}
+          onChange={setDiscord}
+          onBlur={() => validate()}
+          placeholder="discord.gg/gooddollar"
+        />
 
-        <FormControl mb="5">
-          <FormControl.Label>
-            <Text style={styles.fieldLabel}>Telegram</Text>
-          </FormControl.Label>
-          <InputGroup width="full" backgroundColor="white" style={styles.inputGroup}>
-            <InputLeftAddon children={'https://'} style={styles.inputAddon} />
-            <Input
-              style={styles.input}
-              flex={1}
-              value={telegram}
-              onChangeText={(value) => setTelegram(value)}
-              onBlur={() => validate()}
-              placeholder="t.me/gooddollar"
-            />
-          </InputGroup>
-        </FormControl>
+        <SocialField
+          label="Telegram"
+          addon="https://"
+          value={telegram}
+          onChange={setTelegram}
+          onBlur={() => validate()}
+          placeholder="t.me/gooddollar"
+        />
 
-        <FormControl mb="5">
-          <FormControl.Label>
-            <Text style={styles.fieldLabel}>Facebook</Text>
-          </FormControl.Label>
-          <InputGroup width="full" backgroundColor="white" style={styles.inputGroup}>
-            <InputLeftAddon children={'https://'} style={styles.inputAddon} />
-            <Input
-              style={styles.input}
-              flex={1}
-              value={facebook}
-              onChangeText={(value) => setFacebook(value)}
-              onBlur={() => validate()}
-              placeholder="facebook.com/gooddollar"
-            />
-          </InputGroup>
-        </FormControl>
+        <SocialField
+          label="Facebook"
+          addon="https://"
+          value={facebook}
+          onChange={setFacebook}
+          onBlur={() => validate()}
+          placeholder="facebook.com/gooddollar"
+        />
 
-        <FormControl mb="5">
-          <FormControl.Label>
-            <Text style={styles.fieldLabel}>Threads</Text>
-          </FormControl.Label>
-          <InputGroup width="full" backgroundColor="white" style={styles.inputGroup}>
-            <InputLeftAddon children={'https://'} style={styles.inputAddon} />
-            <Input
-              style={styles.input}
-              flex={1}
-              value={threads}
-              onChangeText={(value) => setThreads(value)}
-              onBlur={() => validate()}
-              placeholder="threads.net/gooddollar"
-            />
-          </InputGroup>
-        </FormControl>
+        <SocialField
+          label="Threads"
+          addon="https://"
+          value={threads}
+          onChange={setThreads}
+          onBlur={() => validate()}
+          placeholder="threads.net/gooddollar"
+        />
 
         <Text style={styles.sectionTitle}>Project Owner Details</Text>
 
