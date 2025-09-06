@@ -12,7 +12,7 @@ const CreateGoodCollective = () => {
       {step === 0 && <Welcome />}
       {step === 1 && <SelectType />}
       {step >= 2 && step <= 5 && <CreateContract />}
-      {step === 6 && <Success />}
+      {step === 6 && <Success openModal={true} onClose={() => {}} />}
     </div>
   );
 };

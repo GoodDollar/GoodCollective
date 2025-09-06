@@ -4,6 +4,7 @@ import { useCreatePool } from '../../hooks/useCreatePool/useCreatePool';
 import { useScreenSize } from '../../theme/hooks';
 import { desktopWelcomeStyles, welcomeStyles } from './styles';
 import { CreateCollectiveLogo } from '../../assets';
+import { Colors } from '../../utils/colors';
 
 const Welcome = () => {
   const [value, setValue] = useState<string>('one');
@@ -111,8 +112,8 @@ const Welcome = () => {
               style={welcomeStyles.checkbox}
               borderWidth={2}
               borderRadius={4}
-              borderColor="white"
-              colorScheme="goodPurple"
+              borderColor={Colors.gray[400]}
+              colorScheme="blue"
               value={String(acknowledged)}
               onChange={(v) => setAcknowledged(String(v))}
               accessibilityLabel="I understand"
