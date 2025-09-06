@@ -27,8 +27,8 @@ type CreatePoolContextType = {
 export const CreatePoolContext = createContext<CreatePoolContextType | undefined>(undefined);
 
 export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
-  const { address: maybeAddress } = useAccount();
-  const { chain } = useAccount();
+  const { address: maybeAddress, chain } = useAccount();
+
   const maybeSigner = useEthersSigner({ chainId: chain?.id });
   const { isConnected } = useAppKitAccount();
   const { navigate } = useCrossNavigate();
