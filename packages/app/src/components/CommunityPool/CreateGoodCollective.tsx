@@ -1,6 +1,6 @@
 import Welcome from './Welcome';
 import SelectType from './SelectCollectiveType';
-import CreateContract from './CreateContract/CreateContract';
+import CreatePool from './CreatePool/CreatePool';
 import Success from './Success';
 import { useCreatePool } from '../../hooks/useCreatePool/useCreatePool';
 
@@ -11,7 +11,7 @@ const CreateGoodCollective = () => {
     <div>
       {step === 0 && <Welcome />}
       {step === 1 && <SelectType />}
-      {step >= 2 && step <= 5 && <CreateContract />}
+      {step >= 2 && step <= 5 && <CreatePool />}
       {step === 6 && <Success openModal={true} onClose={() => {}} />}
     </div>
   );

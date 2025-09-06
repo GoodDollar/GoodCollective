@@ -1,8 +1,6 @@
 import { useAppKit, useAppKitAccount, useDisconnect } from '@reown/appkit/react';
 import { mainnet } from '@wagmi/core/chains';
 import {
-  ArrowBackIcon,
-  ArrowForwardIcon,
   FormControl,
   HStack,
   Input,
@@ -20,6 +18,7 @@ import { createConfig, getEnsName, http } from '@wagmi/core';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { Colors } from '../../../utils/colors';
 import ActionButton from '../../ActionButton';
+import NavigationButtons from '../NavigationButtons';
 import InfoBox from '../../InfoBox';
 
 type FormError = {
@@ -284,36 +283,12 @@ const ProjectDetails = () => {
           />
         </FormControl>
 
-        <HStack width="full" justifyContent="space-between" style={styles.navigationContainer}>
-          <ActionButton
-            onPress={() => previousStep()}
-            width="120px"
-            text={
-              <HStack alignItems="center" space={2}>
-                <ArrowBackIcon size="4" color="black" />
-                <Text color="black" fontSize="md" fontWeight="600">
-                  Back
-                </Text>
-              </HStack>
-            }
-            bg="#D6D6D6"
-            textColor="black"
-          />
-          <ActionButton
-            onPress={submitForm}
-            width="120px"
-            text={
-              <HStack alignItems="center" space={2}>
-                <Text color="white" fontSize="md" fontWeight="600">
-                  Configure Pool
-                </Text>
-                <ArrowForwardIcon size="4" color="white" />
-              </HStack>
-            }
-            bg="#5B7AC6"
-            textColor="white"
-          />
-        </HStack>
+        <NavigationButtons
+          onBack={() => previousStep()}
+          onNext={submitForm}
+          nextText="Configure Pool"
+          containerStyle={styles.navigationContainer}
+        />
 
         {showWarning && Object.keys(errors).length > 0 && (
           <InfoBox type="warning" message="Please fill all required fields before proceeding to the details section" />

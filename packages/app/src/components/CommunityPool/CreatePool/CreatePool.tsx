@@ -3,12 +3,12 @@ import { StyleSheet, View } from 'react-native';
 
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { useScreenSize } from '../../../theme/hooks';
-import GetStarted from './1GetStarted';
-import ProjectDetails from './2ProjectDetails';
-import PoolConfiguration from './3PoolConfiguration';
-import ReviewLaunch from './4ReviewLaunch';
+import GetStarted from './GetStarted';
+import ProjectDetails from './ProjectDetails';
+import PoolConfiguration from './PoolConfiguration';
+import ReviewLaunch from './ReviewLaunch';
 
-const CreateContract = ({}: {}) => {
+const CreatePool = ({}: {}) => {
   const STEPS = [
     { id: 2, Component: GetStarted, label: 'Get Started (1/4)' },
     { id: 3, Component: ProjectDetails, label: 'Project Details (2/4)' },
@@ -110,4 +110,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateContract;
+export default CreatePool;

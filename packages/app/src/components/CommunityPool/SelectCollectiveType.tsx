@@ -1,13 +1,14 @@
 import { Text, Checkbox, HStack, VStack, Box, Button } from 'native-base';
 import { Pressable, View } from 'react-native';
-import { CommunityFundsIcon, SegmentedAidIcon, ResultsBasedIcon, ArrowRightIcon, ArrowLeftIcon } from '../../assets';
+import { CommunityFundsIcon, SegmentedAidIcon, ResultsBasedIcon } from '../../assets';
 import { PoolType, useCreatePool } from '../../hooks/useCreatePool/useCreatePool';
 import { selectCollectiveTypeStyles as styles } from './styles';
-import GetStarted from './CreateContract/1GetStarted';
-import ProjectDetails from './CreateContract/2ProjectDetails';
-import PoolConfiguration from './CreateContract/3PoolConfiguration';
-import ReviewLaunch from './CreateContract/4ReviewLaunch';
-import ActionButton from '../ActionButton';
+import GetStarted from './CreatePool/GetStarted';
+import ProjectDetails from './CreatePool/ProjectDetails';
+import PoolConfiguration from './CreatePool/PoolConfiguration';
+import ReviewLaunch from './CreatePool/ReviewLaunch';
+import NavigationButtons from './NavigationButtons';
+import { useScreenSize } from '../../theme/hooks';
 
 const SelectType = () => {
   const STEPS = [
@@ -18,6 +19,7 @@ const SelectType = () => {
   ];
 
   const { step, form } = useCreatePool();
+  const { isDesktopView } = useScreenSize();
 
   const { submitPartial, nextStep, previousStep } = useCreatePool();
 
@@ -68,9 +70,19 @@ const SelectType = () => {
       <VStack space={6} style={styles.content}>
         {/* Title Section */}
         <Box style={styles.titleSection}>
-          <Text style={styles.title}>
-            <Text style={styles.titleBlue}>About</Text>
-            <Text style={styles.titlePurple}> Various Pools</Text>
+          <Text
+            style={[
+              styles.title,
+              isDesktopView && styles.titleDesktop,
+              {
+                background: 'linear-gradient(135deg, #6933FF 0%, #1A85FF 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                color: '#6933FF',
+              },
+            ]}>
+            About Various Pools
           </Text>
           <Text style={styles.subtitle}>
             Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dignissimos ipsa ab nemo fugiat expedita, facilis
@@ -121,36 +133,12 @@ const SelectType = () => {
         </VStack>
 
         {/* Navigation Buttons */}
-        <HStack space={4} justifyContent="space-between" style={styles.navigationContainer}>
-          <ActionButton
-            text={
-              <HStack space={2} alignItems="center">
-                <img src={ArrowLeftIcon} width={20} height={20} alt="Back" />
-                <Text color="black" fontSize="md" fontWeight="600">
-                  Back
-                </Text>
-              </HStack>
-            }
-            bg="#D6D6D6"
-            textColor="white"
-            onPress={handleBack}
-            width="120px"
-          />
-          <ActionButton
-            text={
-              <HStack space={2} alignItems="center">
-                <Text color="white" fontSize="md" fontWeight="600">
-                  Next
-                </Text>
-                <img src={ArrowRightIcon} color="white" width={20} height={20} alt="Forward" />
-              </HStack>
-            }
-            bg={form.poolType ? '#5B7AC6' : '#D1D5DB'}
-            textColor="white"
-            onPress={form.poolType ? handleNext : undefined}
-            width="120px"
-          />
-        </HStack>
+        <NavigationButtons
+          onBack={handleBack}
+          onNext={handleNext}
+          nextDisabled={!form.poolType}
+          containerStyle={styles.navigationContainer}
+        />
       </VStack>
       {STEPS.map(({ id, Component }) => step === id && <Component key={id} />)}
     </View>

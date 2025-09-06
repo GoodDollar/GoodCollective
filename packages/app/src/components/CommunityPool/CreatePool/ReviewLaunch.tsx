@@ -1,20 +1,11 @@
-import { Box, CheckCircleIcon, ChevronLeftIcon, Divider, HStack, Pressable, Text, TextArea, VStack } from 'native-base';
-import ActionButton from '../../ActionButton';
-import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
-import {
-  AtIcon,
-  DiscordIcon,
-  EditIcon,
-  InstagramIcon,
-  RocketLaunchIcon,
-  TwitterIcon,
-  WebsiteIcon,
-  PhoneImg,
-} from '../../../assets';
 import { useScreenSize } from '@gooddollar/good-design';
-import { useState, useCallback } from 'react';
-import BaseModal from '../../modals/BaseModal';
+import { Box, CheckCircleIcon, Divider, HStack, Pressable, Text, TextArea, VStack } from 'native-base';
+import { useCallback, useState } from 'react';
+import { AtIcon, DiscordIcon, EditIcon, InstagramIcon, PhoneImg, TwitterIcon, WebsiteIcon } from '../../../assets';
+import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import useCrossNavigate from '../../../routes/useCrossNavigate';
+import BaseModal from '../../modals/BaseModal';
+import NavigationButtons from '../NavigationButtons';
 import SuccessModal from '../Success';
 
 const ReviewLaunch = () => {
@@ -58,7 +49,6 @@ const ReviewLaunch = () => {
     },
   ].filter((val) => !!val);
 
-  // Enhanced pool creation handler following DonateComponent patterns
   const handleCreatePool = useCallback(async () => {
     setIsCreating(true);
     setApprovePoolModalVisible(true);
@@ -399,36 +389,13 @@ const ReviewLaunch = () => {
         </VStack>
       </VStack>
       {/* Navigation Buttons */}
-      <HStack width="full" justifyContent="space-between" marginTop={6}>
-        <ActionButton
-          onPress={() => previousStep()}
-          width="140px"
-          text={
-            <HStack alignItems="center" space={2}>
-              <ChevronLeftIcon size="4" color="gray.600" />
-              <Text color="gray.600" fontSize="md" fontWeight="600">
-                Back
-              </Text>
-            </HStack>
-          }
-          bg="gray.200"
-          textColor="gray.600"
-        />
-        <ActionButton
-          onPress={handleCreatePool}
-          width="140px"
-          text={
-            <HStack alignItems="center" space={2}>
-              <img src={RocketLaunchIcon} width={16} height={16} />
-              <Text color="white" fontSize="md" fontWeight="600">
-                {isCreating ? 'Creating...' : 'Launch Pool'}
-              </Text>
-            </HStack>
-          }
-          bg="blue.500"
-          textColor="white"
-        />
-      </HStack>
+      <NavigationButtons
+        onBack={() => previousStep()}
+        onNext={handleCreatePool}
+        nextText={isCreating ? 'Creating...' : 'Launch Pool'}
+        containerStyle={{ marginTop: 24 }}
+        buttonWidth="140px"
+      />
       <Text fontSize="xs" marginTop={8} textAlign="center">
         Made a mistake?{' '}
         <Text bold onPress={() => startOver()} color="blue.400">

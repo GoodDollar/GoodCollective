@@ -148,7 +148,7 @@ export const desktopWelcomeStyles = StyleSheet.create({
     marginBottom: 40,
   },
   welcomeText: {
-    fontSize: 48,
+    fontSize: 96,
     marginBottom: 2,
     ...InterSemiBold,
   },
@@ -206,7 +206,6 @@ export const selectCollectiveTypeStyles = StyleSheet.create({
     paddingVertical: 40,
   },
   content: {
-    maxWidth: 800,
     alignSelf: 'center',
     width: '100%',
   },
@@ -325,6 +324,12 @@ export const selectCollectiveTypeStyles = StyleSheet.create({
   nextButtonText: {
     color: Colors.white,
     fontSize: 16,
+    ...InterSemiBold,
+  },
+  titleDesktop: {
+    fontSize: 72,
+    textAlign: 'center',
+    marginBottom: 16,
     ...InterSemiBold,
   },
 });

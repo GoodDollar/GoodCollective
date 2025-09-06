@@ -1,8 +1,6 @@
 import { createConfig, getEnsName, http } from '@wagmi/core';
 import { mainnet } from '@wagmi/core/chains';
 import {
-  ArrowBackIcon,
-  ArrowForwardIcon,
   Box,
   CheckCircleIcon,
   Divider,
@@ -26,8 +24,8 @@ import { StyleSheet } from 'react-native';
 import { DefaultIcon, LightBulbIcon, SettingsIcon } from '../../../assets';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { useScreenSize } from '../../../theme/hooks';
-import ActionButton from '../../ActionButton';
 import InfoBox from '../../InfoBox';
+import NavigationButtons from '../NavigationButtons';
 
 type FormError = {
   maximumMembers?: string;
@@ -707,36 +705,13 @@ const PoolConfiguration = () => {
       </VStack>
 
       {/* Navigation Buttons */}
-      <HStack width="full" justifyContent="space-between" style={styles.navigationContainer}>
-        <ActionButton
-          onPress={previousStep}
-          width="140px"
-          text={
-            <HStack alignItems="center" space={2}>
-              <ArrowBackIcon size="4" color="gray.600" />
-              <Text color="gray.600" fontSize="md" fontWeight="600">
-                Back
-              </Text>
-            </HStack>
-          }
-          bg="gray.200"
-          textColor="gray.600"
-        />
-        <ActionButton
-          onPress={submitForm}
-          width="140px"
-          text={
-            <HStack alignItems="center" space={2}>
-              <Text color="white" fontSize="md" fontWeight="600">
-                Next: Review
-              </Text>
-              <ArrowForwardIcon size="4" color="white" />
-            </HStack>
-          }
-          bg="blue.500"
-          textColor="white"
-        />
-      </HStack>
+      <NavigationButtons
+        onBack={previousStep}
+        onNext={submitForm}
+        nextText="Next: Review"
+        containerStyle={styles.navigationContainer}
+        buttonWidth="140px"
+      />
     </VStack>
   );
 };
