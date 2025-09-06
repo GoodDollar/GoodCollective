@@ -1,4 +1,4 @@
-import { Box, FormControl, HStack, Input, Text, TextArea, VStack, WarningOutlineIcon } from 'native-base';
+import { Box, FormControl, Input, Text, TextArea, VStack, WarningOutlineIcon } from 'native-base';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -13,6 +13,7 @@ type FormError = {
   projectName?: string;
   projectDescription?: string;
   tagline?: string;
+  rewardDescription?: string;
   logo?: string;
   coverPhoto?: string;
 };
@@ -39,6 +40,7 @@ const GetStarted = ({}: {}) => {
       submitPartial({
         projectName,
         tagline,
+        rewardDescription,
         projectDescription,
         logo,
         coverPhoto,
@@ -53,6 +55,7 @@ const GetStarted = ({}: {}) => {
       projectName: '',
       projectDescription: '',
       tagline: '',
+      rewardDescription: '',
       logo: '',
       coverPhoto: '',
     };
@@ -81,6 +84,12 @@ const GetStarted = ({}: {}) => {
       }
     } else if (projectDescription.length > 500) {
       currErrors.projectDescription = 'Project description length (max 500 characteres)';
+      pass = false;
+    }
+
+    // Reward Description - 200 character max
+    if (rewardDescription && rewardDescription.length > 200) {
+      currErrors.rewardDescription = 'Reward description length (max 200 characters)';
       pass = false;
     }
 
@@ -149,7 +158,8 @@ const GetStarted = ({}: {}) => {
         <Text style={styles.subtitle}>
           Add basic information about your project, these details can be edited later.
         </Text>
-        <FormControl mb="5" isRequired>
+
+        <FormControl mb="5" isRequired isInvalid={!!errors.projectName}>
           <FormControl.Label>
             <Text style={styles.fieldLabel}>Project Name</Text>
           </FormControl.Label>
@@ -162,16 +172,12 @@ const GetStarted = ({}: {}) => {
             autoComplete={undefined}
             borderRadius={8}
           />
-          {errors.projectName && (
-            <HStack alignItems="center" space={1} marginTop={1}>
-              <WarningOutlineIcon size="xs" color="red.500" />
-              <Text fontSize="xs" color="red.500">
-                {errors.projectName}
-              </Text>
-            </HStack>
-          )}
+          <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+            {errors.projectName}
+          </FormControl.ErrorMessage>
         </FormControl>
-        <FormControl mb="5">
+
+        <FormControl mb="5" isInvalid={!!errors.tagline}>
           <FormControl.Label>
             <Text style={styles.fieldLabel}>Tagline</Text>
           </FormControl.Label>
@@ -183,37 +189,29 @@ const GetStarted = ({}: {}) => {
             onBlur={() => validate()}
             borderRadius={8}
           />
-          {errors.tagline && (
-            <HStack alignItems="center" space={1} marginTop={1}>
-              <WarningOutlineIcon size="xs" color="red.500" />
-              <Text fontSize="xs" color="red.500">
-                Something is wrong.
-              </Text>
-            </HStack>
-          )}
+          <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+            {errors.tagline}
+          </FormControl.ErrorMessage>
         </FormControl>
-        <FormControl mb="5">
+
+        <FormControl mb="5" isInvalid={!!errors.rewardDescription}>
           <FormControl.Label>
             <Text style={styles.fieldLabel}>Reward Description</Text>
           </FormControl.Label>
           <Input
-            style={[styles.input, errors.tagline ? styles.error : {}]}
+            style={[styles.input, errors.rewardDescription ? styles.error : {}]}
             backgroundColor="white"
             value={rewardDescription}
             onChangeText={(val) => setRewardDescription(val)}
             onBlur={() => validate()}
             borderRadius={8}
           />
-          {errors.tagline && (
-            <HStack alignItems="center" space={1} marginTop={1}>
-              <WarningOutlineIcon size="xs" color="red.500" />
-              <Text fontSize="xs" color="red.500">
-                Something is wrong.
-              </Text>
-            </HStack>
-          )}
+          <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+            {errors.rewardDescription}
+          </FormControl.ErrorMessage>
         </FormControl>
-        <FormControl mb="5" isRequired>
+
+        <FormControl mb="5" isRequired isInvalid={!!errors.projectDescription}>
           <FormControl.Label>
             <Text style={styles.fieldLabel}>Project Description</Text>
           </FormControl.Label>
@@ -227,21 +225,18 @@ const GetStarted = ({}: {}) => {
             borderRadius={8}
             placeholder="Enter project description..."
           />
-          {errors.projectDescription && (
-            <HStack alignItems="center" space={1} marginTop={1}>
-              <WarningOutlineIcon size="xs" color="red.500" />
-              <Text fontSize="xs" color="red.500">
-                {errors.projectDescription}
-              </Text>
-            </HStack>
-          )}
+          <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+            {errors.projectDescription}
+          </FormControl.ErrorMessage>
         </FormControl>
 
-        <FormControl mb="5" flex={1} isRequired>
+        <FormControl mb="5" flex={1} isRequired isInvalid={!!errors.coverPhoto}>
           <FormControl.Label>
             <Text style={styles.fieldLabel}>Cover Photo</Text>
           </FormControl.Label>
-          <Text style={styles.helperText}>Provide image URL for your cover photo.</Text>
+          <FormControl.HelperText>
+            <Text style={styles.helperText}>Provide image URL for your cover photo.</Text>
+          </FormControl.HelperText>
 
           <Input
             style={[styles.input, errors.coverPhoto ? styles.error : {}]}
@@ -253,22 +248,20 @@ const GetStarted = ({}: {}) => {
             borderRadius={8}
           />
 
-          {errors.coverPhoto && (
-            <HStack alignItems="center" space={1} marginTop={1}>
-              <WarningOutlineIcon size="xs" color="red.500" />
-              <Text fontSize="xs" color="red.500">
-                {errors.coverPhoto}
-              </Text>
-            </HStack>
-          )}
+          <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+            {errors.coverPhoto}
+          </FormControl.ErrorMessage>
         </FormControl>
-        <FormControl flex={1} isRequired>
+
+        <FormControl flex={1} isRequired isInvalid={!!errors.logo}>
           <FormControl.Label>
             <Text style={styles.fieldLabel}>Logo</Text>
           </FormControl.Label>
-          <Text style={styles.helperText}>
-            JPG, PNG, GIF (max 1MB, 500x500px recommended). Upload directly or provide URL.
-          </Text>
+          <FormControl.HelperText>
+            <Text style={styles.helperText}>
+              JPG, PNG, GIF (max 1MB, 500x500px recommended). Upload directly or provide URL.
+            </Text>
+          </FormControl.HelperText>
 
           {logo ? (
             <View style={styles.uploadArea}>
@@ -287,14 +280,7 @@ const GetStarted = ({}: {}) => {
             </VStack>
           )}
 
-          {errors.logo && (
-            <HStack alignItems="center" space={1} marginTop={1}>
-              <WarningOutlineIcon size="xs" color="red.500" />
-              <Text fontSize="xs" color="red.500">
-                {errors.logo}
-              </Text>
-            </HStack>
-          )}
+          <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>{errors.logo}</FormControl.ErrorMessage>
         </FormControl>
 
         <NavigationButtons
@@ -316,7 +302,7 @@ const GetStarted = ({}: {}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'goodGrey.50',
   },
 
   content: {
@@ -369,6 +355,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlignVertical: 'top',
     backgroundColor: Colors.white,
+    overflow: 'hidden',
+    resize: 'none',
   },
   uploadArea: {
     height: 120,

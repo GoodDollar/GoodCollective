@@ -2,7 +2,6 @@ import { useAppKit, useAppKitAccount, useDisconnect } from '@reown/appkit/react'
 import { mainnet } from '@wagmi/core/chains';
 import {
   FormControl,
-  HStack,
   Input,
   InputGroup,
   InputLeftAddon,
@@ -74,7 +73,7 @@ const ProjectDetails = () => {
 
   const submitForm = () => {
     setShowWarning(true);
-    if (validate()) {
+    if (validate(true)) {
       submitPartial({
         website,
         twitter,
@@ -89,7 +88,7 @@ const ProjectDetails = () => {
     }
   };
 
-  const validate = () => {
+  const validate = (checkEmpty = false) => {
     const currErrors: FormError = {
       social: '',
       adminWalletAddress: '',
@@ -97,13 +96,17 @@ const ProjectDetails = () => {
     };
     let pass = true;
     if (!website && !twitter && !telegram && !discord && !facebook && !threads) {
-      currErrors.social = 'One social channel is required';
-      pass = false;
+      if (checkEmpty) {
+        currErrors.social = 'One social channel is required';
+        pass = false;
+      }
     }
 
     if (!website) {
-      currErrors.website = 'Website is required';
-      pass = false;
+      if (checkEmpty) {
+        currErrors.website = 'Website is required';
+        pass = false;
+      }
     }
 
     const pattern = new RegExp(
@@ -121,8 +124,10 @@ const ProjectDetails = () => {
     }
 
     if (!adminWalletAddress) {
-      currErrors.adminWalletAddress = 'Admin wallet address is required!';
-      pass = false;
+      if (checkEmpty) {
+        currErrors.adminWalletAddress = 'Admin wallet address is required!';
+        pass = false;
+      }
     } else {
       const ethereumAddressRegex = /^0x[a-fA-F0-9]{40}$/;
       if (!ethereumAddressRegex.test(adminWalletAddress)) {
@@ -147,9 +152,10 @@ const ProjectDetails = () => {
           Add a detailed description, project links and disclaimer to help educate contributors about your project and
           it's goals.
         </Text>
-        <FormControl mb="5" isRequired>
+
+        <FormControl mb="5" isRequired isInvalid={!!errors.website}>
           <FormControl.Label>
-            <Text style={styles.fieldLabel}>Website*</Text>
+            <Text style={styles.fieldLabel}>Website</Text>
           </FormControl.Label>
           <InputGroup width="full" backgroundColor="white" style={styles.inputGroup}>
             <InputLeftAddon children={'https://'} style={styles.inputAddon} />
@@ -161,17 +167,13 @@ const ProjectDetails = () => {
                 setWebsite(value);
                 validate();
               }}
+              onBlur={() => validate()}
               placeholder="www.gooddollar.org"
             />
           </InputGroup>
-          {errors.website && (
-            <HStack alignItems="center" space={1} marginTop={1}>
-              <WarningOutlineIcon size="xs" color="red.500" />
-              <Text fontSize="xs" color="red.500">
-                {errors.website}
-              </Text>
-            </HStack>
-          )}
+          <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+            {errors.website}
+          </FormControl.ErrorMessage>
         </FormControl>
 
         <FormControl mb="5">
@@ -185,6 +187,7 @@ const ProjectDetails = () => {
               flex={1}
               value={twitter}
               onChangeText={(value) => setTwitter(value)}
+              onBlur={() => validate()}
               placeholder="@Gooddollar"
             />
           </InputGroup>
@@ -201,7 +204,8 @@ const ProjectDetails = () => {
               flex={1}
               value={discord}
               onChangeText={(value) => setDiscord(value)}
-              placeholder="www.gooddollar.org"
+              onBlur={() => validate()}
+              placeholder="discord.gg/gooddollar"
             />
           </InputGroup>
         </FormControl>
@@ -217,7 +221,8 @@ const ProjectDetails = () => {
               flex={1}
               value={telegram}
               onChangeText={(value) => setTelegram(value)}
-              placeholder="www.gooddollar.org"
+              onBlur={() => validate()}
+              placeholder="t.me/gooddollar"
             />
           </InputGroup>
         </FormControl>
@@ -233,7 +238,8 @@ const ProjectDetails = () => {
               flex={1}
               value={facebook}
               onChangeText={(value) => setFacebook(value)}
-              placeholder="www.gooddollar.org"
+              onBlur={() => validate()}
+              placeholder="facebook.com/gooddollar"
             />
           </InputGroup>
         </FormControl>
@@ -249,13 +255,25 @@ const ProjectDetails = () => {
               flex={1}
               value={threads}
               onChangeText={(value) => setThreads(value)}
-              placeholder="www.gooddollar.org"
+              onBlur={() => validate()}
+              placeholder="threads.net/gooddollar"
             />
           </InputGroup>
         </FormControl>
 
         <Text style={styles.sectionTitle}>Project Owner Details</Text>
-        <Text style={styles.sectionSubtitle}>Admin Wallet Address</Text>
+
+        <FormControl mb="1" isRequired isInvalid={!!errors.adminWalletAddress}>
+          <FormControl.Label>
+            <Text style={styles.fieldLabel}>Admin Wallet Address*</Text>
+          </FormControl.Label>
+          <View style={styles.walletAddressBox}>
+            <Text style={styles.walletAddressText}>{adminWalletAddress}</Text>
+          </View>
+          <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+            {errors.adminWalletAddress}
+          </FormControl.ErrorMessage>
+        </FormControl>
 
         <InfoBox
           type="info"
@@ -264,11 +282,7 @@ const ProjectDetails = () => {
 
         <ActionButton text="Change Wallet" bg="#5B7AC6" textColor="white" onPress={changeWallet} width="150px" />
 
-        <View style={styles.walletAddressBox}>
-          <Text style={styles.walletAddressText}>{adminWalletAddress}</Text>
-        </View>
-
-        <FormControl mb="5">
+        <FormControl mt="5">
           <FormControl.Label>
             <Text style={styles.fieldLabel}>
               Please provide any additional information about your project that you would like us to know (Optional)
@@ -278,8 +292,12 @@ const ProjectDetails = () => {
             style={styles.textArea}
             value={additionalInfo}
             onChangeText={(value) => setAdditionalInfo(value)}
+            onBlur={() => validate()}
             placeholder="Enter additional information..."
             autoCompleteType="off"
+            multiline={true}
+            numberOfLines={3}
+            scrollEnabled={true}
           />
         </FormControl>
 
@@ -375,14 +393,16 @@ const styles = StyleSheet.create({
   },
   textArea: {
     height: 100,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
+    borderWidth: 0,
+    borderColor: 'transparent',
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
     textAlignVertical: 'top',
     backgroundColor: Colors.white,
+    overflow: 'hidden',
+    resize: 'none',
   },
   navigationContainer: {
     marginTop: 40,
