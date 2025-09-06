@@ -71,7 +71,7 @@ const GetStarted = ({}: {}) => {
     } else if (projectName.length > 30) {
       currErrors.projectName = 'Project name length (max 30 characters)';
       pass = false;
-    } else if (!/^[a-zA-Z0-9]*$/.test(projectName)) {
+    } else if (!/^[a-zA-Z0-9 ]*$/.test(projectName)) {
       currErrors.projectName = 'Project name cannot contain special characters';
       pass = false;
     }
