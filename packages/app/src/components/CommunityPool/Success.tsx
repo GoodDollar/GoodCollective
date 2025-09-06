@@ -12,6 +12,7 @@ import {
   WebsiteIcon,
 } from '../../assets';
 import { useScreenSize } from '@gooddollar/good-design';
+import useCrossNavigate from '../../routes/useCrossNavigate';
 
 interface SuccessModalProps {
   openModal: boolean;
@@ -36,8 +37,8 @@ const SuccessModal = ({
   socials,
 }: SuccessModalProps) => {
   const { isDesktopView } = useScreenSize();
+  const { navigate } = useCrossNavigate();
 
-  // Create socials array similar to ReviewLaunch
   const socialsArray = [
     !!socials?.website && {
       name: 'website',
@@ -176,7 +177,17 @@ const SuccessModal = ({
                 Now it's time to fund your GoodCollective!
               </Text>
               <Box width="full">
-                <ActionButton text={buttonText} bg="goodPurple.400" textColor="white" onPress={onButtonPress} />
+                <ActionButton
+                  text={buttonText}
+                  bg="goodPurple.400"
+                  textColor="white"
+                  onPress={() => {
+                    if (onButtonPress) {
+                      onButtonPress();
+                    }
+                    navigate('/');
+                  }}
+                />
               </Box>
             </VStack>
           </VStack>
