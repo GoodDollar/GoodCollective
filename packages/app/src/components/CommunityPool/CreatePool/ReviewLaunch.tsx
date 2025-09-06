@@ -18,13 +18,7 @@ const ReviewLaunch = () => {
   const [approvePoolModalVisible, setApprovePoolModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [thankYouModalVisible, setThankYouModalVisible] = useState(false);
-  const [isPoolCreationComplete, setIsPoolCreationComplete] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-
-  // Navigation handling for completion
-  if (isPoolCreationComplete) {
-    navigate('/create');
-  }
 
   const socials = [
     !!form.website && {
@@ -59,7 +53,6 @@ const ReviewLaunch = () => {
       if (pool) {
         setApprovePoolModalVisible(false);
         setThankYouModalVisible(true);
-        setIsPoolCreationComplete(true);
       } else {
         setApprovePoolModalVisible(false);
         setErrorMessage('Failed to create pool. Please check your wallet connection and try again.');
@@ -91,7 +84,7 @@ const ReviewLaunch = () => {
   const onCloseErrorModal = () => setErrorMessage(undefined);
   const onCloseThankYouModal = () => {
     setThankYouModalVisible(false);
-    navigate('/create');
+    navigate('/');
   };
 
   return (
