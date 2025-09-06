@@ -211,6 +211,29 @@ const PoolConfiguration = () => {
     return Math.ceil(totalForAllMembers);
   };
 
+  // Get the claim frequency display text
+  const getClaimFrequencyText = () => {
+    if (claimFrequency === 2) {
+      return `${customClaimFrequency} day${customClaimFrequency === 1 ? '' : 's'}`;
+    } else if (claimFrequency === 1) {
+      return '1 day';
+    } else if (claimFrequency === 7) {
+      return '1 week';
+    } else if (claimFrequency === 14) {
+      return '2 weeks';
+    } else if (claimFrequency === 30) {
+      return '1 month';
+    }
+    return '1 week';
+  };
+
+  // Get the claim amount per interval text
+  const getClaimAmountPerIntervalText = () => {
+    const daysInCycle = claimFrequency === 2 ? customClaimFrequency : claimFrequency;
+    const amountPerInterval = (claimAmountPerWeek * daysInCycle) / 7;
+    return `${Math.round(amountPerInterval * 100) / 100}G$`;
+  };
+
   return (
     <VStack
       padding={6}
@@ -630,7 +653,7 @@ const PoolConfiguration = () => {
         <InfoBox
           type="info"
           icon={<img src={LightBulbIcon} width={20} height={20} />}
-          message="For a fixed amount per claim frequency, the pool needs to be funded with a minimum amount to sustain expected amount of members in one cycle. The pool will be paused if you choose to fund less money than this minimum and more members than you expect join. Use the widget below to configure these settings."
+          message="For a fixed amount per claim frequency, the pool needs to be funded with a minimum amount to sustain expected amount of members in one cycle. The pool will be paused if you choose to fund less money than this minimum and more members than you expect join. Use the widget below to configure these settings. It will also show you the minimum amount of funding needed to sustain the pool with your chosen settings."
         />
 
         <VStack backgroundColor="blue.50" padding={4} space={4} borderRadius={8}>
@@ -741,28 +764,17 @@ const PoolConfiguration = () => {
             </FormControl.ErrorMessage>
           </FormControl>
           {/* Funding calculation display */}
-          <Box backgroundColor="blue.100" padding={4} borderRadius={8}>
+          <Box backgroundColor="goodPurple.200" padding={4} borderRadius={8}>
             <Text fontSize="sm" mb={2}>
-              For <Text bold>{claimAmountPerWeek}G$ per week per member</Text>, your pool needs at least{' '}
-              <Text bold>{calculateMinimumFunding()}G$</Text> to support <Text bold>{expectedMembers} members</Text> for
-              one cycle
-              {claimFrequency === 2
-                ? ` (${customClaimFrequency} days)`
-                : claimFrequency === 1
-                ? ' (1 day)'
-                : claimFrequency === 7
-                ? ' (7 days)'
-                : claimFrequency === 14
-                ? ' (14 days)'
-                : claimFrequency === 30
-                ? ' (30 days)'
-                : ''}
-              .
+              For a fixed amount of <Text bold>{getClaimAmountPerIntervalText()}</Text> per{' '}
+              <Text bold>{getClaimFrequencyText()}</Text>, your pool needs at least{' '}
+              <Text bold>{calculateMinimumFunding()}G$</Text> to support <Text bold>{expectedMembers} members</Text> per
+              cycle.
             </Text>
-            <HStack alignItems="flex-start" space={2}>
-              <WarningTwoIcon color="orange.500" size="4" mt="1" />
-              <Text fontSize="xs" color="orange.700" flex={1}>
-                Funding below this amount may pause the pool if more members join.
+            <HStack alignItems="flex-start" space={2} paddingY={2}>
+              <WarningTwoIcon color="red.600" size="md" />
+              <Text fontSize="xs" color="red.700" flex={1}>
+                Funding below this may pause the pool if more members join or if claim frequency is higher.
               </Text>
             </HStack>
           </Box>
