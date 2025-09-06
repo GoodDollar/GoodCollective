@@ -93,7 +93,7 @@ const HomePage = () => {
       setShowWarningMessage(true);
       return;
     }
-    navigate(`/create`);
+    navigate(`/collective/create`);
   };
 
   const stats = totalStats

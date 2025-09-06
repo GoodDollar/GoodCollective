@@ -70,7 +70,7 @@ function App(): JSX.Element {
                     <Routing.Route path="/" element={<HomePage />} />
                     <Routing.Route path="/about" element={<AboutPage />} />
                     <Routing.Route
-                      path="/create"
+                      path="/collective/create"
                       element={
                         <CreatePoolProvider>
                           <CreateGoodCollectivePage />
