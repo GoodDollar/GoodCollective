@@ -1,5 +1,5 @@
 import EmptyProfile from './EmptyProfile';
-import { Donor, Steward } from '../../models/models';
+import { Donor, StewardExtended } from '../../models/models';
 import StewardWalletDetails from './StewardWalletDetails';
 import BothWalletDetails from './BothWalletDetails';
 import DonorWalletDetails from './DonorWalletDetails';
@@ -7,7 +7,7 @@ import DonorWalletDetails from './DonorWalletDetails';
 interface WalletDetailsProps {
   firstName: string;
   donor?: Donor;
-  steward?: Steward;
+  steward?: StewardExtended;
   tokenPrice?: number;
 }
 

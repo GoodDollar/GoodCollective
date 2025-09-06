@@ -14,6 +14,7 @@ interface WalletCardsProps {
   stewardIpfsCollectives: IpfsCollective[];
   ensName?: string;
   tokenPrice?: number;
+  stewardAddress?: string;
 }
 
 function WalletCards({
@@ -23,6 +24,7 @@ function WalletCards({
   stewardIpfsCollectives,
   ensName,
   tokenPrice,
+  stewardAddress,
 }: WalletCardsProps) {
   const { isDesktopView } = useScreenSize();
 
@@ -37,13 +39,15 @@ function WalletCards({
         marginVertical: 24,
         marginHorizontal: 20,
       };
-
   return (
     <View style={[styles.walletCardsContainer, dynamicContainerStyle]}>
       {steward &&
         stewardIpfsCollectives.length > 0 &&
         steward.collectives?.map((collective, i) => (
-          <View style={{ flexGrow: 1, flexShrink: 0 }} maxWidth={{ lg: 400 }} minWidth={{ lg: 300 }}>
+          <View
+            style={{ flexGrow: 1, flexShrink: 0, zIndex: 100 - i, overflow: 'visible' }}
+            maxWidth={{ lg: 400 }}
+            minWidth={{ lg: 300 }}>
             <StewardCollectiveCard
               key={collective.collective}
               collective={collective}
@@ -51,13 +55,17 @@ function WalletCards({
               ensName={ensName ?? undefined}
               tokenPrice={tokenPrice}
               isDesktopResolution={isDesktopView}
+              stewardAddress={stewardAddress}
             />
           </View>
         ))}
       {donor &&
         donorIpfsCollectives.length > 0 &&
         donor.collectives?.map((collective, i) => (
-          <View style={{ flexGrow: 1, flexShrink: 0 }} maxWidth={{ lg: 400 }} minWidth={{ lg: 300 }}>
+          <View
+            style={{ flexGrow: 1, flexShrink: 0, zIndex: 100 - i, overflow: 'visible' }}
+            maxWidth={{ lg: 400 }}
+            minWidth={{ lg: 300 }}>
             <DonorCollectiveCard
               key={collective.collective}
               donorCollective={collective}

@@ -82,26 +82,24 @@ const config: HardhatUserConfig = {
     'production-celo': {
       chainId: 42220,
       url: `https://forno.celo.org`,
-      gasPrice: 5000000000,
+      gasPrice: 25.1e9,
       accounts: [privateKey],
       verify: {
         etherscan: {
-          apiKey: process.env.CELOSCAN_KEY,
-          apiUrl: 'https://api.celoscan.io/',
+          apiKey: process.env.ETHERSCAN_KEY,
         },
       },
     },
     'development-celo': {
       chainId: 42220,
       url: `https://forno.celo.org`,
-      gasPrice: 5000000000,
+      gasPrice: 25.1e9,
       accounts: {
         mnemonic,
       },
       verify: {
         etherscan: {
-          apiKey: process.env.CELOSCAN_KEY,
-          apiUrl: 'https://api.celoscan.io/',
+          apiKey: process.env.ETHERSCAN_KEY,
         },
       },
     },

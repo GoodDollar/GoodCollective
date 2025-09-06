@@ -23,6 +23,7 @@ export type TotalStatsCollectivesResponse = {
   activeCollectives: { id: string }[];
   collectives: { totalDonations: string }[];
   stewards: { id: string }[];
+  donorCollectives: { id: string; flowRate: string; timestamp: number; contribution: string }[];
 };
 
 export function useSubgraphData<T>(

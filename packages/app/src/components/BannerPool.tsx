@@ -68,9 +68,8 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     maxWidth: 512,
-    height: 290,
+    maxHeight: 290,
     borderRadius: 20,
-    flex: 1,
   },
   poolTypeContainer: {
     position: 'absolute',

@@ -78,8 +78,10 @@ describe('DirectPaymentsPool Superapp', () => {
     nft = (await upgrades.deployProxy(factory, ['nft', 'cc'], { kind: 'uups' })) as ProvableNFT;
     const swaprouter = await ethers.deployContract('SwapRouterMock', [gdframework.GoodDollar.address]);
     const helper = await ethers.deployContract('HelperLibrary');
+    const helper2 = await ethers.deployContract('DirectPaymentsLibrary');
+
     const Pool = await ethers.getContractFactory('DirectPaymentsPool', {
-      libraries: { HelperLibrary: helper.address },
+      libraries: { HelperLibrary: helper.address, DirectPaymentsLibrary: helper2.address },
     });
 
     pool = (await upgrades.deployProxy(Pool, [nft.address, poolSettings, poolLimits, 0, ethers.constants.AddressZero], {
@@ -88,6 +90,7 @@ describe('DirectPaymentsPool Superapp', () => {
     })) as DirectPaymentsPool;
     await pool.deployed();
     await nft.mintPermissioned(signers[0].address, nftSample, true, []);
+    // await sf.host.contract.connect(signer)['registerApp(address,uint256)'](pool.address, 1);
     // return {pool, nft};
   };
 
@@ -135,7 +138,7 @@ describe('DirectPaymentsPool Superapp', () => {
     await mine(2, { interval: 5 });
 
     expect(await gdframework.GoodDollar.balanceOf(pool.address)).gte(Number(baseFlowRate) * 5);
-    await expect(st.deleteFlow({ receiver: pool.address, sender: signer.address }).exec(signer)).not.reverted
+    await expect(st.deleteFlow({ receiver: pool.address, sender: signer.address }).exec(signer)).not.reverted;
     const supporter = await pool.supporters(signer.address);
     expect(supporter.contribution).gte(Number(baseFlowRate) * 5);
     expect(supporter.lastUpdated).gt(0);
@@ -273,13 +276,17 @@ describe('DirectPaymentsPool Superapp', () => {
     await gdframework.GoodDollar.mint(await pool.swapRouter(), ethers.constants.WeiPerEther);
 
     const st = await sf.loadSuperToken(gdframework.GoodDollar.address);
-    const tx = await pool.connect(signer).supportWithSwap(signer.address, {
-      swapFrom: mockToken.address,
-      amount: ethers.constants.WeiPerEther,
-      minReturn: ethers.constants.WeiPerEther,
-      deadline: (Date.now() / 1000).toFixed(0),
-      path: '0x',
-    }, '0x')
+    const tx = await pool.connect(signer).supportWithSwap(
+      signer.address,
+      {
+        swapFrom: mockToken.address,
+        amount: ethers.constants.WeiPerEther,
+        minReturn: ethers.constants.WeiPerEther,
+        deadline: (Date.now() / 1000).toFixed(0),
+        path: '0x',
+      },
+      '0x'
+    );
 
     // console.log((await tx.wait()).events)
 

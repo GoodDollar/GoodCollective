@@ -4,10 +4,10 @@ pragma solidity >=0.8.0;
 // import the DirectPayments contract
 import "./DirectPaymentsPool.sol";
 import "./ProvableNFT.sol";
+import "../GoodCollective/SuperAppBaseFlow.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
-
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
@@ -15,6 +15,7 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils
 
 contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
     error NOT_PROJECT_OWNER();
+    error NOT_PROJECT_MANAGER();
     error NOT_POOL();
 
     event PoolCreated(
@@ -60,9 +61,9 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         _;
     }
 
-    modifier onlyPoolOwner(DirectPaymentsPool pool) {
-        if (pool.hasRole(pool.DEFAULT_ADMIN_ROLE(), msg.sender) == false) {
-            revert NOT_PROJECT_OWNER();
+    modifier onlyPoolManager(DirectPaymentsPool pool) {
+        if (pool.hasRole(pool.MANAGER_ROLE(), msg.sender) == false) {
+            revert NOT_PROJECT_MANAGER();
         }
 
         _;
@@ -136,6 +137,19 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
             pool = DirectPaymentsPool(address(new ERC1967Proxy(impl.implementation(), initCall)));
         }
 
+        // Register the app with the host
+        if (pool.host().isApp(pool) == false) {
+            try
+                IRegisterSuperapp(address(pool.host())).registerApp(address(pool), SuperAppDefinitions.APP_LEVEL_FINAL)
+            {} catch {
+                //fallback for older versions of superfluid used in unit tests
+                IRegisterSuperapp(address(pool.host())).registerAppByFactory(
+                    address(pool),
+                    SuperAppDefinitions.APP_LEVEL_FINAL
+                );
+            }
+        }
+
         nft.grantRole(nft.getManagerRole(nextNftType), address(pool));
 
         //access control to project is determinted by the first pool access control rules
@@ -153,7 +167,7 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         nextNftType++;
     }
 
-    function changePoolDetails(DirectPaymentsPool _pool, string memory _ipfs) external onlyPoolOwner(_pool) {
+    function changePoolDetails(DirectPaymentsPool _pool, string memory _ipfs) external onlyPoolManager(_pool) {
         registry[address(_pool)].ipfs = _ipfs;
         emit PoolDetailsChanged(address(_pool), _ipfs);
     }

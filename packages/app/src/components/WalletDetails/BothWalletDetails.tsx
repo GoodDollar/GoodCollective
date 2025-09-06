@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native';
-import { Donor, Steward } from '../../models/models';
+import { Donor, StewardExtended } from '../../models/models';
 import { styles } from './styles';
 import { formatTime } from '../../lib/formatTime';
 import { countUniqueValuesInTwoArrays } from '../../lib/countUniqueValuesInTwoArrays';
@@ -10,21 +10,22 @@ import { GoodDollarAmount } from '../GoodDollarAmount';
 
 interface BothWalletDetailsProps {
   donor: Donor;
-  steward: Steward;
+  steward: StewardExtended;
   tokenPrice?: number;
 }
 
 function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProps) {
-  const { wei: formattedDonations, usdValue: donationsUsdValue } = useDonorCollectivesFlowingBalances(
-    donor.collectives,
-    tokenPrice
-  );
+  const { wei, usdValue: donationsUsdValue } = useDonorCollectivesFlowingBalances(donor.collectives, tokenPrice);
 
-  const { formatted: formattedRewards, usdValue: rewardsUsdValue } = calculateGoodDollarAmounts(
-    steward.totalEarned,
-    tokenPrice,
-    2
-  );
+  const { usdValue: rewardsUsdValue } = calculateGoodDollarAmounts(steward.totalClimateEarned, tokenPrice, 2);
+
+  const { usdValue: ubiRewardsUsdValue } = calculateGoodDollarAmounts(steward.totalUBIEarned, tokenPrice, 2);
+
+  const totalStewardEarned =
+    (steward.totalClimateEarned ? BigInt(steward.totalClimateEarned) : 0n) +
+    (steward.totalUBIEarned ? BigInt(steward.totalUBIEarned) : 0n);
+
+  const { usdValue: totalStewardUsdValue } = calculateGoodDollarAmounts(totalStewardEarned.toString(), tokenPrice, 2);
 
   const peopleSupported = useCountPeopleSupported(donor.collectives) ?? 0;
 
@@ -44,7 +45,7 @@ function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProp
             <GoodDollarAmount
               style={styles.rowText}
               lastDigitsProps={{ style: { fontSize: 18, lineHeight: 27, fontWeight: '300' } }}
-              amount={formattedDonations || '0'}
+              amount={wei || '0'}
             />
           </View>
           <Text style={styles.formattedUsd}>= {donationsUsdValue} USD</Text>
@@ -73,12 +74,56 @@ function BothWalletDetails({ donor, steward, tokenPrice }: BothWalletDetailsProp
       <View style={[styles.row]}>
         <View style={[styles.impactBar, styles.orangeBar]} />
         <View style={styles.rowContent}>
-          <Text style={styles.rowTitle}>And received</Text>
+          <Text style={styles.rowTitle}>And received a total of</Text>
           <View style={[styles.row]}>
             <Text style={styles.rowBoldText}>G$ </Text>
-            <Text style={styles.rowText}>{formattedRewards}</Text>
+            <GoodDollarAmount
+              style={styles.rowText}
+              lastDigitsProps={{ style: { fontSize: 18, lineHeight: 27, fontWeight: '300' } }}
+              amount={totalStewardEarned.toString()}
+            />
           </View>
-          <Text>= {rewardsUsdValue} USD</Text>
+          <Text style={styles.formattedUsd}>= {totalStewardUsdValue} USD</Text>
+        </View>
+      </View>
+
+      <View style={[styles.row]}>
+        <View style={[styles.impactBar, styles.orangeBar]} />
+        <View style={styles.rowContent}>
+          <Text style={styles.rowTitle}>From performing</Text>
+          <View style={[styles.row]}>
+            <Text style={styles.rowBoldText}>{steward.actions}</Text>
+            <Text style={styles.rowText}> climate actions and receiving</Text>
+          </View>
+          <View style={[styles.row]}>
+            <Text style={styles.rowBoldText}>G$ </Text>
+            <GoodDollarAmount
+              style={styles.rowText}
+              lastDigitsProps={{ style: { fontSize: 18, lineHeight: 27, fontWeight: '300' } }}
+              amount={steward.totalClimateEarned ?? '0'}
+            />
+          </View>
+          <Text style={styles.formattedUsd}>= {rewardsUsdValue} USD</Text>
+        </View>
+      </View>
+
+      <View style={[styles.row]}>
+        <View style={[styles.impactBar, styles.orangeBar]} />
+        <View style={styles.rowContent}>
+          <Text style={styles.rowTitle}>And from claiming</Text>
+          <View style={[styles.row]}>
+            <Text style={styles.rowBoldText}>{steward.claimCount}</Text>
+            <Text style={styles.rowText}> times and receiving</Text>
+          </View>
+          <View style={[styles.row]}>
+            <Text style={styles.rowBoldText}>G$ </Text>
+            <GoodDollarAmount
+              style={styles.rowText}
+              lastDigitsProps={{ style: { fontSize: 18, lineHeight: 27, fontWeight: '300' } }}
+              amount={steward.totalUBIEarned ?? '0'}
+            />
+          </View>
+          <Text style={styles.formattedUsd}>= {ubiRewardsUsdValue} USD</Text>
         </View>
       </View>
 

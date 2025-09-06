@@ -7,7 +7,7 @@ import { useScreenSize } from '../theme/hooks';
 
 import ProfileView from './ProfileView';
 import WalletDetails from './WalletDetails/WalletDetails';
-import { Donor, Steward } from '../models/models';
+import { Donor, StewardExtended } from '../models/models';
 import { useCollectivesMetadataById, useGetTokenPrice } from '../hooks';
 import { LightningIcon } from '../assets';
 import WalletCards from './WalletCards/WalletCards';
@@ -19,7 +19,7 @@ interface WalletProfileProps {
   firstName?: string;
   lastName?: string;
   donor?: Donor;
-  steward?: Steward;
+  steward?: StewardExtended;
   isWhitelisted?: boolean;
 }
 
@@ -70,6 +70,7 @@ function WalletProfile({ address, ensName, firstName, lastName, donor, steward, 
           stewardIpfsCollectives={stewardIpfsCollectives}
           ensName={ensName ?? undefined}
           tokenPrice={tokenPrice}
+          stewardAddress={address}
         />
       </View>
     );
@@ -100,6 +101,7 @@ function WalletProfile({ address, ensName, firstName, lastName, donor, steward, 
         stewardIpfsCollectives={stewardIpfsCollectives}
         ensName={ensName ?? undefined}
         tokenPrice={tokenPrice}
+        stewardAddress={address}
       />
     </View>
   );
@@ -114,11 +116,10 @@ const styles = StyleSheet.create({
     borderBottomEndRadius: 16,
   },
   desktopContainer: {
-    maxHeight: 620,
     maxWidth: 420,
     borderRadius: 16,
   },
-  profileContentBox: { flexDirection: 'row', gap: 30, marginTop: 20 },
+  profileContentBox: { flexDirection: 'row', gap: 30, marginTop: 20, alignItems: 'flex-start' },
   pfp: {
     width: 64,
     height: 64,

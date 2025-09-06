@@ -12,6 +12,12 @@ const collectivesTotalStats = gql`
     activeCollectives: collectives {
       id
     }
+    donorCollectives {
+      id
+      flowRate
+      timestamp
+      contribution
+    }
   }
 `;
 
