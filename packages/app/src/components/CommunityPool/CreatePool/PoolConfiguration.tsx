@@ -53,7 +53,7 @@ const PoolConfiguration = () => {
   const [poolRecipients, setPoolRecipients] = useState(form.poolRecipients ?? '');
   const [managerFeePercentage, setManagerFeePercentage] = useState(form.managerFeePercentage ?? 10);
   const [claimAmountPerWeek, setClaimAmountPerWeek] = useState(form.claimAmountPerWeek ?? 10);
-  const [expectedMembers, setExpectedMembers] = useState(form.expectedMembers ?? 10);
+  const [expectedMembers, setExpectedMembers] = useState(form.expectedMembers ?? 1);
   const [customClaimFrequency, setCustomClaimFrequency] = useState(form.customClaimFrequency ?? 1);
   const [ensName, setEnsName] = useState('');
   const [errors, setErrors] = useState<FormError>({});
@@ -80,18 +80,30 @@ const PoolConfiguration = () => {
     })();
   }, [ensName, managerAddress]);
 
+  // Sync expectedMembers when maximumMembers changes
+  useEffect(() => {
+    if (expectedMembers > maximumMembers) {
+      setExpectedMembers(maximumMembers);
+    }
+  }, [maximumMembers, expectedMembers]);
+
   const validate = () => {
     const currErrors: FormError = {};
     let pass = true;
 
     // Validate pool recipients (only if provided)
     if (poolRecipients.trim()) {
-      const addresses = poolRecipients.split(',').map((addr) => addr.trim());
+      // Use a more robust cleaning method
+      const addresses = poolRecipients
+        .split(',')
+        .map((addr) => addr.replace(/\s+/g, '').trim()) // Remove all whitespace chars
+        .filter((addr) => addr.length > 0); // Remove empty strings
+
       const validAddressRegex = /^0x[a-fA-F0-9]{40}$/;
 
       for (const addr of addresses) {
         if (!validAddressRegex.test(addr)) {
-          currErrors.poolRecipients = 'Invalid address format. Please use valid Ethereum addresses.';
+          currErrors.poolRecipients = `Invalid address format: "${addr}". Please use valid Ethereum addresses.`;
           pass = false;
           break;
         }
@@ -185,10 +197,17 @@ const PoolConfiguration = () => {
   // Calculate minimum funding needed
   const calculateMinimumFunding = () => {
     const daysInCycle = claimFrequency === 2 ? customClaimFrequency : claimFrequency;
-    const weeklyAmount = claimAmountPerWeek || 0;
-    const dailyAmount = weeklyAmount / 7;
-    const cycleAmount = dailyAmount * daysInCycle;
-    const totalForAllMembers = cycleAmount * (expectedMembers || 0);
+    const weeklyAmountPerMember = claimAmountPerWeek || 0;
+
+    // Calculate how much each member gets per cycle
+    // If cycle is daily (1 day), each member gets weeklyAmount/7 per day
+    // If cycle is weekly (7 days), each member gets the full weeklyAmount
+    // If cycle is bi-weekly (14 days), each member gets weeklyAmount * 2
+    // If cycle is monthly (30 days), each member gets weeklyAmount * 4.3 (approximately)
+    const amountPerMemberPerCycle = (weeklyAmountPerMember * daysInCycle) / 7;
+
+    // Total funding needed for all expected members
+    const totalForAllMembers = amountPerMemberPerCycle * (expectedMembers || 0);
     return Math.ceil(totalForAllMembers);
   };
 
@@ -247,18 +266,19 @@ const PoolConfiguration = () => {
             value={String(maximumMembers)}
             onChangeText={(value) => {
               if (value === '') {
-                setMaximumMembers(1);
+                setMaximumMembers(0); // Allow empty state temporarily
                 return;
               }
               const num = parseInt(value, 10);
-              if (!isNaN(num) && num >= 1) {
-                setMaximumMembers(num);
+              if (!isNaN(num)) {
+                setMaximumMembers(num); // Allow any number during typing
               }
             }}
             onBlur={() => {
               if (maximumMembers < 1 || isNaN(maximumMembers)) {
                 setMaximumMembers(1);
               }
+              validate();
             }}
             keyboardType="numeric"
             placeholder="Enter maximum members"
@@ -291,6 +311,7 @@ const PoolConfiguration = () => {
           <Input
             value={poolRecipients}
             onChangeText={setPoolRecipients}
+            onBlur={() => validate()}
             placeholder="0x1234...,0x5678...,0x9abc..."
             multiline
             numberOfLines={3}
@@ -412,64 +433,65 @@ const PoolConfiguration = () => {
               type="info"
               message="Pool manager takes a payout from the pool for setting it up, with a maximum of 100% which is charged from the pool"
             />
-            <Box backgroundColor="white" padding={4} borderWidth={1} borderColor="gray.200" borderRadius={8}>
-              <Text fontWeight="600" mb={4}>
-                Manager Fee Percentage
-              </Text>
-              <HStack alignItems="center" space={4}>
-                <Slider
-                  flex={1}
-                  colorScheme="blue"
-                  minValue={0}
-                  maxValue={100}
-                  value={managerFeePercentage}
-                  onChange={(val) => {
-                    if (!isNaN(val)) {
-                      setManagerFeePercentage(Math.min(100, Math.max(0, val)));
-                    }
-                  }}>
-                  <Slider.Track>
-                    <Slider.FilledTrack />
-                  </Slider.Track>
-                  <Slider.Thumb />
-                </Slider>
-                <Input
-                  value={String(managerFeePercentage)}
-                  onChangeText={(val) => {
-                    // Handle empty string
-                    if (val === '' || val === '0') {
-                      setManagerFeePercentage(0);
-                      return;
-                    }
+            <FormControl isInvalid={!!errors.managerFeePercentage}>
+              <Box backgroundColor="white" padding={4} borderWidth={1} borderColor="gray.200" borderRadius={8}>
+                <Text fontWeight="600" mb={4}>
+                  Manager Fee Percentage
+                </Text>
+                <HStack alignItems="center" space={4}>
+                  <Slider
+                    flex={1}
+                    colorScheme="blue"
+                    minValue={0}
+                    maxValue={100}
+                    value={managerFeePercentage}
+                    onChange={(val) => {
+                      if (!isNaN(val)) {
+                        setManagerFeePercentage(Math.min(100, Math.max(0, val)));
+                      }
+                    }}>
+                    <Slider.Track>
+                      <Slider.FilledTrack />
+                    </Slider.Track>
+                    <Slider.Thumb />
+                  </Slider>
+                  <Input
+                    value={String(managerFeePercentage)}
+                    onChangeText={(val) => {
+                      // Handle empty string
+                      if (val === '' || val === '0') {
+                        setManagerFeePercentage(0);
+                        return;
+                      }
 
-                    // Parse and validate the input
-                    const num = parseFloat(val);
-                    if (!isNaN(num) && num >= 0) {
-                      const boundedValue = Math.min(100, Math.max(0, num));
-                      setManagerFeePercentage(boundedValue);
-                    }
-                  }}
-                  onBlur={() => {
-                    // Ensure valid value on blur
-                    if (managerFeePercentage < 0 || managerFeePercentage > 100 || isNaN(managerFeePercentage)) {
-                      setManagerFeePercentage(Math.min(100, Math.max(0, managerFeePercentage || 0)));
-                    }
-                  }}
-                  keyboardType="numeric"
-                  backgroundColor="white"
-                  width="20"
-                  textAlign="center"
-                />
-                <Text fontWeight="500" minW="8">
-                  %
-                </Text>
-              </HStack>
-              {errors.managerFeePercentage && (
-                <Text fontSize="xs" color="red.500" mt={2}>
+                      // Parse and validate the input
+                      const num = parseFloat(val);
+                      if (!isNaN(num) && num >= 0) {
+                        const boundedValue = Math.min(100, Math.max(0, num));
+                        setManagerFeePercentage(boundedValue);
+                      }
+                    }}
+                    onBlur={() => {
+                      // Ensure valid value on blur
+                      if (managerFeePercentage < 0 || managerFeePercentage > 100 || isNaN(managerFeePercentage)) {
+                        setManagerFeePercentage(Math.min(100, Math.max(0, managerFeePercentage || 0)));
+                      }
+                      validate();
+                    }}
+                    keyboardType="numeric"
+                    backgroundColor="white"
+                    width="20"
+                    textAlign="center"
+                  />
+                  <Text fontWeight="500" minW="8">
+                    %
+                  </Text>
+                </HStack>
+                <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
                   {errors.managerFeePercentage}
-                </Text>
-              )}
-            </Box>
+                </FormControl.ErrorMessage>
+              </Box>
+            </FormControl>
           </VStack>
         )}
       </VStack>
@@ -556,22 +578,37 @@ const PoolConfiguration = () => {
                       <Text fontSize="xs" color="gray.600">
                         Customize the days for the pool payouts
                       </Text>
-                      <HStack alignItems="center" space={2} maxW="200px">
-                        <Input
-                          flex={1}
-                          value={String(customClaimFrequency)}
-                          onChangeText={(val) => setCustomClaimFrequency(Math.max(1, parseInt(val, 10) || 1))}
-                          keyboardType="numeric"
-                          isDisabled={claimFrequency !== 2}
-                          backgroundColor="white"
-                        />
-                        <Text fontSize="sm">Days</Text>
-                      </HStack>
-                      {errors.customClaimFrequency && (
-                        <Text fontSize="xs" color="red.500">
+                      <FormControl isInvalid={!!errors.customClaimFrequency}>
+                        <HStack alignItems="center" space={2} maxW="200px">
+                          <Input
+                            flex={1}
+                            value={String(customClaimFrequency)}
+                            onChangeText={(val) => {
+                              if (val === '') {
+                                setCustomClaimFrequency(0); // Allow empty state temporarily
+                                return;
+                              }
+                              const num = parseInt(val, 10);
+                              if (!isNaN(num)) {
+                                setCustomClaimFrequency(num); // Allow any number during typing
+                              }
+                            }}
+                            onBlur={() => {
+                              if (customClaimFrequency < 1 || isNaN(customClaimFrequency)) {
+                                setCustomClaimFrequency(1);
+                              }
+                              validate();
+                            }}
+                            keyboardType="numeric"
+                            isDisabled={claimFrequency !== 2}
+                            backgroundColor="white"
+                          />
+                          <Text fontSize="sm">Days</Text>
+                        </HStack>
+                        <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
                           {errors.customClaimFrequency}
-                        </Text>
-                      )}
+                        </FormControl.ErrorMessage>
+                      </FormControl>
                     </VStack>
                   </Radio>
                 </Box>
@@ -607,7 +644,22 @@ const PoolConfiguration = () => {
               <Input
                 backgroundColor="white"
                 value={String(claimAmountPerWeek)}
-                onChangeText={(val) => setClaimAmountPerWeek(Math.max(1, parseFloat(val) || 1))}
+                onChangeText={(val) => {
+                  if (val === '') {
+                    setClaimAmountPerWeek(0); // Allow empty state temporarily
+                    return;
+                  }
+                  const num = parseFloat(val);
+                  if (!isNaN(num)) {
+                    setClaimAmountPerWeek(num); // Allow any number during typing
+                  }
+                }}
+                onBlur={() => {
+                  if (claimAmountPerWeek < 1 || isNaN(claimAmountPerWeek)) {
+                    setClaimAmountPerWeek(1);
+                  }
+                  validate();
+                }}
                 keyboardType="numeric"
               />
               <InputRightAddon children="G$" />
@@ -632,20 +684,24 @@ const PoolConfiguration = () => {
                 flex={1}
                 colorScheme="blue"
                 minValue={1}
-                maxValue={maximumMembers}
+                maxValue={Math.max(1, maximumMembers)}
                 step={1}
-                value={expectedMembers}
+                value={Math.min(Math.max(1, expectedMembers), Math.max(1, maximumMembers))}
                 onChange={(val) => {
                   // Ensure val is a valid number and within bounds
-                  const newValue = Math.round(val);
-                  const boundedValue = Math.min(maximumMembers, Math.max(1, newValue));
-                  setExpectedMembers(boundedValue);
+                  if (!isNaN(val) && isFinite(val)) {
+                    const newValue = Math.round(val);
+                    const boundedValue = Math.min(Math.max(1, maximumMembers), Math.max(1, newValue));
+                    setExpectedMembers(boundedValue);
+                  }
                 }}
                 onChangeEnd={(val) => {
                   // Final validation on release
-                  const newValue = Math.round(val);
-                  const boundedValue = Math.min(maximumMembers, Math.max(1, newValue));
-                  setExpectedMembers(boundedValue);
+                  if (!isNaN(val) && isFinite(val)) {
+                    const newValue = Math.round(val);
+                    const boundedValue = Math.min(Math.max(1, maximumMembers), Math.max(1, newValue));
+                    setExpectedMembers(boundedValue);
+                  }
                 }}>
                 <Slider.Track>
                   <Slider.FilledTrack />
@@ -655,17 +711,13 @@ const PoolConfiguration = () => {
               <Input
                 value={String(expectedMembers)}
                 onChangeText={(val) => {
-                  // Handle empty string
-                  if (val === '' || val === '0') {
-                    setExpectedMembers(1);
+                  if (val === '') {
+                    setExpectedMembers(0); // Allow empty state temporarily
                     return;
                   }
-
-                  // Parse and validate the input
                   const num = parseInt(val, 10);
-                  if (!isNaN(num) && num > 0) {
-                    const boundedValue = Math.min(maximumMembers, Math.max(1, num));
-                    setExpectedMembers(boundedValue);
+                  if (!isNaN(num)) {
+                    setExpectedMembers(num); // Allow any number during typing
                   }
                 }}
                 onBlur={() => {
@@ -673,6 +725,7 @@ const PoolConfiguration = () => {
                   if (expectedMembers < 1 || expectedMembers > maximumMembers || isNaN(expectedMembers)) {
                     setExpectedMembers(Math.min(maximumMembers, Math.max(1, expectedMembers || 1)));
                   }
+                  validate();
                 }}
                 keyboardType="numeric"
                 backgroundColor="white"
@@ -690,9 +743,21 @@ const PoolConfiguration = () => {
           {/* Funding calculation display */}
           <Box backgroundColor="blue.100" padding={4} borderRadius={8}>
             <Text fontSize="sm" mb={2}>
-              For a fixed amount of <Text bold>{claimAmountPerWeek}G$ per week</Text>, your pool needs at least{' '}
-              <Text bold>{calculateMinimumFunding()}G$</Text> to support <Text bold>{expectedMembers} members</Text> per
-              cycle.
+              For <Text bold>{claimAmountPerWeek}G$ per week per member</Text>, your pool needs at least{' '}
+              <Text bold>{calculateMinimumFunding()}G$</Text> to support <Text bold>{expectedMembers} members</Text> for
+              one cycle
+              {claimFrequency === 2
+                ? ` (${customClaimFrequency} days)`
+                : claimFrequency === 1
+                ? ' (1 day)'
+                : claimFrequency === 7
+                ? ' (7 days)'
+                : claimFrequency === 14
+                ? ' (14 days)'
+                : claimFrequency === 30
+                ? ' (30 days)'
+                : ''}
+              .
             </Text>
             <HStack alignItems="flex-start" space={2}>
               <WarningTwoIcon color="orange.500" size="4" mt="1" />
