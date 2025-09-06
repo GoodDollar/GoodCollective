@@ -63,11 +63,9 @@ const GetStarted = ({}: {}) => {
 
     // Pool Name* - 100 character max
     // (Can have spaces, no special characters allowed, 0-9/a-z/A-Z)
-    if (!projectName) {
-      if (checkEmpty) {
-        currErrors.projectName = 'Project name is required';
-        pass = false;
-      }
+    if (!projectName && checkEmpty) {
+      currErrors.projectName = 'Project name is required';
+      pass = false;
     } else if (projectName.length > 30) {
       currErrors.projectName = 'Project name length (max 30 characters)';
       pass = false;
@@ -77,11 +75,9 @@ const GetStarted = ({}: {}) => {
     }
 
     // Pool Description* - 500 character max
-    if (!projectDescription) {
-      if (checkEmpty) {
-        currErrors.projectDescription = 'Project description is required';
-        pass = false;
-      }
+    if (!projectDescription && checkEmpty) {
+      currErrors.projectDescription = 'Project description is required';
+      pass = false;
     } else if (projectDescription.length > 500) {
       currErrors.projectDescription = 'Project description length (max 500 characteres)';
       pass = false;
@@ -93,18 +89,14 @@ const GetStarted = ({}: {}) => {
       pass = false;
     }
 
-    if (!logo) {
-      if (checkEmpty) {
-        currErrors.logo = 'Logo is required';
-        pass = false;
-      }
+    if (!logo && checkEmpty) {
+      currErrors.logo = 'Logo is required';
+      pass = false;
     }
 
-    if (!coverPhoto) {
-      if (checkEmpty) {
-        currErrors.coverPhoto = 'Cover photo is required';
-        pass = false;
-      }
+    if (!coverPhoto && checkEmpty) {
+      currErrors.coverPhoto = 'Cover photo is required';
+      pass = false;
     }
 
     setErrors({
