@@ -18,10 +18,8 @@ const SelectType = () => {
     { id: 5, Component: ReviewLaunch },
   ];
 
-  const { step, form } = useCreatePool();
+  const { step, form, submitPartial, nextStep, previousStep } = useCreatePool();
   const { isDesktopView } = useScreenSize();
-
-  const { submitPartial, nextStep, previousStep } = useCreatePool();
 
   const poolTypes = [
     {
