@@ -8,6 +8,7 @@ import { GDEnvTokens, SupportedNetwork, SupportedNetworkNames } from '../../mode
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { validateConnection } from '../useContractCalls/util';
 import { useEthersSigner } from '../useEthers';
+import { formatSocialUrls } from '../../lib/formatSocialUrls';
 import { Form } from './useCreatePool';
 
 type CreatePoolContextType = {
@@ -100,15 +101,17 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
 
     const projectId =
       form.projectName.replace(' ', '/').toLowerCase() + (Math.random() * 1e32).toString(36).substring(0, 6);
+
     const poolAttributes = {
       name: form.projectName,
       description: form.projectDescription,
       rewardDescription: form.rewardDescription ?? '',
-      website: form.website,
-      twitter: form.twitter,
-      instagram: form.instagram,
-      threads: form.threads,
-      discord: form.discord,
+      website: formatSocialUrls.website(form.website),
+      twitter: formatSocialUrls.twitter(form.twitter),
+      instagram: formatSocialUrls.instagram(form.instagram),
+      threads: formatSocialUrls.threads(form.threads),
+      discord: formatSocialUrls.discord(form.discord),
+      facebook: formatSocialUrls.facebook(form.facebook),
       headerImage: form.coverPhoto ?? '',
       logo: form.logo,
     };
