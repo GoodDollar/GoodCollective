@@ -3,21 +3,17 @@ import { Box, CheckCircleIcon, Divider, HStack, Pressable, Text, TextArea, VStac
 import { useCallback, useState } from 'react';
 import { AtIcon, DiscordIcon, EditIcon, InstagramIcon, PhoneImg, TwitterIcon, WebsiteIcon } from '../../../assets';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
-import useCrossNavigate from '../../../routes/useCrossNavigate';
 import BaseModal from '../../modals/BaseModal';
 import NavigationButtons from '../NavigationButtons';
-import SuccessModal from '../Success';
 
 const ReviewLaunch = () => {
   const { form, startOver, previousStep, goToBasics, goToProjectDetails, goToPoolConfiguration, createPool } =
     useCreatePool();
   const { isDesktopView } = useScreenSize();
-  const { navigate } = useCrossNavigate();
 
   // Modal states following DonateComponent patterns
   const [approvePoolModalVisible, setApprovePoolModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
-  const [thankYouModalVisible, setThankYouModalVisible] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   const socials = [
@@ -52,7 +48,7 @@ const ReviewLaunch = () => {
 
       if (pool) {
         setApprovePoolModalVisible(false);
-        setThankYouModalVisible(true);
+        // Success modal will be handled by step-based approach in CreateGoodCollective
       } else {
         setApprovePoolModalVisible(false);
         setErrorMessage('Failed to create pool. Please check your wallet connection and try again.');
@@ -64,12 +60,17 @@ const ReviewLaunch = () => {
       // Provide more specific error messages
       let errorMsg = 'Something went wrong while creating your pool. Please try again.';
       if (error instanceof Error) {
-        if (error.message.includes('DirectPaymentsFactory')) {
+        if (error.message.includes('circuit breaker is open')) {
+          errorMsg =
+            'MetaMask is temporarily preventing transactions. Please reset your MetaMask account (Settings → Advanced → Reset Account) and try again.';
+        } else if (error.message.includes('DirectPaymentsFactory')) {
           errorMsg = 'Contract configuration error. Please try again later.';
         } else if (error.message.includes('insufficient funds')) {
           errorMsg = 'Insufficient funds for transaction. Please check your wallet balance.';
         } else if (error.message.includes('user rejected')) {
           errorMsg = 'Transaction was rejected. Please try again.';
+        } else if (error.message.includes('network')) {
+          errorMsg = 'Network connection issue. Please check your internet connection and try again.';
         } else {
           errorMsg = error.message;
         }
@@ -82,10 +83,6 @@ const ReviewLaunch = () => {
 
   // Modal handlers
   const onCloseErrorModal = () => setErrorMessage(undefined);
-  const onCloseThankYouModal = () => {
-    setThankYouModalVisible(false);
-    navigate('/');
-  };
 
   return (
     <VStack
@@ -414,22 +411,6 @@ const ReviewLaunch = () => {
           'This will deploy your pool contract and make it available for members to join.',
         ]}
         image={PhoneImg}
-      />
-
-      {/* Success Modal */}
-      <SuccessModal
-        openModal={thankYouModalVisible}
-        onClose={onCloseThankYouModal}
-        projectName={form.projectName}
-        buttonText="GO TO POOLS"
-        onButtonPress={onCloseThankYouModal}
-        socials={{
-          website: form.website,
-          twitter: form.twitter,
-          instagram: form.instagram,
-          discord: form.discord,
-          threads: form.threads,
-        }}
       />
     </VStack>
   );
