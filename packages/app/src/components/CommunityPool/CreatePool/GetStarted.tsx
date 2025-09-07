@@ -34,7 +34,6 @@ const GetStarted = ({}: {}) => {
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
   const submitForm = () => {
-    // Only show warning after the form has been submitted
     setShowWarning(true);
     if (validate(true)) {
       submitPartial({
@@ -61,8 +60,6 @@ const GetStarted = ({}: {}) => {
     };
     let pass = true;
 
-    // Pool Name* - 100 character max
-    // (Can have spaces, no special characters allowed, 0-9/a-z/A-Z)
     if (!projectName && checkEmpty) {
       currErrors.projectName = 'Project name is required';
       pass = false;
@@ -74,7 +71,6 @@ const GetStarted = ({}: {}) => {
       pass = false;
     }
 
-    // Pool Description* - 500 character max
     if (!projectDescription && checkEmpty) {
       currErrors.projectDescription = 'Project description is required';
       pass = false;
@@ -83,7 +79,6 @@ const GetStarted = ({}: {}) => {
       pass = false;
     }
 
-    // Reward Description - 200 character max
     if (rewardDescription && rewardDescription.length > 200) {
       currErrors.rewardDescription = 'Reward description length (max 200 characters)';
       pass = false;
@@ -113,7 +108,6 @@ const GetStarted = ({}: {}) => {
     setErrors({ ...errors, logo: '' });
 
     try {
-      // Validate file
       const validation = validateLogoFile(file, 1); // 1MB max for logo
       if (!validation.isValid) {
         setErrors({ ...errors, logo: validation.error });
@@ -121,7 +115,6 @@ const GetStarted = ({}: {}) => {
         return;
       }
 
-      // Upload to IPFS
       const ipfsHash = await uploadFileToIPFS(file);
       const ipfsUrl = getIPFSUrl(ipfsHash);
 

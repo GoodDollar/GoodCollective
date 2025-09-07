@@ -3,6 +3,7 @@ import { Box, CheckCircleIcon, Divider, HStack, Pressable, Text, TextArea, VStac
 import { useCallback, useState } from 'react';
 import { AtIcon, DiscordIcon, EditIcon, InstagramIcon, PhoneImg, TwitterIcon, WebsiteIcon } from '../../../assets';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
+import { printAndParseSupportError } from '../../../hooks/useContractCalls/util';
 import BaseModal from '../../modals/BaseModal';
 import NavigationButtons from '../NavigationButtons';
 
@@ -11,7 +12,6 @@ const ReviewLaunch = () => {
     useCreatePool();
   const { isDesktopView } = useScreenSize();
 
-  // Modal states following DonateComponent patterns
   const [approvePoolModalVisible, setApprovePoolModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [isCreating, setIsCreating] = useState(false);
@@ -42,13 +42,13 @@ const ReviewLaunch = () => {
   const handleCreatePool = useCallback(async () => {
     setIsCreating(true);
     setApprovePoolModalVisible(true);
+    setErrorMessage(undefined);
 
     try {
       const pool = await createPool();
 
       if (pool) {
         setApprovePoolModalVisible(false);
-        // Success modal will be handled by step-based approach in CreateGoodCollective
       } else {
         setApprovePoolModalVisible(false);
         setErrorMessage('Failed to create pool. Please check your wallet connection and try again.');
@@ -57,31 +57,13 @@ const ReviewLaunch = () => {
       console.error('Pool creation error:', error);
       setApprovePoolModalVisible(false);
 
-      // Provide more specific error messages
-      let errorMsg = 'Something went wrong while creating your pool. Please try again.';
-      if (error instanceof Error) {
-        if (error.message.includes('circuit breaker is open')) {
-          errorMsg =
-            'MetaMask is temporarily preventing transactions. Please reset your MetaMask account (Settings → Advanced → Reset Account) and try again.';
-        } else if (error.message.includes('DirectPaymentsFactory')) {
-          errorMsg = 'Contract configuration error. Please try again later.';
-        } else if (error.message.includes('insufficient funds')) {
-          errorMsg = 'Insufficient funds for transaction. Please check your wallet balance.';
-        } else if (error.message.includes('user rejected')) {
-          errorMsg = 'Transaction was rejected. Please try again.';
-        } else if (error.message.includes('network')) {
-          errorMsg = 'Network connection issue. Please check your internet connection and try again.';
-        } else {
-          errorMsg = error.message;
-        }
-      }
-      setErrorMessage(errorMsg);
+      const message = printAndParseSupportError(error);
+      setErrorMessage(message);
     } finally {
       setIsCreating(false);
     }
   }, [createPool]);
 
-  // Modal handlers
   const onCloseErrorModal = () => setErrorMessage(undefined);
 
   return (

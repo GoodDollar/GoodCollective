@@ -13,12 +13,11 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
-import { useEnsName } from '../../../hooks/useEnsName';
 import { Colors } from '../../../utils/colors';
 import ActionButton from '../../ActionButton';
-import NavigationButtons from '../NavigationButtons';
 import InfoBox from '../../InfoBox';
 import { SocialField } from '../../SocialField';
+import NavigationButtons from '../NavigationButtons';
 
 type FormError = {
   social?: string;
@@ -42,8 +41,6 @@ const ProjectDetails = () => {
   const [additionalInfo, setAdditionalInfo] = useState<string>(form.additionalInfo ?? '');
   const [errors, setErrors] = useState<FormError>({});
   const [showWarning, setShowWarning] = useState(false);
-
-  const ensName = useEnsName(adminWalletAddress);
 
   const changeWallet = async () => {
     await disconnect();

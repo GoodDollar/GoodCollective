@@ -10,8 +10,8 @@ const CreateGoodCollective = () => {
   const { navigate } = useCrossNavigate();
 
   const handleSuccessClose = () => {
-    startOver(); // Reset the form and go back to step 2
-    navigate('/'); // Navigate to home page
+    startOver();
+    navigate('/');
   };
 
   return (
