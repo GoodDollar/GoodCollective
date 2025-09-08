@@ -117,6 +117,7 @@ const SelectType = () => {
                         value="true"
                         isChecked={form.poolType === poolType.id}
                         style={styles.checkbox}
+                        aria-label={`Select ${poolType.name} pool type`}
                         _checked={{
                           bg: '#1B7BEC',
                           borderColor: '#1B7BEC',

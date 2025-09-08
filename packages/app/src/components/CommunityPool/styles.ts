@@ -24,7 +24,6 @@ export const welcomeStyles = StyleSheet.create({
     resizeMode: 'contain',
   },
   infoBlock: {
-    background: 'linear-gradient(135deg, #D6E1FF 0%, #1B7AEB 40%)',
     backgroundColor: Colors.blue[100],
     borderRadius: 12,
     padding: 20,
@@ -158,7 +157,6 @@ export const desktopWelcomeStyles = StyleSheet.create({
     resizeMode: 'contain',
   },
   infoBlock: {
-    background: 'linear-gradient(135deg, #D6E1FF 0%, #1B7AEB 40%)',
     backgroundColor: Colors.blue[100],
     padding: 32,
     marginBottom: 24,
