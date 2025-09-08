@@ -186,19 +186,21 @@ individuals and communities by providing direct digital payments to those who ne
                       textColor="white"
                     />
                   </HStack>
-                  <HStack space={2} justifyContent="center" flexDir={isDesktopView ? 'row' : 'column'}>
-                    <ActionButton
-                      text="Donate to a GoodCollective"
-                      bg="goodGreen.200"
-                      textColor="goodGreen.400"
-                      onPress={scrollToCollectives}
-                    />
-                    <ActionButton
-                      onPress={redirectToCreateCollective}
-                      text="Create a GoodCollective"
-                      bg="goodPurple.100"
-                      textColor="goodPurple.400"
-                    />
+                  <VStack space={4} alignItems="center">
+                    <HStack space={2} justifyContent="center" flexDir={isDesktopView ? 'row' : 'column'}>
+                      <ActionButton
+                        text="Donate to a GoodCollective"
+                        bg="goodGreen.200"
+                        textColor="goodGreen.400"
+                        onPress={scrollToCollectives}
+                      />
+                      <ActionButton
+                        onPress={redirectToCreateCollective}
+                        text="Create a GoodCollective"
+                        bg="goodPurple.100"
+                        textColor="goodPurple.400"
+                      />
+                    </HStack>
                     {showWarningMessage && (
                       <WarningBox
                         content={{
@@ -206,7 +208,7 @@ individuals and communities by providing direct digital payments to those who ne
                         }}
                       />
                     )}
-                  </HStack>
+                  </VStack>
                 </VStack>
               </VStack>
             </VStack>

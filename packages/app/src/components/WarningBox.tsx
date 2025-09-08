@@ -5,8 +5,17 @@ const WarningBox = ({ content, explanationProps = {} }: any) => {
   const Explanation = content.Explanation;
 
   return (
-    <HStack space={2} backgroundColor="goodOrange.200" maxWidth="343" paddingY={3} paddingX={2}>
-      <Image source={{ uri: InfoIconOrange }} style={{ width: 16, height: 16 }} />
+    <HStack
+      space={3}
+      backgroundColor="goodOrange.200"
+      borderRadius={12}
+      borderWidth="1"
+      borderColor="goodOrange.300"
+      paddingY={3}
+      paddingX={3}
+      alignItems="flex-start"
+      shadow="1">
+      <Image source={{ uri: InfoIconOrange }} alt="Warning icon" style={{ width: 20, height: 20 }} />
       <VStack space={4} maxWidth="100%">
         <VStack space={1}>
           <Text variant="bold" color="goodOrange.500">
