@@ -8,11 +8,9 @@ export type Form = {
   projectName?: string;
   projectDescription?: string;
   rewardDescription?: string;
-  tagline?: string;
   logo?: string;
   coverPhoto?: string;
   adminWalletAddress?: string;
-  additionalInfo?: string;
   poolManagerFeeType?: 'default' | 'custom';
   claimFrequency?: 1 | 7 | 14 | 30 | number;
   joinStatus?: 'closed' | 'open';

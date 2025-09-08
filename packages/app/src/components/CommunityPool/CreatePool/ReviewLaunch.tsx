@@ -105,12 +105,6 @@ const ReviewLaunch = () => {
             </VStack>
             <VStack space={1}>
               <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
-                Tagline
-              </Text>
-              <Text fontSize="md">{form.tagline}</Text>
-            </VStack>
-            <VStack space={1}>
-              <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
                 Project Description
               </Text>
               <Text fontSize="md">{form.projectDescription}</Text>
@@ -189,12 +183,6 @@ const ReviewLaunch = () => {
               <Text fontWeight="600" fontSize="md" fontFamily="mono">
                 {form.adminWalletAddress}
               </Text>
-            </VStack>
-            <VStack space={1}>
-              <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
-                Additional Information
-              </Text>
-              <Text fontSize="md">{form.additionalInfo}</Text>
             </VStack>
           </VStack>
         </VStack>

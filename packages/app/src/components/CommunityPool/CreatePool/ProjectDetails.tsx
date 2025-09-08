@@ -1,14 +1,5 @@
 import { useAppKit, useAppKitAccount, useDisconnect } from '@reown/appkit/react';
-import {
-  FormControl,
-  Input,
-  InputGroup,
-  InputLeftAddon,
-  Text,
-  TextArea,
-  VStack,
-  WarningOutlineIcon,
-} from 'native-base';
+import { FormControl, Input, InputGroup, InputLeftAddon, Text, VStack, WarningOutlineIcon } from 'native-base';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -38,7 +29,6 @@ const ProjectDetails = () => {
   const [facebook, setFacebook] = useState<string>(form.facebook ?? '');
   const [threads, setThreads] = useState<string>(form.threads ?? '');
   const [adminWalletAddress, setAdminWalletAddress] = useState<string>(form.adminWalletAddress ?? address ?? '');
-  const [additionalInfo, setAdditionalInfo] = useState<string>(form.additionalInfo ?? '');
   const [errors, setErrors] = useState<FormError>({});
   const [showWarning, setShowWarning] = useState(false);
 
@@ -62,7 +52,6 @@ const ProjectDetails = () => {
         facebook,
         threads,
         adminWalletAddress,
-        additionalInfo,
       });
       nextStep();
     }
@@ -222,25 +211,6 @@ const ProjectDetails = () => {
 
         <ActionButton text="Change Wallet" bg="#5B7AC6" textColor="white" onPress={changeWallet} width="150px" />
 
-        <FormControl mt="5">
-          <FormControl.Label>
-            <Text style={styles.fieldLabel}>
-              Please provide any additional information about your project that you would like us to know (Optional)
-            </Text>
-          </FormControl.Label>
-          <TextArea
-            style={styles.textArea}
-            value={additionalInfo}
-            onChangeText={(value) => setAdditionalInfo(value)}
-            onBlur={() => validate()}
-            placeholder="Enter additional information..."
-            autoCompleteType="off"
-            multiline={true}
-            numberOfLines={3}
-            scrollEnabled={true}
-          />
-        </FormControl>
-
         <NavigationButtons
           onBack={() => previousStep()}
           onNext={submitForm}
@@ -330,19 +300,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6B7280',
     fontFamily: 'monospace',
-  },
-  textArea: {
-    height: 100,
-    borderWidth: 0,
-    borderColor: 'transparent',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    textAlignVertical: 'top',
-    backgroundColor: Colors.white,
-    overflow: 'hidden',
-    resize: 'none',
   },
   navigationContainer: {
     marginTop: 40,

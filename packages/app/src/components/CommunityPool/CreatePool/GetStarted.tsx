@@ -12,7 +12,6 @@ import { uploadFileToIPFS, validateLogoFile, validateImageDimensions, getIPFSUrl
 type FormError = {
   projectName?: string;
   projectDescription?: string;
-  tagline?: string;
   rewardDescription?: string;
   logo?: string;
   coverPhoto?: string;
@@ -22,7 +21,6 @@ const GetStarted = ({}: {}) => {
   const { form, nextStep, previousStep, submitPartial } = useCreatePool();
 
   const [projectName, setProjectName] = useState<string>(form.projectName ?? '');
-  const [tagline, setTagline] = useState<string>(form.tagline ?? '');
   const [rewardDescription, setRewardDescription] = useState<string>(form.rewardDescription ?? '');
   const [projectDescription, setProjectDescription] = useState<string>(form.projectDescription ?? '');
   const [logo, setLogo] = useState<string>(form.logo ?? '');
@@ -38,7 +36,6 @@ const GetStarted = ({}: {}) => {
     if (validate(true)) {
       submitPartial({
         projectName,
-        tagline,
         rewardDescription,
         projectDescription,
         logo,
@@ -53,7 +50,6 @@ const GetStarted = ({}: {}) => {
     const currErrors: FormError = {
       projectName: '',
       projectDescription: '',
-      tagline: '',
       rewardDescription: '',
       logo: '',
       coverPhoto: '',
@@ -168,23 +164,6 @@ const GetStarted = ({}: {}) => {
           />
           <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
             {errors.projectName}
-          </FormControl.ErrorMessage>
-        </FormControl>
-
-        <FormControl mb="5" isInvalid={!!errors.tagline}>
-          <FormControl.Label>
-            <Text style={styles.fieldLabel}>Tagline</Text>
-          </FormControl.Label>
-          <Input
-            style={[styles.input, errors.tagline ? styles.error : {}]}
-            backgroundColor="white"
-            value={tagline}
-            onChangeText={(val) => setTagline(val)}
-            onBlur={() => validate()}
-            borderRadius={8}
-          />
-          <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-            {errors.tagline}
           </FormControl.ErrorMessage>
         </FormControl>
 
