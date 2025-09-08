@@ -7,7 +7,7 @@ import { Colors } from '../../../utils/colors';
 import NavigationButtons from '../NavigationButtons';
 import InfoBox from '../../InfoBox';
 import FileUpload from '../../FileUpload';
-import { uploadFileToIPFS, validateLogoFile, getIPFSUrl } from '../../../lib/ipfsUpload';
+import { uploadFileToIPFS, validateLogoFile, validateImageDimensions, getIPFSUrl } from '../../../lib/ipfsUpload';
 
 type FormError = {
   projectName?: string;
@@ -108,9 +108,18 @@ const GetStarted = ({}: {}) => {
     setErrors({ ...errors, logo: '' });
 
     try {
+      // First validate file type and size
       const validation = validateLogoFile(file, 1); // 1MB max for logo
       if (!validation.isValid) {
         setErrors({ ...errors, logo: validation.error });
+        setIsUploadingLogo(false);
+        return;
+      }
+
+      // Then validate image dimensions (500x500)
+      const dimensionValidation = await validateImageDimensions(file, 500, 500);
+      if (!dimensionValidation.isValid) {
+        setErrors({ ...errors, logo: dimensionValidation.error });
         setIsUploadingLogo(false);
         return;
       }
@@ -220,7 +229,17 @@ const GetStarted = ({}: {}) => {
             <Text style={styles.fieldLabel}>Cover Photo</Text>
           </FormControl.Label>
           <FormControl.HelperText>
-            <Text style={styles.helperText}>Provide image URL for your cover photo.</Text>
+            <Text style={styles.helperText}>
+              Provide image URL for your cover photo (1200x400px recommended). Upload to{' '}
+              <Text style={styles.linkText} onPress={() => window.open('https://ipfs.io/', '_blank')}>
+                IPFS
+              </Text>{' '}
+              (free tier) or{' '}
+              <Text style={styles.linkText} onPress={() => window.open('https://cloudinary.com/', '_blank')}>
+                Cloudinary
+              </Text>{' '}
+              for hosting.
+            </Text>
           </FormControl.HelperText>
 
           <Input
@@ -243,9 +262,7 @@ const GetStarted = ({}: {}) => {
             <Text style={styles.fieldLabel}>Logo</Text>
           </FormControl.Label>
           <FormControl.HelperText>
-            <Text style={styles.helperText}>
-              JPG, PNG, GIF (max 1MB, 500x500px recommended). Upload directly or provide URL.
-            </Text>
+            <Text style={styles.helperText}>JPG, PNG, GIF (max 1MB, exactly 500x500px required) .</Text>
           </FormControl.HelperText>
 
           {logo ? (

@@ -26,6 +26,46 @@ export async function uploadFileToIPFS(file: File): Promise<string> {
 }
 
 /**
+ * Validates image dimensions
+ * @param file - The file to validate
+ * @param requiredWidth - Required width in pixels
+ * @param requiredHeight - Required height in pixels
+ * @returns Promise<Object> with isValid boolean and error message
+ */
+export function validateImageDimensions(
+  file: File,
+  requiredWidth: number,
+  requiredHeight: number
+): Promise<{ isValid: boolean; error?: string }> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      if (img.width !== requiredWidth || img.height !== requiredHeight) {
+        resolve({
+          isValid: false,
+          error: `Image must be exactly ${requiredWidth}x${requiredHeight} pixels. Current size: ${img.width}x${img.height}px`,
+        });
+      } else {
+        resolve({ isValid: true });
+      }
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve({
+        isValid: false,
+        error: 'Invalid image file',
+      });
+    };
+
+    img.src = url;
+  });
+}
+
+/**
  * Validates file type and size for logo uploads
  * @param file - The file to validate
  * @param maxSizeMB - Maximum file size in MB (default: 1MB)
