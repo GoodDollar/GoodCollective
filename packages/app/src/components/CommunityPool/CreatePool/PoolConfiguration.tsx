@@ -76,6 +76,7 @@ const PoolConfiguration = () => {
       expectedMembers,
       poolManagerFeeType,
       managerFeePercentage,
+      joinStatus,
     };
     return validate(formData);
   };

@@ -20,6 +20,7 @@ export type PoolConfigurationFormData = {
   expectedMembers: number;
   poolManagerFeeType: 'default' | 'custom';
   managerFeePercentage: number;
+  joinStatus?: 'closed' | 'open';
 };
 
 export const usePoolConfigurationValidation = () => {
@@ -38,16 +39,25 @@ export const usePoolConfigurationValidation = () => {
       expectedMembers,
       poolManagerFeeType,
       managerFeePercentage,
+      joinStatus,
     } = formData;
 
-    // Validate pool recipients (only if provided)
-    if (poolRecipients.trim()) {
-      // Use a more robust cleaning method
-      const addresses = poolRecipients
-        .split(',')
-        .map((addr) => addr.replace(/\s+/g, '').trim()) // Remove all whitespace chars
-        .filter((addr) => addr.length > 0); // Remove empty strings
+    // Validate pool recipients
+    const addresses = poolRecipients
+      .split(',')
+      .map((addr) => addr.replace(/\s+/g, '').trim()) // Remove all whitespace chars
+      .filter((addr) => addr.length > 0); // Remove empty strings
 
+    // If join status is closed, pool recipients are required
+    if (joinStatus === 'closed') {
+      if (addresses.length === 0) {
+        currErrors.poolRecipients = 'At least one recipient address is required when pool is closed for new members.';
+        pass = false;
+      }
+    }
+
+    // If pool recipients are provided, validate them
+    if (addresses.length > 0) {
       const validAddressRegex = /^0x[a-fA-F0-9]{40}$/;
 
       for (const addr of addresses) {

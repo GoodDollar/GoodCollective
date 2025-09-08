@@ -82,6 +82,22 @@ const PayoutSettingsSection = ({
     return `${Math.round(amountPerInterval * 100) / 100}G$`;
   };
 
+  // Get the label text for claim amount based on frequency
+  const getClaimAmountLabel = () => {
+    if (claimFrequency === 2) {
+      return `Claim Amount Per ${customClaimFrequency} Day${customClaimFrequency === 1 ? '' : 's'}`;
+    } else if (claimFrequency === 1) {
+      return 'Claim Amount Per Day';
+    } else if (claimFrequency === 7) {
+      return 'Claim Amount Per Week';
+    } else if (claimFrequency === 14) {
+      return 'Claim Amount Per 2 Weeks';
+    } else if (claimFrequency === 30) {
+      return 'Claim Amount Per Month';
+    }
+    return 'Claim Amount Per Week';
+  };
+
   return (
     <VStack space={4}>
       <VStack space={2}>
@@ -101,7 +117,7 @@ const PayoutSettingsSection = ({
         <FormControl isRequired isInvalid={!!errors.claimAmountPerWeek}>
           <FormControl.Label>
             <Text fontSize="sm" fontWeight="600" textTransform="uppercase">
-              Claim Amount Per Week
+              {getClaimAmountLabel()}
             </Text>
           </FormControl.Label>
           <InputGroup maxW="200px">
@@ -152,20 +168,17 @@ const PayoutSettingsSection = ({
               step={1}
               value={Math.min(Math.max(1, expectedMembers), Math.max(1, maximumMembers))}
               onChange={(val) => {
-                // Ensure val is a valid number and within bounds
-                if (!isNaN(val) && isFinite(val)) {
-                  const newValue = Math.round(val);
-                  const boundedValue = Math.min(Math.max(1, maximumMembers), Math.max(1, newValue));
-                  setExpectedMembers(boundedValue);
+                const newValue = Math.round(val);
+                if (newValue >= 1 && newValue <= maximumMembers) {
+                  setExpectedMembers(newValue);
                 }
               }}
               onChangeEnd={(val) => {
-                // Final validation on release
-                if (!isNaN(val) && isFinite(val)) {
-                  const newValue = Math.round(val);
-                  const boundedValue = Math.min(Math.max(1, maximumMembers), Math.max(1, newValue));
-                  setExpectedMembers(boundedValue);
+                const newValue = Math.round(val);
+                if (newValue >= 1 && newValue <= maximumMembers) {
+                  setExpectedMembers(newValue);
                 }
+                onValidate();
               }}>
               <Slider.Track>
                 <Slider.FilledTrack />

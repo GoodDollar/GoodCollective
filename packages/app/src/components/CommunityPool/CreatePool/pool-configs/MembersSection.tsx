@@ -73,7 +73,7 @@ const MembersSection = ({
 
       {/* Pool Recipients and Join Status */}
       <VStack space={4} padding={4} backgroundColor="white" borderWidth={1} borderColor="gray.200" borderRadius={8}>
-        <FormControl mb="4" isInvalid={!!errors.poolRecipients}>
+        <FormControl mb="4" isRequired={joinStatus === 'closed'} isInvalid={!!errors.poolRecipients}>
           <FormControl.Label>
             <Text fontSize="sm" fontWeight="600" color="gray.700">
               Pool Recipients
@@ -81,7 +81,9 @@ const MembersSection = ({
           </FormControl.Label>
           <FormControl.HelperText>
             <Text fontSize="xs" color="gray.500">
-              Enter wallet addresses of people who can receive funds. Separate multiple addresses with commas.
+              {joinStatus === 'closed'
+                ? 'Enter wallet addresses of people who can receive funds. At least one address is required when pool is closed for new members. Separate multiple addresses with commas.'
+                : 'Enter wallet addresses of people who can receive funds. Separate multiple addresses with commas.'}
             </Text>
           </FormControl.HelperText>
           <Input
