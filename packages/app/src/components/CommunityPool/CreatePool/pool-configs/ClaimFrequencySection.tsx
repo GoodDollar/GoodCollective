@@ -54,7 +54,7 @@ const ClaimFrequencySection = ({
           Claim Frequency
         </Text>
         <Text fontSize="sm" color="gray.500">
-          Note that all claims will happen based on GoodDollar UBI clock which resets at 12 UTC
+          Choose how often members can claim funds (based on GoodDollar UBI clock at 12 UTC)
         </Text>
       </VStack>
 
@@ -127,7 +127,7 @@ const ClaimFrequencySection = ({
                       Custom (per days)
                     </Text>
                     <Text fontSize="xs" color="gray.600">
-                      Customize the days for the pool payouts
+                      Set a custom number of days between payouts
                     </Text>
                     <FormControl isInvalid={!!errors.customClaimFrequency}>
                       <HStack alignItems="center" space={2} maxW="200px">

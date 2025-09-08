@@ -111,8 +111,7 @@ const PoolConfiguration = () => {
           Pool Configuration
         </Text>
         <Text fontSize="sm" color="gray.500">
-          Configure pool recipients and pool rules that they should follow. Note that pool contributors might leave the
-          pool any time but they will be receiving less.
+          Set up who can receive funds, how often they can claim, and how much they get. Members can leave anytime.
         </Text>
       </VStack>
 

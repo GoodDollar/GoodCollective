@@ -40,14 +40,14 @@ const PoolManagerFeeSection = ({
           Pool Manager Fee
         </Text>
         <Text fontSize="sm" color="gray.500">
-          Pool manager can take a certain percentage by setting up the Pool which is optional
+          Choose whether you want to take a fee for managing this pool (optional)
         </Text>
       </VStack>
 
       <InfoBox
         type="info"
         icon={<img src={LightBulbIcon} width={20} height={20} />}
-        message="Pool manager can take fee payout for setting up the pool in custom mode or prefer not to take any manager fee in the default mode"
+        message="Default: No fee. Custom: Set your own fee percentage from the pool funds."
       />
 
       <HStack space={4} flexWrap="wrap">
@@ -121,7 +121,7 @@ const PoolManagerFeeSection = ({
         <VStack space={4}>
           <InfoBox
             type="info"
-            message="Pool manager takes a payout from the pool for setting it up, with a maximum of 100% which is charged from the pool"
+            message="This percentage will be taken from the pool funds as your management fee (0-100%)"
           />
           <FormControl isInvalid={!!errors.managerFeePercentage}>
             <Box backgroundColor="white" padding={4} borderWidth={1} borderColor="gray.200" borderRadius={8}>

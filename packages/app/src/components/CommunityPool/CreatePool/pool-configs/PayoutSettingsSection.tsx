@@ -94,7 +94,7 @@ const PayoutSettingsSection = ({
       <InfoBox
         type="info"
         icon={<img src={LightBulbIcon} width={20} height={20} />}
-        message="For a fixed amount per claim frequency, the pool needs to be funded with a minimum amount to sustain expected amount of members in one cycle. The pool will be paused if you choose to fund less money than this minimum and more members than you expect join. Use the widget below to configure these settings. It will also show you the minimum amount of funding needed to sustain the pool with your chosen settings."
+        message="Set how much each member gets and how many members you expect. The system will calculate the minimum funding needed to support your pool."
       />
 
       <VStack backgroundColor="blue.50" padding={4} space={4} borderRadius={8}>
@@ -140,7 +140,7 @@ const PayoutSettingsSection = ({
           </FormControl.Label>
           <FormControl.HelperText>
             <Text fontSize="xs" color="gray.500">
-              Number of members you expect to join the pool (max: {maximumMembers})
+              How many people you expect to join (cannot exceed {maximumMembers})
             </Text>
           </FormControl.HelperText>
           <HStack alignItems="center" space={4}>
@@ -207,15 +207,14 @@ const PayoutSettingsSection = ({
         {/* Funding calculation display */}
         <Box backgroundColor="goodPurple.200" padding={4} borderRadius={8}>
           <Text fontSize="sm" mb={2}>
-            For a fixed amount of <Text bold>{getClaimAmountPerIntervalText()}</Text> per{' '}
-            <Text bold>{getClaimFrequencyText()}</Text>, your pool needs at least{' '}
-            <Text bold>{calculateMinimumFunding()}G$</Text> to support <Text bold>{expectedMembers} members</Text> per
-            cycle.
+            Each member gets <Text bold>{getClaimAmountPerIntervalText()}</Text> every{' '}
+            <Text bold>{getClaimFrequencyText()}</Text>. You need at least{' '}
+            <Text bold>{calculateMinimumFunding()}G$</Text> to support <Text bold>{expectedMembers} members</Text>.
           </Text>
           <HStack alignItems="flex-start" space={2} paddingY={2}>
             <WarningTwoIcon color="red.600" size="md" />
             <Text fontSize="xs" color="red.700" flex={1}>
-              Funding below this may pause the pool if more members join or if claim frequency is higher.
+              If you fund less than this amount, the pool may pause if more members join than expected.
             </Text>
           </HStack>
         </Box>

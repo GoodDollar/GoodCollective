@@ -36,7 +36,7 @@ const MembersSection = ({
           </FormControl.Label>
           <FormControl.HelperText>
             <Text fontSize="xs" color="gray.500">
-              Total amount of members that can be recipients of this pool.
+              Maximum number of people who can receive funds from this pool.
             </Text>
           </FormControl.HelperText>
           <Input
@@ -62,7 +62,7 @@ const MembersSection = ({
           />
           <FormControl.HelperText>
             <Text fontSize="xs" color="gray.600">
-              Make sure the total amount of recipients matches the number of addresses in the pool recipients.
+              The number of addresses you enter below should match this maximum number.
             </Text>
           </FormControl.HelperText>
           <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
@@ -81,8 +81,7 @@ const MembersSection = ({
           </FormControl.Label>
           <FormControl.HelperText>
             <Text fontSize="xs" color="gray.500">
-              Wallet address(es) of all pool recipients. Split the confirmed addresses of recipients in the form field
-              with commas.
+              Enter wallet addresses of people who can receive funds. Separate multiple addresses with commas.
             </Text>
           </FormControl.HelperText>
           <Input
