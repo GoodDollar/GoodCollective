@@ -98,38 +98,6 @@ export function validateLogoFile(
 }
 
 /**
- * Validates file type and size for cover photo uploads
- * @param file - The file to validate
- * @param maxSizeMB - Maximum file size in MB (default: 20MB)
- * @param allowedTypes - Allowed MIME types (default: image types)
- * @returns Object with isValid boolean and error message
- */
-export function validateCoverPhotoFile(
-  file: File,
-  maxSizeMB: number = 20,
-  allowedTypes: string[] = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
-): { isValid: boolean; error?: string } {
-  // Check file type
-  if (!allowedTypes.includes(file.type)) {
-    return {
-      isValid: false,
-      error: `Invalid file type. Allowed types: ${allowedTypes.join(', ')}`,
-    };
-  }
-
-  // Check file size (convert MB to bytes)
-  const maxSizeBytes = maxSizeMB * 1024 * 1024;
-  if (file.size > maxSizeBytes) {
-    return {
-      isValid: false,
-      error: `File size too large. Maximum size: ${maxSizeMB}MB`,
-    };
-  }
-
-  return { isValid: true };
-}
-
-/**
  * Gets the IPFS URL for a given hash
  * @param hash - The IPFS hash
  * @returns The IPFS URL
