@@ -332,12 +332,8 @@ const ReviewLaunch = () => {
                   minWidth={75}>
                   <Text fontSize="xs" textAlign="center">
                     {(() => {
-                      const daysInCycle =
-                        form.claimFrequency === 2 ? form.customClaimFrequency || 1 : form.claimFrequency || 1;
-                      const weeklyAmount = form.claimAmountPerWeek || 0;
-                      const dailyAmount = weeklyAmount / 7;
-                      const cycleAmount = dailyAmount * daysInCycle;
-                      const totalForAllMembers = cycleAmount * (form.expectedMembers || 0);
+                      const amountPerMemberPerCycle = form.claimAmountPerWeek || 0;
+                      const totalForAllMembers = amountPerMemberPerCycle * (form.expectedMembers || 0);
                       return Math.ceil(totalForAllMembers);
                     })()}
                     G$

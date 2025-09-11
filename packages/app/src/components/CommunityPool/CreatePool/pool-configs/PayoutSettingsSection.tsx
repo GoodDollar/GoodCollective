@@ -44,17 +44,10 @@ const PayoutSettingsSection = ({
 }: PayoutSettingsSectionProps) => {
   // Calculate minimum funding needed
   const calculateMinimumFunding = () => {
-    const daysInCycle = claimFrequency === 2 ? customClaimFrequency : claimFrequency;
-    const weeklyAmountPerMember = claimAmountPerWeek || 0;
+    const amountPerMemberPerCycle = claimAmountPerWeek || 0;
 
-    // Calculate how much each member gets per cycle
-    // If cycle is daily (1 day), each member gets weeklyAmount/7 per day
-    // If cycle is weekly (7 days), each member gets the full weeklyAmount
-    // If cycle is bi-weekly (14 days), each member gets weeklyAmount * 2
-    // If cycle is monthly (30 days), each member gets weeklyAmount * 4.3 (approximately)
-    const amountPerMemberPerCycle = (weeklyAmountPerMember * daysInCycle) / 7;
-
-    // Total funding needed for all expected members
+    // The claimAmountPerWeek actually represents the amount per cycle
+    // So we use it directly as the amount per member per cycle
     const totalForAllMembers = amountPerMemberPerCycle * (expectedMembers || 0);
     return Math.ceil(totalForAllMembers);
   };
@@ -77,9 +70,8 @@ const PayoutSettingsSection = ({
 
   // Get the claim amount per interval text
   const getClaimAmountPerIntervalText = () => {
-    const daysInCycle = claimFrequency === 2 ? customClaimFrequency : claimFrequency;
-    const amountPerInterval = (claimAmountPerWeek * daysInCycle) / 7;
-    return `${Math.round(amountPerInterval * 100) / 100}G$`;
+    // The claimAmountPerWeek actually represents the amount per cycle
+    return `${claimAmountPerWeek || 0}G$`;
   };
 
   // Get the label text for claim amount based on frequency
