@@ -1,11 +1,10 @@
 import { Box, Link, Pressable, Text, useBreakpointValue } from 'native-base';
-import { ReactNode } from 'react';
 
 import { InterSemiBold } from '../utils/webFonts';
 
 type ActionButtonProps = {
   href?: string;
-  text: string | ReactNode;
+  text: string;
   bg: string;
   textColor: string;
   onPress?: any;
