@@ -15,7 +15,7 @@ const CreateGoodCollective = () => {
   };
 
   return (
-    <div>
+    <>
       {step === 0 && <Welcome />}
       {step === 1 && <SelectType />}
       {step >= 2 && step <= 5 && <CreatePool />}
@@ -33,7 +33,7 @@ const CreateGoodCollective = () => {
           }}
         />
       )}
-    </div>
+    </>
   );
 };
 
