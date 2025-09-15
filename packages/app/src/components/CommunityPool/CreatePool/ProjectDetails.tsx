@@ -16,6 +16,14 @@ type FormError = {
   website?: string;
 };
 
+const isValidUrl = (url: string) => {
+  try {
+    return URL.canParse ? URL.canParse(url) : Boolean(new URL(url));
+  } catch {
+    return false;
+  }
+};
+
 const ProjectDetails = () => {
   const { form, nextStep, submitPartial, previousStep } = useCreatePool();
   const { address } = useAppKitAccount();
@@ -78,16 +86,7 @@ const ProjectDetails = () => {
       }
     }
 
-    const pattern = new RegExp(
-      '^(https?:\\/\\/)?' +
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
-        '((\\d{1,3}\\.){3}\\d{1,3}))' +
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
-        '(\\?[;&a-z\\d%_.~+=-]*)?' +
-        '(\\#[-a-z\\d_]*)?$',
-      'i'
-    );
-    if (website && !pattern.test(website)) {
+    if (website && !isValidUrl(website)) {
       currErrors.website = 'Website invalid format!';
       pass = false;
     }
