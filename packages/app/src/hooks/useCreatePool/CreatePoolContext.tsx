@@ -3,6 +3,7 @@ import { useAppKitAccount } from '@reown/appkit/react';
 import { ethers } from 'ethers';
 import { createContext, ReactNode, useState } from 'react';
 import { useAccount } from 'wagmi';
+import { v4 as uuidv4 } from 'uuid';
 import { UBIPool } from '../../../../contracts/typechain-types/contracts/UBI/UBIPool';
 import { GDEnvTokens, SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
 import useCrossNavigate from '../../routes/useCrossNavigate';
@@ -99,8 +100,7 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
       return false;
     }
 
-    const projectId =
-      form.projectName.replace(' ', '/').toLowerCase() + (Math.random() * 1e32).toString(36).substring(0, 6);
+    const projectId = form.projectName.replace(' ', '/').toLowerCase() + '-' + uuidv4();
 
     const poolAttributes = {
       name: form.projectName,
