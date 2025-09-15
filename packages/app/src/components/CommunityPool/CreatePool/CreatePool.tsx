@@ -1,5 +1,4 @@
-import { Box, HStack, Text, VStack } from 'native-base';
-import { StyleSheet, View } from 'react-native';
+import { Box, HStack, Text, VStack, Progress } from 'native-base';
 
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { useScreenSize } from '../../../theme/hooks';
@@ -28,25 +27,14 @@ const CreatePool = ({}: {}) => {
     <VStack width="full" flex={1}>
       <Box backgroundColor="#5B7AC6" paddingX={6} paddingY={8} position="relative">
         <Box position="relative" mb={6}>
-          <Box height="6px" backgroundColor="rgba(255,255,255,0.2)" borderRadius="full" position="relative" />
-
-          <Box
-            height="6px"
-            backgroundColor="#FFFFFF"
-            borderRadius="full"
-            width={`${getProgressValue()}%`}
-            position="absolute"
-            top={0}
-            left={0}
-          />
-
-          <View
-            style={[
-              styles.progressDot,
-              {
-                left: `${getProgressValue()}%`,
-              },
-            ]}
+          <Progress
+            value={getProgressValue()}
+            bg="rgba(255,255,255,0.2)"
+            _filledTrack={{
+              bg: '#FFFFFF',
+            }}
+            size="sm"
+            rounded="full"
           />
         </Box>
 
@@ -81,33 +69,5 @@ const CreatePool = ({}: {}) => {
     </VStack>
   );
 };
-
-const styles = StyleSheet.create({
-  progressDot: {
-    position: 'absolute',
-    top: -6,
-    width: 18,
-    height: 18,
-    backgroundColor: '#ffff',
-    borderRadius: 9,
-    borderWidth: 3,
-    borderColor: 'white',
-    transform: [{ translateX: -9 }],
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  mobileStep: {
-    fontSize: 10,
-  },
-  desktopStep: {
-    fontSize: 14,
-  },
-});
 
 export default CreatePool;
