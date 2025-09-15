@@ -2,7 +2,7 @@ import { Text, Image, HStack, Link, VStack } from 'native-base';
 import { InfoIconOrange } from '../assets';
 
 const WarningBox = ({ content, explanationProps = {} }: any) => {
-  const Explanation = content.Explanation;
+  const { Explanation } = content;
 
   return (
     <HStack
