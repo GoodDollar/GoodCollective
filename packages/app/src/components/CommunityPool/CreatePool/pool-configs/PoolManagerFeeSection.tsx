@@ -140,10 +140,10 @@ const PoolManagerFeeSection = ({
                       setManagerFeePercentage(Math.min(100, Math.max(0, val)));
                     }
                   }}>
-                  <Slider.Track>
-                    <Slider.FilledTrack />
+                  <Slider.Track bg="goodPurple.100">
+                    <Slider.FilledTrack bg="goodPurple.400" />
                   </Slider.Track>
-                  <Slider.Thumb />
+                  <Slider.Thumb bg="goodPurple.400" />
                 </Slider>
                 <Input
                   value={String(managerFeePercentage)}

@@ -172,10 +172,10 @@ const PayoutSettingsSection = ({
                 }
                 onValidate();
               }}>
-              <Slider.Track>
-                <Slider.FilledTrack />
+              <Slider.Track bg="goodPurple.100">
+                <Slider.FilledTrack bg="goodPurple.400" />
               </Slider.Track>
-              <Slider.Thumb />
+              <Slider.Thumb bg="goodPurple.400" />
             </Slider>
             <Input
               value={String(expectedMembers)}
