@@ -1,5 +1,4 @@
-import { Text, Checkbox, HStack, VStack, Box, Button } from 'native-base';
-import { Pressable, View } from 'react-native';
+import { Text, Checkbox, HStack, VStack, Box, Button, Pressable } from 'native-base';
 import { CommunityFundsIcon, SegmentedAidIcon, ResultsBasedIcon } from '../../assets';
 import { PoolType, useCreatePool } from '../../hooks/useCreatePool/useCreatePool';
 import { selectCollectiveTypeStyles as styles } from './styles';
@@ -64,7 +63,7 @@ const SelectType = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <Box style={styles.container}>
       <VStack space={6} style={styles.content}>
         {/* Title Section */}
         <Box style={styles.titleSection}>
@@ -92,12 +91,12 @@ const SelectType = () => {
         <VStack space={4}>
           {poolTypes.map((poolType, index) => (
             <Pressable key={index} disabled={poolType.disabled} onPress={() => handlePoolTypeSelect(poolType.id)}>
-              <View style={styles.card}>
+              <Box style={styles.card}>
                 <HStack space={4} alignItems="center" style={styles.cardContent}>
                   {/* Icon */}
-                  <View style={styles.iconContainer}>
+                  <Box style={styles.iconContainer}>
                     <img width="60" height="60" src={poolType.icon} style={styles.icon} />
-                  </View>
+                  </Box>
 
                   {/* Content */}
                   <VStack flex={1} space={2}>
@@ -111,7 +110,7 @@ const SelectType = () => {
                   </VStack>
 
                   {/* Checkbox */}
-                  <View style={styles.checkboxContainer}>
+                  <Box style={styles.checkboxContainer}>
                     {!poolType.disabled && (
                       <Checkbox
                         value="true"
@@ -124,9 +123,9 @@ const SelectType = () => {
                         }}
                       />
                     )}
-                  </View>
+                  </Box>
                 </HStack>
-              </View>
+              </Box>
             </Pressable>
           ))}
         </VStack>
@@ -140,7 +139,7 @@ const SelectType = () => {
         />
       </VStack>
       {STEPS.map(({ id, Component }) => step === id && <Component key={id} />)}
-    </View>
+    </Box>
   );
 };
 

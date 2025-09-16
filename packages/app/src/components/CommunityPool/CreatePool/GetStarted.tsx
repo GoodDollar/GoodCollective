@@ -1,6 +1,6 @@
-import { Box, FormControl, Input, Text, TextArea, VStack, WarningOutlineIcon } from 'native-base';
+import { Box, FormControl, Input, Text, TextArea, VStack, WarningOutlineIcon, Pressable } from 'native-base';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { Colors } from '../../../utils/colors';
@@ -245,14 +245,14 @@ const GetStarted = ({}: {}) => {
           </FormControl.HelperText>
 
           {logo ? (
-            <View style={styles.uploadArea}>
-              <View style={styles.uploadedContent}>
+            <Box style={styles.uploadArea}>
+              <Box style={styles.uploadedContent}>
                 <img src={logo} alt="Logo" style={styles.uploadedImage} />
                 <Pressable onPress={removeLogo} style={styles.removeButton}>
                   <Text style={styles.removeButtonText}>Remove</Text>
                 </Pressable>
-              </View>
-            </View>
+              </Box>
+            </Box>
           ) : (
             <VStack space={3}>
               {/* File Upload Option */}

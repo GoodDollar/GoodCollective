@@ -1,7 +1,7 @@
 import { useAppKit, useAppKitAccount, useDisconnect } from '@reown/appkit/react';
-import { FormControl, Input, InputGroup, InputLeftAddon, Text, VStack, WarningOutlineIcon } from 'native-base';
+import { Box, FormControl, Input, InputGroup, InputLeftAddon, Text, VStack, WarningOutlineIcon } from 'native-base';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { Colors } from '../../../utils/colors';
@@ -113,7 +113,7 @@ const ProjectDetails = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <Box style={styles.container}>
       <VStack style={styles.content}>
         <Text style={styles.title}>Project Details</Text>
         <Text style={styles.subtitle}>
@@ -195,9 +195,9 @@ const ProjectDetails = () => {
           <FormControl.Label>
             <Text style={styles.fieldLabel}>Admin Wallet Address*</Text>
           </FormControl.Label>
-          <View style={styles.walletAddressBox}>
+          <Box style={styles.walletAddressBox}>
             <Text style={styles.walletAddressText}>{adminWalletAddress}</Text>
-          </View>
+          </Box>
           <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
             {errors.adminWalletAddress}
           </FormControl.ErrorMessage>
@@ -221,7 +221,7 @@ const ProjectDetails = () => {
           <InfoBox type="warning" message="Please fill all required fields before proceeding to the details section" />
         )}
       </VStack>
-    </View>
+    </Box>
   );
 };
 
