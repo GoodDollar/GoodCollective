@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useCreatePool } from '../../hooks/useCreatePool/useCreatePool';
 import { useScreenSize } from '../../theme/hooks';
 import { CreateCollectiveLogo } from '../../assets';
-import { Colors } from '../../utils/colors';
+// Colors are sourced from NativeBase theme tokens via component props
 import { InterRegular, InterSemiBold, InterSmall } from '../../utils/webFonts';
 
 const Welcome = () => {
@@ -58,8 +58,14 @@ const Welcome = () => {
       </VStack>
 
       {/* Information Block */}
-      <Box style={[welcomeStyles.infoBlock, isDesktopView && desktopWelcomeStyles.infoBlock]}>
-        <Text style={[welcomeStyles.infoText, isDesktopView && desktopWelcomeStyles.infoText]} textAlign="justify">
+      <Box
+        style={[welcomeStyles.infoBlock, isDesktopView && desktopWelcomeStyles.infoBlock]}
+        backgroundColor="goodPurple.100"
+        borderColor="goodPurple.200">
+        <Text
+          style={[welcomeStyles.infoText, isDesktopView && desktopWelcomeStyles.infoText]}
+          textAlign="justify"
+          color="black">
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam totam, tempore saepe beatae et quidem provident
           aperiam esse recusandae rem fugiat laboriosam est rerum enim at magni suscipit amet qui. Lorem ipsum dolor,
           sit amet consectetur adipisicing elit. Totam similique vel odio incidunt enim officiis, quo dignissimos
@@ -70,7 +76,8 @@ const Welcome = () => {
         <Text
           style={[welcomeStyles.infoText, isDesktopView && desktopWelcomeStyles.infoText]}
           textAlign="justify"
-          marginTop={4}>
+          marginTop={4}
+          color="black">
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione cupiditate, labore ducimus quae suscipit
           tempora minus non nihil inventore ipsa dignissimos ex corrupti adipisci impedit autem repudiandae
           reprehenderit eum in!
@@ -78,7 +85,10 @@ const Welcome = () => {
       </Box>
 
       {/* Radio Options Block */}
-      <Box style={[welcomeStyles.radioBlock, isDesktopView && desktopWelcomeStyles.radioBlock]}>
+      <Box
+        style={[welcomeStyles.radioBlock, isDesktopView && desktopWelcomeStyles.radioBlock]}
+        backgroundColor="white"
+        borderColor="goodGrey.200">
         <Radio.Group
           name="donationFrequency"
           value={value}
@@ -89,14 +99,20 @@ const Welcome = () => {
           flexDir="column">
           <HStack style={welcomeStyles.radioOption} alignItems="flex-start">
             <Radio value="one" style={welcomeStyles.radioButton} size="sm" />
-            <Text style={[welcomeStyles.radioText, isDesktopView && desktopWelcomeStyles.radioText]} flex={1}>
+            <Text
+              style={[welcomeStyles.radioText, isDesktopView && desktopWelcomeStyles.radioText]}
+              flex={1}
+              color="black">
               Lorem ipsum dolor sit, amet consectetur adipisicing elit. Animi, dignissimos fugit adipisci, ex libero
               laborum praesentium officiis
             </Text>
           </HStack>
           <HStack style={welcomeStyles.radioOption} alignItems="flex-start">
             <Radio value="two" style={welcomeStyles.radioButton} size="sm" />
-            <Text style={[welcomeStyles.radioText, isDesktopView && desktopWelcomeStyles.radioText]} flex={1}>
+            <Text
+              style={[welcomeStyles.radioText, isDesktopView && desktopWelcomeStyles.radioText]}
+              flex={1}
+              color="black">
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates maiores ab dicta vero veritatis omnis
               natus ration
             </Text>
@@ -106,35 +122,44 @@ const Welcome = () => {
 
       {/* Checkbox Section */}
       <FormControl isInvalid={!acknowledged && pressed}>
-        <Box style={[welcomeStyles.checkboxSection, isDesktopView && desktopWelcomeStyles.checkboxSection]}>
+        <Box
+          style={[welcomeStyles.checkboxSection, isDesktopView && desktopWelcomeStyles.checkboxSection]}
+          backgroundColor="goodPurple.100">
           <HStack style={welcomeStyles.checkboxRow} alignItems="flex-start">
             <Checkbox
               style={welcomeStyles.checkbox}
               borderWidth={2}
               borderRadius={4}
-              borderColor={Colors.gray[400]}
-              colorScheme="blue"
+              borderColor="goodGrey.400"
+              _checked={{ bg: 'goodPurple.400', borderColor: 'goodPurple.400' }}
               value={String(acknowledged)}
               onChange={(v) => setAcknowledged(String(v))}
               accessibilityLabel="I understand"
               size="md"
             />
-            <Text style={[welcomeStyles.checkboxText, isDesktopView && desktopWelcomeStyles.checkboxText]} flex={1}>
+            <Text
+              style={[welcomeStyles.checkboxText, isDesktopView && desktopWelcomeStyles.checkboxText]}
+              flex={1}
+              color="black">
               I understand Vitae morbi dolor tellus in tincidunt est ac cursus. Habitasse viverra lectus integer posuere
               fermentum.
             </Text>
           </HStack>
           <FormControl.ErrorMessage
             style={welcomeStyles.errorMessage}
-            leftIcon={<WarningOutlineIcon size="xs" mt={1} />}>
+            leftIcon={<WarningOutlineIcon size="xs" mt={1} />}
+            _text={{ color: 'goodOrange.300' }}>
             You must acknowledge the terms to continue
           </FormControl.ErrorMessage>
         </Box>
       </FormControl>
 
       {/* CTA Button */}
-      <Pressable style={[welcomeStyles.ctaButton, isDesktopView && desktopWelcomeStyles.ctaButton]} onPress={onSubmit}>
-        <Text style={[welcomeStyles.ctaButtonText, isDesktopView && desktopWelcomeStyles.ctaButtonText]}>
+      <Pressable
+        style={[welcomeStyles.ctaButton, isDesktopView && desktopWelcomeStyles.ctaButton]}
+        bg="goodPurple.400"
+        onPress={onSubmit}>
+        <Text style={[welcomeStyles.ctaButtonText, isDesktopView && desktopWelcomeStyles.ctaButtonText]} color="white">
           Get Started
         </Text>
       </Pressable>
@@ -166,13 +191,11 @@ const welcomeStyles = {
     resizeMode: 'contain',
   },
   infoBlock: {
-    backgroundColor: Colors.blue[100],
     borderRadius: 12,
     padding: 20,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: Colors.purple[100],
-    shadowColor: Colors.black,
+    shadowColor: '#000000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -184,18 +207,15 @@ const welcomeStyles = {
   infoText: {
     fontSize: 14,
     lineHeight: 20,
-    color: Colors.black,
     textAlign: 'justify',
     ...InterRegular,
   },
   radioBlock: {
-    backgroundColor: Colors.white,
     borderRadius: 12,
     padding: 20,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: Colors.gray[1000],
-    shadowColor: Colors.black,
+    shadowColor: '#000000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -216,16 +236,14 @@ const welcomeStyles = {
   radioText: {
     fontSize: 14,
     lineHeight: 20,
-    color: Colors.black,
     flex: 1,
     ...InterRegular,
   },
   checkboxSection: {
-    backgroundColor: Colors.blue[100],
     borderRadius: 12,
     padding: 20,
     marginBottom: 24,
-    shadowColor: Colors.black,
+    shadowColor: '#000000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -245,17 +263,15 @@ const welcomeStyles = {
   checkboxText: {
     fontSize: 14,
     lineHeight: 20,
-    color: Colors.black,
     flex: 1,
     ...InterRegular,
   },
   ctaButton: {
-    backgroundColor: Colors.purple[200],
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 24,
     alignItems: 'center',
-    shadowColor: Colors.purple[200],
+    shadowColor: '#5B7AC6',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -265,12 +281,10 @@ const welcomeStyles = {
     elevation: 8,
   },
   ctaButtonText: {
-    color: Colors.white,
     fontSize: 16,
     ...InterSemiBold,
   },
   errorMessage: {
-    color: Colors.orange[300],
     fontSize: 12,
     marginTop: 8,
     marginLeft: 4,
@@ -299,11 +313,9 @@ const desktopWelcomeStyles = {
     resizeMode: 'contain',
   },
   infoBlock: {
-    backgroundColor: Colors.blue[100],
     padding: 32,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: Colors.purple[100],
   },
   infoText: {
     fontSize: 16,

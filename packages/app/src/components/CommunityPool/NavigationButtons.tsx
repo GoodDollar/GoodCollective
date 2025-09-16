@@ -10,6 +10,7 @@ interface NavigationButtonsProps {
   backText?: string;
   containerStyle?: any;
   buttonWidth?: string;
+  marginTop?: number;
 }
 
 const NavigationButtons = ({
@@ -20,9 +21,10 @@ const NavigationButtons = ({
   backText = 'Back',
   containerStyle,
   buttonWidth = '120px',
+  marginTop,
 }: NavigationButtonsProps) => {
   return (
-    <HStack space={4} justifyContent="space-between" style={containerStyle}>
+    <HStack space={4} justifyContent="space-between" style={containerStyle} mt={marginTop}>
       <ActionButton
         borderRadius={8}
         text={
@@ -33,7 +35,7 @@ const NavigationButtons = ({
             </Text>
           </HStack>
         }
-        bg="#D6D6D6"
+        bg="goodGrey.200"
         textColor="white"
         onPress={onBack}
         width={buttonWidth}
@@ -48,7 +50,7 @@ const NavigationButtons = ({
             <img src={ArrowRightIcon} color="white" width={20} height={20} alt="Forward" />
           </HStack>
         }
-        bg={nextDisabled ? '#D1D5DB' : '#5B7AC6'}
+        bg={nextDisabled ? 'goodGrey.200' : 'goodPurple.400'}
         textColor="white"
         onPress={nextDisabled ? undefined : onNext}
         width={buttonWidth}

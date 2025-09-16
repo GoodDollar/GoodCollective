@@ -349,7 +349,8 @@ const ReviewLaunch = () => {
         onBack={() => previousStep()}
         onNext={handleCreatePool}
         nextText={isCreating ? 'Creating...' : 'Launch Pool'}
-        containerStyle={{ marginTop: 24 }}
+        marginTop={6}
+        containerStyle={undefined}
         buttonWidth="140px"
       />
       <Text fontSize="xs" marginTop={8} textAlign="center">

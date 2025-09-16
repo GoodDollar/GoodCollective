@@ -70,7 +70,7 @@ const ClaimFrequencySection = ({
               <Box
                 key={freq.value}
                 width="full"
-                backgroundColor="blue.50"
+                backgroundColor="goodPurple.100"
                 padding={3}
                 borderRadius={8}
                 borderWidth={1}
@@ -90,7 +90,7 @@ const ClaimFrequencySection = ({
                     <Box
                       key={freq.value}
                       flex={1}
-                      backgroundColor="blue.50"
+                      backgroundColor="goodPurple.100"
                       padding={3}
                       borderRadius={8}
                       borderWidth={1}
@@ -106,7 +106,7 @@ const ClaimFrequencySection = ({
                     <Box
                       key={freq.value}
                       flex={1}
-                      backgroundColor="blue.50"
+                      backgroundColor="goodPurple.100"
                       padding={3}
                       borderRadius={8}
                       borderWidth={1}
@@ -120,7 +120,7 @@ const ClaimFrequencySection = ({
               </VStack>
 
               {/* Custom frequency option */}
-              <Box backgroundColor="blue.50" padding={3} borderRadius={8} borderWidth={1} borderColor="gray.200">
+              <Box backgroundColor="goodPurple.100" padding={3} borderRadius={8} borderWidth={1} borderColor="gray.200">
                 <Radio value="2" size="sm">
                   <VStack space={2} flex={1}>
                     <Text fontSize="sm" fontWeight="500">

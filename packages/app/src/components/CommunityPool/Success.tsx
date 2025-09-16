@@ -131,7 +131,7 @@ const SuccessModal = ({
                 <Text fontSize="2xl" fontWeight="600">
                   Success!
                 </Text>
-                <Text fontSize="lg" fontWeight="600" borderBottomWidth={2} borderColor="blue.400" paddingY={8}>
+                <Text fontSize="lg" fontWeight="600" borderBottomWidth={2} borderColor="goodPurple.400" paddingY={8}>
                   Congratulations on your Successful project deployment
                 </Text>
                 <Text fontSize="lg" fontWeight="700" textTransform="uppercase">

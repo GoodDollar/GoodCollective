@@ -25,13 +25,13 @@ const CreatePool = ({}: {}) => {
 
   return (
     <VStack width="full" flex={1}>
-      <Box backgroundColor="#5B7AC6" paddingX={6} paddingY={8} position="relative">
+      <Box backgroundColor="goodPurple.400" paddingX={6} paddingY={8} position="relative">
         <Box position="relative" mb={6}>
           <Progress
             value={getProgressValue()}
             bg="rgba(255,255,255,0.2)"
             _filledTrack={{
-              bg: '#FFFFFF',
+              bg: 'white',
             }}
             size="sm"
             rounded="full"

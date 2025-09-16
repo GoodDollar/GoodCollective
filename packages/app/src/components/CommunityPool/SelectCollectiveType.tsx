@@ -1,14 +1,12 @@
-import { Text, Checkbox, HStack, VStack, Box, Button, Pressable } from 'native-base';
-import { CommunityFundsIcon, SegmentedAidIcon, ResultsBasedIcon } from '../../assets';
+import { Box, Button, Checkbox, HStack, Pressable, Text, VStack } from 'native-base';
+import { CommunityFundsIcon, ResultsBasedIcon, SegmentedAidIcon } from '../../assets';
 import { PoolType, useCreatePool } from '../../hooks/useCreatePool/useCreatePool';
+import { useScreenSize } from '../../theme/hooks';
 import GetStarted from './CreatePool/GetStarted';
-import ProjectDetails from './CreatePool/ProjectDetails';
 import PoolConfiguration from './CreatePool/PoolConfiguration';
+import ProjectDetails from './CreatePool/ProjectDetails';
 import ReviewLaunch from './CreatePool/ReviewLaunch';
 import NavigationButtons from './NavigationButtons';
-import { useScreenSize } from '../../theme/hooks';
-import { Colors } from '../../utils/colors';
-import { InterRegular, InterSemiBold } from '../../utils/webFonts';
 
 const SelectType = () => {
   const STEPS = [
@@ -64,7 +62,7 @@ const SelectType = () => {
   };
 
   return (
-    <Box style={selectCollectiveTypeStyles.container}>
+    <Box style={selectCollectiveTypeStyles.container} backgroundColor="goodGrey.50">
       <VStack space={6} style={selectCollectiveTypeStyles.content}>
         {/* Title Section */}
         <Box style={selectCollectiveTypeStyles.titleSection}>
@@ -92,22 +90,27 @@ const SelectType = () => {
         <VStack space={4}>
           {poolTypes.map((poolType, index) => (
             <Pressable key={index} disabled={poolType.disabled} onPress={() => handlePoolTypeSelect(poolType.id)}>
-              <Box style={selectCollectiveTypeStyles.card}>
+              <Box style={selectCollectiveTypeStyles.card} backgroundColor="white" borderColor="blue.200">
                 <HStack space={4} alignItems="center" style={selectCollectiveTypeStyles.cardContent}>
                   {/* Icon */}
-                  <Box style={selectCollectiveTypeStyles.iconContainer}>
+                  <Box style={selectCollectiveTypeStyles.iconContainer} backgroundColor="goodPurple.100">
                     <img width="60" height="60" src={poolType.icon} style={selectCollectiveTypeStyles.icon} />
                   </Box>
 
                   {/* Content */}
                   <VStack flex={1} space={2}>
-                    <Text style={selectCollectiveTypeStyles.cardTitle}>{poolType.name}</Text>
-                    <Text style={selectCollectiveTypeStyles.cardDescription}>{poolType.description}</Text>
+                    <Text style={selectCollectiveTypeStyles.cardTitle} color="black" fontWeight={700}>
+                      {poolType.name}
+                    </Text>
+                    <Text style={selectCollectiveTypeStyles.cardDescription} color="goodGrey.400">
+                      {poolType.description}
+                    </Text>
                     {poolType.interested && (
                       <Button
                         size="sm"
                         style={selectCollectiveTypeStyles.interestedButton}
-                        _text={selectCollectiveTypeStyles.interestedButtonText}>
+                        bg="goodGrey.300"
+                        _text={{ color: 'white', fontWeight: 700, fontSize: 12 }}>
                         Interested, Please reach out!
                       </Button>
                     )}
@@ -121,10 +124,7 @@ const SelectType = () => {
                         isChecked={form.poolType === poolType.id}
                         style={selectCollectiveTypeStyles.checkbox}
                         aria-label={`Select ${poolType.name} pool type`}
-                        _checked={{
-                          bg: '#1B7BEC',
-                          borderColor: '#1B7BEC',
-                        }}
+                        _checked={{ bg: 'goodPurple.400', borderColor: 'goodPurple.400' }}
                       />
                     )}
                   </Box>
@@ -152,7 +152,6 @@ export default SelectType;
 const selectCollectiveTypeStyles = {
   container: {
     flex: 1,
-    backgroundColor: Colors.gray[400],
     paddingHorizontal: 20,
     paddingVertical: 40,
   },
@@ -168,29 +167,20 @@ const selectCollectiveTypeStyles = {
     fontSize: 32,
     textAlign: 'center' as const,
     marginBottom: 16,
-    ...InterSemiBold,
+    fontWeight: '700' as const,
   },
-  titleBlue: {
-    color: Colors.blue[200],
-  },
-  titlePurple: {
-    color: Colors.purple[200],
-  },
+
   subtitle: {
     fontSize: 16,
-    color: Colors.gray[500],
     textAlign: 'center' as const,
     lineHeight: 24,
     maxWidth: '80%',
-    ...InterRegular,
+    fontWeight: '400' as const,
   },
   card: {
-    backgroundColor: Colors.white,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.blue[200],
     padding: 20,
-    shadowColor: Colors.black,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -206,7 +196,6 @@ const selectCollectiveTypeStyles = {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.purple[100],
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
   },
@@ -215,19 +204,16 @@ const selectCollectiveTypeStyles = {
   },
   cardTitle: {
     fontSize: 16,
-    color: Colors.black,
     textTransform: 'uppercase' as const,
     letterSpacing: 0.5,
-    ...InterSemiBold,
+    fontWeight: '700' as const,
   },
   cardDescription: {
     fontSize: 14,
-    color: Colors.gray[500],
     lineHeight: 20,
-    ...InterRegular,
+    fontWeight: '400' as const,
   },
   interestedButton: {
-    backgroundColor: Colors.gray[200],
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -235,9 +221,8 @@ const selectCollectiveTypeStyles = {
     marginTop: 8,
   },
   interestedButtonText: {
-    color: Colors.white,
     fontSize: 12,
-    ...InterSemiBold,
+    fontWeight: '700' as const,
   },
   checkboxContainer: {
     width: 40,
@@ -252,8 +237,6 @@ const selectCollectiveTypeStyles = {
     paddingHorizontal: 20,
   },
   backButton: {
-    backgroundColor: Colors.white,
-    borderColor: Colors.gray[600],
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 24,
@@ -261,26 +244,23 @@ const selectCollectiveTypeStyles = {
     minWidth: 100,
   },
   backButtonText: {
-    color: Colors.gray[500],
     fontSize: 16,
-    ...InterSemiBold,
+    fontWeight: '700' as const,
   },
   nextButton: {
-    backgroundColor: Colors.purple[200],
     borderRadius: 8,
     paddingHorizontal: 24,
     paddingVertical: 12,
     minWidth: 100,
   },
   nextButtonText: {
-    color: Colors.white,
     fontSize: 16,
-    ...InterSemiBold,
+    fontWeight: '700' as const,
   },
   titleDesktop: {
     fontSize: 72,
     textAlign: 'center' as const,
     marginBottom: 16,
-    ...InterSemiBold,
+    fontWeight: '700' as const,
   },
 };

@@ -2,7 +2,6 @@ import { Box, FormControl, Input, Text, TextArea, VStack, WarningOutlineIcon, Pr
 import { useEffect, useState } from 'react';
 
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
-import { Colors } from '../../../utils/colors';
 import NavigationButtons from '../NavigationButtons';
 import InfoBox from '../../InfoBox';
 import FileUpload from '../../FileUpload';
@@ -141,16 +140,20 @@ const GetStarted = ({}: {}) => {
   }, [errors]);
 
   return (
-    <VStack style={styles.container}>
+    <VStack style={styles.container} backgroundColor="goodGrey.50">
       <VStack style={styles.content}>
-        <Text style={styles.title}>Get Started</Text>
-        <Text style={styles.subtitle}>
+        <Text style={styles.title} color="black" fontWeight="700">
+          Get Started
+        </Text>
+        <Text style={styles.subtitle} color="goodGrey.400">
           Add basic information about your project, these details can be edited later.
         </Text>
 
         <FormControl mb="5" isRequired isInvalid={!!errors.projectName}>
           <FormControl.Label>
-            <Text style={styles.fieldLabel}>Project Name</Text>
+            <Text style={styles.fieldLabel} color="black" fontWeight="600">
+              Project Name
+            </Text>
           </FormControl.Label>
           <Input
             style={[styles.input, errors.projectName ? styles.error : {}]}
@@ -168,7 +171,9 @@ const GetStarted = ({}: {}) => {
 
         <FormControl mb="5" isInvalid={!!errors.rewardDescription}>
           <FormControl.Label>
-            <Text style={styles.fieldLabel}>Reward Description</Text>
+            <Text style={styles.fieldLabel} color="black" fontWeight="600">
+              Reward Description
+            </Text>
           </FormControl.Label>
           <Input
             style={[styles.input, errors.rewardDescription ? styles.error : {}]}
@@ -204,10 +209,12 @@ const GetStarted = ({}: {}) => {
 
         <FormControl mb="5" flex={1} isRequired isInvalid={!!errors.coverPhoto}>
           <FormControl.Label>
-            <Text style={styles.fieldLabel}>Cover Photo</Text>
+            <Text style={styles.fieldLabel} color="black" fontWeight="600">
+              Cover Photo
+            </Text>
           </FormControl.Label>
           <FormControl.HelperText>
-            <Text style={styles.helperText}>
+            <Text style={styles.helperText} color="goodGrey.400">
               Provide image URL for your cover photo (1200x400px recommended). Upload to{' '}
               <Text style={styles.linkText} onPress={() => window.open('https://ipfs.io/', '_blank')}>
                 IPFS
@@ -240,7 +247,9 @@ const GetStarted = ({}: {}) => {
             <Text style={styles.fieldLabel}>Logo</Text>
           </FormControl.Label>
           <FormControl.HelperText>
-            <Text style={styles.helperText}>JPG, PNG, GIF (max 1MB, exactly 500x500px required) .</Text>
+            <Text style={styles.helperText} color="goodGrey.400">
+              JPG, PNG, GIF (max 1MB, exactly 500x500px required) .
+            </Text>
           </FormControl.HelperText>
 
           {logo ? (
@@ -298,24 +307,24 @@ const styles = {
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: Colors.black,
+    color: 'black',
     marginBottom: 16,
   },
   subtitle: {
     fontSize: 16,
-    color: Colors.gray[200],
+    color: 'goodGrey.400',
     marginBottom: 32,
     lineHeight: 24,
   },
   fieldLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.black,
+    color: 'black',
     marginBottom: 8,
   },
   helperText: {
     fontSize: 12,
-    color: Colors.gray[200],
+    color: 'goodGrey.400',
     marginBottom: 12,
   },
   input: {
@@ -325,7 +334,7 @@ const styles = {
     borderRadius: 8,
     paddingHorizontal: 16,
     fontSize: 16,
-    backgroundColor: Colors.white,
+    backgroundColor: 'white',
   },
   textArea: {
     height: 80,
@@ -336,7 +345,7 @@ const styles = {
     paddingVertical: 12,
     fontSize: 16,
     textAlignVertical: 'top',
-    backgroundColor: Colors.white,
+    backgroundColor: 'white',
     overflow: 'hidden',
     resize: 'none',
   },
@@ -344,9 +353,9 @@ const styles = {
     height: 120,
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: '#000000',
+    borderColor: 'goodGrey.400',
     borderRadius: 8,
-    backgroundColor: Colors.white,
+    backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
@@ -360,28 +369,28 @@ const styles = {
   },
   uploadText: {
     fontSize: 14,
-    color: '#6B7280',
+    color: 'goodGrey.400',
     fontWeight: '500',
   },
   urlInput: {
     height: 40,
     borderWidth: 1,
-    borderColor: '#D1D5DB',
+    borderColor: 'goodGrey.200',
     borderRadius: 6,
     paddingHorizontal: 12,
     fontSize: 14,
-    backgroundColor: Colors.white,
+    backgroundColor: 'white',
     width: '100%',
   },
   uploadButton: {
-    backgroundColor: '#5B7AC6',
+    backgroundColor: 'goodPurple.400',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 6,
     marginRight: 4,
   },
   uploadButtonText: {
-    color: Colors.white,
+    color: 'white',
     fontSize: 12,
     fontWeight: '600',
   },
@@ -397,13 +406,13 @@ const styles = {
     marginBottom: 8,
   },
   removeButton: {
-    backgroundColor: '#EF4444',
+    backgroundColor: 'goodRed.800',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 4,
   },
   removeButtonText: {
-    color: Colors.white,
+    color: 'white',
     fontSize: 12,
     fontWeight: '600',
   },
@@ -413,10 +422,10 @@ const styles = {
   error: {
     borderWidth: 2,
     borderStyle: 'dotted',
-    borderColor: 'red',
+    borderColor: 'goodRed.800',
   },
   linkText: {
-    color: '#5B7AC6',
+    color: 'goodPurple.400',
     textDecorationLine: 'underline',
     fontWeight: '600',
   },

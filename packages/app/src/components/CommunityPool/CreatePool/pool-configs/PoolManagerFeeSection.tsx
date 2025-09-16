@@ -58,8 +58,8 @@ const PoolManagerFeeSection = ({
           padding={4}
           borderWidth={2}
           borderRadius={12}
-          borderColor={poolManagerFeeType === 'default' ? 'blue.400' : 'gray.200'}
-          backgroundColor={poolManagerFeeType === 'default' ? 'blue.50' : 'white'}
+          borderColor={poolManagerFeeType === 'default' ? 'goodPurple.400' : 'gray.200'}
+          backgroundColor={poolManagerFeeType === 'default' ? 'goodPurple.100' : 'white'}
           onPress={() => {
             setPoolManagerFeeType('default');
             setManagerFeePercentage(0);
@@ -78,7 +78,7 @@ const PoolManagerFeeSection = ({
               Default
             </Text>
             {poolManagerFeeType === 'default' ? (
-              <CheckCircleIcon color="blue.400" size="5" />
+              <CheckCircleIcon color="goodPurple.400" size="5" />
             ) : (
               <Box size="5" borderRadius={12} borderWidth={2} borderColor="gray.300" />
             )}
@@ -92,8 +92,8 @@ const PoolManagerFeeSection = ({
           padding={4}
           borderWidth={2}
           borderRadius={12}
-          borderColor={poolManagerFeeType === 'custom' ? 'blue.400' : 'gray.200'}
-          backgroundColor={poolManagerFeeType === 'custom' ? 'blue.50' : 'white'}
+          borderColor={poolManagerFeeType === 'custom' ? 'goodPurple.400' : 'gray.200'}
+          backgroundColor={poolManagerFeeType === 'custom' ? 'goodPurple.100' : 'white'}
           onPress={() => setPoolManagerFeeType('custom')}>
           <HStack alignItems="center" space={3}>
             <Box
@@ -109,7 +109,7 @@ const PoolManagerFeeSection = ({
               Custom
             </Text>
             {poolManagerFeeType === 'custom' ? (
-              <CheckCircleIcon color="blue.400" size="5" />
+              <CheckCircleIcon color="goodPurple.400" size="5" />
             ) : (
               <Box size="5" borderRadius={12} borderWidth={2} borderColor="gray.300" />
             )}
@@ -131,7 +131,7 @@ const PoolManagerFeeSection = ({
               <HStack alignItems="center" space={4}>
                 <Slider
                   flex={1}
-                  colorScheme="blue"
+                  colorScheme="goodPurple"
                   minValue={0}
                   maxValue={100}
                   value={managerFeePercentage}

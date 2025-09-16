@@ -105,7 +105,7 @@ const PayoutSettingsSection = ({
         message="Set how much each member gets and how many members you expect. The system will calculate the minimum funding needed to support your pool."
       />
 
-      <VStack backgroundColor="blue.50" padding={4} space={4} borderRadius={8}>
+      <VStack backgroundColor="goodPurple.100" padding={4} space={4} borderRadius={8}>
         <FormControl isRequired isInvalid={!!errors.claimAmountPerWeek}>
           <FormControl.Label>
             <Text fontSize="sm" fontWeight="600" textTransform="uppercase">
@@ -154,7 +154,7 @@ const PayoutSettingsSection = ({
           <HStack alignItems="center" space={4}>
             <Slider
               flex={1}
-              colorScheme="blue"
+              colorScheme="goodPurple"
               minValue={1}
               maxValue={Math.max(1, maximumMembers)}
               step={1}

@@ -3,7 +3,6 @@ import { Box, FormControl, Input, InputGroup, InputLeftAddon, Text, VStack, Warn
 import { useEffect, useState } from 'react';
 
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
-import { Colors } from '../../../utils/colors';
 import ActionButton from '../../ActionButton';
 import InfoBox from '../../InfoBox';
 import { SocialField } from '../../SocialField';
@@ -15,9 +14,16 @@ type FormError = {
   website?: string;
 };
 
+const normalizeUrlForValidation = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return trimmed;
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+};
+
 const isValidUrl = (url: string) => {
   try {
-    return URL.canParse ? URL.canParse(url) : Boolean(new URL(url));
+    const candidate = normalizeUrlForValidation(url);
+    return URL.canParse ? URL.canParse(candidate) : Boolean(new URL(candidate));
   } catch {
     return false;
   }
@@ -51,8 +57,9 @@ const ProjectDetails = () => {
   const submitForm = () => {
     setShowWarning(true);
     if (validate(true)) {
+      const normalizedWebsite = normalizeUrlForValidation(website);
       submitPartial({
-        website,
+        website: normalizedWebsite,
         twitter,
         telegram,
         discord,
@@ -112,20 +119,24 @@ const ProjectDetails = () => {
   };
 
   return (
-    <Box style={styles.container}>
-      <VStack style={styles.content}>
-        <Text style={styles.title}>Project Details</Text>
-        <Text style={styles.subtitle}>
+    <Box style={styles.container} backgroundColor="goodGrey.50">
+      <VStack style={styles.content} paddingX={5} paddingY={10}>
+        <Text style={styles.title} color="black" fontWeight="700" mb={4}>
+          Project Details
+        </Text>
+        <Text style={styles.subtitle} color="goodGrey.400" mb={8}>
           Add a detailed description, project links and disclaimer to help educate contributors about your project and
           it's goals.
         </Text>
 
         <FormControl mb="5" isRequired isInvalid={!!errors.website}>
           <FormControl.Label>
-            <Text style={styles.fieldLabel}>Website</Text>
+            <Text style={styles.fieldLabel} color="black" fontWeight="600" mb={2}>
+              Website
+            </Text>
           </FormControl.Label>
           <InputGroup width="full" backgroundColor="white" style={styles.inputGroup}>
-            <InputLeftAddon children={'https://'} style={styles.inputAddon} />
+            <InputLeftAddon children={'https://'} style={styles.inputAddon} px={3} />
             <Input
               style={[styles.input, errors.website ? styles.error : {}]}
               flex={1}
@@ -188,14 +199,20 @@ const ProjectDetails = () => {
           placeholder="threads.net/gooddollar"
         />
 
-        <Text style={styles.sectionTitle}>Project Owner Details</Text>
+        <Text style={styles.sectionTitle} mt={6} mb={2}>
+          Project Owner Details
+        </Text>
 
         <FormControl mb="1" isRequired isInvalid={!!errors.adminWalletAddress}>
           <FormControl.Label>
-            <Text style={styles.fieldLabel}>Admin Wallet Address*</Text>
+            <Text style={styles.fieldLabel} color="black" fontWeight="600" mb={2}>
+              Admin Wallet Address*
+            </Text>
           </FormControl.Label>
-          <Box style={styles.walletAddressBox}>
-            <Text style={styles.walletAddressText}>{adminWalletAddress}</Text>
+          <Box style={styles.walletAddressBox} backgroundColor="goodGrey.100" p={4} mt={4}>
+            <Text style={styles.walletAddressText} color="goodGrey.400">
+              {adminWalletAddress}
+            </Text>
           </Box>
           <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
             {errors.adminWalletAddress}
@@ -207,14 +224,9 @@ const ProjectDetails = () => {
           message="Make sure the wallet that is connected is the wallet that you want to manage the pool with."
         />
 
-        <ActionButton text="Change Wallet" bg="#5B7AC6" textColor="white" onPress={changeWallet} width="150px" />
+        <ActionButton text="Change Wallet" bg="goodPurple.400" textColor="white" onPress={changeWallet} width="150px" />
 
-        <NavigationButtons
-          onBack={() => previousStep()}
-          onNext={submitForm}
-          nextText="Configure Pool"
-          containerStyle={styles.navigationContainer}
-        />
+        <NavigationButtons onBack={() => previousStep()} onNext={submitForm} nextText="Configure Pool" marginTop={10} />
 
         {showWarning && Object.keys(errors).length > 0 && (
           <InfoBox type="warning" message="Please fill all required fields before proceeding to the details section" />
@@ -227,12 +239,10 @@ const ProjectDetails = () => {
 const styles = {
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: 'goodGrey.50',
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 40,
     maxWidth: 800,
     alignSelf: 'center',
     width: '100%',
@@ -240,31 +250,26 @@ const styles = {
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: Colors.black,
-    marginBottom: 16,
+    color: 'black',
   },
   subtitle: {
     fontSize: 16,
-    color: Colors.gray[200],
-    marginBottom: 32,
+    color: 'goodGrey.400',
     lineHeight: 24,
   },
   fieldLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.black,
+    color: 'black',
     marginBottom: 8,
   },
   inputGroup: {
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#D1D5DB',
+    borderColor: 'goodGrey.200',
   },
   inputAddon: {
-    backgroundColor: '#F9FAFB',
-    borderColor: '#D1D5DB',
     borderRightWidth: 1,
-    paddingHorizontal: 12,
   },
   input: {
     height: 48,
@@ -273,39 +278,32 @@ const styles = {
     borderRadius: 8,
     paddingHorizontal: 16,
     fontSize: 16,
-    backgroundColor: Colors.white,
+    backgroundColor: 'white',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: Colors.black,
-    marginTop: 24,
-    marginBottom: 8,
+    color: 'black',
   },
   sectionSubtitle: {
     fontSize: 16,
     fontWeight: '500',
-    color: Colors.black,
+    color: 'black',
     marginBottom: 16,
   },
   walletAddressBox: {
-    backgroundColor: '#F3F4F6',
-    padding: 16,
+    backgroundColor: 'goodGrey.100',
     borderRadius: 8,
-    marginTop: 16,
   },
   walletAddressText: {
     fontSize: 14,
-    color: '#6B7280',
+    color: 'goodGrey.400',
     fontFamily: 'monospace',
-  },
-  navigationContainer: {
-    marginTop: 40,
   },
   error: {
     borderWidth: 2,
     borderStyle: 'dotted',
-    borderColor: 'red',
+    borderColor: 'goodRed.800',
   },
 } as const;
 

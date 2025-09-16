@@ -197,7 +197,8 @@ const PoolConfiguration = () => {
         onBack={previousStep}
         onNext={submitForm}
         nextText="Next: Review"
-        containerStyle={styles.navigationContainer}
+        marginTop={6}
+        containerStyle={undefined}
         buttonWidth="140px"
       />
     </VStack>
@@ -205,9 +206,3 @@ const PoolConfiguration = () => {
 };
 
 export default PoolConfiguration;
-
-const styles = {
-  navigationContainer: {
-    marginTop: 24,
-  },
-};
