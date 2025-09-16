@@ -36,12 +36,8 @@ const PoolManagerFeeSection = ({
   return (
     <VStack space={4}>
       <VStack space={2}>
-        <Text fontSize="md" fontWeight="600" textTransform="uppercase" color="gray.700">
-          Pool Manager Fee
-        </Text>
-        <Text fontSize="sm" color="gray.500">
-          Choose whether you want to take a fee for managing this pool (optional)
-        </Text>
+        <Text variant="section-heading">Pool Manager Fee</Text>
+        <Text variant="body-secondary">Choose whether you want to take a fee for managing this pool (optional)</Text>
       </VStack>
 
       <InfoBox

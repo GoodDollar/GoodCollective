@@ -106,6 +106,31 @@ export const nbTheme = extendTheme({
           fontWeight: 700,
           lineHeight: '150%' /* 30px */,
         }),
+
+        'section-heading': () => ({
+          fontSize: 'md',
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          color: 'gray.700',
+        }),
+        'label-uppercase': () => ({
+          fontSize: 'sm',
+          fontWeight: 600,
+          textTransform: 'uppercase',
+        }),
+        // common body/caption text variants
+        'body-secondary': () => ({
+          fontSize: 'sm',
+          color: 'gray.500',
+        }),
+        'body-muted': () => ({
+          fontSize: 'sm',
+          color: 'gray.600',
+        }),
+        'caption-secondary': () => ({
+          fontSize: 'xs',
+          color: 'gray.500',
+        }),
         // title/heading fontsize variants
         '2xs-grey': () => ({
           fontSize: 10,

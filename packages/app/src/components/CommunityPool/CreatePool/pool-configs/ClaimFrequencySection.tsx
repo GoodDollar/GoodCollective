@@ -50,10 +50,8 @@ const ClaimFrequencySection = ({
   return (
     <VStack space={4}>
       <VStack space={2}>
-        <Text fontSize="md" fontWeight="600" textTransform="uppercase" color="gray.700">
-          Claim Frequency
-        </Text>
-        <Text fontSize="sm" color="gray.500">
+        <Text variant="section-heading">Claim Frequency</Text>
+        <Text variant="body-secondary">
           Choose how often members can claim funds (based on GoodDollar UBI clock at 12 UTC)
         </Text>
       </VStack>

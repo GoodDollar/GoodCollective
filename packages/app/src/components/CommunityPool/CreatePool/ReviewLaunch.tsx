@@ -1,11 +1,56 @@
 import { useScreenSize } from '@gooddollar/good-design';
 import { Box, CheckCircleIcon, Divider, HStack, Pressable, Text, TextArea, VStack } from 'native-base';
-import { useCallback, useState } from 'react';
+import { ReactNode, useCallback, useMemo, useState } from 'react';
 import { AtIcon, DiscordIcon, EditIcon, InstagramIcon, PhoneImg, TwitterIcon, WebsiteIcon } from '../../../assets';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { printAndParseSupportError } from '../../../hooks/useContractCalls/util';
 import BaseModal from '../../modals/BaseModal';
 import NavigationButtons from '../NavigationButtons';
+
+const SectionHeader = ({ title, onEdit }: { title: string; onEdit: () => void }) => (
+  <HStack alignItems="center">
+    <Text variant="section-heading" marginRight={2}>
+      {title}
+    </Text>
+    <CheckCircleIcon color="blue.500" />
+    <Pressable style={{ marginLeft: 'auto' }} onPress={onEdit}>
+      <img src={EditIcon} />
+    </Pressable>
+  </HStack>
+);
+
+const Label = ({ children }: { children: ReactNode }) => (
+  <Text variant="label-uppercase" color="gray.500">
+    {children}
+  </Text>
+);
+
+const InfoItem = ({ label, children }: { label: string; children: ReactNode }) => (
+  <VStack space={1}>
+    <Label>{label}</Label>
+    {children}
+  </VStack>
+);
+
+const StatRow = ({ label, value }: { label: string; value: ReactNode }) => (
+  <HStack space={4} alignItems="center">
+    <Text fontSize="sm" fontWeight="500" textTransform="uppercase" flex={1}>
+      {label}
+    </Text>
+    <Box
+      borderWidth={1}
+      borderRadius={4}
+      borderColor="gray.200"
+      backgroundColor="gray.100"
+      paddingX={2}
+      paddingY={1}
+      minWidth={75}>
+      <Text fontSize="xs" textAlign="center">
+        {value}
+      </Text>
+    </Box>
+  </HStack>
+);
 
 const ReviewLaunch = () => {
   const { form, startOver, previousStep, goToBasics, goToProjectDetails, goToPoolConfiguration, createPool } =
@@ -66,6 +111,29 @@ const ReviewLaunch = () => {
 
   const onCloseErrorModal = () => setErrorMessage(undefined);
 
+  // ===== Helpers to reduce repetition =====
+  const formatPoolType = useCallback((poolType?: string) => {
+    if (!poolType) return 'Community Funds';
+    return poolType.replace('-', ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+  }, []);
+
+  const claimFrequencyLabel = useMemo(() => {
+    const f = form.claimFrequency;
+    if (f === 1) return 'Every day';
+    if (f === 7) return 'Every week';
+    if (f === 14) return 'Every 14 days';
+    if (f === 30) return 'Every 30 days';
+    if (f === 2) return `Every ${form.customClaimFrequency || 1} days`;
+    if (f && f > 30) return `Every ${f} days`;
+    return 'Every day';
+  }, [form.claimFrequency, form.customClaimFrequency]);
+
+  const amountToFund = useMemo(() => {
+    const amountPerMemberPerCycle = form.claimAmountPerWeek || 0;
+    const totalForAllMembers = amountPerMemberPerCycle * (form.expectedMembers || 0);
+    return Math.ceil(totalForAllMembers);
+  }, [form.claimAmountPerWeek, form.expectedMembers]);
+
   return (
     <VStack
       padding={6}
@@ -78,7 +146,7 @@ const ReviewLaunch = () => {
         <Text fontSize={isDesktopView ? '2xl' : 'lg'} fontWeight="700">
           Review & Launch
         </Text>
-        <Text fontSize="sm" color="gray.500">
+        <Text variant="body-secondary">
           Review your project details and configuration settings before it is deployed on GoodCollective.
         </Text>
       </VStack>
@@ -86,41 +154,21 @@ const ReviewLaunch = () => {
       <VStack backgroundColor="white" borderRadius={16} paddingY={8} space={6}>
         {/* Basics Section */}
         <VStack paddingX={8} space={4}>
-          <HStack alignItems="center">
-            <Text textTransform="uppercase" fontSize="md" fontWeight="600" marginRight={2}>
-              Basics
-            </Text>
-            <CheckCircleIcon color="blue.500" />
-            <Pressable style={{ marginLeft: 'auto' }} onPress={goToBasics}>
-              <img src={EditIcon} />
-            </Pressable>
-          </HStack>
+          <SectionHeader title="Basics" onEdit={goToBasics} />
           <Divider />
           <VStack space={3}>
-            <VStack space={1}>
-              <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
-                Project Name
-              </Text>
+            <InfoItem label="Project Name">
               <Text fontSize="md">{form.projectName}</Text>
-            </VStack>
-            <VStack space={1}>
-              <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
-                Project Description
-              </Text>
+            </InfoItem>
+            <InfoItem label="Project Description">
               <Text fontSize="md">{form.projectDescription}</Text>
-            </VStack>
+            </InfoItem>
             {form.rewardDescription && (
-              <VStack space={1}>
-                <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
-                  Reward Description
-                </Text>
+              <InfoItem label="Reward Description">
                 <Text fontSize="md">{form.rewardDescription}</Text>
-              </VStack>
+              </InfoItem>
             )}
-            <VStack space={1}>
-              <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
-                Logo
-              </Text>
+            <InfoItem label="Logo">
               {form.logo ? (
                 <img src={form.logo} alt="Logo" style={{ width: 60, height: 60, borderRadius: 8 }} />
               ) : (
@@ -128,11 +176,8 @@ const ReviewLaunch = () => {
                   No logo provided
                 </Text>
               )}
-            </VStack>
-            <VStack space={1}>
-              <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
-                Cover Photo
-              </Text>
+            </InfoItem>
+            <InfoItem label="Cover Photo">
               {form.coverPhoto ? (
                 <img src={form.coverPhoto} alt="Cover Photo" style={{ width: 200, height: 60, borderRadius: 8 }} />
               ) : (
@@ -140,27 +185,17 @@ const ReviewLaunch = () => {
                   No cover photo provided
                 </Text>
               )}
-            </VStack>
+            </InfoItem>
           </VStack>
         </VStack>
 
         {/* Project Details Section */}
         <VStack paddingX={8} space={4}>
-          <HStack alignItems="center">
-            <Text textTransform="uppercase" fontSize="md" fontWeight="600" marginRight={2}>
-              Project Details
-            </Text>
-            <CheckCircleIcon color="blue.500" />
-            <Pressable style={{ marginLeft: 'auto' }} onPress={goToProjectDetails}>
-              <img src={EditIcon} />
-            </Pressable>
-          </HStack>
+          <SectionHeader title="Project Details" onEdit={goToProjectDetails} />
           <Divider />
           <VStack space={3}>
             <VStack space={2}>
-              <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
-                Socials
-              </Text>
+              <Label>Socials</Label>
               <HStack space={2}>
                 {socials.map((social, index) => (
                   <Box
@@ -176,60 +211,35 @@ const ReviewLaunch = () => {
                 ))}
               </HStack>
             </VStack>
-            <VStack space={1}>
-              <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
-                Admin Wallet Address
-              </Text>
+            <InfoItem label="Admin Wallet Address">
               <Text fontWeight="600" fontSize="md" fontFamily="mono">
                 {form.adminWalletAddress}
               </Text>
-            </VStack>
+            </InfoItem>
           </VStack>
         </VStack>
 
         {/* Pool Configuration Section */}
         <VStack paddingX={8} space={4}>
-          <HStack alignItems="center">
-            <Text textTransform="uppercase" fontSize="md" fontWeight="600" marginRight={2}>
-              Pool Configuration
-            </Text>
-            <CheckCircleIcon color="blue.500" />
-            <Pressable style={{ marginLeft: 'auto' }} onPress={goToPoolConfiguration}>
-              <img src={EditIcon} />
-            </Pressable>
-          </HStack>
+          <SectionHeader title="Pool Configuration" onEdit={goToPoolConfiguration} />
           <Divider />
           <VStack space={4}>
-            <VStack space={1}>
-              <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
-                Pool Type
-              </Text>
+            <InfoItem label="Pool Type">
               <Text fontWeight="600" fontSize="md">
-                {form.poolType
-                  ? form.poolType.replace('-', ' ').replace(/\b\w/g, (l) => l.toUpperCase())
-                  : 'Community Funds'}
+                {formatPoolType(form.poolType)}
               </Text>
-            </VStack>
-            <VStack space={1}>
-              <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
-                Join Status
-              </Text>
+            </InfoItem>
+            <InfoItem label="Join Status">
               <Text fontWeight="600" fontSize="md">
                 {form.joinStatus === 'open' ? 'Open to New Members' : 'Closed to New Members'}
               </Text>
-            </VStack>
-            <VStack space={1}>
-              <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
-                Maximum Amount of Members
-              </Text>
+            </InfoItem>
+            <InfoItem label="Maximum Amount of Members">
               <Text fontWeight="600" fontSize="md">
                 {form.maximumMembers}
               </Text>
-            </VStack>
-            <VStack space={1}>
-              <Text color="gray.500" fontSize="sm" fontWeight="600" textTransform="uppercase">
-                Pool Recipients
-              </Text>
+            </InfoItem>
+            <InfoItem label="Pool Recipients">
               <TextArea
                 width="full"
                 h={20}
@@ -240,106 +250,13 @@ const ReviewLaunch = () => {
                 backgroundColor="gray.50"
                 borderColor="gray.200"
               />
-            </VStack>
+            </InfoItem>
             <VStack space={3}>
-              <HStack space={4} alignItems="center">
-                <Text fontSize="sm" fontWeight="500" textTransform="uppercase" flex={1}>
-                  Manager Fee
-                </Text>
-                <Box
-                  borderWidth={1}
-                  borderRadius={4}
-                  borderColor="gray.200"
-                  backgroundColor="gray.100"
-                  paddingX={2}
-                  paddingY={1}
-                  minWidth={75}>
-                  <Text fontSize="xs" textAlign="center">
-                    {form.managerFeePercentage}%
-                  </Text>
-                </Box>
-              </HStack>
-              <HStack space={4} alignItems="center">
-                <Text fontSize="sm" fontWeight="500" textTransform="uppercase" flex={1}>
-                  Claim Frequency
-                </Text>
-                <Box
-                  borderWidth={1}
-                  borderRadius={4}
-                  borderColor="gray.200"
-                  backgroundColor="gray.100"
-                  paddingX={2}
-                  paddingY={1}
-                  minWidth={75}>
-                  <Text fontSize="xs" textAlign="center">
-                    {(() => {
-                      if (form.claimFrequency === 1) return 'Every day';
-                      if (form.claimFrequency === 7) return 'Every week';
-                      if (form.claimFrequency === 14) return 'Every 14 days';
-                      if (form.claimFrequency === 30) return 'Every 30 days';
-                      if (form.claimFrequency === 2) return `Every ${form.customClaimFrequency || 1} days`;
-                      if (form.claimFrequency && form.claimFrequency > 30) return `Every ${form.claimFrequency} days`;
-                      return 'Every day';
-                    })()}
-                  </Text>
-                </Box>
-              </HStack>
-              <HStack space={4} alignItems="center">
-                <Text fontSize="sm" fontWeight="500" textTransform="uppercase" flex={1}>
-                  Min Claim Amount
-                </Text>
-                <Box
-                  borderWidth={1}
-                  borderRadius={4}
-                  borderColor="gray.200"
-                  backgroundColor="gray.100"
-                  paddingX={2}
-                  paddingY={1}
-                  minWidth={75}>
-                  <Text fontSize="xs" textAlign="center">
-                    {form.claimAmountPerWeek}G$
-                  </Text>
-                </Box>
-              </HStack>
-              <HStack space={4} alignItems="center">
-                <Text fontSize="sm" fontWeight="500" textTransform="uppercase" flex={1}>
-                  Expected Members
-                </Text>
-                <Box
-                  borderWidth={1}
-                  borderRadius={4}
-                  borderColor="gray.200"
-                  backgroundColor="gray.100"
-                  paddingX={2}
-                  paddingY={1}
-                  minWidth={75}>
-                  <Text fontSize="xs" textAlign="center">
-                    {form.expectedMembers}
-                  </Text>
-                </Box>
-              </HStack>
-              <HStack space={4} alignItems="center">
-                <Text fontSize="sm" fontWeight="500" textTransform="uppercase" flex={1}>
-                  Amount To Fund
-                </Text>
-                <Box
-                  borderWidth={1}
-                  borderRadius={4}
-                  borderColor="gray.200"
-                  backgroundColor="gray.100"
-                  paddingX={2}
-                  paddingY={1}
-                  minWidth={75}>
-                  <Text fontSize="xs" textAlign="center">
-                    {(() => {
-                      const amountPerMemberPerCycle = form.claimAmountPerWeek || 0;
-                      const totalForAllMembers = amountPerMemberPerCycle * (form.expectedMembers || 0);
-                      return Math.ceil(totalForAllMembers);
-                    })()}
-                    G$
-                  </Text>
-                </Box>
-              </HStack>
+              <StatRow label="Manager Fee" value={`${form.managerFeePercentage}%`} />
+              <StatRow label="Claim Frequency" value={claimFrequencyLabel} />
+              <StatRow label="Min Claim Amount" value={`${form.claimAmountPerWeek}G$`} />
+              <StatRow label="Expected Members" value={form.expectedMembers} />
+              <StatRow label="Amount To Fund" value={`${amountToFund}G$`} />
             </VStack>
           </VStack>
         </VStack>

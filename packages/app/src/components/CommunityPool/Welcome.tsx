@@ -225,8 +225,8 @@ const welcomeStyles = {
     elevation: 3,
   },
   radioOption: {
-    flexDirection: 'row' as const,
-    alignItems: 'flex-start' as const,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     marginBottom: 16,
   },
   radioButton: {
@@ -253,8 +253,8 @@ const welcomeStyles = {
     elevation: 3,
   },
   checkboxRow: {
-    flexDirection: 'row' as const,
-    alignItems: 'flex-start' as const,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
   },
   checkbox: {
     marginRight: 12,
@@ -290,7 +290,7 @@ const welcomeStyles = {
     marginLeft: 4,
     ...InterSmall,
   },
-};
+} as const;
 
 const desktopWelcomeStyles = {
   container: {

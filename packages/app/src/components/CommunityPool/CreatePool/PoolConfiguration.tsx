@@ -111,17 +111,15 @@ const PoolConfiguration = () => {
         <Text fontSize={isDesktopView ? '2xl' : 'lg'} fontWeight="700">
           Pool Configuration
         </Text>
-        <Text fontSize="sm" color="gray.500">
+        <Text variant="body-secondary">
           Set up who can receive funds, how often they can claim, and how much they get. Members can leave anytime.
         </Text>
       </VStack>
 
       {/* Pool Manager Section */}
       <VStack space={3}>
-        <Text fontSize="md" fontWeight="600" textTransform="uppercase" color="gray.700">
-          Pool Manager
-        </Text>
-        <Text fontSize="sm" color="gray.500">
+        <Text variant="section-heading">Pool Manager</Text>
+        <Text variant="body-secondary">
           Wallet address(es) that can change pool configuration, add and remove members
         </Text>
         <Box borderWidth={1} borderColor="gray.300" backgroundColor="gray.50" padding={4} borderRadius={8}>

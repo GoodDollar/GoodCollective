@@ -8,6 +8,34 @@ import ProjectDetails from './CreatePool/ProjectDetails';
 import ReviewLaunch from './CreatePool/ReviewLaunch';
 import NavigationButtons from './NavigationButtons';
 
+const poolTypes = [
+  {
+    id: 'community-funds' as PoolType,
+    name: 'Community Funds',
+    icon: CommunityFundsIcon,
+    description: 'Facilitate money distribution to members of existing community organisations',
+    interested: false,
+    disabled: false,
+  },
+  {
+    id: 'segmented-aid' as PoolType,
+    name: 'Segmented Aid',
+    icon: SegmentedAidIcon,
+    description:
+      'Self-sovereign, user-managed and encrypted digital demographic information allows access to specific funds via GoodOffers',
+    interested: true,
+    disabled: true,
+  },
+  {
+    id: 'results-based' as PoolType,
+    name: 'Results-based direct payments',
+    icon: ResultsBasedIcon,
+    description: 'Provides direct payments to stewards based on verified climate action',
+    interested: true,
+    disabled: true,
+  },
+];
+
 const SelectType = () => {
   const STEPS = [
     { id: 2, Component: GetStarted },
@@ -18,34 +46,6 @@ const SelectType = () => {
 
   const { step, form, submitPartial, nextStep, previousStep } = useCreatePool();
   const { isDesktopView } = useScreenSize();
-
-  const poolTypes = [
-    {
-      id: 'community-funds' as PoolType,
-      name: 'Community Funds',
-      icon: CommunityFundsIcon,
-      description: 'Facilitate money distribution to members of existing community organisations',
-      interested: false,
-      disabled: false,
-    },
-    {
-      id: 'segmented-aid' as PoolType,
-      name: 'Segmented Aid',
-      icon: SegmentedAidIcon,
-      description:
-        'Self-sovereign, user-managed and encrypted digital demographic information allows access to specific funds via GoodOffers',
-      interested: true,
-      disabled: true,
-    },
-    {
-      id: 'results-based' as PoolType,
-      name: 'Results-based direct payments',
-      icon: ResultsBasedIcon,
-      description: 'Provides direct payments to stewards based on verified climate action',
-      interested: true,
-      disabled: true,
-    },
-  ];
 
   const handlePoolTypeSelect = (poolType: PoolType) => {
     submitPartial({ poolType });
@@ -156,26 +156,26 @@ const selectCollectiveTypeStyles = {
     paddingVertical: 40,
   },
   content: {
-    alignSelf: 'center' as const,
+    alignSelf: 'center',
     width: '100%',
   },
   titleSection: {
-    alignItems: 'center' as const,
+    alignItems: 'center',
     marginBottom: 20,
   },
   title: {
     fontSize: 32,
-    textAlign: 'center' as const,
+    textAlign: 'center',
     marginBottom: 16,
-    fontWeight: '700' as const,
+    fontWeight: '700',
   },
 
   subtitle: {
     fontSize: 16,
-    textAlign: 'center' as const,
+    textAlign: 'center',
     lineHeight: 24,
     maxWidth: '80%',
-    fontWeight: '400' as const,
+    fontWeight: '400',
   },
   card: {
     borderRadius: 12,
@@ -190,43 +190,43 @@ const selectCollectiveTypeStyles = {
     elevation: 3,
   },
   cardContent: {
-    alignItems: 'center' as const,
+    alignItems: 'center',
   },
   iconContainer: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   icon: {
     borderRadius: 30,
   },
   cardTitle: {
     fontSize: 16,
-    textTransform: 'uppercase' as const,
+    textTransform: 'uppercase',
     letterSpacing: 0.5,
-    fontWeight: '700' as const,
+    fontWeight: '700',
   },
   cardDescription: {
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: '400' as const,
+    fontWeight: '400',
   },
   interestedButton: {
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    alignSelf: 'flex-start' as const,
+    alignSelf: 'flex-start',
     marginTop: 8,
   },
   interestedButtonText: {
     fontSize: 12,
-    fontWeight: '700' as const,
+    fontWeight: '700',
   },
   checkboxContainer: {
     width: 40,
-    alignItems: 'center' as const,
+    alignItems: 'center',
   },
   checkbox: {
     width: 20,
@@ -245,7 +245,7 @@ const selectCollectiveTypeStyles = {
   },
   backButtonText: {
     fontSize: 16,
-    fontWeight: '700' as const,
+    fontWeight: '700',
   },
   nextButton: {
     borderRadius: 8,
@@ -255,12 +255,12 @@ const selectCollectiveTypeStyles = {
   },
   nextButtonText: {
     fontSize: 16,
-    fontWeight: '700' as const,
+    fontWeight: '700',
   },
   titleDesktop: {
     fontSize: 72,
-    textAlign: 'center' as const,
+    textAlign: 'center',
     marginBottom: 16,
-    fontWeight: '700' as const,
+    fontWeight: '700',
   },
-};
+} as const;

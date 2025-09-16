@@ -30,9 +30,7 @@ const MembersSection = ({
       <Box backgroundColor="white" padding={4} borderWidth={1} borderColor="gray.200" borderRadius={8}>
         <FormControl mb="4" isRequired isInvalid={!!errors.maximumMembers}>
           <FormControl.Label>
-            <Text fontSize="sm" fontWeight="600" color="gray.700">
-              Maximum amount of members
-            </Text>
+            <Text variant="form-label">Maximum amount of members</Text>
           </FormControl.Label>
           <FormControl.HelperText>
             <Text fontSize="xs" color="gray.500">
@@ -75,9 +73,7 @@ const MembersSection = ({
       <VStack space={4} padding={4} backgroundColor="white" borderWidth={1} borderColor="gray.200" borderRadius={8}>
         <FormControl mb="4" isRequired={joinStatus === 'closed'} isInvalid={!!errors.poolRecipients}>
           <FormControl.Label>
-            <Text fontSize="sm" fontWeight="600" color="gray.700">
-              Pool Recipients
-            </Text>
+            <Text variant="form-label">Pool Recipients</Text>
           </FormControl.Label>
           <FormControl.HelperText>
             <Text fontSize="xs" color="gray.500">
@@ -101,9 +97,7 @@ const MembersSection = ({
 
         <FormControl>
           <FormControl.Label>
-            <Text fontSize="sm" fontWeight="600" color="gray.700">
-              New members after launch
-            </Text>
+            <Text variant="form-label">New members after launch</Text>
           </FormControl.Label>
           <Radio.Group
             name="joinStatus"

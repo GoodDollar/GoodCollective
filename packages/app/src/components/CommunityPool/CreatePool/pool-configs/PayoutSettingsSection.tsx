@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Divider,
@@ -31,6 +32,13 @@ interface PayoutSettingsSectionProps {
   };
 }
 
+const claimFrequencyDetails: { [key: number]: { label: string; text: string } } = {
+  1: { label: 'Day', text: '1 day' },
+  7: { label: 'Week', text: '1 week' },
+  14: { label: '2 Weeks', text: '2 weeks' },
+  30: { label: 'Month', text: '1 month' },
+};
+
 const PayoutSettingsSection = ({
   claimFrequency,
   customClaimFrequency,
@@ -42,6 +50,8 @@ const PayoutSettingsSection = ({
   onValidate,
   errors,
 }: PayoutSettingsSectionProps) => {
+  const [frequencyText, setFrequencyText] = useState('1 week');
+  const [claimLabel, setClaimLabel] = useState('Claim Amount Per Week');
   // Calculate minimum funding needed
   const calculateMinimumFunding = () => {
     const amountPerMemberPerCycle = claimAmountPerWeek || 0;
@@ -52,50 +62,27 @@ const PayoutSettingsSection = ({
     return Math.ceil(totalForAllMembers);
   };
 
-  // Get the claim frequency display text
-  const getClaimFrequencyText = () => {
+  const getClaimFrequencyText = useCallback(() => {
     if (claimFrequency === 2) {
-      return `${customClaimFrequency} day${customClaimFrequency === 1 ? '' : 's'}`;
-    } else if (claimFrequency === 1) {
-      return '1 day';
-    } else if (claimFrequency === 7) {
-      return '1 week';
-    } else if (claimFrequency === 14) {
-      return '2 weeks';
-    } else if (claimFrequency === 30) {
-      return '1 month';
+      setFrequencyText(`${customClaimFrequency} day${customClaimFrequency === 1 ? '' : 's'}`);
+      setClaimLabel(`Claim Amount Per ${customClaimFrequency} Day${customClaimFrequency === 1 ? '' : 's'}`);
+    } else if (claimFrequencyDetails[claimFrequency]) {
+      setFrequencyText(claimFrequencyDetails[claimFrequency].text);
+      setClaimLabel(`Claim Amount Per ${claimFrequencyDetails[claimFrequency].label}`);
+    } else {
+      setFrequencyText('1 week');
+      setClaimLabel('Claim Amount Per Week');
     }
-    return '1 week';
-  };
+  }, [claimFrequency, customClaimFrequency]);
 
-  // Get the claim amount per interval text
-  const getClaimAmountPerIntervalText = () => {
-    // The claimAmountPerWeek actually represents the amount per cycle
-    return `${claimAmountPerWeek || 0}G$`;
-  };
-
-  // Get the label text for claim amount based on frequency
-  const getClaimAmountLabel = () => {
-    if (claimFrequency === 2) {
-      return `Claim Amount Per ${customClaimFrequency} Day${customClaimFrequency === 1 ? '' : 's'}`;
-    } else if (claimFrequency === 1) {
-      return 'Claim Amount Per Day';
-    } else if (claimFrequency === 7) {
-      return 'Claim Amount Per Week';
-    } else if (claimFrequency === 14) {
-      return 'Claim Amount Per 2 Weeks';
-    } else if (claimFrequency === 30) {
-      return 'Claim Amount Per Month';
-    }
-    return 'Claim Amount Per Week';
-  };
+  useEffect(() => {
+    getClaimFrequencyText();
+  }, [claimFrequency, customClaimFrequency, getClaimFrequencyText]);
 
   return (
     <VStack space={4}>
       <VStack space={2}>
-        <Text fontSize="md" fontWeight="600" textTransform="uppercase" color="gray.700">
-          Payout Settings
-        </Text>
+        <Text variant="section-heading">Payout Settings</Text>
         <Divider />
       </VStack>
 
@@ -108,9 +95,7 @@ const PayoutSettingsSection = ({
       <VStack backgroundColor="goodPurple.100" padding={4} space={4} borderRadius={8}>
         <FormControl isRequired isInvalid={!!errors.claimAmountPerWeek}>
           <FormControl.Label>
-            <Text fontSize="sm" fontWeight="600" textTransform="uppercase">
-              {getClaimAmountLabel()}
-            </Text>
+            <Text variant="label-uppercase">{claimLabel}</Text>
           </FormControl.Label>
           <InputGroup maxW="200px">
             <Input
@@ -142,14 +127,10 @@ const PayoutSettingsSection = ({
         </FormControl>
         <FormControl isRequired isInvalid={!!errors.expectedMembers}>
           <FormControl.Label>
-            <Text fontSize="sm" fontWeight="600" textTransform="uppercase">
-              Expected Members
-            </Text>
+            <Text variant="label-uppercase">Expected Members</Text>
           </FormControl.Label>
           <FormControl.HelperText>
-            <Text fontSize="xs" color="gray.500">
-              How many people you expect to join (cannot exceed {maximumMembers})
-            </Text>
+            <Text variant="caption-secondary">How many people you expect to join (cannot exceed {maximumMembers})</Text>
           </FormControl.HelperText>
           <HStack alignItems="center" space={4}>
             <Slider
@@ -201,7 +182,7 @@ const PayoutSettingsSection = ({
               width="20"
               textAlign="center"
             />
-            <Text fontSize="sm" color="gray.600" minW="12">
+            <Text variant="body-muted" minW="12">
               / {maximumMembers}
             </Text>
           </HStack>
@@ -212,9 +193,9 @@ const PayoutSettingsSection = ({
         {/* Funding calculation display */}
         <Box backgroundColor="goodPurple.200" padding={4} borderRadius={8}>
           <Text fontSize="sm" mb={2}>
-            Each member gets <Text bold>{getClaimAmountPerIntervalText()}</Text> every{' '}
-            <Text bold>{getClaimFrequencyText()}</Text>. You need at least{' '}
-            <Text bold>{calculateMinimumFunding()}G$</Text> to support <Text bold>{expectedMembers} members</Text>.
+            Each member gets <Text bold>{`${claimAmountPerWeek || 0}G$`}</Text> every <Text bold>{frequencyText}</Text>.{' '}
+            You need at least <Text bold>{calculateMinimumFunding()}G$</Text> to support{' '}
+            <Text bold>{expectedMembers} members</Text>.
           </Text>
           <HStack alignItems="flex-start" space={2} paddingY={2}>
             <WarningTwoIcon color="red.600" size="md" />
