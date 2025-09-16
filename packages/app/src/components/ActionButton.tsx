@@ -4,7 +4,7 @@ import { InterSemiBold } from '../utils/webFonts';
 
 type ActionButtonProps = {
   href?: string;
-  text: string;
+  text: string | React.ReactNode;
   bg: string;
   textColor: string;
   onPress?: any;

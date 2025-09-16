@@ -279,6 +279,8 @@ const GetStarted = ({}: {}) => {
   );
 };
 
+export default GetStarted;
+
 const styles = {
   container: {
     flex: 1,
@@ -419,5 +421,3 @@ const styles = {
     fontWeight: '600',
   },
 } as const;
-
-export default GetStarted;
