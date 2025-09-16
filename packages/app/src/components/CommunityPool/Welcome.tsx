@@ -62,10 +62,7 @@ const Welcome = () => {
         style={[welcomeStyles.infoBlock, isDesktopView && desktopWelcomeStyles.infoBlock]}
         backgroundColor="goodPurple.100"
         borderColor="goodPurple.200">
-        <Text
-          style={[welcomeStyles.infoText, isDesktopView && desktopWelcomeStyles.infoText]}
-          textAlign="justify"
-          color="black">
+        <Text variant="body-text" textAlign="justify" color="black">
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam totam, tempore saepe beatae et quidem provident
           aperiam esse recusandae rem fugiat laboriosam est rerum enim at magni suscipit amet qui. Lorem ipsum dolor,
           sit amet consectetur adipisicing elit. Totam similique vel odio incidunt enim officiis, quo dignissimos
@@ -73,11 +70,7 @@ const Welcome = () => {
           sit amet consectetur adipisicing elit. Repellendus eum similique culpa dolore quos doloremque. Nostrum quo rem
           deserunt, sit sint hic itaque? Cumque incidunt facilis repellendus vero magnam dolorem.
         </Text>
-        <Text
-          style={[welcomeStyles.infoText, isDesktopView && desktopWelcomeStyles.infoText]}
-          textAlign="justify"
-          marginTop={4}
-          color="black">
+        <Text variant="body-text" textAlign="justify" marginTop={4} color="black">
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione cupiditate, labore ducimus quae suscipit
           tempora minus non nihil inventore ipsa dignissimos ex corrupti adipisci impedit autem repudiandae
           reprehenderit eum in!
@@ -99,20 +92,14 @@ const Welcome = () => {
           flexDir="column">
           <HStack style={welcomeStyles.radioOption} alignItems="flex-start">
             <Radio value="one" style={welcomeStyles.radioButton} size="sm" />
-            <Text
-              style={[welcomeStyles.radioText, isDesktopView && desktopWelcomeStyles.radioText]}
-              flex={1}
-              color="black">
+            <Text variant="body-text" flex={1} color="black">
               Lorem ipsum dolor sit, amet consectetur adipisicing elit. Animi, dignissimos fugit adipisci, ex libero
               laborum praesentium officiis
             </Text>
           </HStack>
           <HStack style={welcomeStyles.radioOption} alignItems="flex-start">
             <Radio value="two" style={welcomeStyles.radioButton} size="sm" />
-            <Text
-              style={[welcomeStyles.radioText, isDesktopView && desktopWelcomeStyles.radioText]}
-              flex={1}
-              color="black">
+            <Text variant="body-text" flex={1} color="black">
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates maiores ab dicta vero veritatis omnis
               natus ration
             </Text>
@@ -137,10 +124,7 @@ const Welcome = () => {
               accessibilityLabel="I understand"
               size="md"
             />
-            <Text
-              style={[welcomeStyles.checkboxText, isDesktopView && desktopWelcomeStyles.checkboxText]}
-              flex={1}
-              color="black">
+            <Text variant="body-text" flex={1} color="black">
               I understand Vitae morbi dolor tellus in tincidunt est ac cursus. Habitasse viverra lectus integer posuere
               fermentum.
             </Text>
@@ -317,28 +301,13 @@ const desktopWelcomeStyles = {
     marginBottom: 24,
     borderWidth: 1,
   },
-  infoText: {
-    fontSize: 16,
-    lineHeight: 24,
-    ...InterRegular,
-  },
   radioBlock: {
     padding: 32,
     marginBottom: 24,
   },
-  radioText: {
-    fontSize: 16,
-    lineHeight: 24,
-    ...InterRegular,
-  },
   checkboxSection: {
     padding: 32,
     marginBottom: 32,
-  },
-  checkboxText: {
-    fontSize: 16,
-    lineHeight: 24,
-    ...InterRegular,
   },
   ctaButton: {
     paddingVertical: 20,

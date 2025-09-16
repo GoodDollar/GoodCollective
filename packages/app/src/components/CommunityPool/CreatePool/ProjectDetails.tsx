@@ -135,10 +135,10 @@ const ProjectDetails = () => {
               Website
             </Text>
           </FormControl.Label>
-          <InputGroup width="full" backgroundColor="white" style={styles.inputGroup}>
-            <InputLeftAddon children={'https://'} style={styles.inputAddon} px={3} />
+          <InputGroup width="full" backgroundColor="white">
+            <InputLeftAddon children={'https://'} px={3} />
             <Input
-              style={[styles.input, errors.website ? styles.error : {}]}
+              variant={errors.website ? 'form-input-error' : undefined}
               flex={1}
               value={website}
               onChangeText={(value) => {
@@ -263,23 +263,6 @@ const styles = {
     color: 'black',
     marginBottom: 8,
   },
-  inputGroup: {
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'goodGrey.200',
-  },
-  inputAddon: {
-    borderRightWidth: 1,
-  },
-  input: {
-    height: 48,
-    borderWidth: 0,
-    borderColor: 'transparent',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    backgroundColor: 'white',
-  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
@@ -299,11 +282,6 @@ const styles = {
     fontSize: 14,
     color: 'goodGrey.400',
     fontFamily: 'monospace',
-  },
-  error: {
-    borderWidth: 2,
-    borderStyle: 'dotted',
-    borderColor: 'goodRed.800',
   },
 } as const;
 

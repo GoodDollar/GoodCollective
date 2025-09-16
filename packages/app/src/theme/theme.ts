@@ -156,6 +156,27 @@ export const nbTheme = extendTheme({
         '3xl-grey': () => ({
           fontSize: 30,
         }),
+        // Body text variants
+        'body-text': () => ({
+          fontSize: 16,
+          lineHeight: 24,
+          fontFamily: 'Inter',
+          fontWeight: 400,
+        }),
+      },
+    },
+    Input: {
+      variants: {
+        'form-input-error': () => ({
+          height: 12,
+          borderWidth: 2,
+          borderStyle: 'dotted',
+          borderColor: 'goodRed.800',
+          borderRadius: 8,
+          paddingHorizontal: 16,
+          fontSize: 18,
+          backgroundColor: 'white',
+        }),
       },
     },
     // NavBar,

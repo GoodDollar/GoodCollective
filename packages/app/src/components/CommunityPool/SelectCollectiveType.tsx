@@ -236,27 +236,6 @@ const selectCollectiveTypeStyles = {
     marginTop: 40,
     paddingHorizontal: 20,
   },
-  backButton: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    minWidth: 100,
-  },
-  backButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  nextButton: {
-    borderRadius: 8,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    minWidth: 100,
-  },
-  nextButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
   titleDesktop: {
     fontSize: 72,
     textAlign: 'center',
