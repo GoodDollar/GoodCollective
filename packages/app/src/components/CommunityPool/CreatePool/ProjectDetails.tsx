@@ -1,7 +1,6 @@
 import { useAppKit, useAppKitAccount, useDisconnect } from '@reown/appkit/react';
 import { Box, FormControl, Input, InputGroup, InputLeftAddon, Text, VStack, WarningOutlineIcon } from 'native-base';
 import { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
 
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { Colors } from '../../../utils/colors';
@@ -225,7 +224,7 @@ const ProjectDetails = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
@@ -308,6 +307,6 @@ const styles = StyleSheet.create({
     borderStyle: 'dotted',
     borderColor: 'red',
   },
-});
+} as const;
 
 export default ProjectDetails;

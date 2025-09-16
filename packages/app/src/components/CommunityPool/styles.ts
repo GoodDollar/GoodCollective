@@ -1,8 +1,8 @@
-import { StyleSheet } from 'react-native';
+// removed React Native StyleSheet in favor of plain style objects compatible with NativeBase
 import { Colors } from '../../utils/colors';
 import { InterRegular, InterSemiBold, InterSmall } from '../../utils/webFonts';
 
-export const welcomeStyles = StyleSheet.create({
+export const welcomeStyles = {
   container: {
     flex: 1,
     paddingHorizontal: 16,
@@ -134,9 +134,9 @@ export const welcomeStyles = StyleSheet.create({
     marginLeft: 4,
     ...InterSmall,
   },
-});
+};
 
-export const desktopWelcomeStyles = StyleSheet.create({
+export const desktopWelcomeStyles = {
   container: {
     marginHorizontal: 'auto',
     paddingHorizontal: 32,
@@ -194,9 +194,9 @@ export const desktopWelcomeStyles = StyleSheet.create({
     fontSize: 18,
     ...InterSemiBold,
   },
-});
+};
 
-export const selectCollectiveTypeStyles = StyleSheet.create({
+export const selectCollectiveTypeStyles = {
   container: {
     flex: 1,
     backgroundColor: Colors.gray[400],
@@ -330,4 +330,4 @@ export const selectCollectiveTypeStyles = StyleSheet.create({
     marginBottom: 16,
     ...InterSemiBold,
   },
-});
+};

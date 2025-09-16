@@ -4,7 +4,7 @@ import { Box, Text, VStack } from 'native-base';
 import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 
-import { StyleSheet } from 'react-native';
+// removed React Native StyleSheet in favor of plain style objects compatible with NativeBase
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import {
   usePoolConfigurationValidation,
@@ -206,8 +206,8 @@ const PoolConfiguration = () => {
 
 export default PoolConfiguration;
 
-const styles = StyleSheet.create({
+const styles = {
   navigationContainer: {
     marginTop: 24,
   },
-});
+};

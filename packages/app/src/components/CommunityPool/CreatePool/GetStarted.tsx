@@ -1,6 +1,5 @@
 import { Box, FormControl, Input, Text, TextArea, VStack, WarningOutlineIcon, Pressable } from 'native-base';
 import { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
 
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { Colors } from '../../../utils/colors';
@@ -280,7 +279,7 @@ const GetStarted = ({}: {}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
     backgroundColor: 'goodGrey.50',
@@ -419,6 +418,6 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     fontWeight: '600',
   },
-});
+} as const;
 
 export default GetStarted;
