@@ -24,6 +24,7 @@ const CreateGoodCollective = () => {
           openModal={true}
           onClose={handleSuccessClose}
           projectName={form.projectName}
+          collectiveAddress={form.createdPoolAddress}
           socials={{
             website: form.website,
             twitter: form.twitter,

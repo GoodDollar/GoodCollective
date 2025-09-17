@@ -1,10 +1,6 @@
-import { createConfig, getEnsName, http } from '@wagmi/core';
-import { mainnet } from '@wagmi/core/chains';
 import { Box, Text, VStack } from 'native-base';
 import { useEffect, useState } from 'react';
-import { useAccount } from 'wagmi';
-
-// removed React Native StyleSheet in favor of plain style objects compatible with NativeBase
+import { useAccount, useEnsName } from 'wagmi';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import {
   usePoolConfigurationValidation,
@@ -35,31 +31,8 @@ const PoolConfiguration = () => {
   const [claimAmountPerWeek, setClaimAmountPerWeek] = useState(form.claimAmountPerWeek ?? 10);
   const [expectedMembers, setExpectedMembers] = useState(form.expectedMembers ?? 1);
   const [customClaimFrequency, setCustomClaimFrequency] = useState(form.customClaimFrequency ?? 1);
-  const [ensName, setEnsName] = useState('');
+  const { data: ensName } = useEnsName({ address: managerAddress as `0x${string}`, chainId: 1 });
 
-  useEffect(() => {
-    (async () => {
-      if (!managerAddress || ensName) return;
-      try {
-        const resp = await getEnsName(
-          createConfig({
-            chains: [mainnet],
-            transports: {
-              [mainnet.id]: http(),
-            },
-          }),
-          {
-            address: managerAddress as `0x${string}`,
-          }
-        );
-        if (typeof resp === 'string') setEnsName(resp);
-      } catch (error) {
-        console.error('Error fetching ENS name:', error);
-      }
-    })();
-  }, [ensName, managerAddress]);
-
-  // Sync expectedMembers when maximumMembers changes
   useEffect(() => {
     if (expectedMembers > maximumMembers) {
       setExpectedMembers(maximumMembers);

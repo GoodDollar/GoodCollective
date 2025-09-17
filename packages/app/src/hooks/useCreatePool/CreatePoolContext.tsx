@@ -166,6 +166,7 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
         false // isBeacon should always be false as per requirements
       );
       console.log('Pool created successfully:', pool.address);
+      submitPartial({ createdPoolAddress: pool.address });
       setStep(6); // Move to success step
       return pool;
     } catch (error) {

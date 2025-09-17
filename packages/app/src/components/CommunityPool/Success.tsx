@@ -1,5 +1,5 @@
-import { Modal, Platform } from 'react-native';
-import { Box, HStack, Text, VStack } from 'native-base';
+import { Modal, Platform, Share } from 'react-native';
+import { Box, HStack, Text, VStack, useToast, Pressable } from 'native-base';
 import ActionButton from '../ActionButton';
 import {
   SuccessIcon,
@@ -20,6 +20,7 @@ interface SuccessModalProps {
   projectName?: string;
   onButtonPress?: () => void;
   buttonText?: string;
+  collectiveAddress?: string;
   socials?: {
     website?: string;
     twitter?: string;
@@ -34,10 +35,81 @@ const SuccessModal = ({
   projectName = '',
   onButtonPress,
   buttonText = 'GO TO POOLS',
+  collectiveAddress,
   socials,
 }: SuccessModalProps) => {
   const { isDesktopView } = useScreenSize();
   const { navigate } = useCrossNavigate();
+  const toast = useToast();
+
+  const collectivePath = collectiveAddress
+    ? `/collective/${collectiveAddress}`
+    : Platform.select({ web: typeof window !== 'undefined' ? window.location.pathname : '', default: '' });
+
+  const collectiveUrl = Platform.select({
+    web: typeof window !== 'undefined' ? `${window.location.origin}${collectivePath}` : '',
+    default: collectivePath,
+  });
+  const shareUrl = (collectiveUrl as string) || '';
+  const shareText = `Check out this GoodCollective project${projectName ? ` - ${projectName}` : ''}`;
+
+  const handleShare = async (name: string) => {
+    try {
+      if (!shareUrl) {
+        toast.show({ description: 'Collective link unavailable yet' });
+        return;
+      }
+      if (Platform.OS !== 'web') {
+        await Share.share({ message: `${shareText} ${shareUrl}` });
+        return;
+      }
+
+      // Web Share API when available
+      // @ts-ignore
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        // @ts-ignore
+        await navigator.share({ title: projectName || 'GoodCollective', text: shareText, url: shareUrl });
+        return;
+      }
+
+      const encodedUrl = encodeURIComponent(shareUrl || '');
+      const encodedText = encodeURIComponent(shareText);
+
+      switch (name) {
+        case 'twitter':
+          window.open(
+            `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`,
+            '_blank',
+            'noopener,noreferrer'
+          );
+          break;
+        case 'website':
+          if (socials?.website) {
+            window.open(socials.website, '_blank', 'noopener,noreferrer');
+          } else {
+            // @ts-ignore
+            await navigator.clipboard?.writeText(`${shareText} ${shareUrl}`);
+            toast.show({ description: 'Project link copied to clipboard' });
+          }
+          break;
+        default:
+          // For platforms without public share intents (e.g., Instagram, Discord, Threads), copy link
+          // @ts-ignore
+          await navigator.clipboard?.writeText(`${shareText} ${shareUrl}`);
+          toast.show({ description: 'Project link copied to clipboard' });
+          break;
+      }
+    } catch (err) {
+      // Fallback: try copying to clipboard
+      try {
+        // @ts-ignore
+        await navigator.clipboard?.writeText(`${shareText} ${shareUrl}`);
+        toast.show({ description: 'Project link copied to clipboard' });
+      } catch (_) {
+        // no-op
+      }
+    }
+  };
 
   const socialsArray = [
     !!socials?.website && {
@@ -137,20 +209,42 @@ const SuccessModal = ({
                 <Text fontSize="lg" fontWeight="700" textTransform="uppercase">
                   Share Project Link
                 </Text>
+                {!!collectiveAddress && (
+                  <HStack space={2} alignItems="center">
+                    <Text fontSize="xs" color="gray.700" maxW="64" numberOfLines={1} ellipsizeMode="middle">
+                      {collectiveUrl as string}
+                    </Text>
+                    <Pressable
+                      onPress={async () => {
+                        try {
+                          // @ts-ignore
+                          await navigator.clipboard?.writeText(collectiveUrl as string);
+                          toast.show({ description: 'Link copied' });
+                        } catch (_) {
+                          // no-op
+                        }
+                      }}>
+                      <Text fontSize="xs" color="goodPurple.600" underline>
+                        Copy
+                      </Text>
+                    </Pressable>
+                  </HStack>
+                )}
                 {socialsArray.length > 0 && (
                   <VStack space={2} alignItems="center">
                     <HStack space={2}>
                       {socialsArray.map((social, index) => (
-                        <Box
-                          key={index}
-                          backgroundColor=""
-                          width={10}
-                          height={10}
-                          justifyContent="center"
-                          alignItems="center"
-                          borderRadius={4}>
-                          <img width={24} src={social.icon} />
-                        </Box>
+                        <Pressable key={index} onPress={() => handleShare(social!.name)}>
+                          <Box
+                            backgroundColor=""
+                            width={10}
+                            height={10}
+                            justifyContent="center"
+                            alignItems="center"
+                            borderRadius={4}>
+                            <img width={24} src={social!.icon} />
+                          </Box>
+                        </Pressable>
                       ))}
                     </HStack>
                   </VStack>

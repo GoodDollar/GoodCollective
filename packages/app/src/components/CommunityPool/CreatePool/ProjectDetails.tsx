@@ -1,6 +1,7 @@
 import { useAppKit, useAppKitAccount, useDisconnect } from '@reown/appkit/react';
 import { Box, FormControl, Input, InputGroup, InputLeftAddon, Text, VStack, WarningOutlineIcon } from 'native-base';
 import { useEffect, useState } from 'react';
+import { formatSocialUrls, validateSocial } from '../../../lib/formatSocialUrls';
 
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import ActionButton from '../../ActionButton';
@@ -8,26 +9,18 @@ import InfoBox from '../../InfoBox';
 import { SocialField } from '../../SocialField';
 import NavigationButtons from '../NavigationButtons';
 
-type FormError = {
-  social?: string;
-  adminWalletAddress?: string;
-  website?: string;
-};
+// Social field configuration
+const SOCIAL_FIELDS = [
+  { key: 'twitter', label: 'Twitter (X) Handle', addon: '@', placeholder: '@Gooddollar' },
+  { key: 'discord', label: 'Discord', addon: 'https://', placeholder: 'discord.gg/gooddollar' },
+  { key: 'telegram', label: 'Telegram', addon: 'https://', placeholder: 't.me/gooddollar' },
+  { key: 'facebook', label: 'Facebook', addon: 'https://', placeholder: 'facebook.com/gooddollar' },
+  { key: 'threads', label: 'Threads', addon: 'https://', placeholder: 'threads.net/gooddollar' },
+] as const;
 
-const normalizeUrlForValidation = (value: string) => {
-  const trimmed = value.trim();
-  if (!trimmed) return trimmed;
-  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
-};
-
-const isValidUrl = (url: string) => {
-  try {
-    const candidate = normalizeUrlForValidation(url);
-    return URL.canParse ? URL.canParse(candidate) : Boolean(new URL(candidate));
-  } catch {
-    return false;
-  }
-};
+type SocialFieldKey = (typeof SOCIAL_FIELDS)[number]['key'];
+type FormData = Record<SocialFieldKey | 'website' | 'adminWalletAddress', string>;
+type FormError = Partial<Record<keyof FormData | 'social', string>>;
 
 const ProjectDetails = () => {
   const { form, nextStep, submitPartial, previousStep } = useCreatePool();
@@ -35,13 +28,17 @@ const ProjectDetails = () => {
   const { open } = useAppKit();
   const { disconnect } = useDisconnect();
 
-  const [website, setWebsite] = useState<string>(form.website ?? '');
-  const [twitter, setTwitter] = useState<string>(form.twitter ?? '');
-  const [telegram, setTelegram] = useState<string>(form.telegram ?? '');
-  const [discord, setDiscord] = useState<string>(form.discord ?? '');
-  const [facebook, setFacebook] = useState<string>(form.facebook ?? '');
-  const [threads, setThreads] = useState<string>(form.threads ?? '');
-  const [adminWalletAddress, setAdminWalletAddress] = useState<string>(form.adminWalletAddress ?? address ?? '');
+  // Initialize form state
+  const [formData, setFormData] = useState<FormData>({
+    website: form.website ?? '',
+    twitter: form.twitter ?? '',
+    telegram: form.telegram ?? '',
+    discord: form.discord ?? '',
+    facebook: form.facebook ?? '',
+    threads: form.threads ?? '',
+    adminWalletAddress: form.adminWalletAddress ?? address ?? '',
+  });
+
   const [errors, setErrors] = useState<FormError>({});
   const [showWarning, setShowWarning] = useState(false);
 
@@ -51,71 +48,87 @@ const ProjectDetails = () => {
   };
 
   useEffect(() => {
-    if (address) setAdminWalletAddress(address);
+    if (address) {
+      setFormData((prev) => ({ ...prev, adminWalletAddress: address }));
+    }
   }, [address]);
 
-  const submitForm = () => {
-    setShowWarning(true);
-    if (validate(true)) {
-      const normalizedWebsite = normalizeUrlForValidation(website);
-      submitPartial({
-        website: normalizedWebsite,
-        twitter,
-        telegram,
-        discord,
-        facebook,
-        threads,
-        adminWalletAddress,
-      });
-      nextStep();
-    }
+  // Generic field update handler
+  const updateField = (field: keyof FormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    validate();
   };
 
-  const validate = (checkEmpty = false) => {
-    const currErrors: FormError = {
-      social: '',
-      adminWalletAddress: '',
-      website: '',
-    };
+  const validate = (checkEmpty = false): boolean => {
+    const currErrors: FormError = {};
     let pass = true;
-    if (!website && !twitter && !telegram && !discord && !facebook && !threads) {
-      if (checkEmpty) {
-        currErrors.social = 'One social channel is required';
-        pass = false;
-      }
-    }
 
-    if (!website) {
-      if (checkEmpty) {
-        currErrors.website = 'Website is required';
-        pass = false;
-      }
-    }
+    // Check if at least one social channel is provided
+    const socialFields = SOCIAL_FIELDS.map((field) => field.key);
+    const hasSocialChannel = socialFields.some((field) => formData[field]);
 
-    if (website && !isValidUrl(website)) {
-      currErrors.website = 'Website invalid format!';
+    if (!hasSocialChannel && checkEmpty) {
+      currErrors.social = 'One social channel is required';
       pass = false;
     }
 
-    if (!adminWalletAddress) {
-      if (checkEmpty) {
-        currErrors.adminWalletAddress = 'Admin wallet address is required!';
+    // Website validation
+    if (!formData.website && checkEmpty) {
+      currErrors.website = 'Website is required';
+      pass = false;
+    } else if (formData.website) {
+      const msg = validateSocial.website(formData.website);
+      if (msg) {
+        currErrors.website = msg;
         pass = false;
       }
-    } else {
+    }
+
+    // Social field validations
+    for (const field of SOCIAL_FIELDS) {
+      const value = formData[field.key];
+      if (value) {
+        const msg = validateSocial[field.key](value);
+        if (msg) {
+          currErrors[field.key] = msg;
+          pass = false;
+        }
+      }
+    }
+
+    // Admin wallet validation
+    if (!formData.adminWalletAddress && checkEmpty) {
+      currErrors.adminWalletAddress = 'Admin wallet address is required!';
+      pass = false;
+    } else if (formData.adminWalletAddress) {
       const ethereumAddressRegex = /^0x[a-fA-F0-9]{40}$/;
-      if (!ethereumAddressRegex.test(adminWalletAddress)) {
+      if (!ethereumAddressRegex.test(formData.adminWalletAddress)) {
         currErrors.adminWalletAddress = 'Admin wallet address is not valid!';
         pass = false;
       }
     }
 
-    setErrors({
-      ...errors,
-      ...currErrors,
-    });
-
+    setErrors(currErrors);
     return pass;
+  };
+
+  const submitForm = () => {
+    setShowWarning(true);
+    if (validate(true)) {
+      const normalizedWebsite = formatSocialUrls.website(formData.website) ?? '';
+      const cleanTwitter = formData.twitter.trim().replace(/^@+/, '');
+
+      submitPartial({
+        website: normalizedWebsite,
+        twitter: cleanTwitter,
+        telegram: formData.telegram,
+        discord: formData.discord,
+        facebook: formData.facebook,
+        threads: formData.threads,
+        adminWalletAddress: formData.adminWalletAddress,
+      });
+      nextStep();
+    }
   };
 
   return (
@@ -129,6 +142,7 @@ const ProjectDetails = () => {
           it's goals.
         </Text>
 
+        {/* Website Field */}
         <FormControl mb="5" isRequired isInvalid={!!errors.website}>
           <FormControl.Label>
             <Text style={styles.fieldLabel} color="black" fontWeight="600" mb={2}>
@@ -140,11 +154,8 @@ const ProjectDetails = () => {
             <Input
               variant={errors.website ? 'form-input-error' : undefined}
               flex={1}
-              value={website}
-              onChangeText={(value) => {
-                setWebsite(value);
-                validate();
-              }}
+              value={formData.website}
+              onChangeText={(value) => updateField('website', value)}
               onBlur={() => validate()}
               placeholder="www.gooddollar.org"
             />
@@ -154,50 +165,20 @@ const ProjectDetails = () => {
           </FormControl.ErrorMessage>
         </FormControl>
 
-        <SocialField
-          label="Twitter (X) Handle"
-          addon="@"
-          value={twitter}
-          onChange={setTwitter}
-          onBlur={() => validate()}
-          placeholder="@Gooddollar"
-        />
-
-        <SocialField
-          label="Discord"
-          addon="https://"
-          value={discord}
-          onChange={setDiscord}
-          onBlur={() => validate()}
-          placeholder="discord.gg/gooddollar"
-        />
-
-        <SocialField
-          label="Telegram"
-          addon="https://"
-          value={telegram}
-          onChange={setTelegram}
-          onBlur={() => validate()}
-          placeholder="t.me/gooddollar"
-        />
-
-        <SocialField
-          label="Facebook"
-          addon="https://"
-          value={facebook}
-          onChange={setFacebook}
-          onBlur={() => validate()}
-          placeholder="facebook.com/gooddollar"
-        />
-
-        <SocialField
-          label="Threads"
-          addon="https://"
-          value={threads}
-          onChange={setThreads}
-          onBlur={() => validate()}
-          placeholder="threads.net/gooddollar"
-        />
+        {/* Dynamic Social Fields */}
+        {SOCIAL_FIELDS.map((field) => (
+          <SocialField
+            key={field.key}
+            label={field.label}
+            addon={field.addon}
+            value={formData[field.key]}
+            onChange={(value) => updateField(field.key, value)}
+            onBlur={() => validate()}
+            placeholder={field.placeholder}
+            isInvalid={!!errors[field.key]}
+            errorMessage={errors[field.key]}
+          />
+        ))}
 
         <Text style={styles.sectionTitle} mt={6} mb={2}>
           Project Owner Details
@@ -211,7 +192,7 @@ const ProjectDetails = () => {
           </FormControl.Label>
           <Box style={styles.walletAddressBox} backgroundColor="goodGrey.100" p={4} mt={4}>
             <Text style={styles.walletAddressText} color="goodGrey.400">
-              {adminWalletAddress}
+              {formData.adminWalletAddress}
             </Text>
           </Box>
           <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>

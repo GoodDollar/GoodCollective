@@ -29,6 +29,7 @@ export type Form = {
   claimAmountPerWeek?: number;
   expectedMembers?: number;
   customClaimFrequency?: number;
+  createdPoolAddress?: string;
 };
 
 export const useCreatePool = () => {
