@@ -30,7 +30,7 @@ function Layout({ children, breadcrumbPath }: LayoutProps) {
   const { navigate } = useCrossNavigate();
   const onClickImpactButton = () => navigate('/profile/' + (address ?? ''));
 
-  const isCollectivePage = location.pathname.includes('collective');
+  const isCollectivePage = location.pathname.startsWith('/collective/') && location.pathname !== '/collective/create';
 
   const bodyStyles = {
     ...styles.body,
@@ -52,9 +52,7 @@ function Layout({ children, breadcrumbPath }: LayoutProps) {
           <DesktopPageContentContainer>
             {breadcrumbPath && <Breadcrumb path={breadcrumbPath} />}
             {children}
-            {location.pathname.includes('collective') && (
-              <ImpactButton title="SEE YOUR IMPACT" onClick={onClickImpactButton} />
-            )}
+            {isCollectivePage && <ImpactButton title="SEE YOUR IMPACT" onClick={onClickImpactButton} />}
           </DesktopPageContentContainer>
         </View>
       ) : (

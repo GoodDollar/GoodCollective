@@ -1,6 +1,7 @@
-import { FC, PropsWithChildren, useRef, useMemo } from 'react';
+import { FC, PropsWithChildren, useRef, useMemo, useState } from 'react';
 import { Box, HStack, ScrollView, Spinner, Text, useBreakpointValue, VStack } from 'native-base';
 import { Platform } from 'react-native';
+import { useAppKitAccount } from '@reown/appkit/react';
 
 import { useTotalStats } from '../hooks';
 import type { TotalStats } from '../hooks';
@@ -9,6 +10,8 @@ import { useScreenSize } from '../theme/hooks';
 import ActionButton from '../components/ActionButton';
 import CollectiveHomeCard from '../components/CollectiveHomeCard';
 import Layout from '../components/Layout/Layout';
+import WarningBox from '../components/WarningBox';
+import useCrossNavigate from '../routes/useCrossNavigate';
 
 import { IpfsCollective } from '../models/models';
 import { useCollectivesMetadata } from '../hooks';
@@ -75,6 +78,15 @@ const HomePage = () => {
   const totalStats = useTotalStats();
   const { isDesktopView } = useScreenSize();
   const collectivesSectionRef = useRef<any>(null);
+  const { isConnected } = useAppKitAccount();
+  const { navigate } = useCrossNavigate();
+  const [showWarningMessage, setShowWarningMessage] = useState(false);
+
+  const isDevHost = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    const hostname = window.location.hostname || '';
+    return hostname === 'localhost' || hostname.endsWith('.vercel.app');
+  }, []);
 
   const formattedStats = useMemo(() => {
     if (!totalStats) return [];
@@ -97,6 +109,14 @@ const HomePage = () => {
     if (collectivesSectionRef.current) {
       collectivesSectionRef.current.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  const redirectToCreateCollective = () => {
+    if (!isConnected) {
+      setShowWarningMessage(true);
+      return;
+    }
+    navigate(`/collective/create`);
   };
 
   if (!totalStats) {
@@ -216,13 +236,24 @@ const HomePage = () => {
                     textColor="goodGreen.400"
                     onPress={scrollToCollectives}
                   />
-                  <ActionButton
-                    href="https://gooddollar.typeform.com/creategood"
-                    text="Create a GoodCollective"
-                    bg="goodPurple.100"
-                    textColor="goodPurple.400"
-                  />
+                  {isDevHost && (
+                    <ActionButton
+                      text="Create a GoodCollective"
+                      bg="goodPurple.100"
+                      textColor="goodPurple.400"
+                      onPress={redirectToCreateCollective}
+                    />
+                  )}
                 </HStack>
+                {showWarningMessage && (
+                  <VStack space={3} marginTop={4} maxWidth="600px" alignSelf="center">
+                    <WarningBox
+                      content={{
+                        title: 'Please connect a wallet to proceed',
+                      }}
+                    />
+                  </VStack>
+                )}
               </VStack>
             </VStack>
           </VStack>

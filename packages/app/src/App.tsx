@@ -23,6 +23,8 @@ import { Colors } from './utils/colors';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 import { useCreateSubgraphApolloClient, useCreateMongoDbApolloClient } from './hooks/apollo';
 import { MongoDbApolloProvider } from './components/providers/MongoDbApolloProvider';
+import CreateGoodCollectivePage from './pages/CreateGoodCollectivePage';
+import { CreatePoolProvider } from './hooks/useCreatePool';
 
 const queryClient = new QueryClient();
 const projectId = 'b1b7664bfba2f6ad5538aa7fa9a2404f';
@@ -67,6 +69,14 @@ function App(): JSX.Element {
                   <Routing.Routes>
                     <Routing.Route path="/" element={<HomePage />} />
                     <Routing.Route path="/about" element={<AboutPage />} />
+                    <Routing.Route
+                      path="/collective/create"
+                      element={
+                        <CreatePoolProvider>
+                          <CreateGoodCollectivePage />
+                        </CreatePoolProvider>
+                      }
+                    />
                     <Routing.Route path="/collective/:id" element={<ViewCollectivePage />} />
                     <Routing.Route path="/collective/:id/stewards" element={<ViewStewardsPage />} />
                     <Routing.Route path="/collective/:id/donors" element={<ViewDonorsPage />} />

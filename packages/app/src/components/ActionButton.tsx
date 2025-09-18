@@ -4,10 +4,12 @@ import { InterSemiBold } from '../utils/webFonts';
 
 type ActionButtonProps = {
   href?: string;
-  text: string;
+  text: string | React.ReactNode;
   bg: string;
   textColor: string;
   onPress?: any;
+  width?: string;
+  borderRadius?: number;
 };
 
 export const buttonStyles = {
@@ -38,11 +40,12 @@ export const buttonStyles = {
   },
 };
 
-const ActionButton = ({ href, text, bg, textColor, onPress }: ActionButtonProps) => {
+const ActionButton = ({ href, text, bg, textColor, onPress, width = '100%', borderRadius = 50 }: ActionButtonProps) => {
   const responsiveStyles = useBreakpointValue({
     base: {
       button: {
         ...buttonStyles.button,
+        borderRadius,
         justifyContent: 'center',
       },
       buttonText: {
@@ -53,10 +56,16 @@ const ActionButton = ({ href, text, bg, textColor, onPress }: ActionButtonProps)
       },
       buttonContainer: {
         ...buttonStyles.buttonContainer,
-        width: '100%',
+        width,
       },
     },
-    lg: buttonStyles,
+    lg: {
+      ...buttonStyles,
+      button: {
+        ...buttonStyles.button,
+        borderRadius,
+      },
+    },
   });
 
   const { buttonContainer, button, buttonText } = responsiveStyles ?? {};

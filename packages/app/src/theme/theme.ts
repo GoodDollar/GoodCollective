@@ -106,6 +106,31 @@ export const nbTheme = extendTheme({
           fontWeight: 700,
           lineHeight: '150%' /* 30px */,
         }),
+
+        'section-heading': () => ({
+          fontSize: 'md',
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          color: 'gray.700',
+        }),
+        'label-uppercase': () => ({
+          fontSize: 'sm',
+          fontWeight: 600,
+          textTransform: 'uppercase',
+        }),
+        // common body/caption text variants
+        'body-secondary': () => ({
+          fontSize: 'sm',
+          color: 'gray.500',
+        }),
+        'body-muted': () => ({
+          fontSize: 'sm',
+          color: 'gray.600',
+        }),
+        'caption-secondary': () => ({
+          fontSize: 'xs',
+          color: 'gray.500',
+        }),
         // title/heading fontsize variants
         '2xs-grey': () => ({
           fontSize: 10,
@@ -130,6 +155,27 @@ export const nbTheme = extendTheme({
         }),
         '3xl-grey': () => ({
           fontSize: 30,
+        }),
+        // Body text variants
+        'body-text': () => ({
+          fontSize: 16,
+          lineHeight: 24,
+          fontFamily: 'Inter',
+          fontWeight: 400,
+        }),
+      },
+    },
+    Input: {
+      variants: {
+        'form-input-error': () => ({
+          height: 12,
+          borderWidth: 2,
+          borderStyle: 'dotted',
+          borderColor: 'goodRed.800',
+          borderRadius: 8,
+          paddingHorizontal: 16,
+          fontSize: 18,
+          backgroundColor: 'white',
         }),
       },
     },
