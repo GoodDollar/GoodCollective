@@ -239,18 +239,7 @@ const ReviewLaunch = () => {
                 {form.maximumMembers}
               </Text>
             </InfoItem>
-            <InfoItem label="Pool Recipients">
-              <TextArea
-                width="full"
-                h={20}
-                placeholder="Pool recipients addresses"
-                autoCompleteType={undefined}
-                value={form.poolRecipients}
-                isReadOnly
-                backgroundColor="gray.50"
-                borderColor="gray.200"
-              />
-            </InfoItem>
+
             <VStack space={3}>
               <StatRow label="Manager Fee" value={`${form.managerFeePercentage}%`} />
               <StatRow label="Claim Frequency" value={claimFrequencyLabel} />

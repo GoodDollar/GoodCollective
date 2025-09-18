@@ -3,22 +3,17 @@ import { Box, FormControl, Input, Radio, Text, VStack, WarningOutlineIcon } from
 interface MembersSectionProps {
   maximumMembers: number;
   setMaximumMembers: (value: number) => void;
-  poolRecipients: string;
-  setPoolRecipients: (value: string) => void;
   joinStatus: 'closed' | 'open';
   setJoinStatus: (value: 'closed' | 'open') => void;
   onValidate: () => void;
   errors: {
     maximumMembers?: string;
-    poolRecipients?: string;
   };
 }
 
 const MembersSection = ({
   maximumMembers,
   setMaximumMembers,
-  poolRecipients,
-  setPoolRecipients,
   joinStatus,
   setJoinStatus,
   onValidate,
@@ -60,7 +55,7 @@ const MembersSection = ({
           />
           <FormControl.HelperText>
             <Text fontSize="xs" color="gray.600">
-              The number of addresses you enter below should match this maximum number.
+              Set how many members can receive funds from this pool.
             </Text>
           </FormControl.HelperText>
           <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
@@ -69,32 +64,8 @@ const MembersSection = ({
         </FormControl>
       </Box>
 
-      {/* Pool Recipients and Join Status */}
+      {/* Join Status */}
       <VStack space={4} padding={4} backgroundColor="white" borderWidth={1} borderColor="gray.200" borderRadius={8}>
-        <FormControl mb="4" isRequired={joinStatus === 'closed'} isInvalid={!!errors.poolRecipients}>
-          <FormControl.Label>
-            <Text variant="form-label">Pool Recipients</Text>
-          </FormControl.Label>
-          <FormControl.HelperText>
-            <Text fontSize="xs" color="gray.500">
-              {joinStatus === 'closed'
-                ? 'Enter wallet addresses of people who can receive funds. At least one address is required when pool is closed for new members. Separate multiple addresses with commas.'
-                : 'Enter wallet addresses of people who can receive funds. Separate multiple addresses with commas.'}
-            </Text>
-          </FormControl.HelperText>
-          <Input
-            value={poolRecipients}
-            onChangeText={setPoolRecipients}
-            onBlur={onValidate}
-            placeholder="0x1234...,0x5678...,0x9abc..."
-            multiline
-            numberOfLines={3}
-          />
-          <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-            {errors.poolRecipients}
-          </FormControl.ErrorMessage>
-        </FormControl>
-
         <FormControl>
           <FormControl.Label>
             <Text variant="form-label">New members after launch</Text>

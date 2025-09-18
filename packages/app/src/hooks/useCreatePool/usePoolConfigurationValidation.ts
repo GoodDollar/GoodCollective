@@ -2,7 +2,6 @@ import { useState } from 'react';
 
 export type FormError = {
   maximumMembers?: string;
-  poolRecipients?: string;
   joinStatus?: string;
   custom?: string;
   claimAmountPerWeek?: string;
@@ -12,7 +11,7 @@ export type FormError = {
 };
 
 export type PoolConfigurationFormData = {
-  poolRecipients: string;
+  poolRecipients?: string;
   maximumMembers: number;
   claimFrequency: 1 | 7 | 14 | 30 | number;
   customClaimFrequency: number;
@@ -31,7 +30,6 @@ export const usePoolConfigurationValidation = () => {
     let pass = true;
 
     const {
-      poolRecipients,
       maximumMembers,
       claimFrequency,
       customClaimFrequency,
@@ -39,41 +37,7 @@ export const usePoolConfigurationValidation = () => {
       expectedMembers,
       poolManagerFeeType,
       managerFeePercentage,
-      joinStatus,
     } = formData;
-
-    // Validate pool recipients
-    const addresses = poolRecipients
-      .split(',')
-      .map((addr) => addr.replace(/\s+/g, '').trim()) // Remove all whitespace chars
-      .filter((addr) => addr.length > 0); // Remove empty strings
-
-    // If join status is closed, pool recipients are required
-    if (joinStatus === 'closed') {
-      if (addresses.length === 0) {
-        currErrors.poolRecipients = 'At least one recipient address is required when pool is closed for new members.';
-        pass = false;
-      }
-    }
-
-    // If pool recipients are provided, validate them
-    if (addresses.length > 0) {
-      const validAddressRegex = /^0x[a-fA-F0-9]{40}$/;
-
-      for (const addr of addresses) {
-        if (!validAddressRegex.test(addr)) {
-          currErrors.poolRecipients = `Invalid address format: "${addr}". Please use valid Ethereum addresses.`;
-          pass = false;
-          break;
-        }
-      }
-
-      // Check if number of addresses matches maximum members (only if recipients are provided)
-      if (addresses.length !== maximumMembers) {
-        currErrors.poolRecipients = `Number of addresses (${addresses.length}) must match maximum members (${maximumMembers})`;
-        pass = false;
-      }
-    }
 
     // Validate maximum members
     if (maximumMembers < 1 || maximumMembers > 1000) {

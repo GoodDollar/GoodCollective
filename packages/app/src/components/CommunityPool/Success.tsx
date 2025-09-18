@@ -287,6 +287,12 @@ const SuccessModal = ({
               <Text maxW="1/2" fontSize="md" fontWeight="700" textTransform="uppercase">
                 Now it's time to fund your GoodCollective!
               </Text>
+              <Text fontSize="sm" color="gray.700" textAlign="center">
+                Learn about how to add members to your pool here:{' '}
+                <a href="#" target="_blank" rel="noopener noreferrer">
+                  Read the guide
+                </a>
+              </Text>
               <Box width="full">
                 <ActionButton
                   text={buttonText}

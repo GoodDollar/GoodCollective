@@ -111,14 +111,11 @@ const PoolConfiguration = () => {
       <MembersSection
         maximumMembers={maximumMembers}
         setMaximumMembers={setMaximumMembers}
-        poolRecipients={poolRecipients}
-        setPoolRecipients={setPoolRecipients}
         joinStatus={joinStatus}
         setJoinStatus={setJoinStatus}
         onValidate={handleValidate}
         errors={{
           maximumMembers: errors.maximumMembers,
-          poolRecipients: errors.poolRecipients,
         }}
       />
 
