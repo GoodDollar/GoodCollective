@@ -122,6 +122,7 @@ const SelectType = () => {
                       <Checkbox
                         value="true"
                         isChecked={form.poolType === poolType.id}
+                        onChange={() => handlePoolTypeSelect(poolType.id)}
                         style={selectCollectiveTypeStyles.checkbox}
                         aria-label={`Select ${poolType.name} pool type`}
                         _checked={{ bg: 'goodPurple.400', borderColor: 'goodPurple.400' }}
