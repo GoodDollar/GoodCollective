@@ -210,8 +210,23 @@ const SuccessModal = ({
                   Share Project Link
                 </Text>
                 {!!collectiveAddress && (
-                  <HStack space={2} alignItems="center">
-                    <Text fontSize="xs" color="gray.700" maxW="64" numberOfLines={1} ellipsizeMode="middle">
+                  <HStack
+                    space={2}
+                    alignItems="center"
+                    backgroundColor="white"
+                    borderRadius={8}
+                    borderWidth={1}
+                    borderColor="goodPurple.400"
+                    paddingY={2}
+                    paddingX={3}
+                    maxW="80%">
+                    <Text
+                      fontSize="xs"
+                      color="gray.700"
+                      maxW="64"
+                      numberOfLines={1}
+                      ellipsizeMode="middle"
+                      flexShrink={1}>
                       {collectiveUrl as string}
                     </Text>
                     <Pressable
@@ -224,9 +239,11 @@ const SuccessModal = ({
                           // no-op
                         }
                       }}>
-                      <Text fontSize="xs" color="goodPurple.600" underline>
-                        Copy
-                      </Text>
+                      <Box backgroundColor="goodPurple.500" borderRadius={6} paddingX={2} paddingY={1}>
+                        <Text fontSize="xs" color="white">
+                          Copy
+                        </Text>
+                      </Box>
                     </Pressable>
                   </HStack>
                 )}
