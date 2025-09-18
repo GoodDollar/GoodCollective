@@ -82,6 +82,12 @@ const HomePage = () => {
   const { navigate } = useCrossNavigate();
   const [showWarningMessage, setShowWarningMessage] = useState(false);
 
+  const isDevHost = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    const hostname = window.location.hostname || '';
+    return hostname === 'localhost' || hostname.endsWith('.vercel.app');
+  }, []);
+
   const formattedStats = useMemo(() => {
     if (!totalStats) return [];
 
@@ -230,12 +236,14 @@ const HomePage = () => {
                     textColor="goodGreen.400"
                     onPress={scrollToCollectives}
                   />
-                  <ActionButton
-                    text="Create a GoodCollective"
-                    bg="goodPurple.100"
-                    textColor="goodPurple.400"
-                    onPress={redirectToCreateCollective}
-                  />
+                  {isDevHost && (
+                    <ActionButton
+                      text="Create a GoodCollective"
+                      bg="goodPurple.100"
+                      textColor="goodPurple.400"
+                      onPress={redirectToCreateCollective}
+                    />
+                  )}
                 </HStack>
                 {showWarningMessage && (
                   <VStack space={3} marginTop={4} maxWidth="600px" alignSelf="center">

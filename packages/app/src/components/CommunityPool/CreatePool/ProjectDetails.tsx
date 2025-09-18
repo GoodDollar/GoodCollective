@@ -180,6 +180,14 @@ const ProjectDetails = () => {
           />
         ))}
 
+        {showWarning && !!errors.social && (
+          <FormControl isInvalid>
+            <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+              {errors.social}
+            </FormControl.ErrorMessage>
+          </FormControl>
+        )}
+
         <Text style={styles.sectionTitle} mt={6} mb={2}>
           Project Owner Details
         </Text>
