@@ -111,10 +111,10 @@ Typescript sdk to interact with the contracts
 packages/sdk-js/
 ```
 
+## Contributions
+Everyone is welcome: Developers, designers, and entrepreneurs with a passion for decentralised technologies and a vision to build a new world that has equality, security, inclusivity, and innovation as its cornerstones.
+To learn how to contribute, and the various open-source contributors opportunities, see our [contribution guidelines](https://github.com/GoodDollar/.github/blob/master/CONTRIBUTING.md)
+
 ## 💬 Support Chat
 
-Join the telegram [support chat 💬](https://t.me/gooddollarbounties) to ask questions and find others building with GoodDollar and GoodCollective
-
-### 🙏🏽 Support us!
-
-Please check out our ...
+Join the telegram [GoodBuilders Chat](https://t.me/gooddollarbounties) to ask questions and find others building with GoodDollar and GoodCollective
