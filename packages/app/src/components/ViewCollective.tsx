@@ -279,9 +279,9 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                       poolAddress={poolAddress as `0x${string}`}
                       poolType={pooltype}
                       poolName={ipfs?.name}
-                      onSuccess={() => {
-                        // Refetch membership status
-                        window.location.reload();
+                      onSuccess={async () => {
+                        // Refetch membership status without reloading the page
+                        await refetchMembership();
                       }}
                     />
                   )}
@@ -432,9 +432,9 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 poolAddress={poolAddress as `0x${string}`}
                 poolType={pooltype}
                 poolName={ipfs?.name}
-                onSuccess={() => {
-                  // Refetch membership status
-                  window.location.reload();
+                onSuccess={async () => {
+                  // Refetch membership status without reloading the page
+                  await refetchMembership();
                 }}
               />
             </View>
