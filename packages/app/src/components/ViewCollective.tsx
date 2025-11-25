@@ -43,6 +43,10 @@ import { styles as walletCardStyles } from '../components/WalletCards/styles';
 import { formatFlowRate } from '../lib/formatFlowRate';
 import { StopDonationActionButton } from './StopDonationActionButton';
 import BannerPool from './BannerPool';
+import { JoinPoolButton } from './JoinPoolButton';
+import { ClaimRewardButton } from './ClaimRewardButton';
+import { usePoolMembership } from '../hooks/usePoolMembership';
+import { usePoolOpenStatus } from '../hooks/usePoolOpenStatus';
 
 const HasDonatedCard = ({
   donorCollective,
@@ -210,6 +214,10 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const { price: tokenPrice } = useGetTokenPrice('G$');
   const { stats } = useRealtimeStats(poolAddress);
 
+  // Check pool membership and open status
+  const { isMember, refetch: refetchMembership } = usePoolMembership(poolAddress as `0x${string}` | undefined);
+  const isPoolOpen = usePoolOpenStatus(poolAddress, pooltype);
+
   const { wei: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateGoodDollarAmounts(
     totalRewards,
     tokenPrice,
@@ -265,6 +273,34 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               </View>
               {maybeDonorCollective && maybeDonorCollective.flowRate !== '0' ? null : (
                 <View style={styles.collectiveDonateBox}>
+                  {/* Join Pool Button - show if pool is open and user is not a member (only for UBI pools) */}
+                  {isPoolOpen && !isMember && address && pooltype === 'UBI' && (
+                    <JoinPoolButton
+                      poolAddress={poolAddress as `0x${string}`}
+                      poolType={pooltype}
+                      poolName={ipfs?.name}
+                      onSuccess={() => {
+                        // Refetch membership status
+                        window.location.reload();
+                      }}
+                    />
+                  )}
+                  {/* Claim Reward Button - show if user is a member (only for UBI pools) */}
+                  {isMember && address && pooltype === 'UBI' && (
+                    <ClaimRewardButton
+                      poolAddress={poolAddress as `0x${string}`}
+                      poolType={pooltype}
+                      poolName={ipfs?.name}
+                      onSuccess={async () => {
+                        // Refetch membership and reward status
+                        await refetchMembership();
+                        // Small delay to allow contract state to update
+                        setTimeout(() => {
+                          refetchMembership();
+                        }, 2000);
+                      }}
+                    />
+                  )}
                   <RoundedButton
                     title="Donate"
                     backgroundColor={Colors.green[100]}
@@ -388,6 +424,39 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             <Image source={InfoIcon} style={styles.infoIcon} />
             <Text style={styles.informationLabel}>{infoLabel}</Text>
           </View>
+
+          {/* Join Pool Button - show if pool is open and user is not a member (only for UBI pools) */}
+          {isPoolOpen && !isMember && address && pooltype === 'UBI' && (
+            <View style={{ marginBottom: 16 }}>
+              <JoinPoolButton
+                poolAddress={poolAddress as `0x${string}`}
+                poolType={pooltype}
+                poolName={ipfs?.name}
+                onSuccess={() => {
+                  // Refetch membership status
+                  window.location.reload();
+                }}
+              />
+            </View>
+          )}
+          {/* Claim Reward Button - show if user is a member (only for UBI pools) */}
+          {isMember && address && pooltype === 'UBI' && (
+            <View style={{ marginBottom: 16 }}>
+              <ClaimRewardButton
+                poolAddress={poolAddress as `0x${string}`}
+                poolType={pooltype}
+                poolName={ipfs?.name}
+                onSuccess={async () => {
+                  // Refetch membership and reward status
+                  await refetchMembership();
+                  // Small delay to allow contract state to update
+                  setTimeout(() => {
+                    refetchMembership();
+                  }, 2000);
+                }}
+              />
+            </View>
+          )}
 
           <View style={styles.rowContainer}>
             <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />

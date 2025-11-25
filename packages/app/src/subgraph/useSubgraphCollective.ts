@@ -50,6 +50,16 @@ export const collectivesById = gql`
       totalRewards
       settings {
         rewardToken
+        membersValidator
+      }
+      ubiLimits {
+        onlyMembers
+        claimPeriodDays
+        cycleLengthDays
+        minActiveUsers
+        claimForEnabled
+        maxClaimAmount
+        maxClaimers
       }
     }
   }

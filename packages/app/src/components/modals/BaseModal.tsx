@@ -105,7 +105,7 @@ export const BaseModal = ({
           {withClose ? (
             <VStack width="100%" alignContent="flex-end">
               <Pressable w={8} h={8} alignSelf="flex-end" onPress={_onClose}>
-                <Image source={CloseIcon} width={8} height={8} alignSelf="flex-end" />
+                <Image source={CloseIcon} width={8} height={8} alignSelf="flex-end" alt="Close" />
               </Pressable>
             </VStack>
           ) : null}
@@ -125,7 +125,16 @@ export const BaseModal = ({
                   )
                 : null}
             </VStack>
-            <Image source={dImage} alt="woman" width={'100%'} height={210} margin="auto" resizeMode="contain" />
+            {dImage && (
+              <Image
+                source={dImage}
+                alt={dTitle || 'Modal image'}
+                width={'100%'}
+                height={210}
+                margin="auto"
+                resizeMode="contain"
+              />
+            )}
             {dMessage && (
               <Text variant="bold" fontSize="sm" textAlign="center">
                 {message}
