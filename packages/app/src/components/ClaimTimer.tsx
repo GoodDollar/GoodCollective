@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, VStack } from 'native-base';
+import moment from 'moment';
 import { formatTime } from '../lib/formatTime';
 
 interface ClaimTimerProps {
@@ -11,7 +12,7 @@ export const ClaimTimer: React.FC<ClaimTimerProps> = ({ nextClaimTime }) => {
 
   useEffect(() => {
     const updateTimer = () => {
-      const now = Math.floor(Date.now() / 1000);
+      const now = moment().unix();
       const remaining = Math.max(0, nextClaimTime - now);
       setTimeRemaining(remaining);
     };

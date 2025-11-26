@@ -1,16 +1,12 @@
 import { useAccount, useWriteContract, useSimulateContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useCallback } from 'react';
+import GoodCollectiveContracts from '../../../contracts/releases/deployment.json';
+import env from '../lib/env';
 
-// ABI for claiming UBI rewards
-const UBI_POOL_CLAIM_ABI = [
-  {
-    inputs: [],
-    name: 'claim',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-] as const;
+const networkName = env.REACT_APP_NETWORK || 'development-celo';
+const UBI_POOL_CLAIM_ABI =
+  (GoodCollectiveContracts as any)['42220']?.find((envs: any) => envs.name === networkName)?.contracts.UBIPool?.abi ||
+  [];
 
 export function useClaimReward(poolAddress: `0x${string}` | undefined, poolType: string | undefined) {
   const { address, chain } = useAccount();

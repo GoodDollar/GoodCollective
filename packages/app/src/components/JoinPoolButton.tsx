@@ -5,7 +5,8 @@ import RoundedButton from './RoundedButton';
 import { Colors } from '../utils/colors';
 import { useJoinPool } from '../hooks/useJoinPool';
 import BaseModal from './modals/BaseModal';
-import { ApproveTokenImg, PhoneImg, ThankYouImg } from '../assets';
+import ProcessingModal from './modals/ProcessingModal';
+import { PhoneImg, ThankYouImg } from '../assets';
 
 interface JoinPoolButtonProps {
   poolAddress: `0x${string}`;
@@ -78,14 +79,7 @@ export const JoinPoolButton: React.FC<JoinPoolButtonProps> = ({ poolAddress, poo
         image={PhoneImg}
         confirmButtonText="JOIN"
       />
-      <BaseModal
-        openModal={showProcessingModal}
-        onClose={() => {}}
-        title="PROCESSING"
-        paragraphs={['Please wait while we process your request...']}
-        image={ApproveTokenImg}
-        withClose={false}
-      />
+      <ProcessingModal openModal={showProcessingModal} />
       <BaseModal
         openModal={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}

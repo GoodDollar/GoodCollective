@@ -1,20 +1,19 @@
-import { StyleSheet, Image } from 'react-native';
-import { Link, useBreakpointValue, Text, View, VStack } from 'native-base';
+import { Link, Text, useBreakpointValue, View, VStack } from 'native-base';
+import { useEffect, useState } from 'react';
+import { Image, StyleSheet } from 'react-native';
 import { useAccount, useEnsName } from 'wagmi';
 
-import RowItem from './RowItem';
+import useCrossNavigate from '../routes/useCrossNavigate';
+import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import RoundedButton from './RoundedButton';
+import RowItem from './RowItem';
 import StewardList from './StewardsList/StewardsList';
 import TransactionList from './TransactionList/TransactionList';
-import { InterSemiBold, InterSmall } from '../utils/webFonts';
-import useCrossNavigate from '../routes/useCrossNavigate';
 
-import { Colors } from '../utils/colors';
 import { useScreenSize } from '../theme/hooks';
+import { Colors } from '../utils/colors';
 
-import { formatTime } from '../lib/formatTime';
-import { Collective, DonorCollective } from '../models/models';
-import { useDonorCollectiveByAddresses, useGetTokenPrice } from '../hooks';
+import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
 import {
   AtIcon,
   CalendarIcon,
@@ -31,22 +30,32 @@ import {
   TwitterIcon,
   WebIcon,
 } from '../assets/';
-import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
-import FlowingDonationsRowItem from './FlowingDonationsRowItem';
-import { defaultInfoLabel, GDToken, SUBGRAPH_POLL_INTERVAL } from '../models/constants';
-import env from '../lib/env';
-import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
-import { useFlowingBalance } from '../hooks/useFlowingBalance';
-import { useRealtimeStats } from '../hooks/useRealtimeStats';
-import { GoodDollarAmount } from './GoodDollarAmount';
 import { styles as walletCardStyles } from '../components/WalletCards/styles';
-import { formatFlowRate } from '../lib/formatFlowRate';
-import { StopDonationActionButton } from './StopDonationActionButton';
-import BannerPool from './BannerPool';
-import { JoinPoolButton } from './JoinPoolButton';
-import { ClaimRewardButton } from './ClaimRewardButton';
+import { useDonorCollectiveByAddresses, useGetTokenPrice } from '../hooks';
+import { useEthersProvider } from '../hooks/useEthers';
+import { useFlowingBalance } from '../hooks/useFlowingBalance';
+import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
 import { usePoolMembership } from '../hooks/usePoolMembership';
 import { usePoolOpenStatus } from '../hooks/usePoolOpenStatus';
+import { useRealtimeStats } from '../hooks/useRealtimeStats';
+import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
+import env from '../lib/env';
+import { formatFlowRate } from '../lib/formatFlowRate';
+import { formatTime } from '../lib/formatTime';
+import {
+  defaultInfoLabel,
+  GDToken,
+  SUBGRAPH_POLL_INTERVAL,
+  SupportedNetwork,
+  SupportedNetworkNames,
+} from '../models/constants';
+import { Collective, DonorCollective } from '../models/models';
+import BannerPool from './BannerPool';
+import { ClaimRewardButton } from './ClaimRewardButton';
+import FlowingDonationsRowItem from './FlowingDonationsRowItem';
+import { GoodDollarAmount } from './GoodDollarAmount';
+import { JoinPoolButton } from './JoinPoolButton';
+import { StopDonationActionButton } from './StopDonationActionButton';
 
 const HasDonatedCard = ({
   donorCollective,
@@ -208,8 +217,61 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const stewardsPaid = stewardCollectives.length;
   const infoLabel = collective.ipfs.rewardDescription ?? defaultInfoLabel;
 
-  const { address } = useAccount();
+  const { address, chain } = useAccount();
   const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress, SUBGRAPH_POLL_INTERVAL);
+
+  const chainId = chain?.id ?? SupportedNetwork.CELO;
+  const provider = useEthersProvider({ chainId });
+
+  const [memberPoolData, setMemberPoolData] = useState<{
+    eligibleAmount: bigint;
+    hasClaimed: boolean;
+    nextClaimTime?: number;
+    claimPeriodDays?: number;
+    onlyMembers?: boolean | Promise<boolean>;
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchMemberPools = async () => {
+      if (!address || !poolAddress || pooltype !== 'UBI' || !provider) {
+        setMemberPoolData(null);
+        return;
+      }
+      try {
+        const network = SupportedNetworkNames[chainId as SupportedNetwork];
+        const sdk = new GoodCollectiveSDK(chainId.toString() as any, provider, { network });
+        const pools = await sdk.getMemberUBIPools(address);
+        const currentPool = pools.find((pool: any) => pool.contract.toLowerCase() === poolAddress.toLowerCase());
+        if (!currentPool) {
+          setMemberPoolData(null);
+          return;
+        }
+
+        const claimAmountStr = currentPool.claimAmount?.toString?.() ?? '0';
+        const nextClaimTimeStr = currentPool.nextClaimTime?.toString?.();
+        const claimPeriodDaysRaw = currentPool.ubiSettings?.claimPeriodDays;
+        const onlyMembersRaw = currentPool.ubiSettings?.onlyMembers;
+
+        const eligibleAmount = BigInt(claimAmountStr || '0');
+        const hasClaimed = eligibleAmount === 0n;
+
+        setMemberPoolData({
+          eligibleAmount,
+          hasClaimed,
+          nextClaimTime: nextClaimTimeStr ? Number(nextClaimTimeStr) : undefined,
+          claimPeriodDays: claimPeriodDaysRaw !== undefined ? Number(claimPeriodDaysRaw) : undefined,
+          // `onlyMembers` from the SDK is typed as PromiseOrValue<boolean>, but in practice is a boolean.
+          // Cast to the expected boolean | undefined shape for local state.
+          onlyMembers: onlyMembersRaw as boolean | undefined,
+        });
+      } catch (e) {
+        // If SDK call fails, gracefully fall back to null so UI can still render
+        setMemberPoolData(null);
+      }
+    };
+
+    fetchMemberPools();
+  }, [address, poolAddress, pooltype, provider, chainId]);
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
   const { stats } = useRealtimeStats(poolAddress);
@@ -291,6 +353,10 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                       poolAddress={poolAddress as `0x${string}`}
                       poolType={pooltype}
                       poolName={ipfs?.name}
+                      eligibleAmount={memberPoolData?.eligibleAmount}
+                      hasClaimed={memberPoolData?.hasClaimed}
+                      nextClaimTime={memberPoolData?.nextClaimTime}
+                      claimPeriodDays={memberPoolData?.claimPeriodDays}
                       onSuccess={async () => {
                         // Refetch membership and reward status
                         await refetchMembership();
@@ -446,6 +512,10 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 poolAddress={poolAddress as `0x${string}`}
                 poolType={pooltype}
                 poolName={ipfs?.name}
+                eligibleAmount={memberPoolData?.eligibleAmount}
+                hasClaimed={memberPoolData?.hasClaimed}
+                nextClaimTime={memberPoolData?.nextClaimTime}
+                claimPeriodDays={memberPoolData?.claimPeriodDays}
                 onSuccess={async () => {
                   // Refetch membership and reward status
                   await refetchMembership();

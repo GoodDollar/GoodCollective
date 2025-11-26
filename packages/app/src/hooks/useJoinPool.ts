@@ -1,19 +1,12 @@
 import { useAccount, useWriteContract, useSimulateContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useCallback } from 'react';
+import GoodCollectiveContracts from '../../../contracts/releases/deployment.json';
+import env from '../lib/env';
 
-// ABI for joining a UBI pool
-const UBI_POOL_ABI = [
-  {
-    inputs: [
-      { name: 'member', type: 'address', internalType: 'address' },
-      { name: 'extraData', type: 'bytes', internalType: 'bytes' },
-    ],
-    name: 'addMember',
-    outputs: [{ name: 'isMember', type: 'bool', internalType: 'bool' }],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-] as const;
+const networkName = env.REACT_APP_NETWORK || 'development-celo';
+const UBI_POOL_ABI =
+  (GoodCollectiveContracts as any)['42220']?.find((envs: any) => envs.name === networkName)?.contracts.UBIPool?.abi ||
+  [];
 
 export function useJoinPool(poolAddress: `0x${string}` | undefined, poolType?: string) {
   const { address, chain } = useAccount();

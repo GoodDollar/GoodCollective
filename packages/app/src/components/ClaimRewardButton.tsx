@@ -4,9 +4,9 @@ import { useAccount } from 'wagmi';
 import RoundedButton from './RoundedButton';
 import { Colors } from '../utils/colors';
 import { useClaimReward } from '../hooks/useClaimReward';
-import { usePoolRewards } from '../hooks/usePoolRewards';
 import BaseModal from './modals/BaseModal';
-import { ApproveTokenImg, PhoneImg, ThankYouImg } from '../assets';
+import ProcessingModal from './modals/ProcessingModal';
+import { PhoneImg, ThankYouImg } from '../assets';
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 import { useGetTokenPrice } from '../hooks';
 import { ClaimTimer } from './ClaimTimer';
@@ -18,12 +18,24 @@ interface ClaimRewardButtonProps {
   poolType: string;
   poolName?: string;
   onSuccess?: () => void;
+  eligibleAmount?: bigint;
+  hasClaimed?: boolean;
+  nextClaimTime?: number;
+  claimPeriodDays?: number;
 }
 
-export const ClaimRewardButton: React.FC<ClaimRewardButtonProps> = ({ poolAddress, poolType, poolName, onSuccess }) => {
+export const ClaimRewardButton: React.FC<ClaimRewardButtonProps> = ({
+  poolAddress,
+  poolType,
+  poolName,
+  onSuccess,
+  eligibleAmount = 0n,
+  hasClaimed = false,
+  nextClaimTime,
+  claimPeriodDays,
+}) => {
   const { address } = useAccount();
   const { claimReward, isConfirming, isSuccess, isError, error } = useClaimReward(poolAddress, poolType);
-  const { eligibleAmount, hasClaimed, nextClaimTime, claimPeriodDays } = usePoolRewards(poolAddress, poolType);
   const { price: tokenPrice } = useGetTokenPrice('G$');
   const [status, setStatus] = useState<ClaimStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
@@ -97,14 +109,7 @@ export const ClaimRewardButton: React.FC<ClaimRewardButtonProps> = ({ poolAddres
         image={PhoneImg}
         confirmButtonText="CLAIM"
       />
-      <BaseModal
-        openModal={status === 'processing'}
-        onClose={() => {}}
-        title="PROCESSING"
-        paragraphs={['Please wait while we process your claim...']}
-        image={ApproveTokenImg}
-        withClose={false}
-      />
+      <ProcessingModal openModal={status === 'processing'} />
       <BaseModal
         openModal={status === 'success'}
         onClose={() => setStatus('idle')}
