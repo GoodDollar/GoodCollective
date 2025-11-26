@@ -11,6 +11,8 @@ import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 import { useGetTokenPrice } from '../hooks';
 import { ClaimTimer } from './ClaimTimer';
 
+type ClaimStatus = 'idle' | 'confirm' | 'processing' | 'success' | 'error';
+
 interface ClaimRewardButtonProps {
   poolAddress: `0x${string}`;
   poolType: string;
@@ -23,42 +25,42 @@ export const ClaimRewardButton: React.FC<ClaimRewardButtonProps> = ({ poolAddres
   const { claimReward, isConfirming, isSuccess, isError, error } = useClaimReward(poolAddress, poolType);
   const { eligibleAmount, hasClaimed, nextClaimTime, claimPeriodDays } = usePoolRewards(poolAddress, poolType);
   const { price: tokenPrice } = useGetTokenPrice('G$');
-  const [showClaimModal, setShowClaimModal] = useState(false);
-  const [showProcessingModal, setShowProcessingModal] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [status, setStatus] = useState<ClaimStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
 
   const { wei: formattedAmount } = calculateGoodDollarAmounts(eligibleAmount.toString(), tokenPrice, 2);
 
   const handleClaimClick = () => {
-    setShowClaimModal(true);
+    setStatus('confirm');
   };
 
   const handleConfirmClaim = async () => {
-    setShowClaimModal(false);
-    setShowProcessingModal(true);
+    setStatus('processing');
     try {
       await claimReward();
+      // success is handled by useEffect listening to isSuccess
     } catch (err) {
-      setShowProcessingModal(false);
+      // Only handle truly unexpected errors here
       const message = err instanceof Error ? err.message : 'Failed to claim reward';
       setErrorMessage(message);
+      setStatus('error');
     }
   };
 
+  // Handle success state from hook
   useEffect(() => {
     if (isSuccess && !isConfirming) {
-      setShowProcessingModal(false);
-      setShowSuccessModal(true);
+      setStatus('success');
       onSuccess?.();
     }
   }, [isSuccess, isConfirming, onSuccess]);
 
+  // Handle error state from hook
   useEffect(() => {
     if (isError && error) {
-      setShowProcessingModal(false);
       const message = error.message || 'Failed to claim reward';
       setErrorMessage(message);
+      setStatus('error');
     }
   }, [isError, error]);
 
@@ -82,8 +84,8 @@ export const ClaimRewardButton: React.FC<ClaimRewardButtonProps> = ({ poolAddres
         onPress={handleClaimClick}
       />
       <BaseModal
-        openModal={showClaimModal}
-        onClose={() => setShowClaimModal(false)}
+        openModal={status === 'confirm'}
+        onClose={() => setStatus('idle')}
         onConfirm={handleConfirmClaim}
         title="CLAIM REWARD"
         paragraphs={[
@@ -96,7 +98,7 @@ export const ClaimRewardButton: React.FC<ClaimRewardButtonProps> = ({ poolAddres
         confirmButtonText="CLAIM"
       />
       <BaseModal
-        openModal={showProcessingModal}
+        openModal={status === 'processing'}
         onClose={() => {}}
         title="PROCESSING"
         paragraphs={['Please wait while we process your claim...']}
@@ -104,9 +106,9 @@ export const ClaimRewardButton: React.FC<ClaimRewardButtonProps> = ({ poolAddres
         withClose={false}
       />
       <BaseModal
-        openModal={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        onConfirm={() => setShowSuccessModal(false)}
+        openModal={status === 'success'}
+        onClose={() => setStatus('idle')}
+        onConfirm={() => setStatus('idle')}
         title="SUCCESS!"
         paragraphs={[`You have successfully claimed your reward from ${poolName || 'the pool'}!`]}
         image={ThankYouImg}
@@ -114,9 +116,15 @@ export const ClaimRewardButton: React.FC<ClaimRewardButtonProps> = ({ poolAddres
       />
       <BaseModal
         type="error"
-        openModal={!!errorMessage}
-        onClose={() => setErrorMessage(undefined)}
-        onConfirm={() => setErrorMessage(undefined)}
+        openModal={status === 'error'}
+        onClose={() => {
+          setErrorMessage(undefined);
+          setStatus('idle');
+        }}
+        onConfirm={() => {
+          setErrorMessage(undefined);
+          setStatus('idle');
+        }}
         errorMessage={errorMessage ?? ''}
       />
     </View>
