@@ -8,7 +8,5 @@ export * from './useIsStewardVerified';
 export * from './useEthers';
 export * from './useTotalStats';
 export * from './useCollectiveFees';
-export * from './usePoolMembership';
 export * from './useJoinPool';
 export * from './useClaimReward';
-export * from './usePoolOpenStatus';
