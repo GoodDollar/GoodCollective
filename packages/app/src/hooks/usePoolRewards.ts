@@ -43,18 +43,26 @@ const UBI_POOL_ABI = [
 export function usePoolRewards(poolAddress: `0x${string}` | undefined, poolType: string | undefined) {
   const { address, chain } = useAccount();
 
-  // Check if pool is open (only for UBI pools)
+  // Factor shared enabled conditions
+  const isUBIPool = poolType === 'UBI';
+  const hasPoolAddress = !!poolAddress;
+  const hasAddress = !!address;
+
+  const enabledUBI = hasPoolAddress && isUBIPool;
+  const enabledUBIWithAddress = enabledUBI && hasAddress;
+
+  // Get UBI settings (only for UBI pools)
   const { data: ubiSettings } = useReadContract({
     chainId: chain?.id,
     address: poolAddress,
     abi: UBI_POOL_ABI,
     functionName: 'ubiSettings',
     query: {
-      enabled: !!poolAddress && poolType === 'UBI',
+      enabled: enabledUBI,
     },
   });
 
-  // Get eligible reward amount (only for UBI pools)
+  // Get eligible reward amount (only for UBI pools with address)
   const { data: eligibleAmount } = useReadContract({
     chainId: chain?.id,
     address: poolAddress,
@@ -62,11 +70,11 @@ export function usePoolRewards(poolAddress: `0x${string}` | undefined, poolType:
     functionName: 'checkEntitlement',
     args: [address as `0x${string}`],
     query: {
-      enabled: !!poolAddress && !!address && poolType === 'UBI',
+      enabled: enabledUBIWithAddress,
     },
   });
 
-  // Check if already claimed (only for UBI pools)
+  // Check if already claimed (only for UBI pools with address)
   const { data: hasClaimed } = useReadContract({
     chainId: chain?.id,
     address: poolAddress,
@@ -74,7 +82,7 @@ export function usePoolRewards(poolAddress: `0x${string}` | undefined, poolType:
     functionName: 'hasClaimed',
     args: [address as `0x${string}`],
     query: {
-      enabled: !!poolAddress && !!address && poolType === 'UBI',
+      enabled: enabledUBIWithAddress,
     },
   });
 
@@ -85,18 +93,19 @@ export function usePoolRewards(poolAddress: `0x${string}` | undefined, poolType:
     abi: UBI_POOL_ABI,
     functionName: 'nextClaimTime',
     query: {
-      enabled: !!poolAddress && poolType === 'UBI',
+      enabled: enabledUBI,
     },
   });
 
-  const isPoolOpen = useMemo(() => {
-    if (poolType === 'UBI') {
-      return ubiSettings ? !ubiSettings[6] : undefined; // onlyMembers is at index 6
-    }
-    // For DirectPayments pools, we'll need to check membersValidator from subgraph
-    // For now, return undefined and we'll handle it in the component
-    return undefined;
-  }, [poolType, ubiSettings]);
+  // Extract onlyMembers from ubiSettings (index 6)
+  const ubiOnlyMembers = ubiSettings ? ubiSettings[6] : undefined;
+
+  // Thin derivation of isPoolOpen for backward compatibility
+  // Prefer usePoolOpenStatus as the single source of truth
+  const isPoolOpen = useMemo(
+    () => (poolType === 'UBI' ? (ubiOnlyMembers === undefined ? undefined : !ubiOnlyMembers) : undefined),
+    [poolType, ubiOnlyMembers]
+  );
 
   return {
     isPoolOpen,
@@ -104,5 +113,6 @@ export function usePoolRewards(poolAddress: `0x${string}` | undefined, poolType:
     hasClaimed: hasClaimed ?? false,
     nextClaimTime: nextClaimTime ? Number(BigInt(nextClaimTime.toString())) : undefined,
     claimPeriodDays: ubiSettings ? Number(ubiSettings[1]) : undefined, // claimPeriodDays is at index 1
+    onlyMembers: ubiOnlyMembers,
   };
 }
