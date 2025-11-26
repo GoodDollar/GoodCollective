@@ -4,8 +4,6 @@ import { formatTime } from '../lib/formatTime';
 
 interface ClaimTimerProps {
   nextClaimTime: number;
-  claimPeriodDays: number;
-  poolName?: string;
 }
 
 export const ClaimTimer: React.FC<ClaimTimerProps> = ({ nextClaimTime }) => {

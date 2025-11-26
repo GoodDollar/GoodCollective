@@ -70,7 +70,7 @@ export const ClaimRewardButton: React.FC<ClaimRewardButtonProps> = ({ poolAddres
 
   // If already claimed, show timer
   if (hasClaimed && nextClaimTime && claimPeriodDays) {
-    return <ClaimTimer nextClaimTime={nextClaimTime} claimPeriodDays={claimPeriodDays} poolName={poolName} />;
+    return <ClaimTimer nextClaimTime={nextClaimTime} />;
   }
 
   // Show button even if amount is 0 (pool might not have funds yet, but user is a member)
