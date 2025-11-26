@@ -1,5 +1,5 @@
 import { Link, Text, useBreakpointValue, View, VStack } from 'native-base';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Image, StyleSheet } from 'react-native';
 import { useAccount, useEnsName } from 'wagmi';
 
@@ -14,6 +14,8 @@ import { useScreenSize } from '../theme/hooks';
 import { Colors } from '../utils/colors';
 
 import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
+import { ethers } from 'ethers';
+import GoodCollectiveContracts from '../../../contracts/releases/deployment.json';
 import {
   AtIcon,
   CalendarIcon,
@@ -35,8 +37,6 @@ import { useDonorCollectiveByAddresses, useGetTokenPrice } from '../hooks';
 import { useEthersProvider } from '../hooks/useEthers';
 import { useFlowingBalance } from '../hooks/useFlowingBalance';
 import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
-import { usePoolMembership } from '../hooks/usePoolMembership';
-import { usePoolOpenStatus } from '../hooks/usePoolOpenStatus';
 import { useRealtimeStats } from '../hooks/useRealtimeStats';
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 import env from '../lib/env';
@@ -231,54 +231,94 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
     onlyMembers?: boolean | Promise<boolean>;
   } | null>(null);
 
-  useEffect(() => {
-    const fetchMemberPools = async () => {
-      if (!address || !poolAddress || pooltype !== 'UBI' || !provider) {
+  const [poolOnlyMembers, setPoolOnlyMembers] = useState<boolean | undefined>(undefined);
+
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
+
+  const fetchMemberPools = useCallback(async () => {
+    if (!poolAddress || pooltype !== 'UBI' || !provider) {
+      setMemberPoolData(null);
+      setPoolOnlyMembers(undefined);
+      return;
+    }
+    try {
+      const network = SupportedNetworkNames[chainId as SupportedNetwork];
+      const sdk = new GoodCollectiveSDK(chainId.toString() as any, provider, { network });
+
+      // Always fetch pool settings to get onlyMembers, even if user is not a member
+      const poolDetails = await sdk.getUBIPoolsDetails([poolAddress], address);
+      const currentPool = poolDetails.find((pool: any) => pool.contract.toLowerCase() === poolAddress.toLowerCase());
+
+      if (!currentPool) {
+        setMemberPoolData(null);
+        setPoolOnlyMembers(undefined);
+        return;
+      }
+
+      const claimAmountStr = currentPool.claimAmount?.toString?.() ?? '0';
+      const nextClaimTimeStr = currentPool.nextClaimTime?.toString?.();
+      const claimPeriodDaysRaw = currentPool.ubiSettings?.claimPeriodDays;
+      const onlyMembersRaw = currentPool.ubiSettings?.onlyMembers;
+
+      // Always store onlyMembers setting for pool open check
+      setPoolOnlyMembers(onlyMembersRaw as boolean | undefined);
+
+      // If user is not a member, set memberPoolData to null
+      if (!address || !currentPool.isRegistered) {
         setMemberPoolData(null);
         return;
       }
-      try {
-        const network = SupportedNetworkNames[chainId as SupportedNetwork];
-        const sdk = new GoodCollectiveSDK(chainId.toString() as any, provider, { network });
-        const pools = await sdk.getMemberUBIPools(address);
-        const currentPool = pools.find((pool: any) => pool.contract.toLowerCase() === poolAddress.toLowerCase());
-        if (!currentPool) {
-          setMemberPoolData(null);
-          return;
+
+      const eligibleAmount = BigInt(claimAmountStr || '0');
+
+      // Check if user has actually claimed by calling hasClaimed(address) on the contract
+      // This is the only reliable way to know if they've claimed (not just if nextClaimTime exists)
+      const networkName = env.REACT_APP_NETWORK || 'development-celo';
+      const UBI_POOL_ABI =
+        (GoodCollectiveContracts as any)[chainId.toString()]?.find((envs: any) => envs.name === networkName)?.contracts
+          .UBIPool?.abi || [];
+
+      let hasClaimedToday = false;
+      if (UBI_POOL_ABI.length > 0) {
+        try {
+          const poolContract = new ethers.Contract(poolAddress, UBI_POOL_ABI, provider);
+          hasClaimedToday = await poolContract.hasClaimed(address);
+        } catch (e) {
+          // If contract call fails, fall back to false
+          console.warn('Failed to check hasClaimed:', e);
         }
-
-        const claimAmountStr = currentPool.claimAmount?.toString?.() ?? '0';
-        const nextClaimTimeStr = currentPool.nextClaimTime?.toString?.();
-        const claimPeriodDaysRaw = currentPool.ubiSettings?.claimPeriodDays;
-        const onlyMembersRaw = currentPool.ubiSettings?.onlyMembers;
-
-        const eligibleAmount = BigInt(claimAmountStr || '0');
-        const hasClaimed = eligibleAmount === 0n;
-
-        setMemberPoolData({
-          eligibleAmount,
-          hasClaimed,
-          nextClaimTime: nextClaimTimeStr ? Number(nextClaimTimeStr) : undefined,
-          claimPeriodDays: claimPeriodDaysRaw !== undefined ? Number(claimPeriodDaysRaw) : undefined,
-          // `onlyMembers` from the SDK is typed as PromiseOrValue<boolean>, but in practice is a boolean.
-          // Cast to the expected boolean | undefined shape for local state.
-          onlyMembers: onlyMembersRaw as boolean | undefined,
-        });
-      } catch (e) {
-        // If SDK call fails, gracefully fall back to null so UI can still render
-        setMemberPoolData(null);
       }
-    };
 
-    fetchMemberPools();
+      // hasClaimed should only be true if the user has actually claimed today
+      // The countdown should only show after a successful claim transaction
+      const hasClaimed = hasClaimedToday;
+
+      setMemberPoolData({
+        eligibleAmount,
+        hasClaimed,
+        nextClaimTime: nextClaimTimeStr ? Number(nextClaimTimeStr) : undefined,
+        claimPeriodDays: claimPeriodDaysRaw !== undefined ? Number(claimPeriodDaysRaw) : undefined,
+        // `onlyMembers` from the SDK is typed as PromiseOrValue<boolean>, but in practice is a boolean.
+        // Cast to the expected boolean | undefined shape for local state.
+        onlyMembers: onlyMembersRaw as boolean | undefined,
+      });
+    } catch (e) {
+      // If SDK call fails, gracefully fall back to null so UI can still render
+      setMemberPoolData(null);
+      setPoolOnlyMembers(undefined);
+    }
   }, [address, poolAddress, pooltype, provider, chainId]);
+
+  useEffect(() => {
+    fetchMemberPools();
+  }, [fetchMemberPools, refetchTrigger]);
+
+  const refetchMemberPoolData = () => {
+    setRefetchTrigger((prev) => prev + 1);
+  };
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
   const { stats } = useRealtimeStats(poolAddress);
-
-  // Check pool membership and open status
-  const { isMember, refetch: refetchMembership } = usePoolMembership(poolAddress as `0x${string}` | undefined);
-  const isPoolOpen = usePoolOpenStatus(poolAddress, pooltype);
 
   const { wei: formattedTotalRewards, usdValue: totalRewardsUsdValue } = calculateGoodDollarAmounts(
     totalRewards,
@@ -336,19 +376,19 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               {maybeDonorCollective && maybeDonorCollective.flowRate !== '0' ? null : (
                 <View style={styles.collectiveDonateBox}>
                   {/* Join Pool Button - show if pool is open and user is not a member (only for UBI pools) */}
-                  {isPoolOpen && !isMember && address && pooltype === 'UBI' && (
+                  {!poolOnlyMembers && !memberPoolData && address && pooltype === 'UBI' && (
                     <JoinPoolButton
                       poolAddress={poolAddress as `0x${string}`}
                       poolType={pooltype}
                       poolName={ipfs?.name}
                       onSuccess={async () => {
                         // Refetch membership status without reloading the page
-                        await refetchMembership();
+                        refetchMemberPoolData();
                       }}
                     />
                   )}
                   {/* Claim Reward Button - show if user is a member (only for UBI pools) */}
-                  {isMember && address && pooltype === 'UBI' && (
+                  {memberPoolData && address && pooltype === 'UBI' && (
                     <ClaimRewardButton
                       poolAddress={poolAddress as `0x${string}`}
                       poolType={pooltype}
@@ -359,10 +399,10 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                       claimPeriodDays={memberPoolData?.claimPeriodDays}
                       onSuccess={async () => {
                         // Refetch membership and reward status
-                        await refetchMembership();
+                        refetchMemberPoolData();
                         // Small delay to allow contract state to update
                         setTimeout(() => {
-                          refetchMembership();
+                          refetchMemberPoolData();
                         }, 2000);
                       }}
                     />
@@ -492,7 +532,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
           </View>
 
           {/* Join Pool Button - show if pool is open and user is not a member (only for UBI pools) */}
-          {isPoolOpen && !isMember && address && pooltype === 'UBI' && (
+          {!poolOnlyMembers && !memberPoolData && address && pooltype === 'UBI' && (
             <View style={{ marginBottom: 16 }}>
               <JoinPoolButton
                 poolAddress={poolAddress as `0x${string}`}
@@ -500,13 +540,13 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 poolName={ipfs?.name}
                 onSuccess={async () => {
                   // Refetch membership status without reloading the page
-                  await refetchMembership();
+                  refetchMemberPoolData();
                 }}
               />
             </View>
           )}
           {/* Claim Reward Button - show if user is a member (only for UBI pools) */}
-          {isMember && address && pooltype === 'UBI' && (
+          {memberPoolData && address && pooltype === 'UBI' && (
             <View style={{ marginBottom: 16 }}>
               <ClaimRewardButton
                 poolAddress={poolAddress as `0x${string}`}
@@ -518,10 +558,10 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                 claimPeriodDays={memberPoolData?.claimPeriodDays}
                 onSuccess={async () => {
                   // Refetch membership and reward status
-                  await refetchMembership();
+                  refetchMemberPoolData();
                   // Small delay to allow contract state to update
                   setTimeout(() => {
-                    refetchMembership();
+                    refetchMemberPoolData();
                   }, 2000);
                 }}
               />
