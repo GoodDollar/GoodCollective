@@ -263,7 +263,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
       // Always store onlyMembers setting for pool open check
       setPoolOnlyMembers(onlyMembersRaw as boolean | undefined);
 
-      // If user is not a member, set memberPoolData to null
       if (!address || !currentPool.isRegistered) {
         setMemberPoolData(null);
         return;
@@ -291,11 +290,9 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
       // hasClaimed should only be true if the user has actually claimed today
       // The countdown should only show after a successful claim transaction
-      const hasClaimed = hasClaimedToday;
-
       setMemberPoolData({
         eligibleAmount,
-        hasClaimed,
+        hasClaimed: hasClaimedToday,
         nextClaimTime: nextClaimTimeStr ? Number(nextClaimTimeStr) : undefined,
         claimPeriodDays: claimPeriodDaysRaw !== undefined ? Number(claimPeriodDaysRaw) : undefined,
         // `onlyMembers` from the SDK is typed as PromiseOrValue<boolean>, but in practice is a boolean.
@@ -381,10 +378,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                       poolAddress={poolAddress as `0x${string}`}
                       poolType={pooltype}
                       poolName={ipfs?.name}
-                      onSuccess={async () => {
-                        // Refetch membership status without reloading the page
-                        refetchMemberPoolData();
-                      }}
+                      onSuccess={refetchMemberPoolData}
                     />
                   )}
                   {/* Claim Reward Button - show if user is a member (only for UBI pools) */}

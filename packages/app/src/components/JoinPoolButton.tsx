@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View } from 'native-base';
 import { useAccount } from 'wagmi';
 import RoundedButton from './RoundedButton';
@@ -39,7 +39,7 @@ export const JoinPoolButton: React.FC<JoinPoolButtonProps> = ({ poolAddress, poo
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isSuccess && !isConfirming && hash) {
       setShowProcessingModal(false);
       setShowSuccessModal(true);
@@ -50,7 +50,7 @@ export const JoinPoolButton: React.FC<JoinPoolButtonProps> = ({ poolAddress, poo
     }
   }, [isSuccess, isConfirming, hash, onSuccess]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isError && error) {
       setShowProcessingModal(false);
       const message = error.message || 'Failed to join pool';
