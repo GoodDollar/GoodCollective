@@ -36,15 +36,6 @@ export function useJoinPool(poolAddress: `0x${string}` | undefined, poolType?: s
     },
   });
 
-  if (simulateError) {
-    console.log('useJoinPool simulateData -->', {
-      simulateData,
-      simulateError,
-      chain,
-      UBI_POOL_ABI,
-      address,
-    });
-  }
 
   let simulateUiError: Error | undefined;
   const simulateErrorName = (simulateError as any)?.cause?.data?.errorName as string | undefined;
@@ -52,7 +43,7 @@ export function useJoinPool(poolAddress: `0x${string}` | undefined, poolType?: s
   if (simulateErrorName && joinPoolErrors[simulateErrorName]) {
     simulateUiError = new Error(joinPoolErrors[simulateErrorName]);
   } else if (simulateError) {
-    simulateUiError = new Error('Unable to prepare your transaction. Please try again or contact support.');
+    simulateUiError = new Error('Unable to join this pool. Please try again or contact support.');
   }
 
   const { writeContractAsync, isPending, isError, error, data: hash } = useWriteContract();
@@ -67,7 +58,7 @@ export function useJoinPool(poolAddress: `0x${string}` | undefined, poolType?: s
       if (simulateUiError) {
         throw simulateUiError;
       }
-      throw new Error('Unable to prepare your transaction. Please try again.');
+      throw new Error('Unable to join this pool. Please try again or contact support.');
     }
     return writeContractAsync(simulateData.request);
   }, [simulateData, writeContractAsync, simulateUiError]);
