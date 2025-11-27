@@ -1,5 +1,5 @@
 import { Modal, Platform } from 'react-native';
-import { Image, Pressable, Text, VStack } from 'native-base';
+import { Image, Link, Pressable, Text, VStack } from 'native-base';
 
 import ActionButton from '../ActionButton';
 import { CloseIcon, ThankYouImg } from '../../assets';
@@ -32,7 +32,31 @@ const modalView = {
 const defaultModalProps = {
   error: {
     dTitle: 'Something went wrong',
-    dParagraphs: (errorMessage: string) => ['Please try again later.', 'Reason: ' + (errorMessage ?? 'unknown')],
+    dParagraphs: (errorMessage: string) => {
+      const safeMessage = errorMessage ?? 'unknown';
+
+      // Special handling for messages that include an external link (e.g. https://gooddapp.org)
+      const goodDappUrl = 'https://gooddapp.org';
+      const hasGoodDappLink = safeMessage.includes(goodDappUrl);
+
+      if (!hasGoodDappLink) {
+        return ['Please try again later.', 'Reason: ' + safeMessage];
+      }
+
+      const [beforeLink, afterLink] = safeMessage.split(goodDappUrl);
+
+      return [
+        'Please try again later.',
+        <Text key="reason-with-link" variant="bold" fontSize="md" textAlign="center">
+          {'Reason: '}
+          {beforeLink}
+          <Link href={goodDappUrl} isExternal textDecorationLine="underline">
+            {goodDappUrl}
+          </Link>
+          {afterLink}
+        </Text>,
+      ];
+    },
     dConfirmButtonText: 'OK',
     dImage: ThankYouImg,
     dMessage: 'Something went wrong',
@@ -51,6 +75,7 @@ type BaseModalProps = {
   errorMessage?: string;
   withClose?: boolean;
   message?: string;
+  confirmDisabled?: boolean;
 };
 
 export const BaseModal = ({
@@ -65,6 +90,7 @@ export const BaseModal = ({
   errorMessage = '',
   withClose = true,
   message,
+  confirmDisabled = false,
 }: BaseModalProps) => {
   const _onClose = () => onClose();
   const { dTitle, dParagraphs, dConfirmButtonText, dImage, dMessage } =
@@ -105,7 +131,7 @@ export const BaseModal = ({
           {withClose ? (
             <VStack width="100%" alignContent="flex-end">
               <Pressable w={8} h={8} alignSelf="flex-end" onPress={_onClose}>
-                <Image source={CloseIcon} width={8} height={8} alignSelf="flex-end" />
+                <Image source={CloseIcon} width={8} height={8} alignSelf="flex-end" alt="Close" />
               </Pressable>
             </VStack>
           ) : null}
@@ -115,17 +141,34 @@ export const BaseModal = ({
             </Text>
             <VStack space={0} textAlign="center">
               {paragraph
-                ? // eslint-disable-next-line @typescript-eslint/no-shadow
-                  paragraph.map((paragraph: string, index: number) =>
-                    paragraph ? (
-                      <Text key={index} variant="bold" fontSize="md">
-                        {paragraph}
-                      </Text>
-                    ) : null
-                  )
+                ? paragraph.map((item: any, index: number) => {
+                    if (!item) return null;
+                    if (typeof item === 'string') {
+                      return (
+                        <Text key={index} variant="bold" fontSize="md">
+                          {item}
+                        </Text>
+                      );
+                    }
+                    // Allow JSX elements (e.g. Text with embedded Link) to be passed directly
+                    return (
+                      <VStack key={index} alignItems="center">
+                        {item}
+                      </VStack>
+                    );
+                  })
                 : null}
             </VStack>
-            <Image source={dImage} alt="woman" width={'100%'} height={210} margin="auto" resizeMode="contain" />
+            {dImage && (
+              <Image
+                source={dImage}
+                alt={dTitle || 'Modal image'}
+                width={'100%'}
+                height={210}
+                margin="auto"
+                resizeMode="contain"
+              />
+            )}
             {dMessage && (
               <Text variant="bold" fontSize="sm" textAlign="center">
                 {message}
@@ -137,6 +180,7 @@ export const BaseModal = ({
                 onPress={onConfirm}
                 bg="goodOrange.200"
                 textColor="goodOrange.500"
+                isDisabled={confirmDisabled}
               />
             ) : null}
           </VStack>

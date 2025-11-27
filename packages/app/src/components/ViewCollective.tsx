@@ -1,20 +1,21 @@
-import { StyleSheet, Image } from 'react-native';
-import { Link, useBreakpointValue, Text, View, VStack } from 'native-base';
+import { Link, Spinner, Text, useBreakpointValue, View, VStack } from 'native-base';
+import { useCallback, useEffect, useState } from 'react';
+import { Image, StyleSheet } from 'react-native';
 import { useAccount, useEnsName } from 'wagmi';
 
-import RowItem from './RowItem';
+import useCrossNavigate from '../routes/useCrossNavigate';
+import { InterSemiBold, InterSmall } from '../utils/webFonts';
 import RoundedButton from './RoundedButton';
+import RowItem from './RowItem';
 import StewardList from './StewardsList/StewardsList';
 import TransactionList from './TransactionList/TransactionList';
-import { InterSemiBold, InterSmall } from '../utils/webFonts';
-import useCrossNavigate from '../routes/useCrossNavigate';
 
-import { Colors } from '../utils/colors';
 import { useScreenSize } from '../theme/hooks';
+import { Colors } from '../utils/colors';
 
-import { formatTime } from '../lib/formatTime';
-import { Collective, DonorCollective } from '../models/models';
-import { useDonorCollectiveByAddresses, useGetTokenPrice } from '../hooks';
+import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
+import { ethers } from 'ethers';
+import GoodCollectiveContracts from '../../../contracts/releases/deployment.json';
 import {
   AtIcon,
   CalendarIcon,
@@ -31,18 +32,30 @@ import {
   TwitterIcon,
   WebIcon,
 } from '../assets/';
-import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
-import FlowingDonationsRowItem from './FlowingDonationsRowItem';
-import { defaultInfoLabel, GDToken, SUBGRAPH_POLL_INTERVAL } from '../models/constants';
-import env from '../lib/env';
-import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
-import { useFlowingBalance } from '../hooks/useFlowingBalance';
-import { useRealtimeStats } from '../hooks/useRealtimeStats';
-import { GoodDollarAmount } from './GoodDollarAmount';
 import { styles as walletCardStyles } from '../components/WalletCards/styles';
+import { useDonorCollectiveByAddresses, useGetTokenPrice } from '../hooks';
+import { useEthersProvider } from '../hooks/useEthers';
+import { useFlowingBalance } from '../hooks/useFlowingBalance';
+import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
+import { useRealtimeStats } from '../hooks/useRealtimeStats';
+import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
+import env from '../lib/env';
 import { formatFlowRate } from '../lib/formatFlowRate';
-import { StopDonationActionButton } from './StopDonationActionButton';
+import { formatTime } from '../lib/formatTime';
+import {
+  defaultInfoLabel,
+  GDToken,
+  SUBGRAPH_POLL_INTERVAL,
+  SupportedNetwork,
+  SupportedNetworkNames,
+} from '../models/constants';
+import { Collective, DonorCollective } from '../models/models';
 import BannerPool from './BannerPool';
+import { ClaimRewardButton } from './ClaimRewardButton';
+import FlowingDonationsRowItem from './FlowingDonationsRowItem';
+import { GoodDollarAmount } from './GoodDollarAmount';
+import { JoinPoolButton } from './JoinPoolButton';
+import { StopDonationActionButton } from './StopDonationActionButton';
 
 const HasDonatedCard = ({
   donorCollective,
@@ -204,8 +217,109 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const stewardsPaid = stewardCollectives.length;
   const infoLabel = collective.ipfs.rewardDescription ?? defaultInfoLabel;
 
-  const { address } = useAccount();
+  const { address, chain } = useAccount();
   const maybeDonorCollective = useDonorCollectiveByAddresses(address ?? '', poolAddress, SUBGRAPH_POLL_INTERVAL);
+
+  const chainId = chain?.id ?? SupportedNetwork.CELO;
+  const provider = useEthersProvider({ chainId });
+
+  const [memberPoolData, setMemberPoolData] = useState<{
+    eligibleAmount: bigint;
+    hasClaimed: boolean;
+    nextClaimTime?: number;
+    claimPeriodDays?: number;
+    onlyMembers?: boolean | Promise<boolean>;
+  } | null>(null);
+
+  const [poolOnlyMembers, setPoolOnlyMembers] = useState<boolean | undefined>(undefined);
+
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
+  const [isMemberPoolLoading, setIsMemberPoolLoading] = useState(false);
+
+  const fetchMemberPools = useCallback(async () => {
+    if (!poolAddress || pooltype !== 'UBI' || !provider) {
+      setMemberPoolData(null);
+      setPoolOnlyMembers(undefined);
+      setIsMemberPoolLoading(false);
+      return;
+    }
+    try {
+      setIsMemberPoolLoading(true);
+      const network = SupportedNetworkNames[chainId as SupportedNetwork];
+      const sdk = new GoodCollectiveSDK(chainId.toString() as any, provider, { network });
+
+      // Always fetch pool settings to get onlyMembers, even if user is not a member
+      const poolDetails = await sdk.getUBIPoolsDetails([poolAddress], address);
+      const currentPool = poolDetails.find((pool: any) => pool.contract.toLowerCase() === poolAddress.toLowerCase());
+
+      if (!currentPool) {
+        setMemberPoolData(null);
+        setPoolOnlyMembers(undefined);
+        setIsMemberPoolLoading(false);
+        return;
+      }
+
+      const claimAmountStr = currentPool.claimAmount?.toString?.() ?? '0';
+      const nextClaimTimeStr = currentPool.nextClaimTime?.toString?.();
+      const claimPeriodDaysRaw = currentPool.ubiSettings?.claimPeriodDays;
+      const onlyMembersRaw = currentPool.ubiSettings?.onlyMembers;
+
+      // Always store onlyMembers setting for pool open check
+      setPoolOnlyMembers(onlyMembersRaw as boolean | undefined);
+
+      if (!address || !currentPool.isRegistered) {
+        setMemberPoolData(null);
+        setIsMemberPoolLoading(false);
+        return;
+      }
+
+      const eligibleAmount = BigInt(claimAmountStr || '0');
+
+      // Check if user has actually claimed by calling hasClaimed(address) on the contract
+      // This is the only reliable way to know if they've claimed (not just if nextClaimTime exists)
+      const networkName = env.REACT_APP_NETWORK || 'development-celo';
+      const UBI_POOL_ABI =
+        (GoodCollectiveContracts as any)[chainId.toString()]?.find((envs: any) => envs.name === networkName)?.contracts
+          .UBIPool?.abi || [];
+
+      let hasClaimedToday = false;
+      if (UBI_POOL_ABI.length > 0) {
+        try {
+          const poolContract = new ethers.Contract(poolAddress, UBI_POOL_ABI, provider);
+          hasClaimedToday = await poolContract.hasClaimed(address);
+        } catch (e) {
+          // If contract call fails, fall back to false
+          console.warn('Failed to check hasClaimed:', e);
+        }
+      }
+
+      // hasClaimed should only be true if the user has actually claimed today
+      // The countdown should only show after a successful claim transaction
+      setMemberPoolData({
+        eligibleAmount,
+        hasClaimed: hasClaimedToday,
+        nextClaimTime: nextClaimTimeStr ? Number(nextClaimTimeStr) : undefined,
+        claimPeriodDays: claimPeriodDaysRaw !== undefined ? Number(claimPeriodDaysRaw) : undefined,
+        // `onlyMembers` from the SDK is typed as PromiseOrValue<boolean>, but in practice is a boolean.
+        // Cast to the expected boolean | undefined shape for local state.
+        onlyMembers: onlyMembersRaw as boolean | undefined,
+      });
+      setIsMemberPoolLoading(false);
+    } catch (e) {
+      // If SDK call fails, gracefully fall back to null so UI can still render
+      setMemberPoolData(null);
+      setPoolOnlyMembers(undefined);
+      setIsMemberPoolLoading(false);
+    }
+  }, [address, poolAddress, pooltype, provider, chainId]);
+
+  useEffect(() => {
+    fetchMemberPools();
+  }, [fetchMemberPools, refetchTrigger]);
+
+  const refetchMemberPoolData = () => {
+    setRefetchTrigger((prev) => prev + 1);
+  };
 
   const { price: tokenPrice } = useGetTokenPrice('G$');
   const { stats } = useRealtimeStats(poolAddress);
@@ -265,6 +379,40 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               </View>
               {maybeDonorCollective && maybeDonorCollective.flowRate !== '0' ? null : (
                 <View style={styles.collectiveDonateBox}>
+                  {pooltype === 'UBI' && isMemberPoolLoading ? (
+                    <VStack alignItems="center" space={2}>
+                      <Spinner variant="page-loader" />
+                      <Text>Loading pool details</Text>
+                    </VStack>
+                  ) : (
+                    <>
+                      {!poolOnlyMembers && !memberPoolData && address && pooltype === 'UBI' && (
+                        <JoinPoolButton
+                          poolAddress={poolAddress as `0x${string}`}
+                          poolType={pooltype}
+                          poolName={ipfs?.name}
+                          onSuccess={refetchMemberPoolData}
+                        />
+                      )}
+                      {memberPoolData && memberPoolData.eligibleAmount > 0n && address && pooltype === 'UBI' && (
+                        <ClaimRewardButton
+                          poolAddress={poolAddress as `0x${string}`}
+                          poolType={pooltype}
+                          poolName={ipfs?.name}
+                          eligibleAmount={memberPoolData?.eligibleAmount}
+                          hasClaimed={memberPoolData?.hasClaimed}
+                          nextClaimTime={memberPoolData?.nextClaimTime}
+                          claimPeriodDays={memberPoolData?.claimPeriodDays}
+                          onSuccess={async () => {
+                            refetchMemberPoolData();
+                            setTimeout(() => {
+                              refetchMemberPoolData();
+                            }, 2000);
+                          }}
+                        />
+                      )}
+                    </>
+                  )}
                   <RoundedButton
                     title="Donate"
                     backgroundColor={Colors.green[100]}
@@ -388,6 +536,49 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             <Image source={InfoIcon} style={styles.infoIcon} />
             <Text style={styles.informationLabel}>{infoLabel}</Text>
           </View>
+
+          {pooltype === 'UBI' && isMemberPoolLoading ? (
+            <View style={{ marginBottom: 16 }}>
+              <VStack alignItems="center" space={2}>
+                <Spinner variant="page-loader" />
+                <Text>Loading pool details</Text>
+              </VStack>
+            </View>
+          ) : (
+            <>
+              {!poolOnlyMembers && !memberPoolData && address && pooltype === 'UBI' && (
+                <View style={{ marginBottom: 16 }}>
+                  <JoinPoolButton
+                    poolAddress={poolAddress as `0x${string}`}
+                    poolType={pooltype}
+                    poolName={ipfs?.name}
+                    onSuccess={async () => {
+                      refetchMemberPoolData();
+                    }}
+                  />
+                </View>
+              )}
+              {memberPoolData && memberPoolData.eligibleAmount > 0n && address && pooltype === 'UBI' && (
+                <View style={{ marginBottom: 16 }}>
+                  <ClaimRewardButton
+                    poolAddress={poolAddress as `0x${string}`}
+                    poolType={pooltype}
+                    poolName={ipfs?.name}
+                    eligibleAmount={memberPoolData?.eligibleAmount}
+                    hasClaimed={memberPoolData?.hasClaimed}
+                    nextClaimTime={memberPoolData?.nextClaimTime}
+                    claimPeriodDays={memberPoolData?.claimPeriodDays}
+                    onSuccess={async () => {
+                      refetchMemberPoolData();
+                      setTimeout(() => {
+                        refetchMemberPoolData();
+                      }, 2000);
+                    }}
+                  />
+                </View>
+              )}
+            </>
+          )}
 
           <View style={styles.rowContainer}>
             <RowItem imageUrl={CalendarIcon} rowInfo="Creation Date" rowData={formatTime(timestamp)} />

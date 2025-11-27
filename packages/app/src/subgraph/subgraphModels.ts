@@ -37,6 +37,7 @@ export type SubgraphCollective = {
   ipfs?: SubgraphIpfsCollective;
   settings?: SubgraphPoolSettings;
   limits?: SubgraphSafetyLimits;
+  ubiLimits?: SubgraphUBILimits;
   donors?: SubgraphDonorCollective[];
   stewards?: SubgraphStewardCollective[];
   projectId?: string;
@@ -74,6 +75,17 @@ export type SubgraphPoolSettings = {
   membersValidator: string;
   uniquenessValidator: string;
   rewardToken: string;
+};
+
+export type SubgraphUBILimits = {
+  id: string;
+  cycleLengthDays: string;
+  claimPeriodDays: string;
+  minActiveUsers: string;
+  claimForEnabled: boolean;
+  maxClaimAmount: string;
+  maxClaimers: string;
+  onlyMembers: boolean;
 };
 
 export type SubgraphSafetyLimits = {
