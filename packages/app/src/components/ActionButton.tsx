@@ -10,6 +10,7 @@ type ActionButtonProps = {
   onPress?: any;
   width?: string;
   borderRadius?: number;
+  isDisabled?: boolean;
 };
 
 export const buttonStyles = {
@@ -40,7 +41,16 @@ export const buttonStyles = {
   },
 };
 
-const ActionButton = ({ href, text, bg, textColor, onPress, width = '100%', borderRadius = 50 }: ActionButtonProps) => {
+const ActionButton = ({
+  href,
+  text,
+  bg,
+  textColor,
+  onPress,
+  width = '100%',
+  borderRadius = 50,
+  isDisabled = false,
+}: ActionButtonProps) => {
   const responsiveStyles = useBreakpointValue({
     base: {
       button: {
@@ -71,7 +81,12 @@ const ActionButton = ({ href, text, bg, textColor, onPress, width = '100%', bord
   const { buttonContainer, button, buttonText } = responsiveStyles ?? {};
 
   const content = (
-    <Pressable {...button} onPress={onPress} backgroundColor={bg} paddingBottom={0}>
+    <Pressable
+      {...button}
+      onPress={isDisabled ? undefined : onPress}
+      backgroundColor={isDisabled ? 'gray.300' : bg}
+      opacity={isDisabled ? 0.6 : 1}
+      paddingBottom={0}>
       <Text {...buttonText} color={textColor}>
         {text}
       </Text>

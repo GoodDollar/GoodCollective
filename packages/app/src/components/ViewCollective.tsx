@@ -1,4 +1,4 @@
-import { Link, Text, useBreakpointValue, View, VStack } from 'native-base';
+import { Link, Spinner, Text, useBreakpointValue, View, VStack } from 'native-base';
 import { useCallback, useEffect, useState } from 'react';
 import { Image, StyleSheet } from 'react-native';
 import { useAccount, useEnsName } from 'wagmi';
@@ -234,14 +234,17 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const [poolOnlyMembers, setPoolOnlyMembers] = useState<boolean | undefined>(undefined);
 
   const [refetchTrigger, setRefetchTrigger] = useState(0);
+  const [isMemberPoolLoading, setIsMemberPoolLoading] = useState(false);
 
   const fetchMemberPools = useCallback(async () => {
     if (!poolAddress || pooltype !== 'UBI' || !provider) {
       setMemberPoolData(null);
       setPoolOnlyMembers(undefined);
+      setIsMemberPoolLoading(false);
       return;
     }
     try {
+      setIsMemberPoolLoading(true);
       const network = SupportedNetworkNames[chainId as SupportedNetwork];
       const sdk = new GoodCollectiveSDK(chainId.toString() as any, provider, { network });
 
@@ -252,6 +255,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
       if (!currentPool) {
         setMemberPoolData(null);
         setPoolOnlyMembers(undefined);
+        setIsMemberPoolLoading(false);
         return;
       }
 
@@ -265,6 +269,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
       if (!address || !currentPool.isRegistered) {
         setMemberPoolData(null);
+        setIsMemberPoolLoading(false);
         return;
       }
 
@@ -299,10 +304,12 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
         // Cast to the expected boolean | undefined shape for local state.
         onlyMembers: onlyMembersRaw as boolean | undefined,
       });
+      setIsMemberPoolLoading(false);
     } catch (e) {
       // If SDK call fails, gracefully fall back to null so UI can still render
       setMemberPoolData(null);
       setPoolOnlyMembers(undefined);
+      setIsMemberPoolLoading(false);
     }
   }, [address, poolAddress, pooltype, provider, chainId]);
 
@@ -372,34 +379,39 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               </View>
               {maybeDonorCollective && maybeDonorCollective.flowRate !== '0' ? null : (
                 <View style={styles.collectiveDonateBox}>
-                  {/* Join Pool Button - show if pool is open and user is not a member (only for UBI pools) */}
-                  {!poolOnlyMembers && !memberPoolData && address && pooltype === 'UBI' && (
-                    <JoinPoolButton
-                      poolAddress={poolAddress as `0x${string}`}
-                      poolType={pooltype}
-                      poolName={ipfs?.name}
-                      onSuccess={refetchMemberPoolData}
-                    />
-                  )}
-                  {/* Claim Reward Button - show if user is a member (only for UBI pools) */}
-                  {memberPoolData && address && pooltype === 'UBI' && (
-                    <ClaimRewardButton
-                      poolAddress={poolAddress as `0x${string}`}
-                      poolType={pooltype}
-                      poolName={ipfs?.name}
-                      eligibleAmount={memberPoolData?.eligibleAmount}
-                      hasClaimed={memberPoolData?.hasClaimed}
-                      nextClaimTime={memberPoolData?.nextClaimTime}
-                      claimPeriodDays={memberPoolData?.claimPeriodDays}
-                      onSuccess={async () => {
-                        // Refetch membership and reward status
-                        refetchMemberPoolData();
-                        // Small delay to allow contract state to update
-                        setTimeout(() => {
-                          refetchMemberPoolData();
-                        }, 2000);
-                      }}
-                    />
+                  {pooltype === 'UBI' && isMemberPoolLoading ? (
+                    <VStack alignItems="center" space={2}>
+                      <Spinner variant="page-loader" />
+                      <Text>Loading pool details</Text>
+                    </VStack>
+                  ) : (
+                    <>
+                      {!poolOnlyMembers && !memberPoolData && address && pooltype === 'UBI' && (
+                        <JoinPoolButton
+                          poolAddress={poolAddress as `0x${string}`}
+                          poolType={pooltype}
+                          poolName={ipfs?.name}
+                          onSuccess={refetchMemberPoolData}
+                        />
+                      )}
+                      {memberPoolData && memberPoolData.eligibleAmount > 0n && address && pooltype === 'UBI' && (
+                        <ClaimRewardButton
+                          poolAddress={poolAddress as `0x${string}`}
+                          poolType={pooltype}
+                          poolName={ipfs?.name}
+                          eligibleAmount={memberPoolData?.eligibleAmount}
+                          hasClaimed={memberPoolData?.hasClaimed}
+                          nextClaimTime={memberPoolData?.nextClaimTime}
+                          claimPeriodDays={memberPoolData?.claimPeriodDays}
+                          onSuccess={async () => {
+                            refetchMemberPoolData();
+                            setTimeout(() => {
+                              refetchMemberPoolData();
+                            }, 2000);
+                          }}
+                        />
+                      )}
+                    </>
                   )}
                   <RoundedButton
                     title="Donate"
@@ -525,41 +537,47 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             <Text style={styles.informationLabel}>{infoLabel}</Text>
           </View>
 
-          {/* Join Pool Button - show if pool is open and user is not a member (only for UBI pools) */}
-          {!poolOnlyMembers && !memberPoolData && address && pooltype === 'UBI' && (
+          {pooltype === 'UBI' && isMemberPoolLoading ? (
             <View style={{ marginBottom: 16 }}>
-              <JoinPoolButton
-                poolAddress={poolAddress as `0x${string}`}
-                poolType={pooltype}
-                poolName={ipfs?.name}
-                onSuccess={async () => {
-                  // Refetch membership status without reloading the page
-                  refetchMemberPoolData();
-                }}
-              />
+              <VStack alignItems="center" space={2}>
+                <Spinner variant="page-loader" />
+                <Text>Loading pool details</Text>
+              </VStack>
             </View>
-          )}
-          {/* Claim Reward Button - show if user is a member (only for UBI pools) */}
-          {memberPoolData && address && pooltype === 'UBI' && (
-            <View style={{ marginBottom: 16 }}>
-              <ClaimRewardButton
-                poolAddress={poolAddress as `0x${string}`}
-                poolType={pooltype}
-                poolName={ipfs?.name}
-                eligibleAmount={memberPoolData?.eligibleAmount}
-                hasClaimed={memberPoolData?.hasClaimed}
-                nextClaimTime={memberPoolData?.nextClaimTime}
-                claimPeriodDays={memberPoolData?.claimPeriodDays}
-                onSuccess={async () => {
-                  // Refetch membership and reward status
-                  refetchMemberPoolData();
-                  // Small delay to allow contract state to update
-                  setTimeout(() => {
-                    refetchMemberPoolData();
-                  }, 2000);
-                }}
-              />
-            </View>
+          ) : (
+            <>
+              {!poolOnlyMembers && !memberPoolData && address && pooltype === 'UBI' && (
+                <View style={{ marginBottom: 16 }}>
+                  <JoinPoolButton
+                    poolAddress={poolAddress as `0x${string}`}
+                    poolType={pooltype}
+                    poolName={ipfs?.name}
+                    onSuccess={async () => {
+                      refetchMemberPoolData();
+                    }}
+                  />
+                </View>
+              )}
+              {memberPoolData && memberPoolData.eligibleAmount > 0n && address && pooltype === 'UBI' && (
+                <View style={{ marginBottom: 16 }}>
+                  <ClaimRewardButton
+                    poolAddress={poolAddress as `0x${string}`}
+                    poolType={pooltype}
+                    poolName={ipfs?.name}
+                    eligibleAmount={memberPoolData?.eligibleAmount}
+                    hasClaimed={memberPoolData?.hasClaimed}
+                    nextClaimTime={memberPoolData?.nextClaimTime}
+                    claimPeriodDays={memberPoolData?.claimPeriodDays}
+                    onSuccess={async () => {
+                      refetchMemberPoolData();
+                      setTimeout(() => {
+                        refetchMemberPoolData();
+                      }, 2000);
+                    }}
+                  />
+                </View>
+              )}
+            </>
           )}
 
           <View style={styles.rowContainer}>

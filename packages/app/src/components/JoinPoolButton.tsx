@@ -17,7 +17,7 @@ interface JoinPoolButtonProps {
 
 export const JoinPoolButton: React.FC<JoinPoolButtonProps> = ({ poolAddress, poolType, poolName, onSuccess }) => {
   const { address } = useAccount();
-  const { joinPool, isConfirming, isSuccess, isError, error, hash } = useJoinPool(poolAddress, poolType);
+  const { joinPool, isSimulating, isConfirming, isSuccess, isError, error, hash } = useJoinPool(poolAddress, poolType);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [showProcessingModal, setShowProcessingModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -78,6 +78,7 @@ export const JoinPoolButton: React.FC<JoinPoolButtonProps> = ({ poolAddress, poo
         paragraphs={[`To join ${poolName || 'this pool'}, please sign with your wallet.`]}
         image={PhoneImg}
         confirmButtonText="JOIN"
+        confirmDisabled={isSimulating}
       />
       <ProcessingModal openModal={showProcessingModal} />
       <BaseModal
