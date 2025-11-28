@@ -1,9 +1,19 @@
 import { FC, PropsWithChildren, useRef, useMemo, useState } from 'react';
-import { Box, HStack, ScrollView, Spinner, Text, useBreakpointValue, VStack } from 'native-base';
+import {
+  Box,
+  ChevronDownIcon,
+  HStack,
+  Pressable,
+  ScrollView,
+  Spinner,
+  Text,
+  useBreakpointValue,
+  VStack,
+} from 'native-base';
 import { Platform } from 'react-native';
 import { useAppKitAccount } from '@reown/appkit/react';
 
-import { useTotalStats } from '../hooks';
+import { useDonorById, useStewardById, useTotalStats, useCollectivesMetadataById } from '../hooks';
 import type { TotalStats } from '../hooks';
 import { useScreenSize } from '../theme/hooks';
 
@@ -18,6 +28,7 @@ import { useCollectivesMetadata } from '../hooks';
 import { GoodDollarAmount } from '../components/GoodDollarAmount';
 
 import { Colors } from '../utils/colors';
+import { SUBGRAPH_POLL_INTERVAL } from '../models/constants';
 
 const homeContainerStyles = {
   flex: 1,
@@ -78,9 +89,26 @@ const HomePage = () => {
   const totalStats = useTotalStats();
   const { isDesktopView } = useScreenSize();
   const collectivesSectionRef = useRef<any>(null);
-  const { isConnected } = useAppKitAccount();
+  const { isConnected, address } = useAppKitAccount();
   const { navigate } = useCrossNavigate();
   const [showWarningMessage, setShowWarningMessage] = useState(false);
+  const [isMyPoolsExpanded, setIsMyPoolsExpanded] = useState(true);
+
+  const lowercaseAddress = address?.toLowerCase() ?? '';
+
+  const donor = useDonorById(lowercaseAddress, SUBGRAPH_POLL_INTERVAL);
+  const steward = useStewardById(lowercaseAddress);
+
+  const myCollectiveIds = useMemo(() => {
+    const stewardIds = steward?.collectives.map((collective) => collective.collective) ?? [];
+    const donorIds = donor?.collectives.map((collective) => collective.collective) ?? [];
+
+    return Array.from(new Set([...stewardIds, ...donorIds]));
+  }, [steward, donor]);
+
+  const myIpfsCollectives = useCollectivesMetadataById(myCollectiveIds);
+
+  const hasMyPools = myIpfsCollectives.length > 0;
 
   const isDevHost = useMemo(() => {
     if (typeof window === 'undefined') return false;
@@ -257,6 +285,42 @@ const HomePage = () => {
               </VStack>
             </VStack>
           </VStack>
+
+          {hasMyPools && (
+            <VStack space={4}>
+              <HStack alignItems="center" marginLeft={12}>
+                <Pressable onPress={() => setIsMyPoolsExpanded((prev) => !prev)}>
+                  <HStack alignItems="center" space={1}>
+                    <Text variant="bold" textAlign="left">
+                      My GoodCollective Pools
+                    </Text>
+                    <ChevronDownIcon
+                      size={4}
+                      color="gray.500"
+                      style={{
+                        transform: [{ rotate: isMyPoolsExpanded ? '180deg' : '0deg' }],
+                      }}
+                    />
+                  </HStack>
+                </Pressable>
+              </HStack>
+
+              {isMyPoolsExpanded && (
+                <CollectivesContainer>
+                  {myIpfsCollectives.map((ipfsCollective: IpfsCollective) => (
+                    <CollectiveHomeCard
+                      key={ipfsCollective.collective}
+                      name={ipfsCollective.name}
+                      description={ipfsCollective.description}
+                      headerImage={ipfsCollective.headerImage}
+                      route={ipfsCollective.collective}
+                      poolType={ipfsCollective.pooltype}
+                    />
+                  ))}
+                </CollectivesContainer>
+              )}
+            </VStack>
+          )}
 
           <VStack space={10}>
             <VStack space={0}>

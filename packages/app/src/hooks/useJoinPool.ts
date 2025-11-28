@@ -36,7 +36,6 @@ export function useJoinPool(poolAddress: `0x${string}` | undefined, poolType?: s
     },
   });
 
-
   let simulateUiError: Error | undefined;
   const simulateErrorName = (simulateError as any)?.cause?.data?.errorName as string | undefined;
 

@@ -317,6 +317,70 @@ export class GoodCollectiveSDK {
   }
 
   /**
+   * Updates settings for a UBI pool
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} poolAddress - The address of the UBI pool contract.
+   * @param {UBIPoolSettings} poolSettings - The updated general pool settings.
+   * @param {UBISettings} ubiSettings - The updated UBI-specific settings.
+   * @param {ExtendedUBISettings} extendedSettings - The updated extended UBI settings.
+   * @returns {Promise<ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
+   */
+  async setUBIPoolSettings(
+    signer: ethers.Signer,
+    poolAddress: string,
+    poolSettings: UBIPoolSettings,
+    ubiSettings: UBISettings,
+    extendedSettings: ExtendedUBISettings
+  ) {
+    const connected = this.ubipool.attach(poolAddress).connect(signer);
+    // Update general pool settings first
+    const tx1 = await connected.setPoolSettings(poolSettings, { ...CHAIN_OVERRIDES[this.chainId] });
+    await tx1.wait();
+    // Then update UBI-specific settings
+    return connected.setUBISettings(ubiSettings, extendedSettings, { ...CHAIN_OVERRIDES[this.chainId] });
+  }
+
+  /**
+   * Updates IPFS metadata for a UBI pool
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} poolAddress - The address of the UBI pool contract.
+   * @param {PoolAttributes} attrs - The pool attributes to save to IPFS.
+   * @returns {Promise<ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
+   */
+  async updateUBIPoolAttributes(signer: ethers.Signer, poolAddress: string, attrs: PoolAttributes) {
+    if (!this.ubifactory) {
+      throw new Error('UBI Factory not initialized');
+    }
+    const uri = await this.savePoolToIPFS(attrs);
+    return this.ubifactory.connect(signer).changePoolDetails(poolAddress, uri);
+  }
+
+  /**
+   * Adds a member to a UBI pool
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} poolAddress - The address of the UBI pool contract.
+   * @param {string} memberAddress - The address of the member to add.
+   * @param {string} extraData - Additional validation data (optional, defaults to empty bytes).
+   * @returns {Promise<ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
+   */
+  async addUBIPoolMember(signer: ethers.Signer, poolAddress: string, memberAddress: string) {
+    const connected = this.ubipool.attach(poolAddress).connect(signer);
+    return connected.addMember(memberAddress, '0x', { ...CHAIN_OVERRIDES[this.chainId] });
+  }
+
+  /**
+   * Removes a member from a UBI pool
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} poolAddress - The address of the UBI pool contract.
+   * @param {string} memberAddress - The address of the member to remove.
+   * @returns {Promise<ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
+   */
+  async removeUBIPoolMember(signer: ethers.Signer, poolAddress: string, memberAddress: string) {
+    const connected = this.ubipool.attach(poolAddress).connect(signer);
+    return connected.removeMember(memberAddress, { ...CHAIN_OVERRIDES[this.chainId] });
+  }
+
+  /**
    * Creates a new UBIPool contract instance and returns it.
    * @param {ethers.Signer} signer - The signer object for the transaction.
    * @param {string} projectId - The ID of the project associated with the new pool.
@@ -373,6 +437,105 @@ export class GoodCollectiveSDK {
     }
     const pools = await this.ubifactory.getMemberPools(memberAddress);
     return this.getUBIPoolsDetails(pools, memberAddress);
+  }
+
+  /**
+   * Returns the current list of MEMBER_ROLE addresses for a given UBI pool.
+   *
+   * It reconstructs the member set from RoleGranted / RoleRevoked events for MEMBER_ROLE.
+   * This is useful for getting a "log" of who is currently a member of the collective.
+   *
+   * NOTE: By default this scans only the most recent ~9,500 blocks to stay within common
+   * public RPC limits (e.g. 10,000-block ranges on free tiers). For older pools you can
+   * pass an explicit `fromBlock` to widen the search, ideally using the pool's creation block.
+   *
+   * @param {string} poolAddress - The address of the UBI pool contract.
+   * @param {number} [fromBlock=0] - Optional starting block number for the scan.
+   * @param {number | 'latest'} [toBlock='latest'] - Optional end block number (or 'latest').
+   * @returns {Promise<{ members: string[]; count: number; onChainCount?: number }>}
+   *   - `members`: unique member addresses that currently hold MEMBER_ROLE
+   *   - `count`: size of the members set
+   *   - `onChainCount`: optional on‑chain `status().membersCount` value, if available
+   */
+  async getUBIPoolMembers(
+    poolAddress: string,
+    fromBlock?: number,
+    toBlock: number | 'latest' = 'latest'
+  ): Promise<{ members: string[]; count: number; onChainCount?: number }> {
+    const pool = this.ubipool.attach(poolAddress);
+
+    // Resolve MEMBER_ROLE identifier
+    const memberRole = await pool.MEMBER_ROLE();
+
+    // Resolve default block range if not provided, keeping it under ~10k blocks
+    let effectiveFromBlock = fromBlock;
+    let effectiveToBlock = toBlock;
+
+    if (effectiveFromBlock === undefined) {
+      const latest = await pool.provider.getBlockNumber();
+      // Keep a safety margin below 10k to satisfy common public RPC limits
+      const RANGE = 9500;
+      effectiveFromBlock = Math.max(0, latest - RANGE);
+      effectiveToBlock = 'latest';
+    }
+
+    // Fetch RoleGranted / RoleRevoked events for MEMBER_ROLE
+    const granted = await pool.queryFilter(
+      pool.filters.RoleGranted(memberRole, null, null),
+      effectiveFromBlock,
+      effectiveToBlock
+    );
+    const revoked = await pool.queryFilter(
+      pool.filters.RoleRevoked(memberRole, null, null),
+      effectiveFromBlock,
+      effectiveToBlock
+    );
+
+    // Merge and sort all events by block number / log index to preserve order
+    const allEvents = [...granted, ...revoked].sort((a, b) => {
+      if (a.blockNumber === b.blockNumber) {
+        return (a.logIndex || 0) - (b.logIndex || 0);
+      }
+      return a.blockNumber - b.blockNumber;
+    });
+
+    const memberSet = new Set<string>();
+
+    for (const evt of allEvents) {
+      const account = (evt as any).args?.account as string | undefined;
+      if (!account) continue;
+
+      const addr = account.toLowerCase();
+      if (evt.event === 'RoleGranted') {
+        memberSet.add(addr);
+      } else if (evt.event === 'RoleRevoked') {
+        memberSet.delete(addr);
+      }
+    }
+
+    let onChainCount: number | undefined;
+    try {
+      const status = await pool.status();
+      const rawCount = (status as any).membersCount;
+      if (typeof rawCount === 'number') {
+        onChainCount = rawCount;
+      } else if (rawCount != null && (rawCount as any).toString) {
+        const parsed = Number((rawCount as any).toString());
+        if (!Number.isNaN(parsed)) {
+          onChainCount = parsed;
+        }
+      }
+    } catch {
+      // If status() is not available or fails, we simply omit onChainCount
+    }
+
+    const members = Array.from(memberSet);
+
+    return {
+      members,
+      count: members.length,
+      ...(onChainCount !== undefined ? { onChainCount } : {}),
+    };
   }
 
   async getUBIPoolsDetails(pools: string[], memberAddress?: string) {
