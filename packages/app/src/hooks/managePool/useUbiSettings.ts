@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { ethers } from 'ethers';
+import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
 import { useEthersProvider, useEthersSigner } from '../useEthers';
 import { validateConnection, printAndParseSupportError } from '../useContractCalls/util';
+import { SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
 
 interface UseUbiSettingsParams {
   poolAddress?: string;
@@ -85,6 +87,8 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
       return;
     }
 
+    const { chainId: validatedChainId, signer: validatedSigner } = validation;
+
     const toNumber = (value: string, field: string): number | null => {
       const n = Number(value);
       if (!Number.isFinite(n) || n <= 0) {
@@ -115,31 +119,51 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
     try {
       setIsSavingUbiSettings(true);
 
+      if (!provider) {
+        setUbiSettingsError('No provider available.');
+        return;
+      }
+
+      const chainIdString = validatedChainId.toString() as `${SupportedNetwork}`;
+      const network = SupportedNetworkNames[validatedChainId as SupportedNetwork];
+
+      const sdk = new GoodCollectiveSDK(chainIdString, provider, { network });
+
+      // Load current pool settings to preserve them
       const poolAbi = contractsForChain?.UBIPool?.abi || [];
       if (!poolAbi.length) {
         setUbiSettingsError('Unable to load pool contract ABI for UBI settings.');
         return;
       }
 
-      const contract = new ethers.Contract(poolAddress, poolAbi, signer);
+      const contract = new ethers.Contract(poolAddress, poolAbi, provider);
+      const currentPoolSettings = await contract.settings();
 
+      // Prepare new UBI settings
       const ubiSettingsPayload = {
-        cycleLengthDays,
-        claimPeriodDays,
-        minActiveUsers,
+        cycleLengthDays: ethers.BigNumber.from(cycleLengthDays),
+        claimPeriodDays: ethers.BigNumber.from(claimPeriodDays),
+        minActiveUsers: ethers.BigNumber.from(minActiveUsers),
         claimForEnabled: ubiAllowClaimFor,
-        maxClaimAmount,
+        maxClaimAmount: ethers.BigNumber.from(maxClaimAmount),
         maxMembers,
         onlyMembers: ubiOnlyMembersCanClaim,
       };
 
       const extendedSettingsPayload = {
-        maxPeriodClaimers,
-        minClaimAmount,
+        maxPeriodClaimers: ethers.BigNumber.from(maxPeriodClaimers),
+        minClaimAmount: ethers.BigNumber.from(minClaimAmount),
         managerFeeBps: extendedManagerFeeBps,
       };
 
-      const tx = await contract.setUBISettings(ubiSettingsPayload, extendedSettingsPayload);
+      // Use SDK method to update UBI settings while preserving pool settings
+      const tx = await sdk.setUBIPoolSettings(
+        validatedSigner,
+        poolAddress,
+        currentPoolSettings,
+        ubiSettingsPayload,
+        extendedSettingsPayload
+      );
       await tx.wait();
 
       setUbiSettingsSuccess('UBI parameters updated successfully.');

@@ -58,6 +58,7 @@ const ManagePoolPage = () => {
     poolAddress,
     chainId,
     signer,
+    pooltype,
   });
 
   const ubiSettings = useUbiSettings({
@@ -77,7 +78,6 @@ const ManagePoolPage = () => {
   const memberManagement = useMemberManagement({
     poolAddress,
     pooltype,
-    contractsForChain,
     chainId,
   });
 
@@ -389,9 +389,8 @@ const ManagePoolPage = () => {
                     />
                     <PrimaryButton
                       onPress={memberManagement.handleAddMembers}
-                      isDisabled={memberManagement.isUpdatingMembers}
-                      isLoading={memberManagement.isUpdatingMembers}>
-                      {memberManagement.isUpdatingMembers ? 'Adding...' : 'Add Member'}
+                      isDisabled={memberManagement.isAddingMembers || memberManagement.isRemovingMember}>
+                      {memberManagement.isAddingMembers ? 'Adding Member...' : 'Add Member'}
                     </PrimaryButton>
                   </HStack>
                   <StatusMessage type="error" message={memberManagement.memberError} />
@@ -430,11 +429,15 @@ const ManagePoolPage = () => {
                         </Text>
                         <Pressable
                           onPress={() => memberManagement.handleRemoveMember(member)}
-                          isDisabled={memberManagement.isUpdatingMembers}
+                          isDisabled={memberManagement.isRemovingMember}
                           padding={2}>
-                          <Text fontSize="lg" color="red.500">
-                            🗑️
-                          </Text>
+                          {memberManagement.isRemovingMember ? (
+                            <Spinner variant="page-loader" />
+                          ) : (
+                            <Text fontSize="lg" color="red.500">
+                              🗑️
+                            </Text>
+                          )}
                         </Pressable>
                       </HStack>
                     ))}

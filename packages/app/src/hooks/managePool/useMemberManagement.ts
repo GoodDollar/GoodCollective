@@ -1,26 +1,83 @@
-import { useMemo, useState } from 'react';
-import { ethers } from 'ethers';
-import { useEthersSigner } from '../useEthers';
+import { useEffect, useMemo, useState } from 'react';
+import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
+import { useEthersProvider, useEthersSigner } from '../useEthers';
+import { SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
 
 interface UseMemberManagementParams {
   poolAddress?: string;
   pooltype?: string;
-  contractsForChain: any;
   chainId: number;
 }
 
-export const useMemberManagement = ({
-  poolAddress,
-  pooltype,
-  contractsForChain,
-  chainId,
-}: UseMemberManagementParams) => {
+export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMemberManagementParams) => {
+  const provider = useEthersProvider({ chainId });
   const signer = useEthersSigner({ chainId });
 
   const [memberInput, setMemberInput] = useState('');
   const [memberError, setMemberError] = useState<string | null>(null);
-  const [isUpdatingMembers, setIsUpdatingMembers] = useState(false);
+  const [isAddingMembers, setIsAddingMembers] = useState(false);
+  const [isRemovingMember, setIsRemovingMember] = useState(false);
   const [managedMembers, setManagedMembers] = useState<string[]>([]);
+  const [totalMemberCount, setTotalMemberCount] = useState<number | null>(null);
+  const [isLoadingInitialMembers, setIsLoadingInitialMembers] = useState(false);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const loadMembersAndTotal = async () => {
+      if (!poolAddress || pooltype !== 'UBI' || !provider) {
+        return;
+      }
+
+      try {
+        setIsLoadingInitialMembers(true);
+
+        const chainIdString = chainId.toString() as `${SupportedNetwork}`;
+        const network = SupportedNetworkNames[chainId as SupportedNetwork];
+        const sdk = new GoodCollectiveSDK(chainIdString, provider, { network });
+
+        try {
+          // Primary path: use SDK helper that reconstructs member set from events
+          const { members, count, onChainCount } = await sdk.getUBIPoolMembers(poolAddress);
+          if (isCancelled) return;
+
+          setManagedMembers(members);
+          setTotalMemberCount(onChainCount ?? count);
+        } catch (e) {
+          // Fallback: if log scanning fails (e.g. RPC free‑tier range limits),
+          // fall back to just reading the on‑chain membersCount from status().
+          console.warn('Failed to load member list via events for pool', poolAddress, e);
+
+          const details = await sdk.getUBIPoolsDetails([poolAddress]);
+          const rawCount = details?.[0]?.status?.membersCount;
+          if (isCancelled || rawCount === undefined || rawCount === null) {
+            return;
+          }
+
+          const count =
+            typeof rawCount === 'number'
+              ? rawCount
+              : Number((rawCount as any).toString ? (rawCount as any).toString() : rawCount);
+
+          if (!Number.isNaN(count)) {
+            setTotalMemberCount(count);
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to load member data for pool', poolAddress, e);
+      } finally {
+        if (!isCancelled) {
+          setIsLoadingInitialMembers(false);
+        }
+      }
+    };
+
+    loadMembersAndTotal();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [poolAddress, pooltype, provider, chainId]);
 
   const parsedMemberAddresses = useMemo(() => {
     if (!memberInput) return [];
@@ -56,25 +113,27 @@ export const useMemberManagement = ({
       return;
     }
 
-    if (!signer || !poolAddress || pooltype !== 'UBI') {
+    if (!signer || !poolAddress || pooltype !== 'UBI' || !provider) {
       setMemberError('Member management is currently supported for UBI pools only.');
       return;
     }
 
     try {
-      setIsUpdatingMembers(true);
-      const poolAbi = contractsForChain?.UBIPool?.abi || [];
-      if (!poolAbi.length) {
-        setMemberError('Unable to load pool contract ABI.');
-        return;
-      }
+      setIsAddingMembers(true);
 
-      const contract = new ethers.Contract(poolAddress, poolAbi, signer);
+      const chainIdString = chainId.toString() as `${SupportedNetwork}`;
+      const network = SupportedNetworkNames[chainId as SupportedNetwork];
 
+      const sdk = new GoodCollectiveSDK(chainIdString, provider, { network });
+
+      // Use SDK method to add members
       for (const addr of parsedMemberAddresses) {
-        const tx = await contract.addMember(addr, '0x');
+        const tx = await sdk.addUBIPoolMember(signer, poolAddress, addr);
         await tx.wait();
       }
+
+      // Optimistically bump the total on-chain member count
+      setTotalMemberCount((prev) => (prev ?? 0) + parsedMemberAddresses.length);
 
       setManagedMembers((prev) => {
         const next = new Set(prev.map((a) => a.toLowerCase()));
@@ -85,33 +144,39 @@ export const useMemberManagement = ({
     } catch (e: any) {
       setMemberError(e?.reason || e?.message || 'Failed to add members.');
     } finally {
-      setIsUpdatingMembers(false);
+      setIsAddingMembers(false);
     }
   };
 
   const handleRemoveMember = async (member: string) => {
-    if (!signer || !poolAddress || pooltype !== 'UBI') {
+    if (!signer || !poolAddress || pooltype !== 'UBI' || !provider) {
       setMemberError('Member management is currently supported for UBI pools only.');
       return;
     }
 
     try {
-      setIsUpdatingMembers(true);
-      const poolAbi = contractsForChain?.UBIPool?.abi || [];
-      if (!poolAbi.length) {
-        setMemberError('Unable to load pool contract ABI.');
-        return;
-      }
+      setIsRemovingMember(true);
 
-      const contract = new ethers.Contract(poolAddress, poolAbi, signer);
-      const tx = await contract.removeMember(member);
+      const chainIdString = chainId.toString() as `${SupportedNetwork}`;
+      const network = SupportedNetworkNames[chainId as SupportedNetwork];
+
+      const sdk = new GoodCollectiveSDK(chainIdString, provider, { network });
+
+      // Use SDK method to remove member
+      const tx = await sdk.removeUBIPoolMember(signer, poolAddress, member);
       await tx.wait();
+
+      // Optimistically decrease the total on-chain member count
+      setTotalMemberCount((prev) => {
+        if (prev === null) return prev;
+        return prev > 0 ? prev - 1 : 0;
+      });
 
       setManagedMembers((prev) => prev.filter((m) => m.toLowerCase() !== member.toLowerCase()));
     } catch (e: any) {
       setMemberError(e?.reason || e?.message || 'Failed to remove member.');
     } finally {
-      setIsUpdatingMembers(false);
+      setIsRemovingMember(false);
     }
   };
 
@@ -119,8 +184,11 @@ export const useMemberManagement = ({
     memberInput,
     setMemberInput,
     memberError,
-    isUpdatingMembers,
+    isAddingMembers,
+    isRemovingMember,
+    isLoadingInitialMembers,
     managedMembers,
+    totalMemberCount,
     handleAddMembers,
     handleRemoveMember,
   };

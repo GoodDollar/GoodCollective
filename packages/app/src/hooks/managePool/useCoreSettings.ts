@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { ethers } from 'ethers';
-import { useEthersSigner } from '../useEthers';
+import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
+import { useEthersProvider, useEthersSigner } from '../useEthers';
 import { validateConnection, printAndParseSupportError } from '../useContractCalls/util';
+import { SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
 
 interface UseCoreSettingsParams {
   poolAddress?: string;
@@ -13,6 +15,7 @@ interface UseCoreSettingsParams {
 
 export const useCoreSettings = ({ poolAddress, pooltype, contractsForChain, chainId }: UseCoreSettingsParams) => {
   const { address } = useAccount();
+  const provider = useEthersProvider({ chainId });
   const signer = useEthersSigner({ chainId });
 
   const [coreManager, setCoreManager] = useState('');
@@ -47,6 +50,8 @@ export const useCoreSettings = ({ poolAddress, pooltype, contractsForChain, chai
       return;
     }
 
+    const { chainId: validatedChainId, signer: validatedSigner } = validation;
+
     const isAddress = (value: string) => /^0x[a-fA-F0-9]{40}$/.test(value);
 
     if (!coreManager || !isAddress(coreManager)) {
@@ -72,22 +77,45 @@ export const useCoreSettings = ({ poolAddress, pooltype, contractsForChain, chai
     try {
       setIsSavingCoreSettings(true);
 
+      if (!provider) {
+        setCoreSettingsError('No provider available.');
+        return;
+      }
+
+      const chainIdString = validatedChainId.toString() as `${SupportedNetwork}`;
+      const network = SupportedNetworkNames[validatedChainId as SupportedNetwork];
+
+      const sdk = new GoodCollectiveSDK(chainIdString, provider, { network });
+
+      // Load current UBI settings and extended settings to preserve them
       const poolAbi = contractsForChain?.UBIPool?.abi || [];
       if (!poolAbi.length) {
         setCoreSettingsError('Unable to load pool contract ABI for core settings.');
         return;
       }
 
-      const contract = new ethers.Contract(poolAddress, poolAbi, signer);
+      const contract = new ethers.Contract(poolAddress, poolAbi, provider);
+      const [currentUbiSettings, currentExtendedSettings] = await Promise.all([
+        contract.ubiSettings(),
+        contract.extendedSettings(),
+      ]);
 
-      const settings = {
+      // Prepare new pool settings
+      const poolSettings = {
         manager: coreManager,
         membersValidator: coreMembersValidator || ethers.constants.AddressZero,
         uniquenessValidator: coreUniquenessValidator,
         rewardToken: coreRewardToken,
       };
 
-      const tx = await contract.setPoolSettings(settings);
+      // Use SDK method to update pool settings while preserving UBI and extended settings
+      const tx = await sdk.setUBIPoolSettings(
+        validatedSigner,
+        poolAddress,
+        poolSettings,
+        currentUbiSettings,
+        currentExtendedSettings
+      );
       await tx.wait();
 
       setCoreSettingsSuccess('Core pool settings updated successfully.');

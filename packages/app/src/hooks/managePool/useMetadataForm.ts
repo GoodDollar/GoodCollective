@@ -11,9 +11,10 @@ interface UseMetadataFormParams {
   poolAddress?: string;
   chainId: number;
   signer: any;
+  pooltype?: string;
 }
 
-export const useMetadataForm = ({ collective, poolAddress, chainId, signer }: UseMetadataFormParams) => {
+export const useMetadataForm = ({ collective, poolAddress, chainId, signer, pooltype }: UseMetadataFormParams) => {
   const { address } = useAccount();
   const [poolName, setPoolName] = useState('');
   const [poolDescription, setPoolDescription] = useState('');
@@ -72,7 +73,11 @@ export const useMetadataForm = ({ collective, poolAddress, chainId, signer }: Us
         images: collective?.ipfs?.images,
       };
 
-      const tx = await sdk.updatePoolAttributes(validatedSigner, poolAddress, attrs);
+      // Use the appropriate SDK method based on pool type
+      const tx =
+        pooltype === 'UBI'
+          ? await sdk.updateUBIPoolAttributes(validatedSigner, poolAddress, attrs)
+          : await sdk.updatePoolAttributes(validatedSigner, poolAddress, attrs);
       await tx.wait();
 
       setMetadataSuccess('Pool information updated. IPFS data may take a few minutes to propagate.');

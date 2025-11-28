@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useParams } from 'react-router-native';
-import { HStack, Input, ScrollView, Spinner, Text, VStack, Switch, Pressable } from 'native-base';
+import { HStack, Input, ScrollView, Spinner, Text, VStack, Switch } from 'native-base';
 import { useAccount } from 'wagmi';
 
 import Layout from '../components/Layout/Layout';
@@ -77,7 +77,6 @@ const ManageCollectivePage = () => {
   const memberManagement = useMemberManagement({
     poolAddress,
     pooltype,
-    contractsForChain,
     chainId,
   });
 
@@ -389,9 +388,9 @@ const ManageCollectivePage = () => {
                     />
                     <PrimaryButton
                       onPress={memberManagement.handleAddMembers}
-                      isDisabled={memberManagement.isUpdatingMembers}
-                      isLoading={memberManagement.isUpdatingMembers}>
-                      {memberManagement.isUpdatingMembers ? 'Adding...' : 'Add Member'}
+                      isLoading={memberManagement.isAddingMembers}
+                      isDisabled={memberManagement.isAddingMembers}>
+                      {memberManagement.isAddingMembers ? 'Adding Member...' : 'Add Member'}
                     </PrimaryButton>
                   </HStack>
                   <StatusMessage type="error" message={memberManagement.memberError} />
@@ -418,14 +417,12 @@ const ManageCollectivePage = () => {
                         <Text fontFamily="mono" fontSize="sm" color="gray.700">
                           {member}
                         </Text>
-                        <Pressable
+                        <PrimaryButton
                           onPress={() => memberManagement.handleRemoveMember(member)}
-                          isDisabled={memberManagement.isUpdatingMembers}
-                          padding={2}>
-                          <Text fontSize="lg" color="red.500">
-                            🗑️
-                          </Text>
-                        </Pressable>
+                          isLoading={memberManagement.isRemovingMember}
+                          isDisabled={memberManagement.isRemovingMember || memberManagement.isAddingMembers}>
+                          {memberManagement.isRemovingMember ? 'Removing Member...' : 'Remove Member'}
+                        </PrimaryButton>
                       </HStack>
                     ))}
                   </VStack>
