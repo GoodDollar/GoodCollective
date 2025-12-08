@@ -94,17 +94,20 @@ const HomePage = () => {
   const [showWarningMessage, setShowWarningMessage] = useState(false);
   const [isMyPoolsExpanded, setIsMyPoolsExpanded] = useState(true);
 
-  const lowercaseAddress = address?.toLowerCase() ?? '';
+  const lowercaseAddress = isConnected && address ? address.toLowerCase() : undefined;
 
-  const donor = useDonorById(lowercaseAddress, SUBGRAPH_POLL_INTERVAL);
-  const steward = useStewardById(lowercaseAddress);
+  const donor = useDonorById(lowercaseAddress ?? '', SUBGRAPH_POLL_INTERVAL);
+  const steward = useStewardById(lowercaseAddress ?? '');
 
   const myCollectiveIds = useMemo(() => {
+    if (!isConnected || !lowercaseAddress) {
+      return [];
+    }
     const stewardIds = steward?.collectives.map((collective) => collective.collective) ?? [];
     const donorIds = donor?.collectives.map((collective) => collective.collective) ?? [];
 
     return Array.from(new Set([...stewardIds, ...donorIds]));
-  }, [steward, donor]);
+  }, [isConnected, lowercaseAddress, steward, donor]);
 
   const myIpfsCollectives = useCollectivesMetadataById(myCollectiveIds);
 
