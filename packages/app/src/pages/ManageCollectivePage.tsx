@@ -398,7 +398,17 @@ const ManageCollectivePage = () => {
               </SectionCard>
 
               {/* Current Members Section */}
-              <SectionCard title={`Current Members (${memberManagement.managedMembers.length} / )`}>
+              <SectionCard
+                title={`Session Members (${memberManagement.managedMembers.length})${
+                  memberManagement.totalMemberCount !== null ? ` / Total: ${memberManagement.totalMemberCount}` : ''
+                }`}>
+                <InfoCallout type="info">
+                  <Text fontSize="xs">
+                    Note: This list shows members added/removed in this session. The contract doesn&apos;t support
+                    enumerating all members directly. Members are tracked on-chain via AccessControl roles. The total
+                    count reflects all members in the pool.
+                  </Text>
+                </InfoCallout>
                 {memberManagement.managedMembers.length === 0 ? (
                   <Text color="gray.500" marginTop={2}>
                     Members that you add in this session will appear here.
