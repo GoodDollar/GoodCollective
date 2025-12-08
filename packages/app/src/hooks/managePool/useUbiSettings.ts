@@ -67,7 +67,7 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
     loadUbiSettings();
   }, [poolAddress, pooltype, provider, contractsForChain]);
 
-  const handleSaveUbiSettings = async () => {
+  const handleSaveUbiSettings = async (options?: { skipBaseValidation?: boolean }) => {
     setUbiSettingsError(null);
     setUbiSettingsSuccess(null);
 
@@ -98,19 +98,42 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
       return n;
     };
 
-    const cycleLengthDays = toNumber(ubiCycleLengthDays, 'Cycle Length (Days)');
-    if (cycleLengthDays === null) return;
-    const claimPeriodDays = toNumber(ubiClaimPeriodDays, 'Claim Period (Days)');
-    if (claimPeriodDays === null) return;
-    const minActiveUsers = toNumber(ubiMinActiveUsers, 'Min Active Users');
-    if (minActiveUsers === null) return;
-    const maxMembers = toNumber(ubiMaxMembers || '0', 'Max Members');
-    if (maxMembers === null) return;
+    // Validate base UBI parameters only if not skipping base validation
+    let cycleLengthDays: number;
+    let claimPeriodDays: number;
+    let minActiveUsers: number;
+    let maxMembers: number;
+    let maxClaimAmount: string;
 
-    const maxClaimAmount = ubiMaxClaimAmountWei.trim();
-    if (!maxClaimAmount) {
-      setUbiSettingsError('Max Claim Amount (in wei) is required.');
-      return;
+    if (!options?.skipBaseValidation) {
+      const cycleLengthDaysValidated = toNumber(ubiCycleLengthDays, 'Cycle Length (Days)');
+      if (cycleLengthDaysValidated === null) return;
+      cycleLengthDays = cycleLengthDaysValidated;
+
+      const claimPeriodDaysValidated = toNumber(ubiClaimPeriodDays, 'Claim Period (Days)');
+      if (claimPeriodDaysValidated === null) return;
+      claimPeriodDays = claimPeriodDaysValidated;
+
+      const minActiveUsersValidated = toNumber(ubiMinActiveUsers, 'Min Active Users');
+      if (minActiveUsersValidated === null) return;
+      minActiveUsers = minActiveUsersValidated;
+
+      const maxMembersValidated = toNumber(ubiMaxMembers || '0', 'Max Members');
+      if (maxMembersValidated === null) return;
+      maxMembers = maxMembersValidated;
+
+      maxClaimAmount = ubiMaxClaimAmountWei.trim();
+      if (!maxClaimAmount) {
+        setUbiSettingsError('Max Claim Amount (in wei) is required.');
+        return;
+      }
+    } else {
+      // If skipping validation, use current state values (assuming they are already loaded and valid)
+      cycleLengthDays = Number(ubiCycleLengthDays);
+      claimPeriodDays = Number(ubiClaimPeriodDays);
+      minActiveUsers = Number(ubiMinActiveUsers);
+      maxMembers = Number(ubiMaxMembers || '0');
+      maxClaimAmount = ubiMaxClaimAmountWei.trim();
     }
 
     const maxPeriodClaimers = Number(extendedMaxPeriodClaimers || '0');

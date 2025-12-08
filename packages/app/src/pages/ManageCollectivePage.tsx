@@ -364,7 +364,7 @@ const ManageCollectivePage = () => {
                 </VStack>
 
                 <PrimaryButton
-                  onPress={ubiSettings.handleSaveUbiSettings}
+                  onPress={() => ubiSettings.handleSaveUbiSettings({ skipBaseValidation: true })}
                   isLoading={ubiSettings.isSavingUbiSettings}
                   isDisabled={ubiSettings.isSavingUbiSettings || pooltype !== 'UBI'}>
                   Save Extended Controls
