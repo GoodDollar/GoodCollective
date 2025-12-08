@@ -409,7 +409,22 @@ const ManageCollectivePage = () => {
                     count reflects all members in the pool.
                   </Text>
                 </InfoCallout>
-                {memberManagement.managedMembers.length === 0 ? (
+                {memberManagement.totalMemberCount &&
+                memberManagement.totalMemberCount > 0 &&
+                memberManagement.managedMembers.length === 0 ? (
+                  <VStack space={2} marginTop={2}>
+                    <InfoCallout type="warning">
+                      <Text fontSize="xs" fontWeight="600">
+                        Unable to load member addresses
+                      </Text>
+                      <Text fontSize="xs" marginTop={1}>
+                        This pool has {memberManagement.totalMemberCount} member(s), but they were added more than
+                        ~9,500 blocks ago. Free-tier RPC providers limit historical event queries. You can still
+                        add/remove members manually by entering their addresses above.
+                      </Text>
+                    </InfoCallout>
+                  </VStack>
+                ) : memberManagement.managedMembers.length === 0 ? (
                   <Text color="gray.500" marginTop={2}>
                     Members that you add in this session will appear here.
                   </Text>

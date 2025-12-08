@@ -38,11 +38,23 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
 
         try {
           // Primary path: use SDK helper that reconstructs member set from events
+          // NOTE: SDK defaults to scanning last ~9,500 blocks to stay within RPC free-tier limits
+          // For older pools, this may not capture all members. Consider using a paid RPC provider
+          // or implementing a subgraph query for complete member lists.
           const { members, count, onChainCount } = await sdk.getUBIPoolMembers(poolAddress);
           if (isCancelled) return;
 
           setManagedMembers(members);
           setTotalMemberCount(onChainCount ?? count);
+
+          // If we got a total count but no members, it means members were added outside the scan range
+          if (onChainCount && onChainCount > 0 && members.length === 0) {
+            console.warn(
+              `Pool has ${onChainCount} members but none found in recent blocks. ` +
+                'Members may have been added more than ~9,500 blocks ago. ' +
+                'Consider using a paid RPC provider for full member list access.'
+            );
+          }
         } catch (e) {
           // Fallback: if log scanning fails (e.g. RPC free‑tier range limits),
           // fall back to just reading the on‑chain membersCount from status().
