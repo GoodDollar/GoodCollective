@@ -13,7 +13,7 @@ import { config } from './../config';
 import { useScreenSize } from '../theme/hooks';
 import RoundedButton from './RoundedButton';
 
-import { InfoIconOrange } from '../assets';
+import WarningBox from './WarningBox';
 import { useContractCalls, useGetTokenPrice } from '../hooks';
 import { useApproveSwapTokenCallback } from '../hooks/useApproveSwapTokenCallback';
 import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
@@ -122,57 +122,6 @@ const SwapValue = ({ swapValue }: { swapValue: number }) => (
     {formatNumberWithCommas(swapValue.toString(), 2)}
   </Text>
 );
-
-const WarningBox = ({ content, explanationProps = {} }: any) => {
-  const Explanation = content.Explanation;
-
-  return (
-    <HStack
-      space={2}
-      backgroundColor="goodOrange.200"
-      maxWidth="500"
-      borderRadius={15}
-      display={'flex'}
-      flexDirection="row"
-      alignItems="center"
-      justifyContent="center"
-      paddingY={3}
-      paddingX={2}>
-      <Image source={{ uri: InfoIconOrange }} style={{ width: 16, height: 16 }} />
-      <VStack space={4} maxWidth="100%">
-        <VStack space={1}>
-          <Text variant="bold" color="goodOrange.500">
-            {content.title}
-          </Text>
-
-          {Explanation ? <Explanation {...explanationProps} /> : null}
-        </VStack>
-        {content.suggestion ? (
-          <VStack space={2}>
-            <Text variant="bold" color="goodOrange.500">
-              You may:
-            </Text>
-            <VStack space={0}>
-              <Text color="goodOrange.500" flexDir="column" display="flex">
-                {content.suggestion.map((suggestion: string, index: number) => (
-                  <Text key={index}>
-                    {index + 1}. {suggestion}
-                  </Text>
-                ))}
-                {content.href && (
-                  <Link color="goodOrange.500" href={content.href} isExternal>
-                    <Text>{content.suggestion.length + 1}. </Text>
-                    <Text textDecorationLine="underline">Purchase and use GoodDollar</Text>
-                  </Link>
-                )}
-              </Text>
-            </VStack>
-          </VStack>
-        ) : null}
-      </VStack>
-    </HStack>
-  );
-};
 
 const DonateComponent = ({ collective }: DonateComponentProps) => {
   const { id: collectiveId = '0x' } = useParams();

@@ -13,7 +13,13 @@ import {
 import { Platform } from 'react-native';
 import { useAppKitAccount } from '@reown/appkit/react';
 
-import { useDonorById, useStewardById, useTotalStats, useCollectivesMetadataById } from '../hooks';
+import {
+  useDonorById,
+  useStewardById,
+  useManagerCollectives,
+  useTotalStats,
+  useCollectivesMetadataById,
+} from '../hooks';
 import type { TotalStats } from '../hooks';
 import { useScreenSize } from '../theme/hooks';
 
@@ -98,6 +104,7 @@ const HomePage = () => {
 
   const donor = useDonorById(lowercaseAddress ?? '', SUBGRAPH_POLL_INTERVAL);
   const steward = useStewardById(lowercaseAddress ?? '');
+  const managerIds = useManagerCollectives(lowercaseAddress ?? '');
 
   const myCollectiveIds = useMemo(() => {
     if (!isConnected || !lowercaseAddress) {
@@ -106,8 +113,8 @@ const HomePage = () => {
     const stewardIds = steward?.collectives.map((collective) => collective.collective) ?? [];
     const donorIds = donor?.collectives.map((collective) => collective.collective) ?? [];
 
-    return Array.from(new Set([...stewardIds, ...donorIds]));
-  }, [isConnected, lowercaseAddress, steward, donor]);
+    return Array.from(new Set([...stewardIds, ...donorIds, ...managerIds]));
+  }, [isConnected, lowercaseAddress, steward, donor, managerIds]);
 
   const myIpfsCollectives = useCollectivesMetadataById(myCollectiveIds);
 

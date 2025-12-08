@@ -1,29 +1,26 @@
-import React, { useMemo, useState } from 'react';
+import { HStack, Input, ScrollView, Spinner, Switch, Text, VStack } from 'native-base';
+import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-native';
-import { HStack, Input, ScrollView, Spinner, Text, VStack, Switch } from 'native-base';
 import { useAccount } from 'wagmi';
 
-import Layout from '../components/Layout/Layout';
-import { useCollectiveById } from '../hooks';
-import env from '../lib/env';
 import GoodCollectiveContracts from '../../../contracts/releases/deployment.json';
-import { Colors } from '../utils/colors';
-import { useEthersSigner } from '../hooks/useEthers';
+import Layout from '../components/Layout/Layout';
+import ActionButton from '../components/ActionButton';
+import { FormField } from '../components/FormField';
+import { TabNavigation } from '../components/TabNavigation';
+import { SectionCard } from '../components/SectionCard';
+import { StatusMessage } from '../components/StatusMessage';
+import WarningBox from '../components/WarningBox';
+import { useCollectiveById } from '../hooks';
 import {
-  FormField,
-  InfoCallout,
-  TabNavigation,
-  StatusMessage,
-  SectionCard,
-  PrimaryButton,
-} from '../components/ManageCollective';
-import {
-  usePoolManager,
-  useMetadataForm,
-  useUbiSettings,
   useCoreSettings,
   useMemberManagement,
+  useMetadataForm,
+  usePoolManager,
+  useUbiSettings,
 } from '../hooks/managePool';
+import { useEthersSigner } from '../hooks/useEthers';
+import env from '../lib/env';
 
 type AdminTab = 'settings' | 'members';
 
@@ -123,10 +120,10 @@ const ManageCollectivePage = () => {
             <VStack space={6}>
               {/* Pool Information Section */}
               <SectionCard title="Pool Information">
-                <InfoCallout type="info">
+                <WarningBox type="info">
                   Changes here are saved to IPFS. You will first &quot;Upload to IPFS&quot; to generate a new CID, then
                   be asked to &quot;Confirm Transaction&quot; to update the on-chain IPFS hash.
-                </InfoCallout>
+                </WarningBox>
 
                 <VStack space={4} marginTop={4}>
                   <FormField label="Pool Name" value={metadataForm.poolName} onChangeText={metadataForm.setPoolName} />
@@ -178,22 +175,26 @@ const ManageCollectivePage = () => {
                   </HStack>
                 </VStack>
 
-                <PrimaryButton
+                <ActionButton
                   onPress={metadataForm.handleUpdateMetadata}
                   isLoading={metadataForm.isUpdatingMetadata}
-                  isDisabled={metadataForm.isUpdatingMetadata}>
-                  Update Collective
-                </PrimaryButton>
+                  isDisabled={metadataForm.isUpdatingMetadata}
+                  text="Update Collective"
+                  bg="goodPurple.500"
+                  textColor="white"
+                  borderRadius={12}
+                  width="100%"
+                />
                 <StatusMessage type="error" message={metadataForm.metadataError} />
                 <StatusMessage type="success" message={metadataForm.metadataSuccess} />
               </SectionCard>
 
               {/* Core Pool Settings Section */}
               <SectionCard title="Core Pool Settings">
-                <InfoCallout type="warning">
+                <WarningBox type="warning">
                   <Text fontWeight="700">Warning: </Text>
                   Changes to these settings are critical and take effect immediately after the transaction is confirmed.
-                </InfoCallout>
+                </WarningBox>
 
                 <VStack space={4} marginTop={4}>
                   <FormField
@@ -229,12 +230,16 @@ const ManageCollectivePage = () => {
                   />
                 </VStack>
 
-                <PrimaryButton
+                <ActionButton
                   onPress={coreSettings.handleSaveCoreSettings}
                   isLoading={coreSettings.isSavingCoreSettings}
-                  isDisabled={coreSettings.isSavingCoreSettings || pooltype !== 'UBI'}>
-                  Save Core Settings
-                </PrimaryButton>
+                  isDisabled={coreSettings.isSavingCoreSettings || pooltype !== 'UBI'}
+                  text="Save Core Settings"
+                  bg="goodPurple.500"
+                  textColor="white"
+                  borderRadius={12}
+                  width="100%"
+                />
                 <StatusMessage type="error" message={coreSettings.coreSettingsError} />
                 <StatusMessage type="success" message={coreSettings.coreSettingsSuccess} />
               </SectionCard>
@@ -243,9 +248,9 @@ const ManageCollectivePage = () => {
               <SectionCard
                 title="UBI Parameters"
                 description="Configure the core logic of the UBI distribution formula and timing.">
-                <InfoCallout type="info">
+                <WarningBox type="info">
                   Configure the UBI cycle length, claim period, and caps for your pool.
-                </InfoCallout>
+                </WarningBox>
 
                 <VStack space={4} marginTop={4}>
                   <HStack space={4}>
@@ -308,7 +313,7 @@ const ManageCollectivePage = () => {
                       <Switch
                         isChecked={ubiSettings.ubiAllowClaimFor}
                         onToggle={() => ubiSettings.setUbiAllowClaimFor((prev) => !prev)}
-                        onTrackColor={Colors.purple[400]}
+                        onTrackColor="goodPurple.500"
                       />
                     </HStack>
 
@@ -320,18 +325,22 @@ const ManageCollectivePage = () => {
                       <Switch
                         isChecked={ubiSettings.ubiOnlyMembersCanClaim}
                         onToggle={() => ubiSettings.setUbiOnlyMembersCanClaim((prev) => !prev)}
-                        onTrackColor={Colors.purple[400]}
+                        onTrackColor="goodPurple.500"
                       />
                     </HStack>
                   </VStack>
                 </VStack>
 
-                <PrimaryButton
+                <ActionButton
                   onPress={ubiSettings.handleSaveUbiSettings}
                   isLoading={ubiSettings.isSavingUbiSettings}
-                  isDisabled={ubiSettings.isSavingUbiSettings || pooltype !== 'UBI'}>
-                  Save UBI Parameters
-                </PrimaryButton>
+                  isDisabled={ubiSettings.isSavingUbiSettings || pooltype !== 'UBI'}
+                  text="Save UBI Parameters"
+                  bg="goodPurple.500"
+                  textColor="white"
+                  borderRadius={12}
+                  width="100%"
+                />
                 <StatusMessage type="error" message={ubiSettings.ubiSettingsError} />
                 <StatusMessage type="success" message={ubiSettings.ubiSettingsSuccess} />
               </SectionCard>
@@ -340,9 +349,9 @@ const ManageCollectivePage = () => {
               <SectionCard
                 title="Distribution Controls (Extended)"
                 description="Set advanced limits and fees for the pool.">
-                <InfoCallout type="info">
+                <WarningBox type="info">
                   These settings are optional and recommended for advanced pool tuning.
-                </InfoCallout>
+                </WarningBox>
 
                 <VStack space={4} marginTop={4}>
                   <FormField
@@ -363,12 +372,16 @@ const ManageCollectivePage = () => {
                   />
                 </VStack>
 
-                <PrimaryButton
+                <ActionButton
                   onPress={() => ubiSettings.handleSaveUbiSettings({ skipBaseValidation: true })}
                   isLoading={ubiSettings.isSavingUbiSettings}
-                  isDisabled={ubiSettings.isSavingUbiSettings || pooltype !== 'UBI'}>
-                  Save Extended Controls
-                </PrimaryButton>
+                  isDisabled={ubiSettings.isSavingUbiSettings || pooltype !== 'UBI'}
+                  text="Save Extended Controls"
+                  bg="goodPurple.500"
+                  textColor="white"
+                  borderRadius={12}
+                  width="100%"
+                />
               </SectionCard>
             </VStack>
           ) : (
@@ -386,12 +399,15 @@ const ManageCollectivePage = () => {
                       autoCapitalize="none"
                       borderRadius={8}
                     />
-                    <PrimaryButton
+                    <ActionButton
                       onPress={memberManagement.handleAddMembers}
                       isLoading={memberManagement.isAddingMembers}
-                      isDisabled={memberManagement.isAddingMembers}>
-                      {memberManagement.isAddingMembers ? 'Adding Member...' : 'Add Member'}
-                    </PrimaryButton>
+                      isDisabled={memberManagement.isAddingMembers}
+                      text={memberManagement.isAddingMembers ? 'Adding Member...' : 'Add Member'}
+                      bg="goodPurple.500"
+                      textColor="white"
+                      borderRadius={12}
+                    />
                   </HStack>
                   <StatusMessage type="error" message={memberManagement.memberError} />
                 </VStack>
@@ -402,18 +418,18 @@ const ManageCollectivePage = () => {
                 title={`Session Members (${memberManagement.managedMembers.length})${
                   memberManagement.totalMemberCount !== null ? ` / Total: ${memberManagement.totalMemberCount}` : ''
                 }`}>
-                <InfoCallout type="info">
+                <WarningBox type="info">
                   <Text fontSize="xs">
                     Note: This list shows members added/removed in this session. The contract doesn&apos;t support
                     enumerating all members directly. Members are tracked on-chain via AccessControl roles. The total
                     count reflects all members in the pool.
                   </Text>
-                </InfoCallout>
+                </WarningBox>
                 {memberManagement.totalMemberCount &&
                 memberManagement.totalMemberCount > 0 &&
                 memberManagement.managedMembers.length === 0 ? (
                   <VStack space={2} marginTop={2}>
-                    <InfoCallout type="warning">
+                    <WarningBox type="warning">
                       <Text fontSize="xs" fontWeight="600">
                         Unable to load member addresses
                       </Text>
@@ -422,7 +438,7 @@ const ManageCollectivePage = () => {
                         ~9,500 blocks ago. Free-tier RPC providers limit historical event queries. You can still
                         add/remove members manually by entering their addresses above.
                       </Text>
-                    </InfoCallout>
+                    </WarningBox>
                   </VStack>
                 ) : memberManagement.managedMembers.length === 0 ? (
                   <Text color="gray.500" marginTop={2}>
@@ -435,19 +451,22 @@ const ManageCollectivePage = () => {
                         key={member}
                         alignItems="center"
                         justifyContent="space-between"
-                        backgroundColor={Colors.gray[400]}
+                        backgroundColor="goodGrey.100"
                         borderRadius={12}
                         paddingX={4}
                         paddingY={3}>
                         <Text fontFamily="mono" fontSize="sm" color="gray.700">
                           {member}
                         </Text>
-                        <PrimaryButton
+                        <ActionButton
                           onPress={() => memberManagement.handleRemoveMember(member)}
                           isLoading={memberManagement.isRemovingMember}
-                          isDisabled={memberManagement.isRemovingMember || memberManagement.isAddingMembers}>
-                          {memberManagement.isRemovingMember ? 'Removing Member...' : 'Remove Member'}
-                        </PrimaryButton>
+                          isDisabled={memberManagement.isRemovingMember || memberManagement.isAddingMembers}
+                          text={memberManagement.isRemovingMember ? 'Removing Member...' : 'Remove Member'}
+                          bg="red.500"
+                          textColor="white"
+                          borderRadius={12}
+                        />
                       </HStack>
                     ))}
                   </VStack>
