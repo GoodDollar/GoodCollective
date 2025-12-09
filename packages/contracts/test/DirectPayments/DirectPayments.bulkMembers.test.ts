@@ -1,6 +1,7 @@
 import { deploySuperGoodDollar } from '@gooddollar/goodprotocol';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { deployTestFramework } from '@superfluid-finance/ethereum-contracts/dev-scripts/deploy-test-framework';
+import '@nomicfoundation/hardhat-toolbox';
 import { expect } from 'chai';
 import { DirectPaymentsFactory, DirectPaymentsPool, ProvableNFT } from 'typechain-types';
 import { ethers, upgrades } from 'hardhat';
