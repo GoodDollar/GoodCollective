@@ -218,6 +218,7 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
     extendedMaxPeriodClaimers,
     setExtendedMaxPeriodClaimers,
     extendedManagerFeeBps,
+    setExtendedManagerFeeBps,
     isSavingUbiSettings,
     ubiSettingsError,
     ubiSettingsSuccess,

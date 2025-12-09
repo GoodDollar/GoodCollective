@@ -369,6 +369,25 @@ const ManageCollectivePage = () => {
                     onChangeText={ubiSettings.setExtendedMaxPeriodClaimers}
                     helperText="Maximum number of claimers counted in each period (0 = unlimited)."
                   />
+                  <FormField
+                    label="Pool Manager Fee (%)"
+                    placeholder="0"
+                    keyboardType="numeric"
+                    value={
+                      ubiSettings.extendedManagerFeeBps !== null ? String(ubiSettings.extendedManagerFeeBps / 100) : ''
+                    }
+                    onChangeText={(val) => {
+                      if (val === '') {
+                        ubiSettings.setExtendedManagerFeeBps(0);
+                        return;
+                      }
+                      const num = parseFloat(val);
+                      if (!isNaN(num) && num >= 0 && num <= 100) {
+                        ubiSettings.setExtendedManagerFeeBps(Math.round(num * 100));
+                      }
+                    }}
+                    helperText="Percentage fee taken from pool funds by the manager (0-100%). This percentage will be taken from the pool funds as your management fee."
+                  />
                 </VStack>
 
                 <ActionButton
