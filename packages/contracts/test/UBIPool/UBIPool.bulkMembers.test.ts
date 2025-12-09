@@ -57,7 +57,7 @@ describe('UBIPool Bulk Members', () => {
         );
         const receipt = await poolTx.wait();
         const poolAddr = receipt.events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
-        pool = await ethers.getContractAt('UBIPool', poolAddr);
+        pool = (await ethers.getContractAt('UBIPool', poolAddr)) as UBIPool;
 
         // Fund the pool
         await gdframework.GoodDollar.mint(pool.address, ethers.utils.parseEther('100000'));
@@ -151,7 +151,7 @@ describe('UBIPool Bulk Members', () => {
             );
             const receipt = await poolTx.wait();
             const poolAddr = receipt.events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
-            const limitedPool = await ethers.getContractAt('UBIPool', poolAddr);
+            const limitedPool = (await ethers.getContractAt('UBIPool', poolAddr)) as UBIPool;
 
             const members = Array(6)
                 .fill(0)
