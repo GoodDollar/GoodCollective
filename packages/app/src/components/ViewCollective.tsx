@@ -38,6 +38,7 @@ import { useEthersProvider } from '../hooks/useEthers';
 import { useFlowingBalance } from '../hooks/useFlowingBalance';
 import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
 import { useRealtimeStats } from '../hooks/useRealtimeStats';
+import { usePoolManager } from '../hooks/managePool';
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 import env from '../lib/env';
 import { formatFlowRate } from '../lib/formatFlowRate';
@@ -236,7 +237,13 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const [refetchTrigger, setRefetchTrigger] = useState(0);
   const [isMemberPoolLoading, setIsMemberPoolLoading] = useState(false);
 
-  const [isManager, setIsManager] = useState(false);
+  const { isManager } = usePoolManager({
+    poolAddress,
+    pooltype: pooltype as 'UBI' | 'DIRECT' | undefined,
+    chainId,
+    provider,
+    address,
+  });
 
   const fetchMemberPools = useCallback(async () => {
     if (!poolAddress || pooltype !== 'UBI' || !provider) {
@@ -313,40 +320,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
       setPoolOnlyMembers(undefined);
       setIsMemberPoolLoading(false);
     }
-  }, [address, poolAddress, pooltype, provider, chainId]);
-
-  useEffect(() => {
-    const checkIsManager = async () => {
-      if (!address || !provider || !poolAddress) {
-        setIsManager(false);
-        return;
-      }
-
-      try {
-        const chainKey = chainId.toString();
-        const networkName = env.REACT_APP_NETWORK || 'development-celo';
-        const contractsForChain = (GoodCollectiveContracts as any)[chainKey]?.find(
-          (envs: any) => envs.name === networkName
-        )?.contracts;
-
-        const poolAbi =
-          (pooltype === 'UBI' ? contractsForChain?.UBIPool?.abi : contractsForChain?.DirectPaymentsPool?.abi) || [];
-
-        if (!poolAbi.length) {
-          setIsManager(false);
-          return;
-        }
-
-        const MANAGER_ROLE = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('MANAGER_ROLE'));
-        const contract = new ethers.Contract(poolAddress, poolAbi, provider);
-        const hasRole = await contract.hasRole(MANAGER_ROLE, address);
-        setIsManager(Boolean(hasRole));
-      } catch {
-        setIsManager(false);
-      }
-    };
-
-    checkIsManager();
   }, [address, poolAddress, pooltype, provider, chainId]);
 
   useEffect(() => {

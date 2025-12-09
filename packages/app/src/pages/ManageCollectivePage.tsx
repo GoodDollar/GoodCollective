@@ -45,8 +45,7 @@ const ManageCollectivePage = () => {
 
   const { isManager, checkingRole } = usePoolManager({
     poolAddress,
-    pooltype,
-    contractsForChain,
+    pooltype: pooltype as 'UBI' | 'DIRECT' | undefined,
     chainId,
   });
 
