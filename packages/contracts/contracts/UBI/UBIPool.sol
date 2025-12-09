@@ -23,9 +23,11 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     error EMPTY_MANAGER();
     error MAX_MEMBERS_REACHED();
     error MAX_PERIOD_CLAIMERS_REACHED(uint256 claimers);
+    error BATCH_TOO_LARGE();
 
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
     bytes32 public constant MEMBER_ROLE = keccak256("MEMBER_ROLE");
+    uint256 public constant MAX_BATCH_SIZE = 200;
 
     event PoolSettingsChanged(PoolSettings settings);
     event UBISettingsChanged(UBISettings settings);
@@ -42,6 +44,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     event UBICycleCalculated(uint256 day, uint256 pool, uint256 cycleLength, uint256 dailyUBIPool);
 
     event UBIClaimed(address indexed whitelistedRoot, address indexed claimer, uint256 amount);
+    event MemberAdded(address indexed member);
 
     struct UBISettings {
         //number of days of each UBI pool cycle
@@ -294,6 +297,64 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
 
         _grantRole(MEMBER_ROLE, member);
         return true;
+    }
+
+    /**
+     * @dev Adds multiple members to the pool in a single transaction.
+     * @param members Array of member addresses to add.
+     * @param extraData Array of additional validation data for each member.
+     */
+    function addMembers(address[] calldata members, bytes[] calldata extraData) external {
+        if (members.length > MAX_BATCH_SIZE) revert BATCH_TOO_LARGE();
+        if (members.length != extraData.length) revert("Length mismatch");
+
+        // Check if we have room for new members
+        if (ubiSettings.maxMembers > 0) {
+            uint256 potentialNewMembers = 0;
+            for (uint i = 0; i < members.length; ) {
+                if (!hasRole(MEMBER_ROLE, members[i])) {
+                    unchecked { ++potentialNewMembers; }
+                }
+                unchecked { ++i; }
+            }
+            if (status.membersCount + potentialNewMembers > ubiSettings.maxMembers) {
+                revert MAX_MEMBERS_REACHED();
+            }
+        }
+
+        for (uint i = 0; i < members.length; ) {
+            // Skip if already a member
+            if (!hasRole(MEMBER_ROLE, members[i])) {
+                bool isValid = true;
+
+                // Validate uniqueness if validator is set
+                if (address(settings.uniquenessValidator) != address(0)) {
+                    address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(members[i]);
+                    if (rootAddress == address(0)) {
+                        isValid = false;
+                    }
+                }
+
+                // Validate with members validator if set and caller is not manager
+                if (isValid && address(settings.membersValidator) != address(0) && !hasRole(MANAGER_ROLE, msg.sender)) {
+                    if (!settings.membersValidator.isMemberValid(address(this), msg.sender, members[i], extraData[i])) {
+                        isValid = false;
+                    }
+                }
+                // If no members validator but onlyMembers is true, only manager can add
+                else if (isValid && ubiSettings.onlyMembers && !hasRole(MANAGER_ROLE, msg.sender)) {
+                    isValid = false;
+                }
+
+                // Grant role if valid (this triggers factory registry update and increments membersCount)
+                if (isValid) {
+                    _grantRole(MEMBER_ROLE, members[i]);
+                    emit MemberAdded(members[i]);
+                }
+            }
+            
+            unchecked { ++i; }
+        }
     }
 
     function removeMember(address member) external onlyRole(MANAGER_ROLE) {

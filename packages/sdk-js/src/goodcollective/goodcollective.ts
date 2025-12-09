@@ -793,4 +793,84 @@ export class GoodCollectiveSDK {
       };
     }
   }
+
+  /**
+   * Adds multiple members to a DirectPayments pool in a single transaction
+   * @param {ethers.Signer} signer - The signer object for the transaction
+   * @param {string} poolAddress - The address of the pool contract
+   * @param {string[]} members - Array of member addresses to add
+   * @param {string[]} extraData - Array of additional validation data for each member
+   * @returns {Promise<ethers.ContractTransaction>} A promise that resolves to a transaction object
+   */
+  async addDirectPaymentsPoolMembers(
+    signer: ethers.Signer,
+    poolAddress: string,
+    members: string[],
+    extraData: string[]
+  ): Promise<ContractTransaction> {
+    const connected = this.pool.attach(poolAddress).connect(signer);
+    return connected.addMembers(members, extraData, { ...CHAIN_OVERRIDES[this.chainId] });
+  }
+
+  /**
+   * Adds multiple members to a UBI pool in a single transaction
+   * @param {ethers.Signer} signer - The signer object for the transaction
+   * @param {string} poolAddress - The address of the pool contract
+   * @param {string[]} members - Array of member addresses to add
+   * @param {string[]} extraData - Array of additional validation data for each member
+   * @returns {Promise<ethers.ContractTransaction>} A promise that resolves to a transaction object
+   */
+  async addUBIPoolMembers(
+    signer: ethers.Signer,
+    poolAddress: string,
+    members: string[],
+    extraData: string[]
+  ): Promise<ContractTransaction> {
+    const connected = this.ubipool.attach(poolAddress).connect(signer);
+    return connected.addMembers(members, extraData, { ...CHAIN_OVERRIDES[this.chainId] });
+  }
+
+  /**
+   * Estimates gas and native token required for bulk member addition
+   * @param {string} poolAddress - The address of the pool contract
+   * @param {string[]} members - Array of member addresses to add
+   * @param {string[]} extraData - Array of additional validation data for each member
+   * @param {'directPayments' | 'ubi'} poolType - Type of pool
+   * @returns {Promise<{gasEstimate: string, gasPrice: string, nativeTokenRequired: string, recommendedBatchSize: number}>}
+   */
+  async estimateBulkAddMembersGas(
+    poolAddress: string,
+    members: string[],
+    extraData: string[],
+    poolType: 'directPayments' | 'ubi'
+  ): Promise<{
+    gasEstimate: string;
+    gasPrice: string;
+    nativeTokenRequired: string;
+    recommendedBatchSize: number;
+  }> {
+    const pool = poolType === 'ubi' ? this.ubipool.attach(poolAddress) : this.pool.attach(poolAddress);
+
+    // Estimate gas for the transaction
+    const gasEstimate = await pool.estimateGas.addMembers(members, extraData);
+
+    // Get current gas price
+    const gasPrice = await pool.provider.getGasPrice();
+
+    // Calculate native token required
+    const nativeTokenRequired = gasEstimate.mul(gasPrice);
+
+    // Calculate recommended batch size based on gas estimate
+    // Assuming block gas limit of 30M and targeting 50% usage for safety
+    const targetGasLimit = 15000000;
+    const gasPerMember = gasEstimate.div(members.length);
+    const recommendedBatchSize = Math.min(200, Math.floor(targetGasLimit / gasPerMember.toNumber()));
+
+    return {
+      gasEstimate: gasEstimate.toString(),
+      gasPrice: gasPrice.toString(),
+      nativeTokenRequired: nativeTokenRequired.toString(),
+      recommendedBatchSize,
+    };
+  }
 }
