@@ -516,14 +516,11 @@ export class GoodCollectiveSDK {
     let onChainCount: number | undefined;
     try {
       const status = await pool.status();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const rawCount = (status as any).membersCount;
-      if (typeof rawCount === 'number') {
-        onChainCount = rawCount;
-      } else if (rawCount != null && (rawCount as any).toString) {
-        const parsed = Number((rawCount as any).toString());
-        if (!Number.isNaN(parsed)) {
-          onChainCount = parsed;
-        }
+      const parsed = Number(rawCount?.toString?.() ?? rawCount);
+      if (!Number.isNaN(parsed)) {
+        onChainCount = parsed;
       }
     } catch {
       // If status() is not available or fails, we simply omit onChainCount
