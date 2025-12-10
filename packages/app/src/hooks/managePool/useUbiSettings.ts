@@ -5,6 +5,7 @@ import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
 import { useEthersProvider, useEthersSigner } from '../useEthers';
 import { validateConnection, printAndParseSupportError } from '../useContractCalls/util';
 import { SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
+import { useObjectReducer } from './useObjectReducer';
 
 interface UseUbiSettingsParams {
   poolAddress?: string;
@@ -18,16 +19,46 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
   const provider = useEthersProvider({ chainId });
   const signer = useEthersSigner({ chainId });
 
-  const [ubiCycleLengthDays, setUbiCycleLengthDays] = useState('');
-  const [ubiClaimPeriodDays, setUbiClaimPeriodDays] = useState('');
-  const [ubiMinActiveUsers, setUbiMinActiveUsers] = useState('');
-  const [ubiMaxMembers, setUbiMaxMembers] = useState('');
-  const [ubiMaxClaimAmountWei, setUbiMaxClaimAmountWei] = useState('');
-  const [ubiAllowClaimFor, setUbiAllowClaimFor] = useState(false);
-  const [ubiOnlyMembersCanClaim, setUbiOnlyMembersCanClaim] = useState(false);
-  const [extendedMinClaimAmountWei, setExtendedMinClaimAmountWei] = useState('');
-  const [extendedMaxPeriodClaimers, setExtendedMaxPeriodClaimers] = useState('');
-  const [extendedManagerFeeBps, setExtendedManagerFeeBps] = useState<number | null>(null);
+  type BaseSettingsState = {
+    cycleLengthDays: string;
+    claimPeriodDays: string;
+    minActiveUsers: string;
+    maxMembers: string;
+    maxClaimAmountWei: string;
+    allowClaimFor: boolean;
+    onlyMembersCanClaim: boolean;
+  };
+
+  type ExtendedSettingsState = {
+    minClaimAmountWei: string;
+    maxPeriodClaimers: string;
+    managerFeeBps: number | null;
+  };
+
+  const {
+    state: baseState,
+    setField: setBaseField,
+    merge: mergeBase,
+  } = useObjectReducer<BaseSettingsState>({
+    cycleLengthDays: '',
+    claimPeriodDays: '',
+    minActiveUsers: '',
+    maxMembers: '',
+    maxClaimAmountWei: '',
+    allowClaimFor: false,
+    onlyMembersCanClaim: false,
+  });
+
+  const {
+    state: extendedState,
+    setField: setExtendedField,
+    merge: mergeExtended,
+  } = useObjectReducer<ExtendedSettingsState>({
+    minClaimAmountWei: '',
+    maxPeriodClaimers: '',
+    managerFeeBps: null,
+  });
+
   const [isSavingUbiSettings, setIsSavingUbiSettings] = useState(false);
   const [ubiSettingsError, setUbiSettingsError] = useState<string | null>(null);
   const [ubiSettingsSuccess, setUbiSettingsSuccess] = useState<string | null>(null);
@@ -44,28 +75,31 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
         const currentUbi: any = await contract.ubiSettings();
         const currentExtended: any = await contract.extendedSettings();
 
-        setUbiCycleLengthDays(currentUbi.cycleLengthDays?.toString() ?? '');
-        setUbiClaimPeriodDays(currentUbi.claimPeriodDays?.toString() ?? '');
-        setUbiMinActiveUsers(currentUbi.minActiveUsers?.toString() ?? '');
-        setUbiMaxMembers(currentUbi.maxMembers?.toString() ?? '');
-        setUbiMaxClaimAmountWei(currentUbi.maxClaimAmount?.toString() ?? '');
-        setUbiAllowClaimFor(Boolean(currentUbi.claimForEnabled));
-        setUbiOnlyMembersCanClaim(Boolean(currentUbi.onlyMembers));
+        mergeBase({
+          cycleLengthDays: currentUbi.cycleLengthDays?.toString() ?? '',
+          claimPeriodDays: currentUbi.claimPeriodDays?.toString() ?? '',
+          minActiveUsers: currentUbi.minActiveUsers?.toString() ?? '',
+          maxMembers: currentUbi.maxMembers?.toString() ?? '',
+          maxClaimAmountWei: currentUbi.maxClaimAmount?.toString() ?? '',
+          allowClaimFor: Boolean(currentUbi.claimForEnabled),
+          onlyMembersCanClaim: Boolean(currentUbi.onlyMembers),
+        });
 
-        setExtendedMaxPeriodClaimers(currentExtended.maxPeriodClaimers?.toString() ?? '');
-        setExtendedMinClaimAmountWei(currentExtended.minClaimAmount?.toString() ?? '');
-        setExtendedManagerFeeBps(
-          typeof currentExtended.managerFeeBps === 'number'
-            ? currentExtended.managerFeeBps
-            : Number(currentExtended.managerFeeBps?.toString?.() ?? '0')
-        );
+        mergeExtended({
+          maxPeriodClaimers: currentExtended.maxPeriodClaimers?.toString() ?? '',
+          minClaimAmountWei: currentExtended.minClaimAmount?.toString() ?? '',
+          managerFeeBps:
+            typeof currentExtended.managerFeeBps === 'number'
+              ? currentExtended.managerFeeBps
+              : Number(currentExtended.managerFeeBps?.toString?.() ?? '0'),
+        });
       } catch (e) {
         console.error('Failed to load UBI settings', e);
       }
     };
 
     loadUbiSettings();
-  }, [poolAddress, pooltype, provider, contractsForChain]);
+  }, [poolAddress, pooltype, provider, contractsForChain, mergeBase, mergeExtended]);
 
   const handleSaveUbiSettings = async (options?: { skipBaseValidation?: boolean }) => {
     setUbiSettingsError(null);
@@ -76,7 +110,7 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
       return;
     }
 
-    if (!extendedManagerFeeBps && extendedManagerFeeBps !== 0) {
+    if (extendedState.managerFeeBps === null || extendedState.managerFeeBps === undefined) {
       setUbiSettingsError('Failed to read existing manager fee. Please reload the page and try again.');
       return;
     }
@@ -89,10 +123,10 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
 
     const { chainId: validatedChainId, signer: validatedSigner } = validation;
 
-    const toNumber = (value: string, field: string): number | null => {
+    const toNumber = (value: string, field: string, allowZero = false): number | null => {
       const n = Number(value);
-      if (!Number.isFinite(n) || n <= 0) {
-        setUbiSettingsError(`${field} must be a positive number.`);
+      if (!Number.isFinite(n) || n < (allowZero ? 0 : 1)) {
+        setUbiSettingsError(`${field} must be ${allowZero ? 'zero or a positive number' : 'a positive number'}.`);
         return null;
       }
       return n;
@@ -106,38 +140,38 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
     let maxClaimAmount: string;
 
     if (!options?.skipBaseValidation) {
-      const cycleLengthDaysValidated = toNumber(ubiCycleLengthDays, 'Cycle Length (Days)');
+      const cycleLengthDaysValidated = toNumber(baseState.cycleLengthDays, 'Cycle Length (Days)');
       if (cycleLengthDaysValidated === null) return;
       cycleLengthDays = cycleLengthDaysValidated;
 
-      const claimPeriodDaysValidated = toNumber(ubiClaimPeriodDays, 'Claim Period (Days)');
+      const claimPeriodDaysValidated = toNumber(baseState.claimPeriodDays, 'Claim Period (Days)');
       if (claimPeriodDaysValidated === null) return;
       claimPeriodDays = claimPeriodDaysValidated;
 
-      const minActiveUsersValidated = toNumber(ubiMinActiveUsers, 'Min Active Users');
+      const minActiveUsersValidated = toNumber(baseState.minActiveUsers, 'Min Active Users');
       if (minActiveUsersValidated === null) return;
       minActiveUsers = minActiveUsersValidated;
 
-      const maxMembersValidated = toNumber(ubiMaxMembers || '0', 'Max Members');
+      const maxMembersValidated = toNumber(baseState.maxMembers || '0', 'Max Members', true);
       if (maxMembersValidated === null) return;
       maxMembers = maxMembersValidated;
 
-      maxClaimAmount = ubiMaxClaimAmountWei.trim();
+      maxClaimAmount = baseState.maxClaimAmountWei.trim();
       if (!maxClaimAmount) {
         setUbiSettingsError('Max Claim Amount (in wei) is required.');
         return;
       }
     } else {
       // If skipping validation, use current state values (assuming they are already loaded and valid)
-      cycleLengthDays = Number(ubiCycleLengthDays);
-      claimPeriodDays = Number(ubiClaimPeriodDays);
-      minActiveUsers = Number(ubiMinActiveUsers);
-      maxMembers = Number(ubiMaxMembers || '0');
-      maxClaimAmount = ubiMaxClaimAmountWei.trim();
+      cycleLengthDays = Number(baseState.cycleLengthDays);
+      claimPeriodDays = Number(baseState.claimPeriodDays);
+      minActiveUsers = Number(baseState.minActiveUsers);
+      maxMembers = Number(baseState.maxMembers || '0');
+      maxClaimAmount = baseState.maxClaimAmountWei.trim();
     }
 
-    const maxPeriodClaimers = Number(extendedMaxPeriodClaimers || '0');
-    const minClaimAmount = extendedMinClaimAmountWei.trim() || '0';
+    const maxPeriodClaimers = Number(extendedState.maxPeriodClaimers || '0');
+    const minClaimAmount = extendedState.minClaimAmountWei.trim() || '0';
 
     try {
       setIsSavingUbiSettings(true);
@@ -167,16 +201,16 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
         cycleLengthDays: ethers.BigNumber.from(cycleLengthDays),
         claimPeriodDays: ethers.BigNumber.from(claimPeriodDays),
         minActiveUsers: ethers.BigNumber.from(minActiveUsers),
-        claimForEnabled: ubiAllowClaimFor,
+        claimForEnabled: baseState.allowClaimFor,
         maxClaimAmount: ethers.BigNumber.from(maxClaimAmount),
         maxMembers,
-        onlyMembers: ubiOnlyMembersCanClaim,
+        onlyMembers: baseState.onlyMembersCanClaim,
       };
 
       const extendedSettingsPayload = {
         maxPeriodClaimers: ethers.BigNumber.from(maxPeriodClaimers),
         minClaimAmount: ethers.BigNumber.from(minClaimAmount),
-        managerFeeBps: extendedManagerFeeBps,
+        managerFeeBps: extendedState.managerFeeBps,
       };
 
       // Use SDK method to update UBI settings while preserving pool settings
@@ -199,29 +233,17 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
   };
 
   return {
-    ubiCycleLengthDays,
-    setUbiCycleLengthDays,
-    ubiClaimPeriodDays,
-    setUbiClaimPeriodDays,
-    ubiMinActiveUsers,
-    setUbiMinActiveUsers,
-    ubiMaxMembers,
-    setUbiMaxMembers,
-    ubiMaxClaimAmountWei,
-    setUbiMaxClaimAmountWei,
-    ubiAllowClaimFor,
-    setUbiAllowClaimFor,
-    ubiOnlyMembersCanClaim,
-    setUbiOnlyMembersCanClaim,
-    extendedMinClaimAmountWei,
-    setExtendedMinClaimAmountWei,
-    extendedMaxPeriodClaimers,
-    setExtendedMaxPeriodClaimers,
-    extendedManagerFeeBps,
-    setExtendedManagerFeeBps,
-    isSavingUbiSettings,
-    ubiSettingsError,
-    ubiSettingsSuccess,
+    base: baseState,
+    extended: extendedState,
+    status: {
+      isSaving: isSavingUbiSettings,
+      error: ubiSettingsError,
+      success: ubiSettingsSuccess,
+    },
+    updateBaseField: <K extends keyof BaseSettingsState>(key: K, value: BaseSettingsState[K]) =>
+      setBaseField(key, value),
+    updateExtendedField: <K extends keyof ExtendedSettingsState>(key: K, value: ExtendedSettingsState[K]) =>
+      setExtendedField(key, value),
     handleSaveUbiSettings,
   };
 };

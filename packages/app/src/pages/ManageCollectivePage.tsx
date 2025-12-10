@@ -125,18 +125,22 @@ const ManageCollectivePage = () => {
                 </WarningBox>
 
                 <VStack space={4} marginTop={4}>
-                  <FormField label="Pool Name" value={metadataForm.poolName} onChangeText={metadataForm.setPoolName} />
+                  <FormField
+                    label="Pool Name"
+                    value={metadataForm.values.poolName}
+                    onChangeText={(value) => metadataForm.updateField('poolName', value)}
+                  />
                   <FormField
                     label="Description"
-                    value={metadataForm.poolDescription}
-                    onChangeText={metadataForm.setPoolDescription}
+                    value={metadataForm.values.poolDescription}
+                    onChangeText={(value) => metadataForm.updateField('poolDescription', value)}
                     multiline
                     numberOfLines={3}
                   />
                   <FormField
                     label="Reward Description"
-                    value={metadataForm.rewardDescription}
-                    onChangeText={metadataForm.setRewardDescription}
+                    value={metadataForm.values.rewardDescription}
+                    onChangeText={(value) => metadataForm.updateField('rewardDescription', value)}
                     multiline
                     numberOfLines={3}
                     helperText="e.g., Receive your daily GoodDollar claim."
@@ -145,14 +149,14 @@ const ManageCollectivePage = () => {
                     <FormField
                       flex={1}
                       label="Logo URL"
-                      value={metadataForm.logoUrl}
-                      onChangeText={metadataForm.setLogoUrl}
+                      value={metadataForm.values.logoUrl}
+                      onChangeText={(value) => metadataForm.updateField('logoUrl', value)}
                     />
                     <FormField
                       flex={1}
                       label="Website URL"
-                      value={metadataForm.websiteUrl}
-                      onChangeText={metadataForm.setWebsiteUrl}
+                      value={metadataForm.values.websiteUrl}
+                      onChangeText={(value) => metadataForm.updateField('websiteUrl', value)}
                     />
                   </HStack>
                   <HStack space={4}>
@@ -176,16 +180,16 @@ const ManageCollectivePage = () => {
 
                 <ActionButton
                   onPress={metadataForm.handleUpdateMetadata}
-                  isLoading={metadataForm.isUpdatingMetadata}
-                  isDisabled={metadataForm.isUpdatingMetadata}
+                  isLoading={metadataForm.status.isSaving}
+                  isDisabled={metadataForm.status.isSaving}
                   text="Update Collective"
                   bg="goodPurple.500"
                   textColor="white"
                   borderRadius={12}
                   width="100%"
                 />
-                <StatusMessage type="error" message={metadataForm.metadataError} />
-                <StatusMessage type="success" message={metadataForm.metadataSuccess} />
+                <StatusMessage type="error" message={metadataForm.status.error} />
+                <StatusMessage type="success" message={metadataForm.status.success} />
               </SectionCard>
 
               {/* Core Pool Settings Section */}
@@ -198,32 +202,32 @@ const ManageCollectivePage = () => {
                 <VStack space={4} marginTop={4}>
                   <FormField
                     label="Pool Manager"
-                    value={coreSettings.coreManager}
-                    onChangeText={coreSettings.setCoreManager}
+                    value={coreSettings.values.coreManager}
+                    onChangeText={(value) => coreSettings.updateField('coreManager', value)}
                     autoCapitalize="none"
                     helperText="The wallet address that controls these settings."
                   />
                   <FormField
                     label="Reward Token"
                     placeholder="0x..."
-                    value={coreSettings.coreRewardToken}
-                    onChangeText={coreSettings.setCoreRewardToken}
+                    value={coreSettings.values.coreRewardToken}
+                    onChangeText={(value) => coreSettings.updateField('coreRewardToken', value)}
                     autoCapitalize="none"
                     helperText="The token address used for all reward claims (e.g., G$)."
                   />
                   <FormField
                     label="Uniqueness Validator (GoodID)"
                     placeholder="0x..."
-                    value={coreSettings.coreUniquenessValidator}
-                    onChangeText={coreSettings.setCoreUniquenessValidator}
+                    value={coreSettings.values.coreUniquenessValidator}
+                    onChangeText={(value) => coreSettings.updateField('coreUniquenessValidator', value)}
                     autoCapitalize="none"
                     helperText="Mandatory contract that verifies a user's unique identity."
                   />
                   <FormField
                     label="Members Validator"
                     placeholder="0x0000... (manual membership)"
-                    value={coreSettings.coreMembersValidator}
-                    onChangeText={coreSettings.setCoreMembersValidator}
+                    value={coreSettings.values.coreMembersValidator}
+                    onChangeText={(value) => coreSettings.updateField('coreMembersValidator', value)}
                     autoCapitalize="none"
                     helperText="Optional contract to automatically control member eligibility. Leave as 0x0...0 for manual management."
                   />
@@ -231,16 +235,16 @@ const ManageCollectivePage = () => {
 
                 <ActionButton
                   onPress={coreSettings.handleSaveCoreSettings}
-                  isLoading={coreSettings.isSavingCoreSettings}
-                  isDisabled={coreSettings.isSavingCoreSettings || pooltype !== 'UBI'}
+                  isLoading={coreSettings.status.isSaving}
+                  isDisabled={coreSettings.status.isSaving || pooltype !== 'UBI'}
                   text="Save Core Settings"
                   bg="goodPurple.500"
                   textColor="white"
                   borderRadius={12}
                   width="100%"
                 />
-                <StatusMessage type="error" message={coreSettings.coreSettingsError} />
-                <StatusMessage type="success" message={coreSettings.coreSettingsSuccess} />
+                <StatusMessage type="error" message={coreSettings.status.error} />
+                <StatusMessage type="success" message={coreSettings.status.success} />
               </SectionCard>
 
               {/* UBI Parameters Section */}
@@ -258,8 +262,8 @@ const ManageCollectivePage = () => {
                       label="Cycle Length (Days)"
                       placeholder="30"
                       keyboardType="numeric"
-                      value={ubiSettings.ubiCycleLengthDays}
-                      onChangeText={ubiSettings.setUbiCycleLengthDays}
+                      value={ubiSettings.base.cycleLengthDays}
+                      onChangeText={(value) => ubiSettings.updateBaseField('cycleLengthDays', value)}
                       helperText="Length of the recalculation window."
                     />
                     <FormField
@@ -267,8 +271,8 @@ const ManageCollectivePage = () => {
                       label="Claim Period (Days)"
                       placeholder="1"
                       keyboardType="numeric"
-                      value={ubiSettings.ubiClaimPeriodDays}
-                      onChangeText={ubiSettings.setUbiClaimPeriodDays}
+                      value={ubiSettings.base.claimPeriodDays}
+                      onChangeText={(value) => ubiSettings.updateBaseField('claimPeriodDays', value)}
                       helperText="Minimum days between claims (must be ≥ 1)."
                     />
                   </HStack>
@@ -279,8 +283,8 @@ const ManageCollectivePage = () => {
                       label="Min Active Users"
                       placeholder="100"
                       keyboardType="numeric"
-                      value={ubiSettings.ubiMinActiveUsers}
-                      onChangeText={ubiSettings.setUbiMinActiveUsers}
+                      value={ubiSettings.base.minActiveUsers}
+                      onChangeText={(value) => ubiSettings.updateBaseField('minActiveUsers', value)}
                       helperText="Divisor floor in the daily formula."
                     />
                     <FormField
@@ -288,8 +292,8 @@ const ManageCollectivePage = () => {
                       label="Max Members"
                       placeholder="0"
                       keyboardType="numeric"
-                      value={ubiSettings.ubiMaxMembers}
-                      onChangeText={ubiSettings.setUbiMaxMembers}
+                      value={ubiSettings.base.maxMembers}
+                      onChangeText={(value) => ubiSettings.updateBaseField('maxMembers', value)}
                       helperText="Maximum members allowed (0 = unlimited)."
                     />
                   </HStack>
@@ -298,8 +302,8 @@ const ManageCollectivePage = () => {
                     label="Max Claim Amount (in wei)"
                     placeholder="1000000000000000000000"
                     keyboardType="numeric"
-                    value={ubiSettings.ubiMaxClaimAmountWei}
-                    onChangeText={ubiSettings.setUbiMaxClaimAmountWei}
+                    value={ubiSettings.base.maxClaimAmountWei}
+                    onChangeText={(value) => ubiSettings.updateBaseField('maxClaimAmountWei', value)}
                     helperText="Hard cap on a single claim (e.g., 1000 G$ is 1000000000000000000000)."
                   />
 
@@ -310,8 +314,8 @@ const ManageCollectivePage = () => {
                         If enabled, trusted contracts can claim on behalf of users.
                       </Text>
                       <Switch
-                        isChecked={ubiSettings.ubiAllowClaimFor}
-                        onToggle={() => ubiSettings.setUbiAllowClaimFor((prev) => !prev)}
+                        isChecked={ubiSettings.base.allowClaimFor}
+                        onToggle={() => ubiSettings.updateBaseField('allowClaimFor', !ubiSettings.base.allowClaimFor)}
                         onTrackColor="goodPurple.500"
                       />
                     </HStack>
@@ -322,8 +326,10 @@ const ManageCollectivePage = () => {
                         If enabled, only registered members can claim UBI.
                       </Text>
                       <Switch
-                        isChecked={ubiSettings.ubiOnlyMembersCanClaim}
-                        onToggle={() => ubiSettings.setUbiOnlyMembersCanClaim((prev) => !prev)}
+                        isChecked={ubiSettings.base.onlyMembersCanClaim}
+                        onToggle={() =>
+                          ubiSettings.updateBaseField('onlyMembersCanClaim', !ubiSettings.base.onlyMembersCanClaim)
+                        }
                         onTrackColor="goodPurple.500"
                       />
                     </HStack>
@@ -332,16 +338,16 @@ const ManageCollectivePage = () => {
 
                 <ActionButton
                   onPress={ubiSettings.handleSaveUbiSettings}
-                  isLoading={ubiSettings.isSavingUbiSettings}
-                  isDisabled={ubiSettings.isSavingUbiSettings || pooltype !== 'UBI'}
+                  isLoading={ubiSettings.status.isSaving}
+                  isDisabled={ubiSettings.status.isSaving || pooltype !== 'UBI'}
                   text="Save UBI Parameters"
                   bg="goodPurple.500"
                   textColor="white"
                   borderRadius={12}
                   width="100%"
                 />
-                <StatusMessage type="error" message={ubiSettings.ubiSettingsError} />
-                <StatusMessage type="success" message={ubiSettings.ubiSettingsSuccess} />
+                <StatusMessage type="error" message={ubiSettings.status.error} />
+                <StatusMessage type="success" message={ubiSettings.status.success} />
               </SectionCard>
 
               {/* Distribution Controls (Extended) Section */}
@@ -357,16 +363,16 @@ const ManageCollectivePage = () => {
                     label="Min Claim Amount (in wei)"
                     placeholder="1000000000000000000"
                     keyboardType="numeric"
-                    value={ubiSettings.extendedMinClaimAmountWei}
-                    onChangeText={ubiSettings.setExtendedMinClaimAmountWei}
+                    value={ubiSettings.extended.minClaimAmountWei}
+                    onChangeText={(value) => ubiSettings.updateExtendedField('minClaimAmountWei', value)}
                     helperText="If computed UBI drops below this floor, payouts are zero."
                   />
                   <FormField
                     label="Max Period Claimers"
                     placeholder="0"
                     keyboardType="numeric"
-                    value={ubiSettings.extendedMaxPeriodClaimers}
-                    onChangeText={ubiSettings.setExtendedMaxPeriodClaimers}
+                    value={ubiSettings.extended.maxPeriodClaimers}
+                    onChangeText={(value) => ubiSettings.updateExtendedField('maxPeriodClaimers', value)}
                     helperText="Maximum number of claimers counted in each period (0 = unlimited)."
                   />
                   <FormField
@@ -374,16 +380,18 @@ const ManageCollectivePage = () => {
                     placeholder="0"
                     keyboardType="numeric"
                     value={
-                      ubiSettings.extendedManagerFeeBps !== null ? String(ubiSettings.extendedManagerFeeBps / 100) : ''
+                      ubiSettings.extended.managerFeeBps !== null
+                        ? String(ubiSettings.extended.managerFeeBps / 100)
+                        : ''
                     }
                     onChangeText={(val) => {
                       if (val === '') {
-                        ubiSettings.setExtendedManagerFeeBps(0);
+                        ubiSettings.updateExtendedField('managerFeeBps', 0);
                         return;
                       }
                       const num = parseFloat(val);
                       if (!isNaN(num) && num >= 0 && num <= 100) {
-                        ubiSettings.setExtendedManagerFeeBps(Math.round(num * 100));
+                        ubiSettings.updateExtendedField('managerFeeBps', Math.round(num * 100));
                       }
                     }}
                     helperText="Percentage fee taken from pool funds by the manager (0-100%). This percentage will be taken from the pool funds as your management fee."
@@ -392,8 +400,8 @@ const ManageCollectivePage = () => {
 
                 <ActionButton
                   onPress={() => ubiSettings.handleSaveUbiSettings({ skipBaseValidation: true })}
-                  isLoading={ubiSettings.isSavingUbiSettings}
-                  isDisabled={ubiSettings.isSavingUbiSettings || pooltype !== 'UBI'}
+                  isLoading={ubiSettings.status.isSaving}
+                  isDisabled={ubiSettings.status.isSaving || pooltype !== 'UBI'}
                   text="Save Extended Controls"
                   bg="goodPurple.500"
                   textColor="white"

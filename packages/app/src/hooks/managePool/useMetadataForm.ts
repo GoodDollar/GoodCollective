@@ -5,6 +5,7 @@ import { formatSocialUrls } from '../../lib/formatSocialUrls';
 import { SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
 import { Collective } from '../../models/models';
 import { printAndParseSupportError, validateConnection } from '../useContractCalls/util';
+import { useObjectReducer } from './useObjectReducer';
 
 interface UseMetadataFormParams {
   collective: Collective | null;
@@ -16,11 +17,25 @@ interface UseMetadataFormParams {
 
 export const useMetadataForm = ({ collective, poolAddress, chainId, signer, pooltype }: UseMetadataFormParams) => {
   const { address } = useAccount();
-  const [poolName, setPoolName] = useState('');
-  const [poolDescription, setPoolDescription] = useState('');
-  const [rewardDescription, setRewardDescription] = useState('');
-  const [logoUrl, setLogoUrl] = useState('');
-  const [websiteUrl, setWebsiteUrl] = useState('');
+  type MetadataFields = {
+    poolName: string;
+    poolDescription: string;
+    rewardDescription: string;
+    logoUrl: string;
+    websiteUrl: string;
+  };
+
+  const {
+    state: fields,
+    setField,
+    merge: mergeFields,
+  } = useObjectReducer<MetadataFields>({
+    poolName: '',
+    poolDescription: '',
+    rewardDescription: '',
+    logoUrl: '',
+    websiteUrl: '',
+  });
   const [isUpdatingMetadata, setIsUpdatingMetadata] = useState(false);
   const [metadataError, setMetadataError] = useState<string | null>(null);
   const [metadataSuccess, setMetadataSuccess] = useState<string | null>(null);
@@ -28,12 +43,14 @@ export const useMetadataForm = ({ collective, poolAddress, chainId, signer, pool
   useEffect(() => {
     if (!collective?.ipfs) return;
 
-    setPoolName(collective.ipfs.name ?? '');
-    setPoolDescription(collective.ipfs.description ?? '');
-    setRewardDescription(collective.ipfs.rewardDescription ?? '');
-    setLogoUrl(collective.ipfs.logo ?? '');
-    setWebsiteUrl(collective.ipfs.website ?? '');
-  }, [collective]);
+    mergeFields({
+      poolName: collective.ipfs.name ?? '',
+      poolDescription: collective.ipfs.description ?? '',
+      rewardDescription: collective.ipfs.rewardDescription ?? '',
+      logoUrl: collective.ipfs.logo ?? '',
+      websiteUrl: collective.ipfs.website ?? '',
+    });
+  }, [collective, mergeFields]);
 
   const handleUpdateMetadata = async () => {
     setMetadataError(null);
@@ -61,12 +78,12 @@ export const useMetadataForm = ({ collective, poolAddress, chainId, signer, pool
       const sdk = new GoodCollectiveSDK(chainIdString, validatedSigner.provider, { network });
 
       const attrs = {
-        name: poolName || collective?.ipfs?.name || '',
-        description: poolDescription || collective?.ipfs?.description || '',
-        rewardDescription: rewardDescription || '',
+        name: fields.poolName || collective?.ipfs?.name || '',
+        description: fields.poolDescription || collective?.ipfs?.description || '',
+        rewardDescription: fields.rewardDescription || '',
         headerImage: collective?.ipfs?.headerImage || '',
-        logo: logoUrl || collective?.ipfs?.logo || '',
-        website: formatSocialUrls.website(websiteUrl || collective?.ipfs?.website),
+        logo: fields.logoUrl || collective?.ipfs?.logo || '',
+        website: formatSocialUrls.website(fields.websiteUrl || collective?.ipfs?.website),
         twitter: formatSocialUrls.twitter(collective?.ipfs?.twitter),
         instagram: formatSocialUrls.instagram(collective?.ipfs?.instagram),
         threads: formatSocialUrls.threads(collective?.ipfs?.threads),
@@ -90,19 +107,13 @@ export const useMetadataForm = ({ collective, poolAddress, chainId, signer, pool
   };
 
   return {
-    poolName,
-    setPoolName,
-    poolDescription,
-    setPoolDescription,
-    rewardDescription,
-    setRewardDescription,
-    logoUrl,
-    setLogoUrl,
-    websiteUrl,
-    setWebsiteUrl,
-    isUpdatingMetadata,
-    metadataError,
-    metadataSuccess,
+    values: fields,
+    status: {
+      isSaving: isUpdatingMetadata,
+      error: metadataError,
+      success: metadataSuccess,
+    },
+    updateField: setField,
     handleUpdateMetadata,
   };
 };
