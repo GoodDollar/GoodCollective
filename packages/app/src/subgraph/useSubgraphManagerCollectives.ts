@@ -7,20 +7,6 @@ const collectivesByManager = gql`
     collectives(where: { settings_: { manager: $manager }, ipfs_: { name_not: null } }) {
       id
       pooltype
-      ipfs {
-        id
-        name
-        description
-        rewardDescription
-        goodidDescription
-        headerImage
-        email
-        website
-        twitter
-        instagram
-        threads
-        infoLabel
-      }
     }
   }
 `;

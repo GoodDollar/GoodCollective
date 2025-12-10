@@ -13,13 +13,7 @@ import {
 import { Platform } from 'react-native';
 import { useAppKitAccount } from '@reown/appkit/react';
 
-import {
-  useDonorById,
-  useStewardById,
-  useManagerCollectives,
-  useTotalStats,
-  useCollectivesMetadataById,
-} from '../hooks';
+import { useDonorById, useStewardById, useManagerCollectives, useTotalStats } from '../hooks';
 import type { TotalStats } from '../hooks';
 import { useScreenSize } from '../theme/hooks';
 
@@ -106,17 +100,16 @@ const HomePage = () => {
   const steward = useStewardById(lowercaseAddress ?? '');
   const managerIds = useManagerCollectives(lowercaseAddress ?? '');
 
-  const myCollectiveIds = useMemo(() => {
-    if (!isConnected || !lowercaseAddress) {
+  const myIpfsCollectives = useMemo(() => {
+    if (!isConnected || !lowercaseAddress || !collectives?.length) {
       return [];
     }
     const stewardIds = steward?.collectives.map((collective) => collective.collective) ?? [];
     const donorIds = donor?.collectives.map((collective) => collective.collective) ?? [];
+    const myCollectiveIdSet = new Set([...stewardIds, ...donorIds, ...managerIds]);
 
-    return Array.from(new Set([...stewardIds, ...donorIds, ...managerIds]));
-  }, [isConnected, lowercaseAddress, steward, donor, managerIds]);
-
-  const myIpfsCollectives = useCollectivesMetadataById(myCollectiveIds);
+    return collectives.filter((ipfsCollective) => myCollectiveIdSet.has(ipfsCollective.collective));
+  }, [isConnected, lowercaseAddress, steward, donor, managerIds, collectives]);
 
   const hasMyPools = myIpfsCollectives.length > 0;
 
