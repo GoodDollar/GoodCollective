@@ -15,15 +15,16 @@ interface UseMetadataFormParams {
   pooltype?: string;
 }
 
+type MetadataFields = {
+  poolName: string;
+  poolDescription: string;
+  rewardDescription: string;
+  logoUrl: string;
+  websiteUrl: string;
+};
+
 export const useMetadataForm = ({ collective, poolAddress, chainId, signer, pooltype }: UseMetadataFormParams) => {
   const { address } = useAccount();
-  type MetadataFields = {
-    poolName: string;
-    poolDescription: string;
-    rewardDescription: string;
-    logoUrl: string;
-    websiteUrl: string;
-  };
 
   const {
     state: fields,

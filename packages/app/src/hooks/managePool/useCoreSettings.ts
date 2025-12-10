@@ -14,17 +14,17 @@ interface UseCoreSettingsParams {
   chainId: number;
 }
 
+type CoreSettingsState = {
+  coreManager: string;
+  coreRewardToken: string;
+  coreUniquenessValidator: string;
+  coreMembersValidator: string;
+};
+
 export const useCoreSettings = ({ poolAddress, pooltype, contractsForChain, chainId }: UseCoreSettingsParams) => {
   const { address } = useAccount();
   const provider = useEthersProvider({ chainId });
   const signer = useEthersSigner({ chainId });
-
-  type CoreSettingsState = {
-    coreManager: string;
-    coreRewardToken: string;
-    coreUniquenessValidator: string;
-    coreMembersValidator: string;
-  };
 
   const { state: coreState, setField: setCoreField } = useObjectReducer<CoreSettingsState>({
     coreManager: '',

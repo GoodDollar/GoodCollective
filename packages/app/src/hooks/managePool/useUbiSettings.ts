@@ -14,26 +14,26 @@ interface UseUbiSettingsParams {
   chainId: number;
 }
 
+type BaseSettingsState = {
+  cycleLengthDays: string;
+  claimPeriodDays: string;
+  minActiveUsers: string;
+  maxMembers: string;
+  maxClaimAmountWei: string;
+  allowClaimFor: boolean;
+  onlyMembersCanClaim: boolean;
+};
+
+type ExtendedSettingsState = {
+  minClaimAmountWei: string;
+  maxPeriodClaimers: string;
+  managerFeeBps: number | null;
+};
+
 export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chainId }: UseUbiSettingsParams) => {
   const { address } = useAccount();
   const provider = useEthersProvider({ chainId });
   const signer = useEthersSigner({ chainId });
-
-  type BaseSettingsState = {
-    cycleLengthDays: string;
-    claimPeriodDays: string;
-    minActiveUsers: string;
-    maxMembers: string;
-    maxClaimAmountWei: string;
-    allowClaimFor: boolean;
-    onlyMembersCanClaim: boolean;
-  };
-
-  type ExtendedSettingsState = {
-    minClaimAmountWei: string;
-    maxPeriodClaimers: string;
-    managerFeeBps: number | null;
-  };
 
   const {
     state: baseState,
