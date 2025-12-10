@@ -5,7 +5,9 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils
 import { IERC721Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import { IERC721ReceiverUpgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
+import {
+    IERC721ReceiverUpgradeable
+} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 
 import "../GoodCollective/GoodCollectiveSuperApp.sol";
 import "./UBIPoolFactory.sol";
@@ -24,6 +26,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     error MAX_MEMBERS_REACHED();
     error MAX_PERIOD_CLAIMERS_REACHED(uint256 claimers);
     error BATCH_TOO_LARGE();
+    error LENGTH_MISMATCH();
 
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
     bytes32 public constant MEMBER_ROLE = keccak256("MEMBER_ROLE");
@@ -192,10 +195,8 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
 
         nextPeriodPool = status.dailyCyclePool;
         nextDailyUbi;
-        if (
-            (currentDayInCycle() + 1) >= status.currentCycleLength || shouldStartEarlyCycle
-        ) //start of cycle or first time
-        {
+        if ((currentDayInCycle() + 1) >= status.currentCycleLength || shouldStartEarlyCycle) {
+            //start of cycle or first time
             nextPeriodPool = currentBalance / ubiSettings.cycleLengthDays;
             newCycle = true;
         }
@@ -306,21 +307,29 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
      */
     function addMembers(address[] calldata members, bytes[] calldata extraData) external {
         if (members.length > MAX_BATCH_SIZE) revert BATCH_TOO_LARGE();
-        if (members.length != extraData.length) revert("Length mismatch");
+        if (members.length != extraData.length) revert LENGTH_MISMATCH();
 
         // Check if we have room for new members
         if (ubiSettings.maxMembers > 0) {
             uint256 potentialNewMembers = 0;
             for (uint i = 0; i < members.length; ) {
                 if (!hasRole(MEMBER_ROLE, members[i])) {
-                    unchecked { ++potentialNewMembers; }
+                    unchecked {
+                        ++potentialNewMembers;
+                    }
                 }
-                unchecked { ++i; }
+                unchecked {
+                    ++i;
+                }
             }
             if (status.membersCount + potentialNewMembers > ubiSettings.maxMembers) {
                 revert MAX_MEMBERS_REACHED();
             }
         }
+
+        // Track successfully added members for bulk factory update
+        address[] memory addedMembers = new address[](members.length);
+        uint256 addedCount = 0;
 
         for (uint i = 0; i < members.length; ) {
             // Skip if already a member
@@ -346,19 +355,48 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
                     isValid = false;
                 }
 
-                // Grant role if valid (this triggers factory registry update and increments membersCount)
+                // Grant role if valid (we'll update factory in bulk at the end)
                 if (isValid) {
-                    _grantRole(MEMBER_ROLE, members[i]);
+                    _grantMemberRoleWithoutFactory(members[i]);
+                    addedMembers[addedCount] = members[i];
+                    unchecked {
+                        ++addedCount;
+                    }
                     emit MemberAdded(members[i]);
                 }
             }
-            
-            unchecked { ++i; }
+
+            unchecked {
+                ++i;
+            }
+        }
+
+        // Bulk update factory registry for all successfully added members
+        if (addedCount > 0) {
+            // Resize array to actual added count
+            address[] memory finalMembers = new address[](addedCount);
+            for (uint i = 0; i < addedCount; ) {
+                finalMembers[i] = addedMembers[i];
+                unchecked {
+                    ++i;
+                }
+            }
+            registry.addMembers(finalMembers);
         }
     }
 
     function removeMember(address member) external onlyRole(MANAGER_ROLE) {
         _revokeRole(MEMBER_ROLE, member);
+    }
+
+    /**
+     * @dev Helper function to grant member role without calling factory.
+     * Used for bulk operations where factory is updated at the end.
+     */
+    function _grantMemberRoleWithoutFactory(address account) internal {
+        if (ubiSettings.maxMembers > 0 && status.membersCount >= ubiSettings.maxMembers) revert MAX_MEMBERS_REACHED();
+        AccessControlUpgradeable._grantRole(MEMBER_ROLE, account);
+        status.membersCount += 1;
     }
 
     function _grantRole(bytes32 role, address account) internal virtual override {

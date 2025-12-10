@@ -851,6 +851,17 @@ export class GoodCollectiveSDK {
   }> {
     const pool = poolType === 'ubi' ? this.ubipool.attach(poolAddress) : this.pool.attach(poolAddress);
 
+    // Handle empty members array
+    if (members.length === 0) {
+      const gasPrice = await pool.provider.getGasPrice();
+      return {
+        gasEstimate: '0',
+        gasPrice: gasPrice.toString(),
+        nativeTokenRequired: '0',
+        recommendedBatchSize: 0,
+      };
+    }
+
     // Estimate gas for the transaction
     const gasEstimate = await pool.estimateGas.addMembers(members, extraData);
 
@@ -860,11 +871,21 @@ export class GoodCollectiveSDK {
     // Calculate native token required
     const nativeTokenRequired = gasEstimate.mul(gasPrice);
 
+    // Get MAX_BATCH_SIZE from the contract to prevent drift
+    const maxBatchSize = await pool.MAX_BATCH_SIZE();
+
     // Calculate recommended batch size based on gas estimate
     // Assuming block gas limit of 30M and targeting 50% usage for safety
-    const targetGasLimit = 15000000;
+    const targetGasLimitBN = ethers.BigNumber.from(15000000);
     const gasPerMember = gasEstimate.div(members.length);
-    const recommendedBatchSize = Math.min(200, Math.floor(targetGasLimit / gasPerMember.toNumber()));
+
+    // Calculate recommended batch size using BigNumber arithmetic
+    // targetGasLimit / gasPerMember, then clamp to maxBatchSize
+    const recommendedBatchSizeBN = targetGasLimitBN.div(gasPerMember);
+    const clampedBatchSizeBN = recommendedBatchSizeBN.gt(maxBatchSize) ? maxBatchSize : recommendedBatchSizeBN;
+
+    // Convert to number only at the end, ensuring it's within safe integer range
+    const recommendedBatchSize = Math.min(clampedBatchSizeBN.toNumber(), maxBatchSize.toNumber());
 
     return {
       gasEstimate: gasEstimate.toString(),
