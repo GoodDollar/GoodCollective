@@ -2,6 +2,7 @@ export * from './useCollectiveById';
 export * from './useDonorById';
 export * from './useDonorCollectiveByAddresses';
 export * from './useStewardById';
+export * from './useManagerCollectives';
 export * from './useContractCalls';
 export * from './useGetTokenPrice';
 export * from './useIsStewardVerified';

@@ -1,4 +1,5 @@
-import { Box, Link, Pressable, Text, useBreakpointValue } from 'native-base';
+import React from 'react';
+import { Box, Link, Pressable, Text, Spinner, useBreakpointValue } from 'native-base';
 
 import { InterSemiBold } from '../utils/webFonts';
 
@@ -11,6 +12,7 @@ type ActionButtonProps = {
   width?: string;
   borderRadius?: number;
   isDisabled?: boolean;
+  isLoading?: boolean;
 };
 
 export const buttonStyles = {
@@ -50,6 +52,7 @@ const ActionButton = ({
   width = '100%',
   borderRadius = 50,
   isDisabled = false,
+  isLoading = false,
 }: ActionButtonProps) => {
   const responsiveStyles = useBreakpointValue({
     base: {
@@ -83,13 +86,17 @@ const ActionButton = ({
   const content = (
     <Pressable
       {...button}
-      onPress={isDisabled ? undefined : onPress}
+      onPress={isDisabled || isLoading ? undefined : onPress}
       backgroundColor={isDisabled ? 'gray.300' : bg}
-      opacity={isDisabled ? 0.6 : 1}
+      opacity={isDisabled || isLoading ? 0.6 : 1}
       paddingBottom={0}>
-      <Text {...buttonText} color={textColor}>
-        {text}
-      </Text>
+      {isLoading ? (
+        <Spinner size="sm" color={textColor} />
+      ) : (
+        <Text {...buttonText} color={textColor}>
+          {text}
+        </Text>
+      )}
     </Pressable>
   );
 

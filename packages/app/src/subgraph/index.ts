@@ -7,3 +7,4 @@ export * from './useSubgraphIpfsCollective';
 export * from './useSubgraphClaim';
 export * from './useSubgraphSupportEvent';
 export * from './useSubgraphTotalStats';
+export * from './useSubgraphManagerCollectives';

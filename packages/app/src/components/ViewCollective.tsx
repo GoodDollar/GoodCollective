@@ -38,6 +38,7 @@ import { useEthersProvider } from '../hooks/useEthers';
 import { useFlowingBalance } from '../hooks/useFlowingBalance';
 import { useGetTokenBalance } from '../hooks/useGetTokenBalance';
 import { useRealtimeStats } from '../hooks/useRealtimeStats';
+import { usePoolManager } from '../hooks/managePool';
 import { calculateGoodDollarAmounts } from '../lib/calculateGoodDollarAmounts';
 import env from '../lib/env';
 import { formatFlowRate } from '../lib/formatFlowRate';
@@ -236,6 +237,14 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
   const [refetchTrigger, setRefetchTrigger] = useState(0);
   const [isMemberPoolLoading, setIsMemberPoolLoading] = useState(false);
 
+  const { isManager } = usePoolManager({
+    poolAddress,
+    pooltype: pooltype as 'UBI' | 'DIRECT' | undefined,
+    chainId,
+    provider,
+    address,
+  });
+
   const fetchMemberPools = useCallback(async () => {
     if (!poolAddress || pooltype !== 'UBI' || !provider) {
       setMemberPoolData(null);
@@ -430,6 +439,16 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                       navigate(`/collective/${poolAddress}/donors`);
                     }}
                   />
+                  {isManager && (
+                    <RoundedButton
+                      title="Manage"
+                      backgroundColor={Colors.purple[400]}
+                      color={Colors.white}
+                      onPress={() => {
+                        navigate(`/collective/${poolAddress}/manage`);
+                      }}
+                    />
+                  )}
                 </View>
               )}
             </View>
