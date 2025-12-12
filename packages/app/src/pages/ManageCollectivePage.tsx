@@ -167,11 +167,11 @@ const ManageCollectivePage = () => {
                   <HStack space={4}>
                     <FormField
                       flex={1}
-                      label="Current Project ID"
+                      label="Current Pool Address"
                       value={collective.ipfs.collective || collective.address}
                       onChangeText={() => {}}
                       isDisabled
-                      helperText="The Project ID is write-once and cannot be changed."
+                      helperText="The Pool Address is write-once and cannot be changed."
                     />
                     <FormField
                       flex={1}
@@ -290,7 +290,7 @@ const ManageCollectivePage = () => {
                       keyboardType="numeric"
                       value={ubiSettings.base.minActiveUsers}
                       onChangeText={(value) => ubiSettings.updateBaseField('minActiveUsers', value)}
-                      helperText="Divisor floor in the daily formula."
+                      helperText="This value sets the minimum number of users used when calculating the next UBI claim. The calculation will use whichever is higher: the actual number of active users or this minimum value."
                     />
                     <FormField
                       flex={1}
@@ -399,7 +399,7 @@ const ManageCollectivePage = () => {
                         ubiSettings.updateExtendedField('managerFeeBps', Math.round(num * 100));
                       }
                     }}
-                    helperText="Percentage fee taken from pool funds by the manager (0-100%). This percentage will be taken from the pool funds as your management fee."
+                    helperText="Percentage fee taken by the manager from incoming donations to the collective. Its a single fee payment when directly receiving donations. when a donation is streamed, it will be a percentage of the set monthly stream-rate."
                   />
                 </VStack>
 
@@ -446,16 +446,9 @@ const ManageCollectivePage = () => {
 
               {/* Current Members Section */}
               <SectionCard
-                title={`Session Members (${memberManagement.managedMembers.length})${
+                title={`Members (${memberManagement.managedMembers.length})${
                   memberManagement.totalMemberCount !== null ? ` / Total: ${memberManagement.totalMemberCount}` : ''
                 }`}>
-                <WarningBox type="info">
-                  <Text fontSize="xs">
-                    Note: This list shows members added/removed in this session. The contract doesn&apos;t support
-                    enumerating all members directly. Members are tracked on-chain via AccessControl roles. The total
-                    count reflects all members in the pool.
-                  </Text>
-                </WarningBox>
                 {memberManagement.totalMemberCount &&
                 memberManagement.totalMemberCount > 0 &&
                 memberManagement.managedMembers.length === 0 ? (
