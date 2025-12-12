@@ -399,7 +399,7 @@ const ManageCollectivePage = () => {
                         ubiSettings.updateExtendedField('managerFeeBps', Math.round(num * 100));
                       }
                     }}
-                    helperText="Percentage fee taken by the manager from incoming donations to the collective. Its a single fee payment when directly receiving donations. when a donation is streamed, it will be a percentage of the set monthly stream-rate."
+                    helperText="Percentage fee taken by the manager from incoming donations to the collective. Its a single fee payment when directly receiving donations. When a donation is streamed, a percentage of the monthly donation rate will be streamed to the manager."
                   />
                 </VStack>
 
