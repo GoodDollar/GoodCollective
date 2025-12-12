@@ -304,12 +304,12 @@ const ManageCollectivePage = () => {
                   </HStack>
 
                   <FormField
-                    label="Max Claim Amount (in wei)"
-                    placeholder="1000000000000000000000"
+                    label="Max Claim Amount (G$)"
+                    placeholder="1000"
                     keyboardType="numeric"
-                    value={ubiSettings.base.maxClaimAmountWei}
-                    onChangeText={(value) => ubiSettings.updateBaseField('maxClaimAmountWei', value)}
-                    helperText="Hard cap on a single claim (e.g., 1000 G$ is 1000000000000000000000)."
+                    value={ubiSettings.base.maxClaimAmount}
+                    onChangeText={(value) => ubiSettings.updateBaseField('maxClaimAmount', value)}
+                    helperText="Hard cap on a single claim (e.g., 1000 G$)."
                   />
 
                   <VStack space={4} marginTop={2}>
@@ -365,11 +365,11 @@ const ManageCollectivePage = () => {
 
                 <VStack space={4} marginTop={4}>
                   <FormField
-                    label="Min Claim Amount (in wei)"
-                    placeholder="1000000000000000000"
+                    label="Min Claim Amount (G$)"
+                    placeholder="1"
                     keyboardType="numeric"
-                    value={ubiSettings.extended.minClaimAmountWei}
-                    onChangeText={(value) => ubiSettings.updateExtendedField('minClaimAmountWei', value)}
+                    value={ubiSettings.extended.minClaimAmount}
+                    onChangeText={(value) => ubiSettings.updateExtendedField('minClaimAmount', value)}
                     helperText="If computed UBI drops below this floor, payouts are zero."
                   />
                   <FormField

@@ -98,19 +98,6 @@ export const useCoreSettings = ({ poolAddress, pooltype, contractsForChain, chai
 
       const sdk = new GoodCollectiveSDK(chainIdString, provider, { network });
 
-      // Load current UBI settings and extended settings to preserve them
-      const poolAbi = contractsForChain?.UBIPool?.abi || [];
-      if (!poolAbi.length) {
-        setCoreSettingsError('Unable to load pool contract ABI for core settings.');
-        return;
-      }
-
-      const contract = new ethers.Contract(poolAddress, poolAbi, provider);
-      const [currentUbiSettings, currentExtendedSettings] = await Promise.all([
-        contract.ubiSettings(),
-        contract.extendedSettings(),
-      ]);
-
       // Prepare new pool settings
       const poolSettings = {
         manager: coreState.coreManager,
@@ -119,14 +106,8 @@ export const useCoreSettings = ({ poolAddress, pooltype, contractsForChain, chai
         rewardToken: coreState.coreRewardToken,
       };
 
-      // Use SDK method to update pool settings while preserving UBI and extended settings
-      const tx = await sdk.setUBIPoolSettings(
-        validatedSigner,
-        poolAddress,
-        poolSettings,
-        currentUbiSettings,
-        currentExtendedSettings
-      );
+      // Use SDK method to update only pool settings (no UBI settings)
+      const tx = await sdk.setUBIPoolCoreSettings(validatedSigner, poolAddress, poolSettings);
       await tx.wait();
 
       setCoreSettingsSuccess('Core pool settings updated successfully.');

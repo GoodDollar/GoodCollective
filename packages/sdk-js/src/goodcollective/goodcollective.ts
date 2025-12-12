@@ -317,10 +317,40 @@ export class GoodCollectiveSDK {
   }
 
   /**
-   * Updates settings for a UBI pool
+   * Updates only UBI-specific settings (no pool settings)
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} poolAddress - The address of the UBI pool contract.
+   * @param {UBISettings} ubiSettings - The updated UBI-specific settings.
+   * @param {ExtendedUBISettings} extendedSettings - The updated extended UBI settings.
+   * @returns {Promise<ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
+   */
+  async setUBISettings(
+    signer: ethers.Signer,
+    poolAddress: string,
+    ubiSettings: UBISettings,
+    extendedSettings: ExtendedUBISettings
+  ) {
+    const connected = this.ubipool.attach(poolAddress).connect(signer);
+    return connected.setUBISettings(ubiSettings, extendedSettings, { ...CHAIN_OVERRIDES[this.chainId] });
+  }
+
+  /**
+   * Updates only pool core settings (no UBI settings)
    * @param {ethers.Signer} signer - The signer object for the transaction.
    * @param {string} poolAddress - The address of the UBI pool contract.
    * @param {UBIPoolSettings} poolSettings - The updated general pool settings.
+   * @returns {Promise<ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
+   */
+  async setUBIPoolCoreSettings(signer: ethers.Signer, poolAddress: string, poolSettings: UBIPoolSettings) {
+    const connected = this.ubipool.attach(poolAddress).connect(signer);
+    return connected.setPoolSettings(poolSettings, { ...CHAIN_OVERRIDES[this.chainId] });
+  }
+
+  /**
+   * Updates settings for a UBI pool (optionally updates pool settings + UBI settings)
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} poolAddress - The address of the UBI pool contract.
+   * @param {UBIPoolSettings | undefined} poolSettings - Optional general pool settings to update.
    * @param {UBISettings} ubiSettings - The updated UBI-specific settings.
    * @param {ExtendedUBISettings} extendedSettings - The updated extended UBI settings.
    * @returns {Promise<ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
@@ -328,15 +358,19 @@ export class GoodCollectiveSDK {
   async setUBIPoolSettings(
     signer: ethers.Signer,
     poolAddress: string,
-    poolSettings: UBIPoolSettings,
+    poolSettings: UBIPoolSettings | undefined,
     ubiSettings: UBISettings,
     extendedSettings: ExtendedUBISettings
   ) {
     const connected = this.ubipool.attach(poolAddress).connect(signer);
-    // Update general pool settings first
-    const tx1 = await connected.setPoolSettings(poolSettings, { ...CHAIN_OVERRIDES[this.chainId] });
-    await tx1.wait();
-    // Then update UBI-specific settings
+
+    // Only update pool settings if provided
+    if (poolSettings) {
+      const tx1 = await connected.setPoolSettings(poolSettings, { ...CHAIN_OVERRIDES[this.chainId] });
+      await tx1.wait();
+    }
+
+    // Always update UBI settings
     return connected.setUBISettings(ubiSettings, extendedSettings, { ...CHAIN_OVERRIDES[this.chainId] });
   }
 

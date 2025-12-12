@@ -19,15 +19,35 @@ type BaseSettingsState = {
   claimPeriodDays: string;
   minActiveUsers: string;
   maxMembers: string;
-  maxClaimAmountWei: string;
+  maxClaimAmount: string; // Human-readable amount (e.g., "1000" for 1000 G$)
   allowClaimFor: boolean;
   onlyMembersCanClaim: boolean;
 };
 
 type ExtendedSettingsState = {
-  minClaimAmountWei: string;
+  minClaimAmount: string; // Human-readable amount (e.g., "1" for 1 G$)
   maxPeriodClaimers: string;
   managerFeeBps: number | null;
+};
+
+// Helper functions to convert between human-readable amounts and wei
+// Assuming G$ token has 18 decimals (standard ERC20)
+const toWei = (amount: string): string => {
+  if (!amount || amount === '0') return '0';
+  try {
+    return ethers.utils.parseUnits(amount, 18).toString();
+  } catch {
+    return '0';
+  }
+};
+
+const fromWei = (weiAmount: string): string => {
+  if (!weiAmount || weiAmount === '0') return '0';
+  try {
+    return ethers.utils.formatUnits(weiAmount, 18);
+  } catch {
+    return '0';
+  }
 };
 
 export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chainId }: UseUbiSettingsParams) => {
@@ -44,7 +64,7 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
     claimPeriodDays: '',
     minActiveUsers: '',
     maxMembers: '',
-    maxClaimAmountWei: '',
+    maxClaimAmount: '',
     allowClaimFor: false,
     onlyMembersCanClaim: false,
   });
@@ -54,7 +74,7 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
     setField: setExtendedField,
     merge: mergeExtended,
   } = useObjectReducer<ExtendedSettingsState>({
-    minClaimAmountWei: '',
+    minClaimAmount: '',
     maxPeriodClaimers: '',
     managerFeeBps: null,
   });
@@ -80,14 +100,14 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
           claimPeriodDays: currentUbi.claimPeriodDays?.toString() ?? '',
           minActiveUsers: currentUbi.minActiveUsers?.toString() ?? '',
           maxMembers: currentUbi.maxMembers?.toString() ?? '',
-          maxClaimAmountWei: currentUbi.maxClaimAmount?.toString() ?? '',
+          maxClaimAmount: fromWei(currentUbi.maxClaimAmount?.toString() ?? '0'),
           allowClaimFor: Boolean(currentUbi.claimForEnabled),
           onlyMembersCanClaim: Boolean(currentUbi.onlyMembers),
         });
 
         mergeExtended({
           maxPeriodClaimers: currentExtended.maxPeriodClaimers?.toString() ?? '',
-          minClaimAmountWei: currentExtended.minClaimAmount?.toString() ?? '',
+          minClaimAmount: fromWei(currentExtended.minClaimAmount?.toString() ?? '0'),
           managerFeeBps:
             typeof currentExtended.managerFeeBps === 'number'
               ? currentExtended.managerFeeBps
@@ -156,9 +176,9 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
       if (maxMembersValidated === null) return;
       maxMembers = maxMembersValidated;
 
-      maxClaimAmount = baseState.maxClaimAmountWei.trim();
-      if (!maxClaimAmount) {
-        setUbiSettingsError('Max Claim Amount (in wei) is required.');
+      maxClaimAmount = toWei(baseState.maxClaimAmount.trim());
+      if (!maxClaimAmount || maxClaimAmount === '0') {
+        setUbiSettingsError('Max Claim Amount is required and must be greater than 0.');
         return;
       }
     } else {
@@ -167,11 +187,11 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
       claimPeriodDays = Number(baseState.claimPeriodDays);
       minActiveUsers = Number(baseState.minActiveUsers);
       maxMembers = Number(baseState.maxMembers || '0');
-      maxClaimAmount = baseState.maxClaimAmountWei.trim();
+      maxClaimAmount = toWei(baseState.maxClaimAmount.trim());
     }
 
     const maxPeriodClaimers = Number(extendedState.maxPeriodClaimers || '0');
-    const minClaimAmount = extendedState.minClaimAmountWei.trim() || '0';
+    const minClaimAmount = toWei(extendedState.minClaimAmount.trim() || '0');
 
     try {
       setIsSavingUbiSettings(true);
@@ -185,16 +205,6 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
       const network = SupportedNetworkNames[validatedChainId as SupportedNetwork];
 
       const sdk = new GoodCollectiveSDK(chainIdString, provider, { network });
-
-      // Load current pool settings to preserve them
-      const poolAbi = contractsForChain?.UBIPool?.abi || [];
-      if (!poolAbi.length) {
-        setUbiSettingsError('Unable to load pool contract ABI for UBI settings.');
-        return;
-      }
-
-      const contract = new ethers.Contract(poolAddress, poolAbi, provider);
-      const currentPoolSettings = await contract.settings();
 
       // Prepare new UBI settings
       const ubiSettingsPayload = {
@@ -213,14 +223,8 @@ export const useUbiSettings = ({ poolAddress, pooltype, contractsForChain, chain
         managerFeeBps: extendedState.managerFeeBps,
       };
 
-      // Use SDK method to update UBI settings while preserving pool settings
-      const tx = await sdk.setUBIPoolSettings(
-        validatedSigner,
-        poolAddress,
-        currentPoolSettings,
-        ubiSettingsPayload,
-        extendedSettingsPayload
-      );
+      // Use SDK method to update only UBI settings (no pool settings)
+      const tx = await sdk.setUBISettings(validatedSigner, poolAddress, ubiSettingsPayload, extendedSettingsPayload);
       await tx.wait();
 
       setUbiSettingsSuccess('UBI parameters updated successfully.');
