@@ -7,9 +7,10 @@ interface UseMemberManagementParams {
   poolAddress?: string;
   pooltype?: string;
   chainId: number;
+  initialMembers?: string[];
 }
 
-export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMemberManagementParams) => {
+export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMembers }: UseMemberManagementParams) => {
   const provider = useEthersProvider({ chainId });
   const signer = useEthersSigner({ chainId });
 
@@ -19,77 +20,18 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
   const [isRemovingMember, setIsRemovingMember] = useState(false);
   const [managedMembers, setManagedMembers] = useState<string[]>([]);
   const [totalMemberCount, setTotalMemberCount] = useState<number | null>(null);
-  const [isLoadingInitialMembers, setIsLoadingInitialMembers] = useState(false);
 
   useEffect(() => {
-    let isCancelled = false;
+    if (!poolAddress || pooltype !== 'UBI') {
+      return;
+    }
 
-    const loadMembersAndTotal = async () => {
-      if (!poolAddress || pooltype !== 'UBI' || !provider) {
-        return;
-      }
-
-      try {
-        setIsLoadingInitialMembers(true);
-
-        const chainIdString = chainId.toString() as `${SupportedNetwork}`;
-        const network = SupportedNetworkNames[chainId as SupportedNetwork];
-        const sdk = new GoodCollectiveSDK(chainIdString, provider, { network });
-
-        try {
-          // Primary path: use SDK helper that reconstructs member set from events
-          // NOTE: SDK defaults to scanning last ~9,500 blocks to stay within RPC free-tier limits
-          // For older pools, this may not capture all members. Consider using a paid RPC provider
-          // or implementing a subgraph query for complete member lists.
-          const { members, count, onChainCount } = await sdk.getUBIPoolMembers(poolAddress);
-          if (isCancelled) return;
-
-          setManagedMembers(members);
-          setTotalMemberCount(onChainCount ?? count);
-
-          // If we got a total count but no members, it means members were added outside the scan range
-          if (onChainCount && onChainCount > 0 && members.length === 0) {
-            console.warn(
-              `Pool has ${onChainCount} members but none found in recent blocks. ` +
-                'Members may have been added more than ~9,500 blocks ago. ' +
-                'Consider using a paid RPC provider for full member list access.'
-            );
-          }
-        } catch (e) {
-          // Fallback: if log scanning fails (e.g. RPC free‑tier range limits),
-          // fall back to just reading the on‑chain membersCount from status().
-          console.warn('Failed to load member list via events for pool', poolAddress, e);
-
-          const details = await sdk.getUBIPoolsDetails([poolAddress]);
-          const rawCount = details?.[0]?.status?.membersCount;
-          if (isCancelled || rawCount === undefined || rawCount === null) {
-            return;
-          }
-
-          const count =
-            typeof rawCount === 'number'
-              ? rawCount
-              : Number((rawCount as any).toString ? (rawCount as any).toString() : rawCount);
-
-          if (!Number.isNaN(count)) {
-            setTotalMemberCount(count);
-          }
-        }
-      } catch (e) {
-        console.warn('Failed to load member data for pool', poolAddress, e);
-      } finally {
-        if (!isCancelled) {
-          setIsLoadingInitialMembers(false);
-        }
-      }
-    };
-
-    loadMembersAndTotal();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [poolAddress, pooltype, provider, chainId]);
+    // Use the pre-loaded member list from parent component
+    if (initialMembers) {
+      setManagedMembers(initialMembers);
+      setTotalMemberCount(initialMembers.length);
+    }
+  }, [poolAddress, pooltype, initialMembers]);
 
   const parsedMemberAddresses = useMemo(() => {
     if (!memberInput) return [];
@@ -198,7 +140,6 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
     memberError,
     isAddingMembers,
     isRemovingMember,
-    isLoadingInitialMembers,
     managedMembers,
     totalMemberCount,
     handleAddMembers,
