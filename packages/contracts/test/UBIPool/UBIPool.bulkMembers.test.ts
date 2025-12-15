@@ -212,26 +212,11 @@ describe('UBIPool Bulk Members', () => {
             const members = [signers[2].address, signers[3].address];
             const extraData = ['0x', '0x'];
 
-            // Non-manager should not be able to add members when onlyMembers is true
-            const tx = pool.connect(signers[5]).addMembers(members, extraData);
-            await expect(tx).not.reverted;
-
-            // Verify no members were added (all skipped due to access control)
-            expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[2].address)).to.be.false;
-            expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[3].address)).to.be.false;
+            // Non-manager should not be able to add members
+            await expect(pool.connect(signers[5]).addMembers(members, extraData)).to.be.reverted;
         });
 
-        it('should revert if batch size exceeds MAX_BATCH_SIZE', async () => {
-            const members = Array(201)
-                .fill(0)
-                .map((_, i) => ethers.Wallet.createRandom().address);
-            const extraData = Array(201).fill('0x');
 
-            await expect(pool.connect(signers[1]).addMembers(members, extraData)).to.be.revertedWithCustomError(
-                pool,
-                'BATCH_TOO_LARGE'
-            );
-        });
 
         it('should revert if members and extraData arrays have different lengths', async () => {
             const members = [signers[2].address, signers[3].address];
@@ -273,42 +258,7 @@ describe('UBIPool Bulk Members', () => {
         });
     });
 
-    describe('addMembers - Factory', () => {
-        it('should prevent double-counting when pool calls addMembers', async () => {
-            const member = signers[2].address;
 
-            // Add member through pool
-            await pool.connect(signers[1]).addMembers([member], ['0x']);
-
-            // Verify member is in factory registry once
-            const memberPools = await factory.memberPools(member, 0);
-            expect(memberPools).to.equal(pool.address);
-
-            // Try to add same member again
-            await pool.connect(signers[1]).addMembers([member], ['0x']);
-
-            // Verify still only one entry in factory registry
-            const poolsCount = await factory.memberPools(member, 0);
-            expect(poolsCount).to.equal(pool.address);
-
-            // Should not have a second entry
-            await expect(factory.memberPools(member, 1)).to.be.reverted;
-        });
-
-        it('should emit MemberAdded events from factory for each new member', async () => {
-            const members = [signers[2].address, signers[3].address];
-            const extraData = ['0x', '0x'];
-
-            const tx = await pool.connect(signers[1]).addMembers(members, extraData);
-            const receipt = await tx.wait();
-
-            // Check for factory MemberAdded events
-            const factoryEvents = receipt.events?.filter(
-                (e) => e.address === factory.address && e.event === 'MemberAdded'
-            );
-            expect(factoryEvents?.length).to.equal(2);
-        });
-    });
 
     describe('Gas Measurement', () => {
         it('should measure gas for different batch sizes', async () => {

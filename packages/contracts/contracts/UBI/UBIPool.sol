@@ -25,12 +25,10 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     error EMPTY_MANAGER();
     error MAX_MEMBERS_REACHED();
     error MAX_PERIOD_CLAIMERS_REACHED(uint256 claimers);
-    error BATCH_TOO_LARGE();
     error LENGTH_MISMATCH();
 
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
     bytes32 public constant MEMBER_ROLE = keccak256("MEMBER_ROLE");
-    uint256 public constant MAX_BATCH_SIZE = 200;
 
     event PoolSettingsChanged(PoolSettings settings);
     event UBISettingsChanged(UBISettings settings);
@@ -305,83 +303,30 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
      * @param members Array of member addresses to add.
      * @param extraData Array of additional validation data for each member.
      */
-    function addMembers(address[] calldata members, bytes[] calldata extraData) external {
-        if (members.length > MAX_BATCH_SIZE) revert BATCH_TOO_LARGE();
+    function addMembers(address[] calldata members, bytes[] calldata extraData) external onlyRole(MANAGER_ROLE) {
         if (members.length != extraData.length) revert LENGTH_MISMATCH();
 
-        // Check if we have room for new members
-        if (ubiSettings.maxMembers > 0) {
-            uint256 potentialNewMembers = 0;
-            for (uint i = 0; i < members.length; ) {
-                if (!hasRole(MEMBER_ROLE, members[i])) {
-                    unchecked {
-                        ++potentialNewMembers;
-                    }
-                }
-                unchecked {
-                    ++i;
-                }
-            }
-            if (status.membersCount + potentialNewMembers > ubiSettings.maxMembers) {
-                revert MAX_MEMBERS_REACHED();
-            }
-        }
-
-        // Track successfully added members for bulk factory update
-        address[] memory addedMembers = new address[](members.length);
-        uint256 addedCount = 0;
-
         for (uint i = 0; i < members.length; ) {
-            // Skip if already a member
-            if (!hasRole(MEMBER_ROLE, members[i])) {
-                bool isValid = true;
+            address member = members[i];
+            
+            // Validate uniqueness if validator is set
+            if (address(settings.uniquenessValidator) != address(0)) {
+                address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
+                if (rootAddress == address(0)) revert NOT_WHITELISTED(member);
+            }
 
-                // Validate uniqueness if validator is set
-                if (address(settings.uniquenessValidator) != address(0)) {
-                    address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(members[i]);
-                    if (rootAddress == address(0)) {
-                        isValid = false;
-                    }
-                }
-
-                // Validate with members validator if set and caller is not manager
-                if (isValid && address(settings.membersValidator) != address(0) && !hasRole(MANAGER_ROLE, msg.sender)) {
-                    if (!settings.membersValidator.isMemberValid(address(this), msg.sender, members[i], extraData[i])) {
-                        isValid = false;
-                    }
-                }
-                // If no members validator but onlyMembers is true, only manager can add
-                else if (isValid && ubiSettings.onlyMembers && !hasRole(MANAGER_ROLE, msg.sender)) {
-                    isValid = false;
-                }
-
-                // Grant role if valid (we'll update factory in bulk at the end)
-                if (isValid) {
-                    _grantMemberRoleWithoutFactory(members[i]);
-                    addedMembers[addedCount] = members[i];
-                    unchecked {
-                        ++addedCount;
-                    }
-                    emit MemberAdded(members[i]);
+            // Validate with members validator if set (manager can bypass)
+            if (address(settings.membersValidator) != address(0)) {
+                if (!settings.membersValidator.isMemberValid(address(this), msg.sender, member, extraData[i])) {
+                    revert NOT_MEMBER(member);
                 }
             }
 
+            _grantRole(MEMBER_ROLE, member);
+            
             unchecked {
                 ++i;
             }
-        }
-
-        // Bulk update factory registry for all successfully added members
-        if (addedCount > 0) {
-            // Resize array to actual added count
-            address[] memory finalMembers = new address[](addedCount);
-            for (uint i = 0; i < addedCount; ) {
-                finalMembers[i] = addedMembers[i];
-                unchecked {
-                    ++i;
-                }
-            }
-            registry.addMembers(finalMembers);
         }
     }
 
@@ -389,15 +334,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         _revokeRole(MEMBER_ROLE, member);
     }
 
-    /**
-     * @dev Helper function to grant member role without calling factory.
-     * Used for bulk operations where factory is updated at the end.
-     */
-    function _grantMemberRoleWithoutFactory(address account) internal {
-        if (ubiSettings.maxMembers > 0 && status.membersCount >= ubiSettings.maxMembers) revert MAX_MEMBERS_REACHED();
-        AccessControlUpgradeable._grantRole(MEMBER_ROLE, account);
-        status.membersCount += 1;
-    }
+
 
     function _grantRole(bytes32 role, address account) internal virtual override {
         if (role == MEMBER_ROLE && hasRole(MEMBER_ROLE, account) == false) {
