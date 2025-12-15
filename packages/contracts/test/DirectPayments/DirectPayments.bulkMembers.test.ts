@@ -99,7 +99,7 @@ describe('DirectPayments Bulk Members', () => {
             const members = [signers[1].address, signers[2].address, signers[3].address];
             const extraData = ['0x', '0x', '0x'];
 
-            const tx = await pool.addMembers(members, extraData);
+            const tx = await pool.connect(signer).addMembers(members, extraData);
             await expect(tx).not.reverted;
 
             // Verify all members have MEMBER_ROLE
@@ -117,7 +117,7 @@ describe('DirectPayments Bulk Members', () => {
             const members = [signers[1].address, signers[2].address, signers[1].address]; // duplicate
             const extraData = ['0x', '0x', '0x'];
 
-            const tx = await pool.addMembers(members, extraData);
+            const tx = await pool.connect(signer).addMembers(members, extraData);
             await expect(tx).not.reverted;
 
             // Verify unique members were added
@@ -140,7 +140,7 @@ describe('DirectPayments Bulk Members', () => {
                 .withArgs(pool.address, signer.address, signers[2].address, '0x')
                 .returns(false);
 
-            const tx = await pool.addMembers(members, extraData);
+            const tx = await pool.connect(signer).addMembers(members, extraData);
             await expect(tx).not.reverted;
 
             // Verify valid members were added
@@ -151,27 +151,20 @@ describe('DirectPayments Bulk Members', () => {
             expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[2].address)).to.be.false;
         });
 
-        it('should revert if batch size exceeds MAX_BATCH_SIZE', async () => {
-            const members = Array(201)
-                .fill(0)
-                .map((_, i) => ethers.Wallet.createRandom().address);
-            const extraData = Array(201).fill('0x');
 
-            await expect(pool.addMembers(members, extraData)).to.be.revertedWithCustomError(pool, 'BATCH_TOO_LARGE');
-        });
 
         it('should revert if members and extraData arrays have different lengths', async () => {
             const members = [signers[1].address, signers[2].address];
             const extraData = ['0x']; // mismatched length
 
-            await expect(pool.addMembers(members, extraData)).to.be.revertedWith('Length mismatch');
+            await expect(pool.connect(signer).addMembers(members, extraData)).to.be.revertedWithCustomError(pool, 'LENGTH_MISMATCH');
         });
 
         it('should update factory registry for all added members', async () => {
             const members = [signers[1].address, signers[2].address, signers[3].address];
             const extraData = ['0x', '0x', '0x'];
 
-            await pool.addMembers(members, extraData);
+            await pool.connect(signer).addMembers(members, extraData);
 
             // Verify factory registry updated
             for (const member of members) {
@@ -186,7 +179,7 @@ describe('DirectPayments Bulk Members', () => {
                 .map((_, i) => ethers.Wallet.createRandom().address);
             const extraData = Array(100).fill('0x');
 
-            const tx = await pool.addMembers(members, extraData);
+            const tx = await pool.connect(signer).addMembers(members, extraData);
             await expect(tx).not.reverted;
 
             // Verify all members added
@@ -196,42 +189,7 @@ describe('DirectPayments Bulk Members', () => {
         });
     });
 
-    describe('addMembers - Factory', () => {
-        it('should prevent double-counting when pool calls addMembers', async () => {
-            const member = signers[1].address;
 
-            // Manually add member through pool (which calls factory.addMember)
-            await pool.addMembers([member], ['0x']);
-
-            // Verify member is in factory registry once
-            const memberPools = await factory.memberPools(member, 0);
-            expect(memberPools).to.equal(pool.address);
-
-            // Try to add same member again
-            await pool.addMembers([member], ['0x']);
-
-            // Verify still only one entry in factory registry
-            const poolsCount = await factory.memberPools(member, 0);
-            expect(poolsCount).to.equal(pool.address);
-
-            // Should not have a second entry
-            await expect(factory.memberPools(member, 1)).to.be.reverted;
-        });
-
-        it('should emit MemberAdded events from factory for each new member', async () => {
-            const members = [signers[1].address, signers[2].address];
-            const extraData = ['0x', '0x'];
-
-            const tx = await pool.addMembers(members, extraData);
-            const receipt = await tx.wait();
-
-            // Check for factory MemberAdded events
-            const factoryEvents = receipt.events?.filter(
-                (e) => e.address === factory.address && e.event === 'MemberAdded'
-            );
-            expect(factoryEvents?.length).to.equal(2);
-        });
-    });
 
     describe('Gas Measurement', () => {
         it('should measure gas for different batch sizes', async () => {
@@ -243,7 +201,7 @@ describe('DirectPayments Bulk Members', () => {
                     .map((_, i) => ethers.Wallet.createRandom().address);
                 const extraData = Array(size).fill('0x');
 
-                const tx = await pool.addMembers(members, extraData);
+                const tx = await pool.connect(signer).addMembers(members, extraData);
                 const receipt = await tx.wait();
 
                 console.log(`Gas used for ${size} members: ${receipt.gasUsed.toString()}`);

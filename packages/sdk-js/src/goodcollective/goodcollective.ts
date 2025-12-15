@@ -795,38 +795,24 @@ export class GoodCollectiveSDK {
   }
 
   /**
-   * Adds multiple members to a DirectPayments pool in a single transaction
+   * Adds multiple members to a pool in a single transaction
+   * Works for both DirectPayments and UBI pools
    * @param {ethers.Signer} signer - The signer object for the transaction
    * @param {string} poolAddress - The address of the pool contract
    * @param {string[]} members - Array of member addresses to add
    * @param {string[]} extraData - Array of additional validation data for each member
+   * @param {'directPayments' | 'ubi'} poolType - Type of pool (directPayments or ubi)
    * @returns {Promise<ethers.ContractTransaction>} A promise that resolves to a transaction object
    */
-  async addDirectPaymentsPoolMembers(
+  async addPoolMembers(
     signer: ethers.Signer,
     poolAddress: string,
     members: string[],
-    extraData: string[]
+    extraData: string[],
+    poolType: 'directPayments' | 'ubi'
   ): Promise<ContractTransaction> {
-    const connected = this.pool.attach(poolAddress).connect(signer);
-    return connected.addMembers(members, extraData, { ...CHAIN_OVERRIDES[this.chainId] });
-  }
-
-  /**
-   * Adds multiple members to a UBI pool in a single transaction
-   * @param {ethers.Signer} signer - The signer object for the transaction
-   * @param {string} poolAddress - The address of the pool contract
-   * @param {string[]} members - Array of member addresses to add
-   * @param {string[]} extraData - Array of additional validation data for each member
-   * @returns {Promise<ethers.ContractTransaction>} A promise that resolves to a transaction object
-   */
-  async addUBIPoolMembers(
-    signer: ethers.Signer,
-    poolAddress: string,
-    members: string[],
-    extraData: string[]
-  ): Promise<ContractTransaction> {
-    const connected = this.ubipool.attach(poolAddress).connect(signer);
+    const pool = poolType === 'ubi' ? this.ubipool : this.pool;
+    const connected = pool.attach(poolAddress).connect(signer);
     return connected.addMembers(members, extraData, { ...CHAIN_OVERRIDES[this.chainId] });
   }
 
@@ -871,8 +857,9 @@ export class GoodCollectiveSDK {
     // Calculate native token required
     const nativeTokenRequired = gasEstimate.mul(gasPrice);
 
-    // Get MAX_BATCH_SIZE from the contract to prevent drift
-    const maxBatchSize = await pool.MAX_BATCH_SIZE();
+    // Use hardcoded max batch size since it was removed from contracts
+    // Callers are now responsible for managing gas requirements
+    const maxBatchSize = 200;
 
     // Calculate recommended batch size based on gas estimate
     // Assuming block gas limit of 30M and targeting 50% usage for safety
@@ -882,10 +869,12 @@ export class GoodCollectiveSDK {
     // Calculate recommended batch size using BigNumber arithmetic
     // targetGasLimit / gasPerMember, then clamp to maxBatchSize
     const recommendedBatchSizeBN = targetGasLimitBN.div(gasPerMember);
-    const clampedBatchSizeBN = recommendedBatchSizeBN.gt(maxBatchSize) ? maxBatchSize : recommendedBatchSizeBN;
+    const clampedBatchSizeBN = recommendedBatchSizeBN.gt(maxBatchSize)
+      ? ethers.BigNumber.from(maxBatchSize)
+      : recommendedBatchSizeBN;
 
     // Convert to number only at the end, ensuring it's within safe integer range
-    const recommendedBatchSize = Math.min(clampedBatchSizeBN.toNumber(), maxBatchSize.toNumber());
+    const recommendedBatchSize = Math.min(clampedBatchSizeBN.toNumber(), maxBatchSize);
 
     return {
       gasEstimate: gasEstimate.toString(),
