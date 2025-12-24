@@ -45,7 +45,6 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     event UBICycleCalculated(uint256 day, uint256 pool, uint256 cycleLength, uint256 dailyUBIPool);
 
     event UBIClaimed(address indexed whitelistedRoot, address indexed claimer, uint256 amount);
-    event MemberAdded(address indexed member);
 
     struct UBISettings {
         //number of days of each UBI pool cycle
@@ -307,23 +306,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         if (members.length != extraData.length) revert LENGTH_MISMATCH();
 
         for (uint i = 0; i < members.length; ) {
-            address member = members[i];
-            
-            // Validate uniqueness if validator is set
-            if (address(settings.uniquenessValidator) != address(0)) {
-                address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
-                if (rootAddress == address(0)) revert NOT_WHITELISTED(member);
-            }
-
-            // Validate with members validator if set (manager can bypass)
-            if (address(settings.membersValidator) != address(0)) {
-                if (!settings.membersValidator.isMemberValid(address(this), msg.sender, member, extraData[i])) {
-                    revert NOT_MEMBER(member);
-                }
-            }
-
-            _grantRole(MEMBER_ROLE, member);
-            
+            addMember(members[i], extraData[i]);
             unchecked {
                 ++i;
             }
@@ -333,8 +316,6 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     function removeMember(address member) external onlyRole(MANAGER_ROLE) {
         _revokeRole(MEMBER_ROLE, member);
     }
-
-
 
     function _grantRole(bytes32 role, address account) internal virtual override {
         if (role == MEMBER_ROLE && hasRole(MEMBER_ROLE, account) == false) {

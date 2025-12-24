@@ -1,15 +1,15 @@
-import { deploySuperGoodDollar } from '@gooddollar/goodprotocol';
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
-import { deployTestFramework } from '@superfluid-finance/ethereum-contracts/dev-scripts/deploy-test-framework';
-import '@nomicfoundation/hardhat-toolbox';
-import { expect } from 'chai';
-import { DirectPaymentsFactory, DirectPaymentsPool, ProvableNFT } from 'typechain-types';
-import { ethers, upgrades } from 'hardhat';
-import { MockContract, deployMockContract } from 'ethereum-waffle';
+import { deploySuperGoodDollar } from "@gooddollar/goodprotocol";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { deployTestFramework } from "@superfluid-finance/ethereum-contracts/dev-scripts/deploy-test-framework";
+import "@nomicfoundation/hardhat-toolbox";
+import { expect } from "chai";
+import { DirectPaymentsFactory, DirectPaymentsPool, ProvableNFT } from "typechain-types";
+import { ethers, upgrades } from "hardhat";
+import { MockContract, deployMockContract } from "ethereum-waffle";
 
 type SignerWithAddress = Awaited<ReturnType<typeof ethers.getSigner>>;
 
-describe('DirectPayments Bulk Members', () => {
+describe("DirectPayments Bulk Members", () => {
     let pool: DirectPaymentsPool;
     let factory: DirectPaymentsFactory;
     let nft: ProvableNFT;
@@ -28,7 +28,7 @@ describe('DirectPayments Bulk Members', () => {
 
         gdframework = await deploySuperGoodDollar(signers[0], sfFramework, [
             ethers.constants.AddressZero,
-            ethers.constants.AddressZero,
+            ethers.constants.AddressZero
         ]);
         signer = signers[0];
         poolSettings = {
@@ -39,50 +39,50 @@ describe('DirectPayments Bulk Members', () => {
             manager: signer.address,
             membersValidator: ethers.constants.AddressZero,
             rewardToken: gdframework.GoodDollar.address,
-            allowRewardOverride: false,
+            allowRewardOverride: false
         };
 
         poolLimits = {
             maxMemberPerDay: 300,
             maxMemberPerMonth: 1000,
-            maxTotalPerMonth: 3000,
+            maxTotalPerMonth: 3000
         };
     });
 
     const fixture = async () => {
-        const nftFactory = await ethers.getContractFactory('ProvableNFT');
-        nft = (await upgrades.deployProxy(nftFactory, ['nft', 'cc'], { kind: 'uups' })) as ProvableNFT;
-        const helper = await ethers.deployContract('HelperLibrary');
-        const helper2 = await ethers.deployContract('DirectPaymentsLibrary');
+        const nftFactory = await ethers.getContractFactory("ProvableNFT");
+        nft = (await upgrades.deployProxy(nftFactory, ["nft", "cc"], { kind: "uups" })) as ProvableNFT;
+        const helper = await ethers.deployContract("HelperLibrary");
+        const helper2 = await ethers.deployContract("DirectPaymentsLibrary");
 
-        const Pool = await ethers.getContractFactory('DirectPaymentsPool', {
-            libraries: { HelperLibrary: helper.address, DirectPaymentsLibrary: helper2.address },
+        const Pool = await ethers.getContractFactory("DirectPaymentsPool", {
+            libraries: { HelperLibrary: helper.address, DirectPaymentsLibrary: helper2.address }
         });
         membersValidator = await deployMockContract(signers[0], [
-            'function isMemberValid(address pool,address operator,address member,bytes memory extraData) external returns (bool)',
+            "function isMemberValid(address pool,address operator,address member,bytes memory extraData) external returns (bool)"
         ]);
         const poolImpl = await Pool.deploy(await gdframework.GoodDollar.getHost(), ethers.constants.AddressZero);
 
         factory = (await upgrades.deployProxy(
-            await ethers.getContractFactory('DirectPaymentsFactory'),
+            await ethers.getContractFactory("DirectPaymentsFactory"),
             [signer.address, poolImpl.address, nft.address, ethers.constants.AddressZero, 0],
-            { kind: 'uups' }
+            { kind: "uups" }
         )) as DirectPaymentsFactory;
 
         await nft.grantRole(ethers.constants.HashZero, factory.address);
         // all members are valid by default
-        membersValidator.mock['isMemberValid'].returns(true);
+        membersValidator.mock["isMemberValid"].returns(true);
 
         const poolTx = await (
             await factory.createPool(
-                'test-project',
-                'ipfs',
+                "test-project",
+                "ipfs",
                 { ...poolSettings, membersValidator: membersValidator.address },
                 poolLimits,
                 0
             )
         ).wait();
-        const poolAddress = poolTx.events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
+        const poolAddress = poolTx.events?.find((_) => _.event === "PoolCreated")?.args?.[0];
         pool = Pool.attach(poolAddress) as DirectPaymentsPool;
 
         await gdframework.GoodDollar.mint(pool.address, ethers.constants.WeiPerEther.mul(100000)).then((_: any) =>
@@ -94,10 +94,10 @@ describe('DirectPayments Bulk Members', () => {
         await loadFixture(fixture);
     });
 
-    describe('addMembers - Pool', () => {
-        it('should add multiple valid members successfully', async () => {
+    describe("addMembers - Pool", () => {
+        it("should add multiple valid members successfully", async () => {
             const members = [signers[1].address, signers[2].address, signers[3].address];
-            const extraData = ['0x', '0x', '0x'];
+            const extraData = ["0x", "0x", "0x"];
 
             const tx = await pool.connect(signer).addMembers(members, extraData);
             await expect(tx).not.reverted;
@@ -107,15 +107,17 @@ describe('DirectPayments Bulk Members', () => {
                 expect(await pool.hasRole(await pool.MEMBER_ROLE(), member)).to.be.true;
             }
 
-            // Verify events emitted
+            // Verify RoleGranted events emitted
             const receipt = await tx.wait();
-            const memberAddedEvents = receipt.events?.filter((e) => e.event === 'MemberAdded');
-            expect(memberAddedEvents?.length).to.equal(3);
+            const roleGrantedEvents = receipt.events?.filter(
+                (e) => e.event === "RoleGranted" && e.address === pool.address
+            );
+            expect(roleGrantedEvents?.length).to.equal(3);
         });
 
-        it('should skip duplicate members without reverting', async () => {
+        it("should skip duplicate members without reverting", async () => {
             const members = [signers[1].address, signers[2].address, signers[1].address]; // duplicate
-            const extraData = ['0x', '0x', '0x'];
+            const extraData = ["0x", "0x", "0x"];
 
             const tx = await pool.connect(signer).addMembers(members, extraData);
             await expect(tx).not.reverted;
@@ -124,20 +126,22 @@ describe('DirectPayments Bulk Members', () => {
             expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[1].address)).to.be.true;
             expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[2].address)).to.be.true;
 
-            // Verify only 2 events emitted (duplicate skipped)
+            // Verify only 2 RoleGranted events emitted (duplicate skipped)
             const receipt = await tx.wait();
-            const memberAddedEvents = receipt.events?.filter((e) => e.event === 'MemberAdded');
-            expect(memberAddedEvents?.length).to.equal(2);
+            const roleGrantedEvents = receipt.events?.filter(
+                (e) => e.event === "RoleGranted" && e.address === pool.address
+            );
+            expect(roleGrantedEvents?.length).to.equal(2);
         });
 
-        it('should skip invalid members when membersValidator rejects them', async () => {
+        it("should skip invalid members when membersValidator rejects them", async () => {
             const members = [signers[1].address, signers[2].address, signers[3].address];
-            const extraData = ['0x', '0x', '0x'];
+            const extraData = ["0x", "0x", "0x"];
 
             // Mock validator to reject second member
-            membersValidator.mock['isMemberValid'].returns(true);
-            membersValidator.mock['isMemberValid']
-                .withArgs(pool.address, signer.address, signers[2].address, '0x')
+            membersValidator.mock["isMemberValid"].returns(true);
+            membersValidator.mock["isMemberValid"]
+                .withArgs(pool.address, signer.address, signers[2].address, "0x")
                 .returns(false);
 
             const tx = await pool.connect(signer).addMembers(members, extraData);
@@ -151,18 +155,19 @@ describe('DirectPayments Bulk Members', () => {
             expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[2].address)).to.be.false;
         });
 
-
-
-        it('should revert if members and extraData arrays have different lengths', async () => {
+        it("should revert if members and extraData arrays have different lengths", async () => {
             const members = [signers[1].address, signers[2].address];
-            const extraData = ['0x']; // mismatched length
+            const extraData = ["0x"]; // mismatched length
 
-            await expect(pool.connect(signer).addMembers(members, extraData)).to.be.revertedWithCustomError(pool, 'LENGTH_MISMATCH');
+            await expect(pool.connect(signer).addMembers(members, extraData)).to.be.revertedWithCustomError(
+                pool,
+                "LENGTH_MISMATCH"
+            );
         });
 
-        it('should update factory registry for all added members', async () => {
+        it("should update factory registry for all added members", async () => {
             const members = [signers[1].address, signers[2].address, signers[3].address];
-            const extraData = ['0x', '0x', '0x'];
+            const extraData = ["0x", "0x", "0x"];
 
             await pool.connect(signer).addMembers(members, extraData);
 
@@ -173,11 +178,32 @@ describe('DirectPayments Bulk Members', () => {
             }
         });
 
-        it('should handle large batch of 100 members', async () => {
+        it("should emit MemberAdded events from factory for each new member", async () => {
+            const members = [signers[1].address, signers[2].address, signers[3].address];
+            const extraData = ["0x", "0x", "0x"];
+
+            const tx = await pool.connect(signer).addMembers(members, extraData);
+            const receipt = await tx.wait();
+
+            // Verify factory emitted MemberAdded events for each member
+            const factoryMemberAddedEvents = receipt.events?.filter(
+                (e) => e.event === "MemberAdded" && e.address === factory.address
+            );
+            expect(factoryMemberAddedEvents?.length).to.equal(3);
+
+            // Verify event args
+            for (let i = 0; i < members.length; i++) {
+                const event = factoryMemberAddedEvents?.[i];
+                expect(event?.args?.[0]).to.equal(members[i]);
+                expect(event?.args?.[1]).to.equal(pool.address);
+            }
+        });
+
+        it("should handle large batch of 100 members", async () => {
             const members = Array(100)
                 .fill(0)
                 .map((_, i) => ethers.Wallet.createRandom().address);
-            const extraData = Array(100).fill('0x');
+            const extraData = Array(100).fill("0x");
 
             const tx = await pool.connect(signer).addMembers(members, extraData);
             await expect(tx).not.reverted;
@@ -189,17 +215,15 @@ describe('DirectPayments Bulk Members', () => {
         });
     });
 
-
-
-    describe('Gas Measurement', () => {
-        it('should measure gas for different batch sizes', async () => {
+    describe("Gas Measurement", () => {
+        it("should measure gas for different batch sizes", async () => {
             const batchSizes = [10, 50, 100];
 
             for (const size of batchSizes) {
                 const members = Array(size)
                     .fill(0)
                     .map((_, i) => ethers.Wallet.createRandom().address);
-                const extraData = Array(size).fill('0x');
+                const extraData = Array(size).fill("0x");
 
                 const tx = await pool.connect(signer).addMembers(members, extraData);
                 const receipt = await tx.wait();

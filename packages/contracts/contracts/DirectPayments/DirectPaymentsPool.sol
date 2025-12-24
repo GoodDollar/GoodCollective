@@ -78,7 +78,6 @@ contract DirectPaymentsPool is
     );
     event NFTClaimed(uint256 indexed tokenId, uint256 totalRewards);
     event NOT_MEMBER_OR_WHITELISTED_OR_LIMITS(address contributer);
-    event MemberAdded(address indexed member);
 
     // Define functions
     struct PoolSettings {
@@ -227,17 +226,12 @@ contract DirectPaymentsPool is
         if (members.length != extraData.length) revert LENGTH_MISMATCH();
 
         for (uint i = 0; i < members.length; ) {
-            bool added = _addMember(members[i], extraData[i]);
-            if (added) {
-                emit MemberAdded(members[i]);
-            }
+            _addMember(members[i], extraData[i]);
             unchecked {
                 ++i;
             }
         }
     }
-
-
 
     function _grantRole(bytes32 role, address account) internal virtual override {
         if (role == MEMBER_ROLE) {
