@@ -987,4 +987,23 @@ export class GoodCollectiveSDK {
       };
     }
   }
+
+  /**
+   * Adds multiple members to a pool in a single transaction
+   * Works for both DirectPayments and UBI pools
+   * @param {ethers.Signer} signer - The signer object for the transaction
+   * @param {string} poolAddress - The address of the pool contract
+   * @param {string[]} members - Array of member addresses to add
+   * @param {string[]} extraData - Array of additional validation data for each member
+   * @returns {Promise<ethers.ContractTransaction>} A promise that resolves to a transaction object
+   */
+  async addPoolMembers(
+    signer: ethers.Signer,
+    poolAddress: string,
+    members: string[],
+    extraData: string[]
+  ): Promise<ContractTransaction> {
+    const connected = this.pool.attach(poolAddress).connect(signer);
+    return connected.addMembers(members, extraData, { ...CHAIN_OVERRIDES[this.chainId] });
+  }
 }
