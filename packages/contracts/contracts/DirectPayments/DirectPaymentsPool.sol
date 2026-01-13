@@ -5,9 +5,7 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils
 import { IERC721Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import {
-    IERC721ReceiverUpgradeable
-} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
+import { IERC721ReceiverUpgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 
 import { ProvableNFT } from "./ProvableNFT.sol";
 import { DirectPaymentsFactory } from "./DirectPaymentsFactory.sol";
@@ -225,11 +223,8 @@ contract DirectPaymentsPool is
     function addMembers(address[] calldata members, bytes[] calldata extraData) external onlyRole(MANAGER_ROLE) {
         if (members.length != extraData.length) revert LENGTH_MISMATCH();
 
-        for (uint i = 0; i < members.length; ) {
+        for (uint i = 0; i < members.length; i++) {
             _addMember(members[i], extraData[i]);
-            unchecked {
-                ++i;
-            }
         }
     }
 

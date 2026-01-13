@@ -177,11 +177,8 @@ contract UBIPoolFactory is AccessControlUpgradeable, UUPSUpgradeable {
     }
 
     function addMembers(address[] calldata members) external onlyPool {
-        for (uint i = 0; i < members.length; ) {
+        for (uint i = 0; i < members.length; i++) {
             addMember(members[i]);
-            unchecked {
-                ++i;
-            }
         }
     }
 
