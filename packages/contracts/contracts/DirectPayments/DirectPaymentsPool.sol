@@ -75,6 +75,14 @@ contract DirectPaymentsPool is
         uint256 rewardPerContributer
     );
     event NFTClaimed(uint256 indexed tokenId, uint256 totalRewards);
+    /**
+     * @dev Emitted when a contributor is skipped during reward distribution.
+     * This occurs when a contributor is either:
+     * - Not a member of the pool (does not have MEMBER_ROLE)
+     * - Not whitelisted (uniquenessValidator returns address(0))
+     * - Exceeds member limits (daily or monthly limits exceeded)
+     * @param contributer The address of the contributor that was skipped
+     */
     event NOT_MEMBER_OR_WHITELISTED_OR_LIMITS(address contributer);
 
     // Define functions
