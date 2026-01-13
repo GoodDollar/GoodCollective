@@ -1,12 +1,12 @@
 # GoodCollective
 
 ## Features
+This is the monorepo for GoodCollective (Segmented UBI and Direct Payments Pool)
 
-This is the repo for the GoodCollective protocol and dapp, use it to:
 
 - Create pools for rewarding climate stewards
 - Create Basic Income pools with dynamic members
-
+- Join the GoodBuilders Telegram for questions, bounties & community: https://t.me/gooddollarbounties
 ## Quick Start
 
 ### Fork or clone the repo
