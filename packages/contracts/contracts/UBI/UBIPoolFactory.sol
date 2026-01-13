@@ -171,7 +171,7 @@ contract UBIPoolFactory is AccessControlUpgradeable, UUPSUpgradeable {
         feeRecipient = _feeRecipient;
     }
 
-    function addMember(address account) external onlyPool {
+    function addMember(address account) public onlyPool {
         memberPools[account].push(msg.sender);
         emit MemberAdded(account, msg.sender);
     }

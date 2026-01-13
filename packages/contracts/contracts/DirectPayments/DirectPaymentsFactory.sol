@@ -188,7 +188,7 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         feeRecipient = _feeRecipient;
     }
 
-    function addMember(address member) external onlyPool {
+    function addMember(address member) public onlyPool {
         memberPools[member].push(msg.sender);
         emit MemberAdded(member, msg.sender);
     }
