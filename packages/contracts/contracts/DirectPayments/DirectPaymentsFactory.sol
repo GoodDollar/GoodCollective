@@ -189,16 +189,17 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
     }
 
     function addMember(address member) public onlyPool {
+        _addMemberToRegistry(member);
+    }
+
+    function _addMemberToRegistry(address member) internal {
         memberPools[member].push(msg.sender);
         emit MemberAdded(member, msg.sender);
     }
 
     function addMembers(address[] calldata members) external onlyPool {
-        for (uint i = 0; i < members.length; ) {
-            addMember(members[i]);
-            unchecked {
-                ++i;
-            }
+        for (uint i = 0; i < members.length; i++) {
+            _addMemberToRegistry(members[i]);
         }
     }
 
