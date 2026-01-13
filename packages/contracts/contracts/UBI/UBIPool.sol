@@ -277,7 +277,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
      * @param extraData Additional data to validate the member.
      */
 
-    function addMember(address member, bytes memory extraData) external returns (bool isMember) {
+    function addMember(address member, bytes memory extraData) public returns (bool isMember) {
         if (address(settings.uniquenessValidator) != address(0)) {
             address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
             if (rootAddress == address(0)) revert NOT_WHITELISTED(member);
