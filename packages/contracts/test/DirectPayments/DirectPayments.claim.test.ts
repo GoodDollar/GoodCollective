@@ -169,12 +169,13 @@ describe('DirectPaymentsPool Claim', () => {
 
   describe('claim', () => {
     it('non member should not be able to get rewards', async () => {
-      const membersValidator = await deployMockContract(signers[0], [
+      const newMembersValidator = await deployMockContract(signers[0], [
         'function isMemberValid(address pool,address operator,address member,bytes memory extraData) external returns (bool)',
       ]);
-      membersValidator.mock['isMemberValid'].returns(false);
+      // Set up mock to return false for all calls (reject all members)
+      newMembersValidator.mock['isMemberValid'].returns(false);
 
-      await pool.setPoolSettings({ ...poolSettings, membersValidator: membersValidator.address }, 0);
+      await pool.setPoolSettings({ ...poolSettings, membersValidator: newMembersValidator.address }, 0);
       await expect(pool['claim(uint256)'](nftSampleId)).not.reverted;
       const contributer = nftSample.events[0].contributers[0];
       const initialBalance = await gdframework.GoodDollar.balanceOf(contributer);

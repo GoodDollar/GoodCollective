@@ -86,17 +86,21 @@ describe("DirectPayments Bulk Members", () => {
             const members = [signers[1].address, signers[2].address, signers[3].address];
             const extraData = ["0x", "0x", "0x"];
 
-            // Set up mocks for each specific case first, then default
+            // Verify signers[2] doesn't already have the role (loadFixture should reset state)
+            expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[2].address)).to.be.false;
+
+            // Override the default mock: set default to false, then override for valid members
+            // This ensures invalid members (like signers[2]) will be rejected
             // msg.sender is signer.address (the caller), address(this) is pool.address
+            membersValidator.mock["isMemberValid"].returns(false);
+            // Now set specific mocks for valid members
             membersValidator.mock["isMemberValid"]
                 .withArgs(pool.address, signer.address, signers[1].address, "0x")
                 .returns(true);
             membersValidator.mock["isMemberValid"]
-                .withArgs(pool.address, signer.address, signers[2].address, "0x")
-                .returns(false); // Reject this member
-            membersValidator.mock["isMemberValid"]
                 .withArgs(pool.address, signer.address, signers[3].address, "0x")
                 .returns(true);
+            // signers[2] will use the default false return (no specific mock set)
 
             const tx = await pool.connect(signer).addMembers(members, extraData);
             await expect(tx).not.reverted;
