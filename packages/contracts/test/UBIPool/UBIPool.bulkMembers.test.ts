@@ -22,12 +22,45 @@ describe("UBIPool Bulk Members", () => {
     let membersValidator: MockContract;
     let uniquenessValidator: MockContract;
 
+    before(async () => {
+        const { frameworkDeployer } = await deployTestFramework();
+        sfFramework = await frameworkDeployer.getFramework();
+        signers = await ethers.getSigners();
+        gdframework = await deploySuperGoodDollar(signers[0], sfFramework, [
+            ethers.constants.AddressZero,
+            ethers.constants.AddressZero
+        ]);
+        signer = signers[0];
+        poolSettings = {
+            uniquenessValidator: ethers.constants.AddressZero,
+            manager: signers[1].address,
+            membersValidator: ethers.constants.AddressZero,
+            rewardToken: gdframework.GoodDollar.address
+        };
+        extendedPoolSettings = {
+            maxPeriodClaimers: 500,
+            minClaimAmount: ethers.utils.parseEther("1"),
+            managerFeeBps: 0
+        };
+        poolLimits = {
+            cycleLengthDays: ethers.BigNumber.from(60),
+            claimPeriodDays: ethers.BigNumber.from(1),
+            minActiveUsers: ethers.BigNumber.from(100),
+            claimForEnabled: true,
+            maxClaimAmount: ethers.utils.parseEther("100"),
+            maxMembers: 500,
+            onlyMembers: true
+        };
+    });
+
     const fixture = async () => {
         const f = await ethers.getContractFactory("UBIPoolFactory");
         const swapMock = await ethers.deployContract("SwapRouterMock", [gdframework.GoodDollar.address]);
         const helper = await ethers.deployContract("HelperLibrary");
 
-        const dpimpl = await ethers.deployContract("UBIPool", [sfFramework["host"], swapMock.address], {
+        // Get host from framework, with fallback to GoodDollar contract
+        const sfHost = sfFramework?.['host'] || await gdframework.GoodDollar.getHost();
+        const dpimpl = await ethers.deployContract("UBIPool", [sfHost, swapMock.address], {
             libraries: { HelperLibrary: helper.address }
         });
 
@@ -65,43 +98,10 @@ describe("UBIPool Bulk Members", () => {
 
         // Fund the pool
         await gdframework.GoodDollar.mint(pool.address, ethers.utils.parseEther("100000"));
-
-        return factory;
     };
 
-    beforeEach(async () => {
+    beforeEach(async function () {
         await loadFixture(fixture);
-    });
-
-    before(async () => {
-        const { frameworkDeployer } = await deployTestFramework();
-        sfFramework = await frameworkDeployer.getFramework();
-        signers = await ethers.getSigners();
-        gdframework = await deploySuperGoodDollar(signers[0], sfFramework, [
-            ethers.constants.AddressZero,
-            ethers.constants.AddressZero
-        ]);
-        signer = signers[0];
-        poolSettings = {
-            uniquenessValidator: ethers.constants.AddressZero,
-            manager: signers[1].address,
-            membersValidator: ethers.constants.AddressZero,
-            rewardToken: gdframework.GoodDollar.address
-        };
-        extendedPoolSettings = {
-            maxPeriodClaimers: 500,
-            minClaimAmount: ethers.utils.parseEther("1"),
-            managerFeeBps: 0
-        };
-        poolLimits = {
-            cycleLengthDays: ethers.BigNumber.from(60),
-            claimPeriodDays: ethers.BigNumber.from(1),
-            minActiveUsers: ethers.BigNumber.from(100),
-            claimForEnabled: true,
-            maxClaimAmount: ethers.utils.parseEther("100"),
-            maxMembers: 500,
-            onlyMembers: true
-        };
     });
 
     describe("addMembers - Pool", () => {
@@ -178,7 +178,7 @@ describe("UBIPool Bulk Members", () => {
             const members = [signers[2].address, signers[3].address, signers[4].address];
             const extraData = ["0x", "0x", "0x"];
 
-            // Mock uniqueness validator to reject second member
+            // Mock uniqueness validator to reject second member - specific mocks take precedence
             uniquenessValidator.mock["getWhitelistedRoot"].returns((member: string) => member);
             uniquenessValidator.mock["getWhitelistedRoot"]
                 .withArgs(signers[3].address)
@@ -203,7 +203,7 @@ describe("UBIPool Bulk Members", () => {
             const members = [signers[2].address, signers[3].address, signers[4].address];
             const extraData = ["0x", "0x", "0x"];
 
-            // Mock validator to reject second member
+            // Set up mocks - specific mocks take precedence over default
             membersValidator.mock["isMemberValid"].returns(true);
             membersValidator.mock["isMemberValid"]
                 .withArgs(pool.address, signers[1].address, signers[3].address, "0x")

@@ -269,11 +269,40 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     }
 
     /**
+     * @dev Internal function to add a member with validation.
+     * Always validates members, even when called by manager.
+     * @param member The address of the member to add.
+     * @param extraData Additional data to validate the member.
+     * @return isMember True if member was added, false if validation failed.
+     */
+    function _addMember(address member, bytes memory extraData) internal returns (bool isMember) {
+        if (hasRole(MEMBER_ROLE, member)) return true;
+
+        if (address(settings.uniquenessValidator) != address(0)) {
+            address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
+            if (rootAddress == address(0)) return false;
+        }
+
+        // Always check membersValidator if it exists, regardless of caller role
+        if (address(settings.membersValidator) != address(0)) {
+            if (settings.membersValidator.isMemberValid(address(this), msg.sender, member, extraData) == false) {
+                return false;
+            }
+        }
+        // if no members validator then if members only only manager can add members
+        else if (ubiSettings.onlyMembers && hasRole(MANAGER_ROLE, msg.sender) == false) {
+            return false;
+        }
+
+        _grantRole(MEMBER_ROLE, member);
+        return true;
+    }
+
+    /**
      * @dev Adds a member to the contract.
      * @param member The address of the member to add.
      * @param extraData Additional data to validate the member.
      */
-
     function addMember(address member, bytes memory extraData) public returns (bool isMember) {
         if (address(settings.uniquenessValidator) != address(0)) {
             address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
@@ -296,6 +325,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
 
     /**
      * @dev Adds multiple members to the pool in a single transaction.
+     * Invalid members are skipped instead of causing the transaction to revert.
      * @param members Array of member addresses to add.
      * @param extraData Array of additional validation data for each member.
      */
@@ -303,7 +333,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         if (members.length != extraData.length) revert LENGTH_MISMATCH();
 
         for (uint i = 0; i < members.length; i++) {
-            addMember(members[i], extraData[i]);
+            _addMember(members[i], extraData[i]);
         }
     }
 
@@ -313,7 +343,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
 
     function _grantRole(bytes32 role, address account) internal virtual override {
         if (role == MEMBER_ROLE && hasRole(MEMBER_ROLE, account) == false) {
-            if (ubiSettings.maxMembers > 0 && status.membersCount > ubiSettings.maxMembers)
+            if (ubiSettings.maxMembers > 0 && status.membersCount >= ubiSettings.maxMembers)
                 revert MAX_MEMBERS_REACHED();
             registry.addMember(account);
             status.membersCount += 1;
