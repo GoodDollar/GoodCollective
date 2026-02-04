@@ -32,6 +32,7 @@ contract UBIPoolFactory is AccessControlUpgradeable, UUPSUpgradeable {
     event PoolDetailsChanged(address indexed pool, string ipfs);
     event PoolVerifiedChanged(address indexed pool, bool isVerified);
     event UpdatedImpl(address indexed impl);
+    event MemberAdded(address indexed pool, address indexed member);
 
     struct PoolRegistry {
         string ipfs;
@@ -174,6 +175,12 @@ contract UBIPoolFactory is AccessControlUpgradeable, UUPSUpgradeable {
         memberPools[account].push(msg.sender);
     }
 
+    function addMembers(address[] calldata members) external onlyPool {
+        for (uint256 i; i < members.length; ++i) {
+            memberPools[members[i]].push(msg.sender);
+        }
+    }
+
     function removeMember(address member) external onlyPool {
         for (uint i = 0; i < memberPools[member].length; i++) {
             if (memberPools[member][i] == msg.sender) {
@@ -182,6 +189,7 @@ contract UBIPoolFactory is AccessControlUpgradeable, UUPSUpgradeable {
             }
         }
     }
+
 
     function getMemberPools(address member) external view returns (address[] memory) {
         return memberPools[member];

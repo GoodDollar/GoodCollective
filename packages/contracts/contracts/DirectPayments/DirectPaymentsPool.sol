@@ -48,6 +48,7 @@ contract DirectPaymentsPool is
     error NO_BALANCE();
     error NFTTYPE_CHANGED();
     error EMPTY_MANAGER();
+    error INVALID_INPUT();
 
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
     bytes32 public constant MEMBER_ROLE = keccak256("MEMBER_ROLE");
@@ -61,7 +62,7 @@ contract DirectPaymentsPool is
         DirectPaymentsPool.PoolSettings poolSettings,
         DirectPaymentsPool.SafetyLimits poolLimits
     );
-
+    event MemberAdded(address indexed member);
     event PoolSettingsChanged(PoolSettings settings);
     event PoolLimitsChanged(SafetyLimits limits);
     event EventRewardClaimed(
@@ -217,15 +218,54 @@ contract DirectPaymentsPool is
     function _grantRole(bytes32 role, address account) internal virtual override {
         if (role == MEMBER_ROLE) {
             registry.addMember(account);
+            emit MemberAdded(account);
         }
         super._grantRole(role, account);
     }
 
     function _revokeRole(bytes32 role, address account) internal virtual override {
-        if (role == MEMBER_ROLE) {
-            registry.removeMember(account);
-        }
+        if (role == MEMBER_ROLE) registry.removeMember(account);
         super._revokeRole(role, account);
+    }
+
+    function addMembers(address[] calldata members, bytes[] calldata extraData) external {
+        if (members.length != extraData.length || members.length > 200) revert INVALID_INPUT();
+        
+        address[] memory addedMembers = new address[](members.length);
+        uint256 addedCount;
+
+        for (uint256 i; i < members.length; ++i) {
+            if (_addMemberWithoutRegistry(members[i], extraData[i])) {
+                addedMembers[addedCount++] = members[i];
+            }
+        }
+
+        if (addedCount > 0) {
+            address[] memory finalMembers = new address[](addedCount);
+            for (uint256 i; i < addedCount; ++i) {
+                finalMembers[i] = addedMembers[i];
+            }
+            registry.addMembers(finalMembers);
+        }
+    }
+
+    function _addMemberWithoutRegistry(address member, bytes memory extraData) internal returns (bool success) {
+        if (hasRole(MEMBER_ROLE, member)) return false;
+
+        if (address(settings.uniquenessValidator) != address(0)) {
+            address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
+            if (rootAddress == address(0)) return false;
+        }
+
+        if (address(settings.membersValidator) != address(0)) {
+            if (settings.membersValidator.isMemberValid(address(this), msg.sender, member, extraData) == false) {
+                return false;
+            }
+        }
+
+        super._grantRole(MEMBER_ROLE, member);
+        emit MemberAdded(member);
+        return true;
     }
 
     function mintNFT(address _to, ProvableNFT.NFTData memory _nftData, bool withClaim) external onlyRole(MINTER_ROLE) {

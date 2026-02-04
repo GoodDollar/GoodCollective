@@ -682,6 +682,97 @@ export class GoodCollectiveSDK {
   }
 
   /**
+   * Adds multiple members to a DirectPayments pool in a single transaction
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} poolAddress - The address of the DirectPayments pool contract.
+   * @param {string[]} members - Array of member addresses to add.
+   * @param {string[]} extraData - Array of extra data for each member (must match members length).
+   * @returns {Promise<ethers.ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
+   */
+  async addDirectPaymentsPoolMembers(
+    signer: ethers.Signer,
+    poolAddress: string,
+    members: string[],
+    extraData: string[]
+  ): Promise<ContractTransaction> {
+    const connected = this.pool.attach(poolAddress).connect(signer);
+    return connected.addMembers(members, extraData, { ...CHAIN_OVERRIDES[this.chainId] });
+  }
+
+  /**
+   * Adds multiple members to a UBI pool in a single transaction
+   * @param {ethers.Signer} signer - The signer object for the transaction.
+   * @param {string} poolAddress - The address of the UBI pool contract.
+   * @param {string[]} members - Array of member addresses to add.
+   * @param {string[]} extraData - Array of extra data for each member (must match members length).
+   * @returns {Promise<ethers.ContractTransaction>} A promise that resolves to a transaction object when the operation is complete.
+   */
+  async addUBIPoolMembers(
+    signer: ethers.Signer,
+    poolAddress: string,
+    members: string[],
+    extraData: string[]
+  ): Promise<ContractTransaction> {
+    const connected = this.ubipool.attach(poolAddress).connect(signer);
+    return connected.addMembers(members, extraData, { ...CHAIN_OVERRIDES[this.chainId] });
+  }
+
+  /**
+   * Estimates gas for bulk adding members and recommends batch sizes
+   * @param {ethers.Signer | ethers.providers.Provider} signerOrProvider - The signer or provider for estimation.
+   * @param {string} poolAddress - The address of the pool contract.
+   * @param {number} totalMembers - The total number of members to add.
+   * @param {string[]} sampleMembers - Sample member addresses for estimation (at least 3 recommended).
+   * @param {string[]} sampleExtraData - Sample extra data matching sampleMembers.
+   * @param {'directPayments' | 'ubi'} poolType - The type of pool.
+   * @returns {Promise<{estimatedGasPerMember: BigNumberish, recommendedBatchSize: number, totalBatches: number, estimatedGasPerBatch: BigNumberish}>}
+   */
+  async estimateBulkAddMembersGas(
+    signerOrProvider: ethers.Signer | ethers.providers.Provider,
+    poolAddress: string,
+    totalMembers: number,
+    sampleMembers: string[],
+    sampleExtraData: string[],
+    poolType: 'directPayments' | 'ubi' = 'directPayments'
+  ) {
+    if (sampleMembers.length !== sampleExtraData.length) {
+      throw new Error('Sample members and extraData arrays must have the same length');
+    }
+
+    if (sampleMembers.length < 3) {
+      throw new Error('Please provide at least 3 sample members for accurate estimation');
+    }
+
+    const pool = poolType === 'ubi' ? this.ubipool : this.pool;
+    const connected = pool.attach(poolAddress);
+
+    // Estimate gas for sample batch
+    const estimatedGas = await connected
+      .connect(signerOrProvider as ethers.Signer)
+      .estimateGas.addMembers(sampleMembers, sampleExtraData);
+
+    const estimatedGasPerMember = estimatedGas.div(sampleMembers.length);
+
+    // Conservative batch size calculation
+    // Target ~10M gas per batch to stay well under block gas limit
+    const targetGasPerBatch = 10_000_000;
+    const recommendedBatchSize = Math.min(
+      Math.floor(targetGasPerBatch / estimatedGasPerMember.toNumber()),
+      200 // MAX_BATCH_SIZE
+    );
+
+    const totalBatches = Math.ceil(totalMembers / recommendedBatchSize);
+    const estimatedGasPerBatch = estimatedGasPerMember.mul(recommendedBatchSize);
+
+    return {
+      estimatedGasPerMember: estimatedGasPerMember.toString(),
+      recommendedBatchSize,
+      totalBatches,
+      estimatedGasPerBatch: estimatedGasPerBatch.toString(),
+    };
+  }
+
+  /**
    * Get protocol and manager fees for a collective
    * @param {string} poolAddress - The address of the pool contract.
    * @returns {Promise<{protocolFeeBps: number, managerFeeBps: number, managerFeeRecipient: string}>} A promise that resolves to fee information.

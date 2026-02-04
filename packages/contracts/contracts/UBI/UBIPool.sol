@@ -23,12 +23,14 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     error EMPTY_MANAGER();
     error MAX_MEMBERS_REACHED();
     error MAX_PERIOD_CLAIMERS_REACHED(uint256 claimers);
+    error INVALID_INPUT();
 
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
     bytes32 public constant MEMBER_ROLE = keccak256("MEMBER_ROLE");
 
     event PoolSettingsChanged(PoolSettings settings);
     event UBISettingsChanged(UBISettings settings);
+    event MemberAdded(address indexed member);
     // Emits when daily ubi is calculated
     event UBICalculated(
         uint256 day,
@@ -301,11 +303,12 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     }
 
     function _grantRole(bytes32 role, address account) internal virtual override {
-        if (role == MEMBER_ROLE && hasRole(MEMBER_ROLE, account) == false) {
-            if (ubiSettings.maxMembers > 0 && status.membersCount > ubiSettings.maxMembers)
+        if (role == MEMBER_ROLE && !hasRole(MEMBER_ROLE, account)) {
+            if (ubiSettings.maxMembers > 0 && status.membersCount >= ubiSettings.maxMembers)
                 revert MAX_MEMBERS_REACHED();
             registry.addMember(account);
             status.membersCount += 1;
+            emit MemberAdded(account);
         }
         super._grantRole(role, account);
     }
@@ -316,6 +319,42 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
             registry.removeMember(account);
         }
         super._revokeRole(role, account);
+    }
+
+    function _validateMember(address member, bytes calldata extraData, bool isMgr) internal returns (bool) {
+        if (address(settings.uniquenessValidator) != address(0) && 
+            settings.uniquenessValidator.getWhitelistedRoot(member) == address(0)) return false;
+        if (address(settings.membersValidator) != address(0) && !isMgr &&
+            !settings.membersValidator.isMemberValid(address(this), msg.sender, member, extraData)) return false;
+        if (ubiSettings.onlyMembers && !isMgr) return false;
+        return true;
+    }
+
+    /// @dev Adds multiple members. Enforces maxMembers, validates, skips duplicates.
+    function addMembers(address[] calldata members, bytes[] calldata extraData) external {
+        if (members.length != extraData.length || members.length > 200) revert INVALID_INPUT();
+
+        bool isMgr = hasRole(MANAGER_ROLE, msg.sender);
+        address[] memory addedMembers = new address[](members.length);
+        uint256 addedCount;
+
+        for (uint256 i; i < members.length; ++i) {
+            if (ubiSettings.maxMembers > 0 && status.membersCount >= ubiSettings.maxMembers) break;
+            if (!hasRole(MEMBER_ROLE, members[i]) && _validateMember(members[i], extraData[i], isMgr)) {
+                super._grantRole(MEMBER_ROLE, members[i]);
+                status.membersCount += 1;
+                emit MemberAdded(members[i]);
+                addedMembers[addedCount++] = members[i];
+            }
+        }
+
+        if (addedCount > 0) {
+            address[] memory finalMembers = new address[](addedCount);
+            for (uint256 i; i < addedCount; ++i) {
+                finalMembers[i] = addedMembers[i];
+            }
+            registry.addMembers(finalMembers);
+        }
     }
 
     /**
