@@ -270,18 +270,19 @@ describe('DirectPaymentsPool Bulk Members', () => {
       const poolWithValidator = await ethers.getContractAt('DirectPaymentsPool', poolAddr);
 
       // Set default return false, then override for specific cases
+      // Use signers[4] as the caller (non-manager) to test membersValidator
       await membersValidator.mock['isMemberValid'].returns(false);
       await membersValidator.mock['isMemberValid']
-        .withArgs(poolWithValidator.address, signer.address, signers[1].address, '0x')
+        .withArgs(poolWithValidator.address, signers[4].address, signers[1].address, '0x')
         .returns(true);
       await membersValidator.mock['isMemberValid']
-        .withArgs(poolWithValidator.address, signer.address, signers[3].address, '0x')
+        .withArgs(poolWithValidator.address, signers[4].address, signers[3].address, '0x')
         .returns(true);
 
       const members = [signers[1].address, signers[2].address, signers[3].address];
       const extraData = ['0x', '0x', '0x'];
 
-      const tx = await poolWithValidator.addMembers(members, extraData);
+      const tx = await poolWithValidator.connect(signers[4]).addMembers(members, extraData);
       const receipt = await tx.wait();
 
       // Only signers[1] and signers[3] should be added
@@ -300,7 +301,7 @@ describe('DirectPaymentsPool Bulk Members', () => {
       const members = [signers[1].address, signers[2].address];
       const extraData = ['0x']; // Only 1 element
 
-      await expect(pool.addMembers(members, extraData)).to.be.reverted;
+      await expect(pool.addMembers(members, extraData)).to.be.revertedWithCustomError(pool, 'INVALID_INPUT');
     });
 
     it('should revert if batch size exceeds MAX_BATCH_SIZE (200)', async () => {
@@ -314,7 +315,7 @@ describe('DirectPaymentsPool Bulk Members', () => {
         extraData.push('0x');
       }
 
-      await expect(pool.addMembers(members, extraData)).to.be.reverted;
+      await expect(pool.addMembers(members, extraData)).to.be.revertedWithCustomError(pool, 'INVALID_INPUT');
     });
   });
 

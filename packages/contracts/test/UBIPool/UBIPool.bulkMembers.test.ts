@@ -513,7 +513,7 @@ describe('UBIPool Bulk Members', () => {
       const members = [signers[1].address, signers[2].address];
       const extraData = ['0x']; // Only 1 element
 
-      await expect(pool.addMembers(members, extraData)).to.be.reverted;
+      await expect(pool.addMembers(members, extraData)).to.be.revertedWithCustomError(pool, 'INVALID_INPUT');
     });
 
     it('should revert if batch size exceeds MAX_BATCH_SIZE (200)', async () => {
@@ -527,7 +527,7 @@ describe('UBIPool Bulk Members', () => {
         extraData.push('0x');
       }
 
-      await expect(pool.addMembers(members, extraData)).to.be.reverted;
+      await expect(pool.addMembers(members, extraData)).to.be.revertedWithCustomError(pool, 'INVALID_INPUT');
     });
   });
 

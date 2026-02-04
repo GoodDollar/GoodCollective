@@ -748,16 +748,18 @@ export class GoodCollectiveSDK {
 
     // Estimate gas for sample batch
     const estimatedGas = await connected
-      .connect(signerOrProvider as ethers.Signer)
+      .connect(signerOrProvider)
       .estimateGas.addMembers(sampleMembers, sampleExtraData);
 
     const estimatedGasPerMember = estimatedGas.div(sampleMembers.length);
 
     // Conservative batch size calculation
     // Target ~10M gas per batch to stay well under block gas limit
-    const targetGasPerBatch = 10_000_000;
+    const targetGasPerBatch = ethers.BigNumber.from(10_000_000);
+    const recommendedBatchSizeBn = targetGasPerBatch.div(estimatedGasPerMember);
+
     const recommendedBatchSize = Math.min(
-      Math.floor(targetGasPerBatch / estimatedGasPerMember.toNumber()),
+      recommendedBatchSizeBn.toNumber(),
       200 // MAX_BATCH_SIZE
     );
 

@@ -231,11 +231,12 @@ contract DirectPaymentsPool is
     function addMembers(address[] calldata members, bytes[] calldata extraData) external {
         if (members.length != extraData.length || members.length > 200) revert INVALID_INPUT();
         
+        bool isMgr = hasRole(MANAGER_ROLE, msg.sender);
         address[] memory addedMembers = new address[](members.length);
         uint256 addedCount;
 
         for (uint256 i; i < members.length; ++i) {
-            if (_addMemberWithoutRegistry(members[i], extraData[i])) {
+            if (_addMemberWithoutRegistry(members[i], extraData[i], isMgr)) {
                 addedMembers[addedCount++] = members[i];
             }
         }
@@ -249,7 +250,7 @@ contract DirectPaymentsPool is
         }
     }
 
-    function _addMemberWithoutRegistry(address member, bytes memory extraData) internal returns (bool success) {
+    function _addMemberWithoutRegistry(address member, bytes memory extraData, bool isMgr) internal returns (bool success) {
         if (hasRole(MEMBER_ROLE, member)) return false;
 
         if (address(settings.uniquenessValidator) != address(0)) {
@@ -257,7 +258,7 @@ contract DirectPaymentsPool is
             if (rootAddress == address(0)) return false;
         }
 
-        if (address(settings.membersValidator) != address(0)) {
+        if (address(settings.membersValidator) != address(0) && !isMgr) {
             if (settings.membersValidator.isMemberValid(address(this), msg.sender, member, extraData) == false) {
                 return false;
             }
