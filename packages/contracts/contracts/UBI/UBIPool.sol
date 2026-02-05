@@ -304,23 +304,25 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
      * @param extraData Additional data to validate the member.
      */
     function addMember(address member, bytes memory extraData) public returns (bool isMember) {
-        if (address(settings.uniquenessValidator) != address(0)) {
-            address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
-            if (rootAddress == address(0)) revert NOT_WHITELISTED(member);
-        }
-
-        if (address(settings.membersValidator) != address(0) && hasRole(MANAGER_ROLE, msg.sender) == false) {
-            if (settings.membersValidator.isMemberValid(address(this), msg.sender, member, extraData) == false) {
+        bool success = _addMember(member, extraData);
+        
+        if (!success) {
+            // Determine the specific error to revert with
+            if (address(settings.uniquenessValidator) != address(0)) {
+                address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
+                if (rootAddress == address(0)) revert NOT_WHITELISTED(member);
+            }
+            
+            if (address(settings.membersValidator) != address(0) && hasRole(MANAGER_ROLE, msg.sender) == false) {
                 revert NOT_MEMBER(member);
             }
+            
+            if (ubiSettings.onlyMembers && hasRole(MANAGER_ROLE, msg.sender) == false) {
+                revert NOT_MANAGER(member);
+            }
         }
-        // if no members validator then if members only only manager can add members
-        else if (ubiSettings.onlyMembers && hasRole(MANAGER_ROLE, msg.sender) == false) {
-            revert NOT_MANAGER(member);
-        }
-
-        _grantRole(MEMBER_ROLE, member);
-        return true;
+        
+        return success;
     }
 
     /**
