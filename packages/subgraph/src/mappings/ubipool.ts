@@ -47,8 +47,8 @@ export function handleUBISettingsChange(event: UBISettingsChanged): void {
 }
 
 export function handleUBIClaim(event: UBIClaimed): void {
-  const contributors = new Array<string>()
-  contributors.push(event.params.whitelistedRoot.toHexString())
+  const contributors = new Array<string>();
+  contributors.push(event.params.whitelistedRoot.toHexString());
   const rewardPerContributor = event.params.amount;
 
   const poolAddress = event.address.toHexString();
@@ -74,12 +74,11 @@ export function handleUBIClaim(event: UBIClaimed): void {
   claimEvent.eventType = 0;
   claimEvent.timestamp = event.block.timestamp.toI32();
   claimEvent.quantity = BigInt.fromI32(1);
-  claimEvent.rewardPerContributor = rewardPerContributor
-  claimEvent.contributors = contributors
-
+  claimEvent.rewardPerContributor = rewardPerContributor;
+  claimEvent.contributors = contributors;
 
   for (let i = 0; i < contributors.length; i++) {
-    const stewardAddress = contributors[i]
+    const stewardAddress = contributors[i];
     const stewardCollectiveId = `${stewardAddress}_${poolAddress}`;
 
     // update Steward
@@ -87,10 +86,12 @@ export function handleUBIClaim(event: UBIClaimed): void {
     if (steward === null) {
       steward = new Steward(stewardAddress);
       steward.actions = 0;
+      steward.claims = 0;
       steward.totalEarned = BigInt.fromI32(0);
       steward.totalUBIEarned = BigInt.fromI32(0);
       steward.nfts = new Array<string>();
     }
+    steward.claims = steward.claims + 1;
     steward.totalUBIEarned = steward.totalUBIEarned.plus(rewardPerContributor);
 
     // update StewardCollective
@@ -115,6 +116,6 @@ export function handleUBIClaim(event: UBIClaimed): void {
   pool.paymentsMade = pool.paymentsMade + contributors.length;
 
   claim.save();
-  claimEvent.save()
+  claimEvent.save();
   pool.save();
 }

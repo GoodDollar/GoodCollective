@@ -82,11 +82,6 @@ const SF_RESOLVERS: { [key: string]: string } = {
   44787: '0x6e9CaBE4172344Db81a1E1D735a6AD763700064A',
   31337: '0x02330b5Be8EBD0D4d354813a7BB535140A77C881',
 };
-const CHAIN_OVERRIDES: { [key: string]: object } = {
-  44787: { gasPrice: 25.001e9, gasLimit: 1200000 },
-  42220: { gasPrice: 25.001e9, gasLimit: 1200000 },
-};
-
 export class GoodCollectiveSDK {
   factory: DirectPaymentsFactory;
   ubifactory?: UBIPoolFactory;
@@ -207,7 +202,7 @@ export class GoodCollectiveSDK {
    */
   async mintNft(signer: ethers.Signer, poolAddress: string, addressTo: string, nftData: NFTData, withClaim = true) {
     const connected = this.pool.attach(poolAddress).connect(signer);
-    return connected.mintNFT(addressTo, nftData, withClaim, { ...CHAIN_OVERRIDES[this.chainId] });
+    return connected.mintNFT(addressTo, nftData, withClaim);
   }
 
   /**
@@ -313,7 +308,7 @@ export class GoodCollectiveSDK {
     managerFee: number
   ) {
     const connected = this.pool.attach(poolAddress).connect(signer);
-    return connected.setPoolSettings(poolSettings, managerFee, { ...CHAIN_OVERRIDES[this.chainId] });
+    return connected.setPoolSettings(poolSettings, managerFee);
   }
 
   /**
@@ -331,7 +326,7 @@ export class GoodCollectiveSDK {
     extendedSettings: ExtendedUBISettings
   ) {
     const connected = this.ubipool.attach(poolAddress).connect(signer);
-    return connected.setUBISettings(ubiSettings, extendedSettings, { ...CHAIN_OVERRIDES[this.chainId] });
+    return connected.setUBISettings(ubiSettings, extendedSettings);
   }
 
   /**
@@ -343,7 +338,7 @@ export class GoodCollectiveSDK {
    */
   async setUBIPoolCoreSettings(signer: ethers.Signer, poolAddress: string, poolSettings: UBIPoolSettings) {
     const connected = this.ubipool.attach(poolAddress).connect(signer);
-    return connected.setPoolSettings(poolSettings, { ...CHAIN_OVERRIDES[this.chainId] });
+    return connected.setPoolSettings(poolSettings);
   }
 
   /**
@@ -366,12 +361,12 @@ export class GoodCollectiveSDK {
 
     // Only update pool settings if provided
     if (poolSettings) {
-      const tx1 = await connected.setPoolSettings(poolSettings, { ...CHAIN_OVERRIDES[this.chainId] });
+      const tx1 = await connected.setPoolSettings(poolSettings);
       await tx1.wait();
     }
 
     // Always update UBI settings
-    return connected.setUBISettings(ubiSettings, extendedSettings, { ...CHAIN_OVERRIDES[this.chainId] });
+    return connected.setUBISettings(ubiSettings, extendedSettings);
   }
 
   /**
@@ -399,7 +394,7 @@ export class GoodCollectiveSDK {
    */
   async addUBIPoolMember(signer: ethers.Signer, poolAddress: string, memberAddress: string) {
     const connected = this.ubipool.attach(poolAddress).connect(signer);
-    return connected.addMember(memberAddress, '0x', { ...CHAIN_OVERRIDES[this.chainId] });
+    return connected.addMember(memberAddress, '0x');
   }
 
   /**
@@ -411,7 +406,7 @@ export class GoodCollectiveSDK {
    */
   async removeUBIPoolMember(signer: ethers.Signer, poolAddress: string, memberAddress: string) {
     const connected = this.ubipool.attach(poolAddress).connect(signer);
-    return connected.removeMember(memberAddress, { ...CHAIN_OVERRIDES[this.chainId] });
+    return connected.removeMember(memberAddress);
   }
 
   /**
@@ -680,7 +675,6 @@ export class GoodCollectiveSDK {
       receiver: poolAddress,
       sender: signerAddress,
       flowRate: flowRate,
-      overrides: { ...CHAIN_OVERRIDES[this.chainId] },
     });
     const op = flowAction;
 
@@ -717,7 +711,6 @@ export class GoodCollectiveSDK {
       receiver: poolAddress,
       sender: signerAddress,
       flowRate: flowRate,
-      overrides: { ...CHAIN_OVERRIDES[this.chainId] },
     });
     const op = flowAction;
 
@@ -740,7 +733,6 @@ export class GoodCollectiveSDK {
       receiver: poolAddress,
       sender: signerAddress,
       flowRate: flowRate,
-      overrides: { ...CHAIN_OVERRIDES[this.chainId] },
     });
     const op = flowAction;
 
@@ -770,10 +762,9 @@ export class GoodCollectiveSDK {
       receiver: poolAddress,
       sender: signerAddress,
       flowRate: flowRate,
-      overrides: { ...CHAIN_OVERRIDES[this.chainId] },
     });
 
-    const swapAction = sdk.host.callAppAction(poolAddress, appAction, { ...CHAIN_OVERRIDES[this.chainId] });
+    const swapAction = sdk.host.callAppAction(poolAddress, appAction);
     const op = sdk.batchCall([swapAction, flowOp]);
 
     return op.exec(signer);
@@ -791,7 +782,7 @@ export class GoodCollectiveSDK {
     const token = await this.rewardToken(poolAddress);
     const tcabi = ['function transferAndCall(address _to, uint256 _value, bytes _data) returns (bool success)'];
     const tc = new ethers.Contract(token.address, tcabi, signer);
-    return tc.transferAndCall(poolAddress, amount, '0x', { ...CHAIN_OVERRIDES[this.chainId] });
+    return tc.transferAndCall(poolAddress, amount, '0x');
   }
 
   /**
@@ -831,11 +822,11 @@ export class GoodCollectiveSDK {
   async supportSingleBatch(signer: ethers.Signer, poolAddress: string, amount: string) {
     const sdk = await this.superfluidSDK;
     const token = await this.rewardToken(poolAddress);
-    const approve = token.approve({ amount, receiver: poolAddress, overrides: { ...CHAIN_OVERRIDES[this.chainId] } });
+    const approve = token.approve({ amount, receiver: poolAddress });
     const signerAddress = await signer.getAddress();
 
     const appAction = this.pool.interface.encodeFunctionData('support', [signerAddress, amount, '0x']);
-    const supportAction = sdk.host.callAppAction(poolAddress, appAction, { ...CHAIN_OVERRIDES[this.chainId] });
+    const supportAction = sdk.host.callAppAction(poolAddress, appAction);
     const op = sdk.batchCall([approve, supportAction]);
 
     return op.exec(signer);
@@ -872,7 +863,7 @@ export class GoodCollectiveSDK {
     amount: string
   ): Promise<ContractTransaction> {
     const token = new ethers.Contract(tokenAddress, ['function approve(address spender, uint256 amount)'], signer);
-    return token.approve(poolAddress, amount, { ...CHAIN_OVERRIDES[this.chainId], gasLimit: 100000 });
+    return token.approve(poolAddress, amount);
   }
 
   /**
