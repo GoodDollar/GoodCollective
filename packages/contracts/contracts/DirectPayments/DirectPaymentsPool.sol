@@ -48,7 +48,7 @@ contract DirectPaymentsPool is
     error NO_BALANCE();
     error NFTTYPE_CHANGED();
     error EMPTY_MANAGER();
-    error INVALID_INPUT();
+    error LENGTH_MISMATCH();
 
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
     bytes32 public constant MEMBER_ROLE = keccak256("MEMBER_ROLE");
@@ -75,6 +75,14 @@ contract DirectPaymentsPool is
         uint256 rewardPerContributer
     );
     event NFTClaimed(uint256 indexed tokenId, uint256 totalRewards);
+    /**
+     * @dev Emitted when a contributor is skipped during reward distribution.
+     * This occurs when a contributor is either:
+     * - Not a member of the pool (does not have MEMBER_ROLE)
+     * - Not whitelisted (uniquenessValidator returns address(0))
+     * - Exceeds member limits (daily or monthly limits exceeded)
+     * @param contributer The address of the contributor that was skipped
+     */
     event NOT_MEMBER_OR_WHITELISTED_OR_LIMITS(address contributer);
 
     // Define functions
@@ -213,6 +221,19 @@ contract DirectPaymentsPool is
 
         _grantRole(MEMBER_ROLE, member);
         return true;
+    }
+
+    /**
+     * @dev Adds multiple members to the pool in a single transaction.
+     * @param members Array of member addresses to add.
+     * @param extraData Array of additional validation data for each member.
+     */
+    function addMembers(address[] calldata members, bytes[] calldata extraData) external onlyRole(MANAGER_ROLE) {
+        if (members.length != extraData.length) revert LENGTH_MISMATCH();
+
+        for (uint i = 0; i < members.length; i++) {
+            _addMember(members[i], extraData[i]);
+        }
     }
 
     function _grantRole(bytes32 role, address account) internal virtual override {

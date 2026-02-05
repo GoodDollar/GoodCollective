@@ -5,7 +5,6 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils
 import { IERC721Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import { IERC721ReceiverUpgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 
 import "../GoodCollective/GoodCollectiveSuperApp.sol";
 import "./UBIPoolFactory.sol";
@@ -23,7 +22,7 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     error EMPTY_MANAGER();
     error MAX_MEMBERS_REACHED();
     error MAX_PERIOD_CLAIMERS_REACHED(uint256 claimers);
-    error INVALID_INPUT();
+    error LENGTH_MISMATCH();
 
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
     bytes32 public constant MEMBER_ROLE = keccak256("MEMBER_ROLE");
@@ -191,10 +190,8 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
 
         nextPeriodPool = status.dailyCyclePool;
         nextDailyUbi;
-        if (
-            (currentDayInCycle() + 1) >= status.currentCycleLength || shouldStartEarlyCycle
-        ) //start of cycle or first time
-        {
+        if ((currentDayInCycle() + 1) >= status.currentCycleLength || shouldStartEarlyCycle) {
+            //start of cycle or first time
             nextPeriodPool = currentBalance / ubiSettings.cycleLengthDays;
             newCycle = true;
         }
@@ -273,12 +270,41 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     }
 
     /**
+     * @dev Internal function to add a member with validation.
+     * Always validates members, even when called by manager.
+     * @param member The address of the member to add.
+     * @param extraData Additional data to validate the member.
+     * @return isMember True if member was added, false if validation failed.
+     */
+    function _addMember(address member, bytes memory extraData) internal returns (bool isMember) {
+        if (hasRole(MEMBER_ROLE, member)) return true;
+
+        if (address(settings.uniquenessValidator) != address(0)) {
+            address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
+            if (rootAddress == address(0)) return false;
+        }
+
+        // Always check membersValidator if it exists, regardless of caller role
+        if (address(settings.membersValidator) != address(0)) {
+            if (settings.membersValidator.isMemberValid(address(this), msg.sender, member, extraData) == false) {
+                return false;
+            }
+        }
+        // if no members validator then if members only only manager can add members
+        else if (ubiSettings.onlyMembers && hasRole(MANAGER_ROLE, msg.sender) == false) {
+            return false;
+        }
+
+        _grantRole(MEMBER_ROLE, member);
+        return true;
+    }
+
+    /**
      * @dev Adds a member to the contract.
      * @param member The address of the member to add.
      * @param extraData Additional data to validate the member.
      */
-
-    function addMember(address member, bytes memory extraData) external returns (bool isMember) {
+    function addMember(address member, bytes memory extraData) public returns (bool isMember) {
         if (address(settings.uniquenessValidator) != address(0)) {
             address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
             if (rootAddress == address(0)) revert NOT_WHITELISTED(member);
@@ -298,12 +324,26 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         return true;
     }
 
+    /**
+     * @dev Adds multiple members to the pool in a single transaction.
+     * Invalid members are skipped instead of causing the transaction to revert.
+     * @param members Array of member addresses to add.
+     * @param extraData Array of additional validation data for each member.
+     */
+    function addMembers(address[] calldata members, bytes[] calldata extraData) external onlyRole(MANAGER_ROLE) {
+        if (members.length != extraData.length) revert LENGTH_MISMATCH();
+
+        for (uint i = 0; i < members.length; i++) {
+            _addMember(members[i], extraData[i]);
+        }
+    }
+
     function removeMember(address member) external onlyRole(MANAGER_ROLE) {
         _revokeRole(MEMBER_ROLE, member);
     }
 
     function _grantRole(bytes32 role, address account) internal virtual override {
-        if (role == MEMBER_ROLE && !hasRole(MEMBER_ROLE, account)) {
+        if (role == MEMBER_ROLE && hasRole(MEMBER_ROLE, account) == false) {
             if (ubiSettings.maxMembers > 0 && status.membersCount >= ubiSettings.maxMembers)
                 revert MAX_MEMBERS_REACHED();
             registry.addMember(account);
