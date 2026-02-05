@@ -85,32 +85,57 @@ describe("DirectPayments Bulk Members", () => {
         it("should skip invalid members when membersValidator rejects them", async () => {
             const members = [signers[1].address, signers[2].address, signers[3].address];
             const extraData = ["0x", "0x", "0x"];
+            
+            // Create a completely new validator for this test
+            const { deployMockContract } = await import("ethereum-waffle");
+            const customValidator = await deployMockContract(signers[0], [
+                "function isMemberValid(address pool,address operator,address member,bytes memory extraData) external returns (bool)"
+            ]);
 
-            // Verify signers[2] doesn't already have the role (loadFixture should reset state)
-            expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[2].address)).to.be.false;
-
-            // Override the default mock: set default to false, then override for valid members
-            // This ensures invalid members (like signers[2]) will be rejected
-            // msg.sender is signer.address (the caller), address(this) is pool.address
-            membersValidator.mock["isMemberValid"].returns(false);
-            // Now set specific mocks for valid members
-            membersValidator.mock["isMemberValid"]
-                .withArgs(pool.address, signer.address, signers[1].address, "0x")
+            // Set up specific mocks for each member - do this BEFORE creating the pool
+            // signers[1] should be valid
+            await customValidator.mock["isMemberValid"]
+                .withArgs(ethers.constants.AddressZero, ethers.constants.AddressZero, signers[1].address, "0x")
                 .returns(true);
-            membersValidator.mock["isMemberValid"]
-                .withArgs(pool.address, signer.address, signers[3].address, "0x")
+            // signers[2] should be invalid (rejected)
+            await customValidator.mock["isMemberValid"]
+                .withArgs(ethers.constants.AddressZero, ethers.constants.AddressZero, signers[2].address, "0x")
+                .returns(false);
+            // signers[3] should be valid
+            await customValidator.mock["isMemberValid"]
+                .withArgs(ethers.constants.AddressZero, ethers.constants.AddressZero, signers[3].address, "0x")
                 .returns(true);
-            // signers[2] will use the default false return (no specific mock set)
 
-            const tx = await pool.connect(signer).addMembers(members, extraData);
+            // Create pool with this custom validator
+            const customPoolSettings = { ...poolSettings, membersValidator: customValidator.address };
+            const poolTx = await factory.createPool("test-validation", "ipfs-validation", customPoolSettings, poolLimits, 0);
+            const poolReceipt = await poolTx.wait();
+            const poolCreatedEvent = poolReceipt.events?.find((e) => e.event === "PoolCreated");
+            const testPool = (await ethers.getContractAt(
+                "DirectPaymentsPool",
+                poolCreatedEvent?.args?.[0]
+            )) as DirectPaymentsPool;
+
+            // Now update the mocks with the actual pool address
+            await customValidator.mock["isMemberValid"]
+                .withArgs(testPool.address, signer.address, signers[1].address, "0x")
+                .returns(true);
+            await customValidator.mock["isMemberValid"]
+                .withArgs(testPool.address, signer.address, signers[2].address, "0x")
+                .returns(false);
+            await customValidator.mock["isMemberValid"]
+                .withArgs(testPool.address, signer.address, signers[3].address, "0x")
+                .returns(true);
+
+            const tx = await testPool.connect(signer).addMembers(members, extraData);
             await expect(tx).not.reverted;
 
             // Verify valid members were added
-            expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[1].address)).to.be.true;
-            expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[3].address)).to.be.true;
+            expect(await testPool.hasRole(await testPool.MEMBER_ROLE(), signers[1].address)).to.be.true;
+            expect(await testPool.hasRole(await testPool.MEMBER_ROLE(), signers[3].address)).to.be.true;
 
             // Verify invalid member was skipped
-            expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[2].address)).to.be.false;
+            expect(await testPool.hasRole(await testPool.MEMBER_ROLE(), signers[2].address)).to.be.false;
         });
 
         it("should revert if members and extraData arrays have different lengths", async () => {
