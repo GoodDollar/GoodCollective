@@ -175,7 +175,7 @@ describe('DirectPaymentsPool Claim', () => {
       // Set up mock to return false for all calls (reject all members)
       await newMembersValidator.mock.isMemberValid.returns(false);
 
-      await pool.setPoolSettings({ ...poolSettings, membersValidator: newMembersValidator.address }, 0);
+      await pool.setPoolSettings({ ...poolSettings, membersValidator: newMembersValidator.address, uniquenessValidator: ethers.constants.AddressZero }, 0);
       await expect(pool['claim(uint256)'](nftSampleId)).not.reverted;
       const contributer = nftSample.events[0].contributers[0];
       const initialBalance = await gdframework.GoodDollar.balanceOf(contributer);
