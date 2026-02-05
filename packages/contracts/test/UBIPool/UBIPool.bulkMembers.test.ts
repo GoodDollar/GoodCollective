@@ -192,58 +192,28 @@ describe("UBIPool Bulk Members", () => {
         });
 
         it("should skip members failing uniqueness validation", async () => {
-            const members = [signers[2].address, signers[3].address, signers[4].address];
+            const members = [signers[5].address, signers[6].address, signers[7].address];
             const extraData = ["0x", "0x", "0x"];
 
-            // Create fresh validators for this test
-            const { deployMockContract } = await import("ethereum-waffle");
-            const customUniqueValidator = await deployMockContract(signers[0], [
-                "function getWhitelistedRoot(address member) external view returns (address)"
-            ]);
-            const customMembersValidator = await deployMockContract(signers[0], [
-                "function isMemberValid(address pool,address operator,address member,bytes memory extraData) external returns (bool)"
-            ]);
-
-            // Set up mocks: signers[2] and signers[4] are valid, signers[3] is invalid
-            customMembersValidator.mock["isMemberValid"].returns(true);
-            customUniqueValidator.mock["getWhitelistedRoot"].withArgs(signers[2].address).returns(signers[2].address);
-            customUniqueValidator.mock["getWhitelistedRoot"]
-                .withArgs(signers[3].address)
+            // Set up mocks: signers[5] and signers[7] are valid, signers[6] is invalid
+            await uniquenessValidator.mock["getWhitelistedRoot"].withArgs(signers[5].address).returns(signers[5].address);
+            await uniquenessValidator.mock["getWhitelistedRoot"]
+                .withArgs(signers[6].address)
                 .returns(ethers.constants.AddressZero);
-            customUniqueValidator.mock["getWhitelistedRoot"].withArgs(signers[4].address).returns(signers[4].address);
+            await uniquenessValidator.mock["getWhitelistedRoot"].withArgs(signers[7].address).returns(signers[7].address);
 
-            // Create pool with custom validators
-            const customPoolSettings = {
-                ...poolSettings,
-                membersValidator: customMembersValidator.address,
-                uniquenessValidator: customUniqueValidator.address
-            };
-            const poolTx = await factory.createPool(
-                "test-uniqueness",
-                "pool-unique",
-                customPoolSettings,
-                poolLimits,
-                extendedPoolSettings
-            );
-            const receipt = await poolTx.wait();
-            const poolAddr = receipt.events?.find((_) => _.event === "PoolCreated")?.args?.[0];
-            const testPool = (await ethers.getContractAt("UBIPool", poolAddr)) as UBIPool;
-
-            // Fund the test pool
-            await gdframework.GoodDollar.mint(testPool.address, ethers.utils.parseEther("100000"));
-
-            const tx = await testPool.connect(signers[1]).addMembers(members, extraData);
+            const tx = await pool.connect(signers[1]).addMembers(members, extraData);
             await expect(tx).not.reverted;
 
             // Verify valid members were added
-            expect(await testPool.hasRole(await testPool.MEMBER_ROLE(), signers[2].address)).to.be.true;
-            expect(await testPool.hasRole(await testPool.MEMBER_ROLE(), signers[4].address)).to.be.true;
+            expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[5].address)).to.be.true;
+            expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[7].address)).to.be.true;
 
             // Verify invalid member was skipped
-            expect(await testPool.hasRole(await testPool.MEMBER_ROLE(), signers[3].address)).to.be.false;
+            expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[6].address)).to.be.false;
 
             // Verify membersCount is 2
-            const status = await testPool.status();
+            const status = await pool.status();
             expect(status.membersCount).to.equal(2);
         });
 
@@ -251,63 +221,31 @@ describe("UBIPool Bulk Members", () => {
             const members = [signers[2].address, signers[3].address, signers[4].address];
             const extraData = ["0x", "0x", "0x"];
 
-            // Create fresh validators for this test
-            const { deployMockContract } = await import("ethereum-waffle");
-            const customUniqueValidator = await deployMockContract(signers[0], [
-                "function getWhitelistedRoot(address member) external view returns (address)"
-            ]);
-            const customMembersValidator = await deployMockContract(signers[0], [
-                "function isMemberValid(address pool,address operator,address member,bytes memory extraData) external returns (bool)"
-            ]);
-
             // Set up uniqueness validator mocks (all valid)
-            customUniqueValidator.mock["getWhitelistedRoot"].withArgs(signers[2].address).returns(signers[2].address);
-            customUniqueValidator.mock["getWhitelistedRoot"].withArgs(signers[3].address).returns(signers[3].address);
-            customUniqueValidator.mock["getWhitelistedRoot"].withArgs(signers[4].address).returns(signers[4].address);
-
-            // Set up membersValidator with default true, then override specific cases
-            customMembersValidator.mock["isMemberValid"].returns(true);
-
-            // Create pool with custom validators
-            const customPoolSettings = {
-                ...poolSettings,
-                membersValidator: customMembersValidator.address,
-                uniquenessValidator: customUniqueValidator.address
-            };
-            const poolTx = await factory.createPool(
-                "test-members-val",
-                "pool-members",
-                customPoolSettings,
-                poolLimits,
-                extendedPoolSettings
-            );
-            const receipt = await poolTx.wait();
-            const poolAddr = receipt.events?.find((_) => _.event === "PoolCreated")?.args?.[0];
-            const testPool = (await ethers.getContractAt("UBIPool", poolAddr)) as UBIPool;
-
-            // Fund the test pool
-            await gdframework.GoodDollar.mint(testPool.address, ethers.utils.parseEther("100000"));
+            uniquenessValidator.mock["getWhitelistedRoot"].withArgs(signers[2].address).returns(signers[2].address);
+            uniquenessValidator.mock["getWhitelistedRoot"].withArgs(signers[3].address).returns(signers[3].address);
+            uniquenessValidator.mock["getWhitelistedRoot"].withArgs(signers[4].address).returns(signers[4].address);
 
             // Set up membersValidator mocks - signers[3] should be rejected
-            await customMembersValidator.mock["isMemberValid"]
-                .withArgs(testPool.address, signers[1].address, signers[2].address, "0x")
+            await membersValidator.mock["isMemberValid"]
+                .withArgs(pool.address, signers[1].address, signers[2].address, "0x")
                 .returns(true);
-            await customMembersValidator.mock["isMemberValid"]
-                .withArgs(testPool.address, signers[1].address, signers[3].address, "0x")
+            await membersValidator.mock["isMemberValid"]
+                .withArgs(pool.address, signers[1].address, signers[3].address, "0x")
                 .returns(false);
-            await customMembersValidator.mock["isMemberValid"]
-                .withArgs(testPool.address, signers[1].address, signers[4].address, "0x")
+            await membersValidator.mock["isMemberValid"]
+                .withArgs(pool.address, signers[1].address, signers[4].address, "0x")
                 .returns(true);
 
-            const tx = await testPool.connect(signers[1]).addMembers(members, extraData);
+            const tx = await pool.connect(signers[1]).addMembers(members, extraData);
             await expect(tx).not.reverted;
 
             // Verify valid members were added
-            expect(await testPool.hasRole(await testPool.MEMBER_ROLE(), signers[2].address)).to.be.true;
-            expect(await testPool.hasRole(await testPool.MEMBER_ROLE(), signers[4].address)).to.be.true;
+            expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[2].address)).to.be.true;
+            expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[4].address)).to.be.true;
 
             // Verify invalid member was skipped
-            expect(await testPool.hasRole(await testPool.MEMBER_ROLE(), signers[3].address)).to.be.false;
+            expect(await pool.hasRole(await pool.MEMBER_ROLE(), signers[3].address)).to.be.false;
         });
 
         it("should enforce onlyMembers and MANAGER_ROLE access control", async () => {
