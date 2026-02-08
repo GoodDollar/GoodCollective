@@ -79,10 +79,11 @@ describe("UBIPool Bulk Members", () => {
 
         // Default: all members are valid
         membersValidator.mock["isMemberValid"].returns(true);
-        // For uniqueness validator, set a default that returns the input address (indicating valid)
-        // Note: Mock will return zero address for unmocked calls, so we use a workaround
-        // Set up a reverting default that we'll override per address as needed
-        uniquenessValidator.mock["getWhitelistedRoot"].returns(ethers.constants.AddressZero.slice(0, -1) + "1");
+        // For uniqueness validator, default return must be non-zero (valid/whitelisted).
+        // Waffle mock returns zero for unmocked calls; use a non-zero default so we only
+        // need to mock addresses we want to treat as invalid (return zero).
+        const nonZeroDefaultRoot = "0x0000000000000000000000000000000000000001";
+        uniquenessValidator.mock["getWhitelistedRoot"].returns(nonZeroDefaultRoot);
 
         const poolTx = await factory.createPool(
             "test",
