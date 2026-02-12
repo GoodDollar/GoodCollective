@@ -92,7 +92,7 @@ const config: HardhatUserConfig = {
     },
     'development-celo': {
       chainId: 42220,
-      url: `https://forno.celo.org`,
+      url: `https://rpc.ankr.com/celo`,
       gasPrice: 25.1e9,
       accounts: {
         mnemonic,
