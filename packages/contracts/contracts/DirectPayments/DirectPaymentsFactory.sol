@@ -30,6 +30,7 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
     event PoolDetailsChanged(address indexed pool, string ipfs);
     event PoolVerifiedChanged(address indexed pool, bool isVerified);
     event UpdatedImpl(address indexed impl);
+    event MemberAdded(address indexed member, address indexed pool);
 
     struct PoolRegistry {
         string ipfs;
@@ -187,8 +188,19 @@ contract DirectPaymentsFactory is AccessControlUpgradeable, UUPSUpgradeable {
         feeRecipient = _feeRecipient;
     }
 
-    function addMember(address member) external onlyPool {
+    function addMember(address member) public onlyPool {
+        _addMemberToRegistry(member);
+    }
+
+    function _addMemberToRegistry(address member) internal {
         memberPools[member].push(msg.sender);
+        emit MemberAdded(member, msg.sender);
+    }
+
+    function addMembers(address[] calldata members) external onlyPool {
+        for (uint i = 0; i < members.length; i++) {
+            _addMemberToRegistry(members[i]);
+        }
     }
 
     function removeMember(address member) external onlyPool {

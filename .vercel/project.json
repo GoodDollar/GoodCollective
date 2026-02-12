@@ -1,0 +1,16 @@
+{
+  "projectId": "prj_WbZ26ibOrzAavodIzIRbg30YCzF0",
+  "orgId": "team_0fLkvhhsRuNmvdbakI3Z7r9e",
+  "projectName": "good-collective",
+  "settings": {
+    "createdAt": 1691023624297,
+    "framework": null,
+    "devCommand": null,
+    "installCommand": "yarn",
+    "buildCommand": "yarn build:web",
+    "outputDirectory": null,
+    "rootDirectory": "packages/app",
+    "directoryListing": false,
+    "nodeVersion": "20.x"
+  }
+}
