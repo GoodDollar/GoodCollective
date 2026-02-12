@@ -1,4 +1,4 @@
-import { HStack, Input, ScrollView, Spinner, Switch, Text, VStack, TextArea } from 'native-base'; // Add TextArea
+import { HStack, ScrollView, Spinner, Switch, Text, VStack, TextArea } from 'native-base'; // Add TextArea
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-native';
 import { useAccount } from 'wagmi';
@@ -423,6 +423,7 @@ const ManageCollectivePage = () => {
                 <VStack space={2} marginTop={4}>
                   <Text fontWeight="600">Wallet Addresses</Text>
                   <TextArea
+                    autoCompleteType={''}
                     placeholder="0xabc...123, 0xdef...456&#10;0xghi...789"
                     value={memberManagement.memberInput}
                     onChangeText={memberManagement.setMemberInput}
