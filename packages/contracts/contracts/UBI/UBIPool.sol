@@ -400,11 +400,8 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     }
 
     function _verifyPoolSettings(PoolSettings memory _poolSettings) internal pure {
-        if (
-            _poolSettings.manager == address(0) ||
-            address(_poolSettings.uniquenessValidator) == address(0) ||
-            address(_poolSettings.rewardToken) == address(0)
-        ) revert INVALID_0_VALUE();
+        if (_poolSettings.manager == address(0) || address(_poolSettings.rewardToken) == address(0))
+            revert INVALID_0_VALUE();
     }
 
     function estimateNextDailyUBI() public view returns (uint256 nextDailyUbi) {
@@ -434,7 +431,11 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     }
 
     function hasClaimed(address _member) public view returns (bool) {
-        address whitelistedRoot = IIdentityV2(settings.uniquenessValidator).getWhitelistedRoot(_member);
+        address whitelistedRoot = _member;
+        if (address(settings.uniquenessValidator) != address(0)) {
+            whitelistedRoot = IIdentityV2(settings.uniquenessValidator).getWhitelistedRoot(_member);
+        }
+        whitelistedRoot = IIdentityV2(settings.uniquenessValidator).getWhitelistedRoot(_member);
         return status.lastClaimed[whitelistedRoot] == getCurrentDay();
     }
 
