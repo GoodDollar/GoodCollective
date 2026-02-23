@@ -424,7 +424,7 @@ const ManageCollectivePage = () => {
                   <Text fontWeight="600">Wallet Addresses</Text>
                   <TextArea
                     autoCompleteType={''}
-                    placeholder="0xabc...123, 0xdef...456&#10;0xghi...789"
+                    placeholder={'0xabc...123, 0xdef...456\n0xghi...789'}
                     value={memberManagement.memberInput}
                     onChangeText={memberManagement.setMemberInput}
                     autoCapitalize="none"
