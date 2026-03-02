@@ -1,5 +1,5 @@
 import { useScreenSize } from '@gooddollar/good-design';
-import { Box, CheckCircleIcon, Divider, HStack, Pressable, Text, TextArea, VStack } from 'native-base';
+import { Box, CheckCircleIcon, Divider, HStack, Pressable, Text, VStack } from 'native-base';
 import { ReactNode, useCallback, useMemo, useState } from 'react';
 import { AtIcon, DiscordIcon, EditIcon, InstagramIcon, PhoneImg, TwitterIcon, WebsiteIcon } from '../../../assets';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';

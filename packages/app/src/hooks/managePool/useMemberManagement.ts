@@ -14,10 +14,22 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
   const provider = useEthersProvider({ chainId });
   const signer = useEthersSigner({ chainId });
 
+  // Fix 1: Guard the SDK memo to prevent runtime crashes during loading
+  const sdk = useMemo(() => {
+    if (!provider || !chainId) return null;
+    const chainIdString = chainId.toString() as `${SupportedNetwork}`;
+    const network = SupportedNetworkNames[chainId as SupportedNetwork];
+    return new GoodCollectiveSDK(chainIdString, provider as any, { network });
+  }, [chainId, provider]);
+
   const [memberInput, setMemberInput] = useState('');
   const [memberError, setMemberError] = useState<string | null>(null);
+  const [memberSuccess, setMemberSuccess] = useState<string | null>(null);
   const [isAddingMembers, setIsAddingMembers] = useState(false);
-  const [isRemovingMember, setIsRemovingMember] = useState(false);
+
+  // Track specific member being removed to prevent all buttons from spinning
+  const [removingMemberAddress, setRemovingMemberAddress] = useState<string | null>(null);
+
   const [managedMembers, setManagedMembers] = useState<string[]>([]);
   const [totalMemberCount, setTotalMemberCount] = useState<number | null>(null);
 
@@ -26,7 +38,6 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
       return;
     }
 
-    // Use the pre-loaded member list from parent component
     if (initialMembers) {
       setManagedMembers(initialMembers);
       setTotalMemberCount(initialMembers.length);
@@ -38,7 +49,7 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
     return Array.from(
       new Set(
         memberInput
-          .split(',')
+          .split(/[\n,]+/)
           .map((a) => a.trim())
           .filter((a) => a.length > 0)
           .map((a) => a.toLowerCase())
@@ -46,7 +57,21 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
     );
   }, [memberInput]);
 
-  const validateMemberAddresses = (): string | null => {
+  // Fix 2: Clear success messages when the user types new input
+  useEffect(() => {
+    if (memberInput.trim() !== '') {
+      setMemberSuccess(null);
+      setMemberError(null);
+    }
+  }, [memberInput]);
+
+  const clearStatus = () => {
+    setMemberError(null);
+    setMemberSuccess(null);
+  };
+
+  // Fix 3a: Remove arguments, rely strictly on internal parsed addresses
+  const validateAddresses = (): string | null => {
     if (!parsedMemberAddresses.length) {
       return 'Please enter at least one wallet address.';
     }
@@ -59,78 +84,90 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
     return null;
   };
 
+  // Fix 3b: Removed "addressesToAdd" parameter to shrink the hook API
   const handleAddMembers = async () => {
-    setMemberError(null);
-    const error = validateMemberAddresses();
+    clearStatus();
+    const error = validateAddresses();
     if (error) {
       setMemberError(error);
       return;
     }
 
-    if (!signer || !poolAddress || pooltype !== 'UBI' || !provider) {
-      setMemberError('Member management is currently supported for UBI pools only.');
+    if (!signer || !poolAddress || !pooltype || !provider || !sdk) {
+      setMemberError('Pool management is not fully initialized.');
+      return;
+    }
+
+    if (pooltype !== 'UBI' && pooltype !== 'DIRECT') {
+      setMemberError('Member management is currently supported for UBI and Direct Payments pools only.');
+      return;
+    }
+
+    // Fix 3c: Filter out addresses that are already in the pool to prevent contract reverts
+    const addressesToAdd = parsedMemberAddresses.filter(
+      (addr) => !managedMembers.some((m) => m.toLowerCase() === addr.toLowerCase())
+    );
+
+    if (addressesToAdd.length === 0) {
+      setMemberError('All entered addresses are already members of this pool.');
       return;
     }
 
     try {
       setIsAddingMembers(true);
+      const extraData = addressesToAdd.map(() => '0x'); // Empty bytes for extraData
 
-      const chainIdString = chainId.toString() as `${SupportedNetwork}`;
-      const network = SupportedNetworkNames[chainId as SupportedNetwork];
+      const tx = await sdk.addPoolMembers(signer as any, poolAddress, addressesToAdd, extraData);
+      await tx.wait();
 
-      const sdk = new GoodCollectiveSDK(chainIdString, provider, { network });
-
-      // Use SDK method to add members
-      for (const addr of parsedMemberAddresses) {
-        const tx = await sdk.addUBIPoolMember(signer, poolAddress, addr);
-        await tx.wait();
-      }
-
-      // Optimistically bump the total on-chain member count
-      setTotalMemberCount((prev) => (prev ?? 0) + parsedMemberAddresses.length);
+      setTotalMemberCount((prev) => (prev ?? 0) + addressesToAdd.length);
 
       setManagedMembers((prev) => {
         const next = new Set(prev.map((a) => a.toLowerCase()));
-        parsedMemberAddresses.forEach((a) => next.add(a));
+        addressesToAdd.forEach((a) => next.add(a));
         return Array.from(next);
       });
       setMemberInput('');
+      setMemberSuccess(`Successfully added ${addressesToAdd.length} members.`);
     } catch (e: any) {
       setMemberError(e?.reason || e?.message || 'Failed to add members.');
+      setMemberSuccess(null);
     } finally {
       setIsAddingMembers(false);
     }
   };
 
   const handleRemoveMember = async (member: string) => {
-    if (!signer || !poolAddress || pooltype !== 'UBI' || !provider) {
-      setMemberError('Member management is currently supported for UBI pools only.');
+    clearStatus();
+
+    if (!signer || !poolAddress || !provider || !sdk) {
+      setMemberError('Pool management is not fully initialized.');
+      return;
+    }
+
+    if (pooltype !== 'UBI') {
+      setMemberError('Member removal is currently supported for UBI pools only.');
       return;
     }
 
     try {
-      setIsRemovingMember(true);
+      setRemovingMemberAddress(member);
 
-      const chainIdString = chainId.toString() as `${SupportedNetwork}`;
-      const network = SupportedNetworkNames[chainId as SupportedNetwork];
-
-      const sdk = new GoodCollectiveSDK(chainIdString, provider, { network });
-
-      // Use SDK method to remove member
-      const tx = await sdk.removeUBIPoolMember(signer, poolAddress, member);
+      const tx = await sdk.removeUBIPoolMember(signer as any, poolAddress, member);
       await tx.wait();
 
-      // Optimistically decrease the total on-chain member count
       setTotalMemberCount((prev) => {
         if (prev === null) return prev;
         return prev > 0 ? prev - 1 : 0;
       });
 
       setManagedMembers((prev) => prev.filter((m) => m.toLowerCase() !== member.toLowerCase()));
+      setMemberSuccess(`Successfully removed member: ${member}`);
     } catch (e: any) {
       setMemberError(e?.reason || e?.message || 'Failed to remove member.');
+      setMemberSuccess(null);
     } finally {
-      setIsRemovingMember(false);
+      setRemovingMemberAddress(null);
     }
   };
 
@@ -138,11 +175,13 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
     memberInput,
     setMemberInput,
     memberError,
+    memberSuccess,
     isAddingMembers,
-    isRemovingMember,
+    removingMemberAddress,
     managedMembers,
     totalMemberCount,
     handleAddMembers,
     handleRemoveMember,
+    parsedMemberAddresses,
   };
 };

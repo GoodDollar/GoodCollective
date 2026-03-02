@@ -4,7 +4,7 @@ import { isEmpty } from 'lodash';
 import moment from 'moment';
 import { Box, HStack, Link, Text, useBreakpointValue, VStack } from 'native-base';
 import { useCallback, useMemo, useState } from 'react';
-import { Image, View } from 'react-native';
+import { View } from 'react-native';
 import { useParams } from 'react-router-native';
 import { TransactionReceipt } from 'viem';
 import { useAccount } from 'wagmi';

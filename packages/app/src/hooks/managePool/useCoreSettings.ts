@@ -21,7 +21,7 @@ type CoreSettingsState = {
   coreMembersValidator: string;
 };
 
-export const useCoreSettings = ({ poolAddress, pooltype, contractsForChain, chainId }: UseCoreSettingsParams) => {
+export const useCoreSettings = ({ poolAddress, pooltype, chainId }: UseCoreSettingsParams) => {
   const { address } = useAccount();
   const provider = useEthersProvider({ chainId });
   const signer = useEthersSigner({ chainId });
