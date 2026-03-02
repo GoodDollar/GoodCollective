@@ -1,4 +1,4 @@
-import { HStack, ScrollView, Spinner, Switch, Text, VStack, TextArea } from 'native-base'; // Add TextArea
+import { HStack, ScrollView, Spinner, Switch, Text, VStack, TextArea } from 'native-base';
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-native';
 import { useAccount } from 'wagmi';
@@ -71,7 +71,7 @@ const ManageCollectivePage = () => {
   });
 
   const memberList = useMemo(() => {
-    return collective?.stewardCollectives.map((steward) => steward.steward) || [];
+    return collective?.stewardCollectives.map((steward: any) => steward.steward) || [];
   }, [collective?.stewardCollectives]);
 
   const memberManagement = useMemberManagement({
@@ -423,8 +423,8 @@ const ManageCollectivePage = () => {
                 <VStack space={2} marginTop={4}>
                   <Text fontWeight="600">Wallet Addresses</Text>
                   <TextArea
-                    autoCompleteType={''}
-                    placeholder={'0xabc...123, 0xdef...456\n0xghi...789'}
+                    autoCompleteType={undefined}
+                    placeholder={`0xabc...123, 0xdef...456\n0xghi...789`}
                     value={memberManagement.memberInput}
                     onChangeText={memberManagement.setMemberInput}
                     autoCapitalize="none"
@@ -437,7 +437,7 @@ const ManageCollectivePage = () => {
                       : 'Enter addresses separated by commas or new lines.'}
                   </Text>
                   <ActionButton
-                    onPress={() => memberManagement.handleAddMembers(memberManagement.parsedMemberAddresses)}
+                    onPress={memberManagement.handleAddMembers}
                     isLoading={memberManagement.isAddingMembers}
                     isDisabled={memberManagement.isAddingMembers || memberManagement.parsedMemberAddresses.length === 0}
                     text={memberManagement.isAddingMembers ? 'Adding Members...' : 'Add Members'}
@@ -491,9 +491,13 @@ const ManageCollectivePage = () => {
                         </Text>
                         <ActionButton
                           onPress={() => memberManagement.handleRemoveMember(member)}
-                          isLoading={memberManagement.isRemovingMember}
-                          isDisabled={memberManagement.isRemovingMember || memberManagement.isAddingMembers}
-                          text={memberManagement.isRemovingMember ? 'Removing Member...' : 'Remove Member'}
+                          isLoading={memberManagement.removingMemberAddress === member}
+                          isDisabled={
+                            memberManagement.removingMemberAddress !== null || memberManagement.isAddingMembers
+                          }
+                          text={
+                            memberManagement.removingMemberAddress === member ? 'Removing Member...' : 'Remove Member'
+                          }
                           bg="red.500"
                           textColor="white"
                           borderRadius={12}

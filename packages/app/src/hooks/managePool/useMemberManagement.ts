@@ -14,8 +14,9 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
   const provider = useEthersProvider({ chainId });
   const signer = useEthersSigner({ chainId });
 
-  // Memoize SDK instance for efficient reuse
+  // Fix 1: Guard the SDK memo to prevent runtime crashes during loading
   const sdk = useMemo(() => {
+    if (!provider || !chainId) return null;
     const chainIdString = chainId.toString() as `${SupportedNetwork}`;
     const network = SupportedNetworkNames[chainId as SupportedNetwork];
     return new GoodCollectiveSDK(chainIdString, provider as any, { network });
@@ -25,7 +26,10 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
   const [memberError, setMemberError] = useState<string | null>(null);
   const [memberSuccess, setMemberSuccess] = useState<string | null>(null);
   const [isAddingMembers, setIsAddingMembers] = useState(false);
-  const [isRemovingMember, setIsRemovingMember] = useState(false);
+
+  // Track specific member being removed to prevent all buttons from spinning
+  const [removingMemberAddress, setRemovingMemberAddress] = useState<string | null>(null);
+
   const [managedMembers, setManagedMembers] = useState<string[]>([]);
   const [totalMemberCount, setTotalMemberCount] = useState<number | null>(null);
 
@@ -53,12 +57,26 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
     );
   }, [memberInput]);
 
-  const validateAddresses = (addresses: string[]): string | null => {
-    if (!addresses.length) {
+  // Fix 2: Clear success messages when the user types new input
+  useEffect(() => {
+    if (memberInput.trim() !== '') {
+      setMemberSuccess(null);
+      setMemberError(null);
+    }
+  }, [memberInput]);
+
+  const clearStatus = () => {
+    setMemberError(null);
+    setMemberSuccess(null);
+  };
+
+  // Fix 3a: Remove arguments, rely strictly on internal parsed addresses
+  const validateAddresses = (): string | null => {
+    if (!parsedMemberAddresses.length) {
       return 'Please enter at least one wallet address.';
     }
 
-    const invalid = addresses.find((addr) => !/^0x[a-fA-F0-9]{40}$/.test(addr));
+    const invalid = parsedMemberAddresses.find((addr) => !/^0x[a-fA-F0-9]{40}$/.test(addr));
     if (invalid) {
       return `Invalid wallet address: ${invalid}`;
     }
@@ -66,16 +84,16 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
     return null;
   };
 
-  const handleAddMembers = async (addressesToAdd: string[]) => {
-    setMemberError(null);
-    setMemberSuccess(null);
-    const error = validateAddresses(addressesToAdd);
+  // Fix 3b: Removed "addressesToAdd" parameter to shrink the hook API
+  const handleAddMembers = async () => {
+    clearStatus();
+    const error = validateAddresses();
     if (error) {
       setMemberError(error);
       return;
     }
 
-    if (!signer || !poolAddress || !pooltype || !provider) {
+    if (!signer || !poolAddress || !pooltype || !provider || !sdk) {
       setMemberError('Pool management is not fully initialized.');
       return;
     }
@@ -85,13 +103,21 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
       return;
     }
 
+    // Fix 3c: Filter out addresses that are already in the pool to prevent contract reverts
+    const addressesToAdd = parsedMemberAddresses.filter(
+      (addr) => !managedMembers.some((m) => m.toLowerCase() === addr.toLowerCase())
+    );
+
+    if (addressesToAdd.length === 0) {
+      setMemberError('All entered addresses are already members of this pool.');
+      return;
+    }
+
     try {
       setIsAddingMembers(true);
-
       const extraData = addressesToAdd.map(() => '0x'); // Empty bytes for extraData
 
-      // Use the SDK's addPoolMembers function for bulk addition
-      const tx = await sdk.addPoolMembers(signer, poolAddress, addressesToAdd, extraData);
+      const tx = await sdk.addPoolMembers(signer as any, poolAddress, addressesToAdd, extraData);
       await tx.wait();
 
       setTotalMemberCount((prev) => (prev ?? 0) + addressesToAdd.length);
@@ -112,18 +138,22 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
   };
 
   const handleRemoveMember = async (member: string) => {
-    setMemberError(null);
-    setMemberSuccess(null);
-    if (!signer || !poolAddress || pooltype !== 'UBI' || !provider) {
+    clearStatus();
+
+    if (!signer || !poolAddress || !provider || !sdk) {
+      setMemberError('Pool management is not fully initialized.');
+      return;
+    }
+
+    if (pooltype !== 'UBI') {
       setMemberError('Member removal is currently supported for UBI pools only.');
       return;
     }
 
     try {
-      setIsRemovingMember(true);
+      setRemovingMemberAddress(member);
 
-      // Use the memoized SDK instance to remove a member
-      const tx = await sdk.removeUBIPoolMember(signer, poolAddress, member);
+      const tx = await sdk.removeUBIPoolMember(signer as any, poolAddress, member);
       await tx.wait();
 
       setTotalMemberCount((prev) => {
@@ -137,7 +167,7 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
       setMemberError(e?.reason || e?.message || 'Failed to remove member.');
       setMemberSuccess(null);
     } finally {
-      setIsRemovingMember(false);
+      setRemovingMemberAddress(null);
     }
   };
 
@@ -147,7 +177,7 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
     memberError,
     memberSuccess,
     isAddingMembers,
-    isRemovingMember,
+    removingMemberAddress,
     managedMembers,
     totalMemberCount,
     handleAddMembers,
