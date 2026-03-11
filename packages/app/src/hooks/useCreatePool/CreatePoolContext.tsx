@@ -143,6 +143,7 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
     // Calculate cycle length based on claim frequency
     const cycleLengthDays = form.claimFrequency && form.claimFrequency <= 7 ? 7 : form.claimFrequency || 1;
 
+    // Join status explicitly controls members-only behavior, even if the pool starts empty.
     const onlyMembers = form.joinStatus === 'closed';
     const ubiSettings: UBISettings = {
       claimPeriodDays: ethers.BigNumber.from(form.claimFrequency || 1),
