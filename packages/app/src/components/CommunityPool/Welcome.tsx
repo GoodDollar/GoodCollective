@@ -99,15 +99,7 @@ const Welcome = () => {
                 onPress={() => {
                   Linking.openURL(termsUrl);
                 }}>
-                Terms of Use
-              </Text>{' '}
-              <Text
-                color="blue.500"
-                underline
-                onPress={() => {
-                  Linking.openURL(termsUrl);
-                }}>
-                ({termsUrl})
+                Terms of Use ({termsUrl})
               </Text>
             </Text>
           </HStack>

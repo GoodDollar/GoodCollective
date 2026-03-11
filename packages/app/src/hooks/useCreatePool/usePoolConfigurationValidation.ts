@@ -44,6 +44,35 @@ export const validateMemberAddresses = (members: string[]): string | null => {
   return null;
 };
 
+export type PoolRecipientsValidation = {
+  isValid: boolean;
+  memberAddresses: string[];
+  error?: string;
+};
+
+export const validatePoolRecipients = (poolRecipients?: string, maximumMembers?: number): PoolRecipientsValidation => {
+  const trimmedRecipients = poolRecipients?.trim() ?? '';
+  if (!trimmedRecipients) {
+    return { isValid: true, memberAddresses: [] };
+  }
+
+  const members = parseMemberAddresses(trimmedRecipients);
+  const memberError = validateMemberAddresses(members);
+  if (memberError) {
+    return { isValid: false, memberAddresses: members, error: memberError };
+  }
+
+  if (maximumMembers != null && members.length > maximumMembers) {
+    return {
+      isValid: false,
+      memberAddresses: members,
+      error: `You listed ${members.length} members but the maximum is ${maximumMembers}`,
+    };
+  }
+
+  return { isValid: true, memberAddresses: members };
+};
+
 export const usePoolConfigurationValidation = () => {
   const [errors, setErrors] = useState<FormError>({});
 
@@ -93,16 +122,10 @@ export const usePoolConfigurationValidation = () => {
     }
 
     // Validate initial member addresses (optional)
-    if (poolRecipients && poolRecipients.trim().length > 0) {
-      const members = parseMemberAddresses(poolRecipients);
-      const memberError = validateMemberAddresses(members);
-      if (memberError) {
-        currErrors.poolRecipients = memberError;
-        pass = false;
-      } else if (members.length > maximumMembers) {
-        currErrors.poolRecipients = `You listed ${members.length} members but the maximum is ${maximumMembers}`;
-        pass = false;
-      }
+    const recipientsValidation = validatePoolRecipients(poolRecipients, maximumMembers);
+    if (!recipientsValidation.isValid) {
+      currErrors.poolRecipients = recipientsValidation.error ?? 'Invalid member addresses.';
+      pass = false;
     }
 
     setErrors(currErrors);

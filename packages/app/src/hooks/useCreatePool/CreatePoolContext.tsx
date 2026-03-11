@@ -11,7 +11,7 @@ import { validateConnection } from '../useContractCalls/util';
 import { useEthersSigner } from '../useEthers';
 import { formatSocialUrls } from '../../lib/formatSocialUrls';
 import { Form } from './useCreatePool';
-import { parseMemberAddresses, validateMemberAddresses } from './usePoolConfigurationValidation';
+import { validatePoolRecipients } from './usePoolConfigurationValidation';
 
 type CreatePoolContextType = {
   step: number;
@@ -102,21 +102,17 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
       return false;
     }
 
-    const rawRecipients = form.poolRecipients?.trim() ?? '';
-    const memberAddresses = rawRecipients ? parseMemberAddresses(rawRecipients) : [];
-    if (rawRecipients) {
-      const memberError = validateMemberAddresses(memberAddresses);
-      if (memberError) {
-        console.error(memberError);
-        return false;
+    const recipientsValidation = validatePoolRecipients(form.poolRecipients, form.maximumMembers);
+    if (!recipientsValidation.isValid) {
+      if (recipientsValidation.error) {
+        console.error(recipientsValidation.error);
       }
-      if (form.maximumMembers && memberAddresses.length > form.maximumMembers) {
-        console.error(`Members count (${memberAddresses.length}) exceeds maximum (${form.maximumMembers}).`);
-        return false;
-      }
+      return false;
     }
+    const { memberAddresses } = recipientsValidation;
 
-    const projectId = form.projectName.replace(' ', '/').toLowerCase() + '-' + uuidv4();
+    const projectIdBase = form.projectName.trim().toLowerCase().replace(/\s+/g, '/');
+    const projectId = `${projectIdBase}-${uuidv4()}`;
 
     const poolAttributes = {
       name: form.projectName,
