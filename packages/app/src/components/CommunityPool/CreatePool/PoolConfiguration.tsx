@@ -113,9 +113,12 @@ const PoolConfiguration = () => {
         setMaximumMembers={setMaximumMembers}
         joinStatus={joinStatus}
         setJoinStatus={setJoinStatus}
+        poolRecipients={poolRecipients}
+        setPoolRecipients={setPoolRecipients}
         onValidate={handleValidate}
         errors={{
           maximumMembers: errors.maximumMembers,
+          poolRecipients: errors.poolRecipients,
         }}
       />
 

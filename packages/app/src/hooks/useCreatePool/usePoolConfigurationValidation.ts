@@ -8,6 +8,7 @@ export type FormError = {
   customClaimFrequency?: string;
   expectedMembers?: string;
   managerFeePercentage?: string;
+  poolRecipients?: string;
 };
 
 export type PoolConfigurationFormData = {
@@ -22,6 +23,27 @@ export type PoolConfigurationFormData = {
   joinStatus?: 'closed' | 'open';
 };
 
+export const parseMemberAddresses = (input?: string): string[] => {
+  if (!input) return [];
+  const normalized = input
+    .split(/[\n,]/)
+    .map((address) => address.trim())
+    .filter((address) => address.length > 0)
+    .map((address) => address.toLowerCase());
+  return Array.from(new Set(normalized));
+};
+
+export const validateMemberAddresses = (members: string[]): string | null => {
+  if (!members.length) {
+    return 'Please enter at least one wallet address.';
+  }
+  const invalid = members.find((addr) => !/^0x[a-fA-F0-9]{40}$/.test(addr));
+  if (invalid) {
+    return `Invalid wallet address: ${invalid}`;
+  }
+  return null;
+};
+
 export const usePoolConfigurationValidation = () => {
   const [errors, setErrors] = useState<FormError>({});
 
@@ -30,6 +52,7 @@ export const usePoolConfigurationValidation = () => {
     let pass = true;
 
     const {
+      poolRecipients,
       maximumMembers,
       claimFrequency,
       customClaimFrequency,
@@ -67,6 +90,19 @@ export const usePoolConfigurationValidation = () => {
     if (poolManagerFeeType === 'custom' && (managerFeePercentage < 0 || managerFeePercentage > 100)) {
       currErrors.managerFeePercentage = 'Manager fee must be between 0% and 100%';
       pass = false;
+    }
+
+    // Validate initial member addresses (optional)
+    if (poolRecipients && poolRecipients.trim().length > 0) {
+      const members = parseMemberAddresses(poolRecipients);
+      const memberError = validateMemberAddresses(members);
+      if (memberError) {
+        currErrors.poolRecipients = memberError;
+        pass = false;
+      } else if (members.length > maximumMembers) {
+        currErrors.poolRecipients = `You listed ${members.length} members but the maximum is ${maximumMembers}`;
+        pass = false;
+      }
     }
 
     setErrors(currErrors);

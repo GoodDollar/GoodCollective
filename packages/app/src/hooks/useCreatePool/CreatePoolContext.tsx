@@ -11,6 +11,7 @@ import { validateConnection } from '../useContractCalls/util';
 import { useEthersSigner } from '../useEthers';
 import { formatSocialUrls } from '../../lib/formatSocialUrls';
 import { Form } from './useCreatePool';
+import { parseMemberAddresses, validateMemberAddresses } from './usePoolConfigurationValidation';
 
 type CreatePoolContextType = {
   step: number;
@@ -82,6 +83,7 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
     const sdk = new GoodCollectiveSDK(chainIdString, signer.provider as ethers.providers.Provider, { network });
 
     // Final form validation
+
     if (!form.projectName || !form.projectDescription) {
       console.error('Missing required project details');
       return false;
@@ -98,6 +100,20 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
     ) {
       console.error('Missing required pool configuration');
       return false;
+    }
+
+    const rawRecipients = form.poolRecipients?.trim() ?? '';
+    const memberAddresses = rawRecipients ? parseMemberAddresses(rawRecipients) : [];
+    if (rawRecipients) {
+      const memberError = validateMemberAddresses(memberAddresses);
+      if (memberError) {
+        console.error(memberError);
+        return false;
+      }
+      if (form.maximumMembers && memberAddresses.length > form.maximumMembers) {
+        console.error(`Members count (${memberAddresses.length}) exceeds maximum (${form.maximumMembers}).`);
+        return false;
+      }
     }
 
     const projectId = form.projectName.replace(' ', '/').toLowerCase() + '-' + uuidv4();
@@ -131,12 +147,13 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
     // Calculate cycle length based on claim frequency
     const cycleLengthDays = form.claimFrequency && form.claimFrequency <= 7 ? 7 : form.claimFrequency || 1;
 
+    const onlyMembers = form.joinStatus === 'closed';
     const ubiSettings: UBISettings = {
       claimPeriodDays: ethers.BigNumber.from(form.claimFrequency || 1),
       minActiveUsers: ethers.BigNumber.from(1),
       maxClaimAmount: ethers.utils.parseEther(String(form.claimAmountPerWeek || 0)),
       maxMembers: form.maximumMembers || form.expectedMembers || 100,
-      onlyMembers: form.poolRecipients ? form.canNewMembersJoin ?? false : false,
+      onlyMembers,
       cycleLengthDays: ethers.BigNumber.from(cycleLengthDays),
       claimForEnabled: false,
     };
@@ -165,6 +182,18 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
         extendedUBISettings,
         false // isBeacon should always be false as per requirements
       );
+
+      if (memberAddresses.length > 0) {
+        const extraData = memberAddresses.map(() => '0x');
+        if (memberAddresses.length === 1) {
+          const tx = await sdk.addUBIPoolMember(signer, pool.address, memberAddresses[0]);
+          await tx.wait();
+        } else {
+          const tx = await sdk.addPoolMembers(signer, pool.address, memberAddresses, extraData);
+          await tx.wait();
+        }
+      }
+
       console.log('Pool created successfully:', pool.address);
       submitPartial({ createdPoolAddress: pool.address });
       setStep(6); // Move to success step
