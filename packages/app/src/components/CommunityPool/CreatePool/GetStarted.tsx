@@ -1,4 +1,5 @@
 import { Box, FormControl, Input, Text, TextArea, VStack, WarningOutlineIcon, Pressable } from 'native-base';
+import { Linking } from 'react-native';
 import { useEffect, useState } from 'react';
 
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
@@ -216,11 +217,11 @@ const GetStarted = ({}: {}) => {
           <FormControl.HelperText>
             <Text style={styles.helperText} color="goodGrey.400">
               Provide image URL for your cover photo (1200x400px recommended). Upload to{' '}
-              <Text style={styles.linkText} onPress={() => window.open('https://ipfs.io/', '_blank')}>
+              <Text style={styles.linkText} onPress={() => Linking.openURL('https://ipfs.io/')}>
                 IPFS
               </Text>{' '}
               (free tier) or{' '}
-              <Text style={styles.linkText} onPress={() => window.open('https://cloudinary.com/', '_blank')}>
+              <Text style={styles.linkText} onPress={() => Linking.openURL('https://cloudinary.com/')}>
                 Cloudinary
               </Text>{' '}
               for hosting.

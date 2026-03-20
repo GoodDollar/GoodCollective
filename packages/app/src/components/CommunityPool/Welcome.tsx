@@ -63,11 +63,13 @@ const Welcome = () => {
         style={[welcomeStyles.infoBlock, isDesktopView && desktopWelcomeStyles.infoBlock]}
         backgroundColor="goodPurple.100"
         borderColor="goodPurple.200">
-        <Text variant="body-text" textAlign="justify" color="black">
-          GoodCollective helps you turn funding into real, verifiable impact. Create a pool, define who's eligible, and
-          automate distributions with ease.
+        <Text variant="body-text" textAlign="center" color="black">
+          <Text fontWeight="700">GoodCollective helps you turn funding into real, verifiable impact.</Text>
         </Text>
-        <Text variant="body-text" textAlign="justify" marginTop={4} color="black">
+        <Text variant="body-text" textAlign="center" marginTop={4} color="black">
+          Create a pool, define who's eligible, and automate distributions with ease.
+        </Text>
+        <Text variant="body-text" textAlign="center" marginTop={4} color="black">
           Whether you're supporting a community, rewarding actions, or reaching a specific group, everything is simple
           and fully auditable on-chain.
         </Text>
@@ -92,15 +94,16 @@ const Welcome = () => {
             />
             <Text variant="body-text" flex={1} color="black">
               All on-chain transactions are final and non-reversible. GoodCollective is a non-custodial interface
-              provided as-is.{' '}
+              provided as-is,{' '}
               <Text
                 color="blue.500"
                 underline
                 onPress={() => {
                   Linking.openURL(termsUrl);
                 }}>
-                Terms of Use ({termsUrl})
+                Terms of Use
               </Text>
+              .
             </Text>
           </HStack>
           <FormControl.ErrorMessage
@@ -114,8 +117,13 @@ const Welcome = () => {
 
       {/* CTA Button */}
       <Pressable
-        style={[welcomeStyles.ctaButton, isDesktopView && desktopWelcomeStyles.ctaButton]}
+        style={[
+          welcomeStyles.ctaButton,
+          isDesktopView && desktopWelcomeStyles.ctaButton,
+          { opacity: acknowledged ? 1 : 0.5 },
+        ]}
         bg="goodPurple.400"
+        disabled={!acknowledged}
         onPress={onSubmit}>
         <Text style={[welcomeStyles.ctaButtonText, isDesktopView && desktopWelcomeStyles.ctaButtonText]} color="white">
           Get Started

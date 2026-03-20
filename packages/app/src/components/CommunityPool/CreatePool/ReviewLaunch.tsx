@@ -6,6 +6,8 @@ import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { printAndParseSupportError } from '../../../hooks/useContractCalls/util';
 import BaseModal from '../../modals/BaseModal';
 import NavigationButtons from '../NavigationButtons';
+import { Linking } from 'react-native';
+import { formatSocialUrls } from '../../../lib/formatSocialUrls';
 
 const SectionHeader = ({ title, onEdit }: { title: string; onEdit: () => void }) => (
   <HStack alignItems="center">
@@ -198,16 +200,25 @@ const ReviewLaunch = () => {
               <Label>Socials</Label>
               <HStack space={2}>
                 {socials.map((social, index) => (
-                  <Box
+                  <Pressable
                     key={index}
-                    backgroundColor="gray.100"
-                    width={10}
-                    height={10}
-                    justifyContent="center"
-                    alignItems="center"
-                    borderRadius={4}>
-                    <img width={24} src={social.icon} />
-                  </Box>
+                    onPress={() => {
+                      const url = form[social.name as keyof typeof form];
+                      if (typeof url === 'string') {
+                        const formattedUrl = formatSocialUrls[social.name as keyof typeof formatSocialUrls](url);
+                        Linking.openURL(formattedUrl);
+                      }
+                    }}>
+                    <Box
+                      backgroundColor="gray.100"
+                      width={10}
+                      height={10}
+                      justifyContent="center"
+                      alignItems="center"
+                      borderRadius={4}>
+                      <img width={24} src={social.icon} />
+                    </Box>
+                  </Pressable>
                 ))}
               </HStack>
             </VStack>
