@@ -1,5 +1,4 @@
-import { Box, Button, Checkbox, HStack, Pressable, Text, VStack } from 'native-base';
-import { Linking } from 'react-native';
+import { Box, Button, Checkbox, HStack, Link, Pressable, Text, VStack } from 'native-base';
 import { CommunityFundsIcon, ResultsBasedIcon, SegmentedAidIcon } from '../../assets';
 import { PoolType, useCreatePool } from '../../hooks/useCreatePool/useCreatePool';
 import { useScreenSize } from '../../theme/hooks';
@@ -83,9 +82,9 @@ const SelectType = () => {
           <Text style={selectCollectiveTypeStyles.subtitle}>
             Choose how your pool distributes the funds. Only Community Funds are currently available. If you have
             interest in the other pools types, reach out here:{' '}
-            <Text color="blue.500" underline onPress={() => Linking.openURL('https://ubi.gd/GoodBuildersTG')}>
+            <Link href="https://ubi.gd/GoodBuildersTG" isExternal _text={selectCollectiveTypeStyles.linkText}>
               https://ubi.gd/GoodBuildersTG
-            </Text>
+            </Link>
           </Text>
         </Box>
 
@@ -180,6 +179,12 @@ const selectCollectiveTypeStyles = {
     lineHeight: 24,
     maxWidth: '80%',
     fontWeight: '400',
+  },
+  linkText: {
+    color: 'goodPurple.400',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
+    cursor: 'pointer',
   },
   card: {
     borderRadius: 12,
