@@ -4994,9 +4994,8 @@ __metadata:
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.0
     "@nomicfoundation/hardhat-network-helpers": ^1.0.0
     "@nomicfoundation/hardhat-toolbox": 2.*
-    "@nomicfoundation/hardhat-verify": ^1.1.1
+    "@nomicfoundation/hardhat-verify": 2
     "@nomiclabs/hardhat-ethers": ^2.0.0
-    "@nomiclabs/hardhat-etherscan": ^3.0.0
     "@openzeppelin/contracts": ^4.9.2
     "@openzeppelin/contracts-upgradeable": 4.8.3
     "@openzeppelin/hardhat-upgrades": 1.20.0
@@ -5016,7 +5015,6 @@ __metadata:
     graphql: ^16.7.1
     hardhat: ^2.26.2
     hardhat-abi-exporter: ^2.10.1
-    hardhat-celo: ^0.0.4
     hardhat-contract-sizer: ^2.10.0
     hardhat-deploy: ^1.0.4
     hardhat-gas-reporter: ^1.0.8
@@ -6719,49 +6717,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomicfoundation/hardhat-toolbox@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "@nomicfoundation/hardhat-toolbox@npm:1.0.2"
-  peerDependencies:
-    "@ethersproject/abi": ^5.4.7
-    "@ethersproject/providers": ^5.4.7
-    "@nomicfoundation/hardhat-chai-matchers": ^1.0.0
-    "@nomicfoundation/hardhat-network-helpers": ^1.0.0
-    "@nomiclabs/hardhat-ethers": ^2.0.0
-    "@nomiclabs/hardhat-etherscan": ^3.0.0
-    "@typechain/ethers-v5": ^10.1.0
-    "@typechain/hardhat": ^6.1.2
-    "@types/chai": ^4.2.0
-    "@types/mocha": ^9.1.0
-    "@types/node": ">=12.0.0"
-    chai: ^4.2.0
-    ethers: ^5.4.7
-    hardhat: ^2.9.9
-    hardhat-gas-reporter: ^1.0.8
-    solidity-coverage: ^0.7.21
-    ts-node: ">=8.0.0"
-    typechain: ^8.1.0
-    typescript: ">=4.5.0"
-  checksum: d13b3e9f08d8be5f72a25872b6a9d3609fdb34f46b47dbf10963a6fb5003ac1cd0d0c107ef6d91807b864a8766d9e5092518f21db3116902ee5a8ae73fdcaaa2
-  languageName: node
-  linkType: hard
-
-"@nomicfoundation/hardhat-verify@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@nomicfoundation/hardhat-verify@npm:1.1.1"
+"@nomicfoundation/hardhat-verify@npm:2":
+  version: 2.1.3
+  resolution: "@nomicfoundation/hardhat-verify@npm:2.1.3"
   dependencies:
     "@ethersproject/abi": ^5.1.2
     "@ethersproject/address": ^5.0.2
     cbor: ^8.1.0
-    chalk: ^2.4.2
     debug: ^4.1.1
     lodash.clonedeep: ^4.5.0
+    picocolors: ^1.1.0
     semver: ^6.3.0
     table: ^6.8.0
     undici: ^5.14.0
   peerDependencies:
-    hardhat: ^2.0.4
-  checksum: 2d83d32d6833f23fb62c30c68c9a2ab3956098030edcf459e69639960f059c72572d203bcf92f191c69c9cb0fbbf011a1113bacde1e3cbb28d5e812334f04f32
+    hardhat: ^2.26.0
+  checksum: b0d8fbdd5522e8c3817e8a2e7538afe8bfb3f27317169871ef30abc51247afbfb52316c84d9dda6e7e796603b55da659432f6bcc52e2708f6fc89d4348a2dddc
   languageName: node
   linkType: hard
 
@@ -6881,26 +6852,6 @@ __metadata:
     ethers: ^5.0.0
     hardhat: ^2.0.0
   checksum: 72321317e55eb510306e04c42353c5f7ceb42d086fc76cc740120da6e1635b7ad5bbf23a8d6b02bd590754adcf646618933111624085ab249b1ff3482e773226
-  languageName: node
-  linkType: hard
-
-"@nomiclabs/hardhat-etherscan@npm:^3.0.0":
-  version: 3.1.7
-  resolution: "@nomiclabs/hardhat-etherscan@npm:3.1.7"
-  dependencies:
-    "@ethersproject/abi": ^5.1.2
-    "@ethersproject/address": ^5.0.2
-    cbor: ^8.1.0
-    chalk: ^2.4.2
-    debug: ^4.1.1
-    fs-extra: ^7.0.1
-    lodash: ^4.17.11
-    semver: ^6.3.0
-    table: ^6.8.0
-    undici: ^5.14.0
-  peerDependencies:
-    hardhat: ^2.0.4
-  checksum: 32d74e567e78a940a79cbe49c5dee0eb5cda0a4c0c34a9badfaf13d45e6054d9e717c28b8d2b0b20f29721a484af15a52d391fb60768222c4b13de92ef0f72b3
   languageName: node
   linkType: hard
 
@@ -25561,17 +25512,6 @@ __metadata:
   peerDependencies:
     hardhat: ^2.0.0
   checksum: 5dba9ebb7bd1002311b504a87cc0f9197ffe5066a61d27073f49bde2adcd080e94ef9e2e696e4fb26c9731df1bed76967e1e0428742af36b37d9c70f9944c98b
-  languageName: node
-  linkType: hard
-
-"hardhat-celo@npm:^0.0.4":
-  version: 0.0.4
-  resolution: "hardhat-celo@npm:0.0.4"
-  dependencies:
-    "@nomicfoundation/hardhat-toolbox": ^1.0.2
-  peerDependencies:
-    hardhat: ^2.0.0
-  checksum: f32e8745081bc5ffaadebb320a4bf5b2ec4a0de5502efb12b0cbff55c84d91ad494d5b6c63874f20cc382ad9bd475a657071b7b38bb2bd632635744e76bce80e
   languageName: node
   linkType: hard
 

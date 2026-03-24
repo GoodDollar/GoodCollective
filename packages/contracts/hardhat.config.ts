@@ -1,10 +1,9 @@
-import '@nomicfoundation/hardhat-toolbox';
 import * as dotenv from 'dotenv';
 import 'hardhat-abi-exporter';
 import 'hardhat-contract-sizer';
 import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-deploy';
-import 'hardhat-celo';
+import '@nomicfoundation/hardhat-verify';
 import { HardhatUserConfig } from 'hardhat/config';
 
 dotenv.config();
@@ -112,13 +111,20 @@ const config: HardhatUserConfig = {
       },
     },
   },
+  sourcify: {
+    enabled: true,
+  },
   etherscan: {
-    apiKey: {
-      mainnet: process.env.ETHERSCAN_KEY || '',
-      celo: process.env.CELOSCAN_KEY || '',
-      alfajores: process.env.CELOSCAN_KEY || '',
-    },
+    apiKey: process.env.ETHERSCAN_KEY || '',
     customChains: [
+      {
+        network: 'celo',
+        chainId: 42220,
+        urls: {
+          apiURL: 'https://api.etherscan.io/v2/api?chainid=42220',
+          browserURL: 'https://celoscan.io/',
+        },
+      },
       {
         network: 'alfajores',
         chainId: 44787,

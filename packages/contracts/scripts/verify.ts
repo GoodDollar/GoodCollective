@@ -23,7 +23,12 @@ const verifyUbi = async () => {
     constructorArgsParams: poolImpl.args,
   });
 
-  await Promise.all([hre.run('sourcify'), hre.run('etherscan-verify')]);
+  const verifyFactory = await hre.run('verify', {
+    address: factoryImpl.address,
+    constructorArgsParams: factoryImpl.args,
+  });
+
+  // await Promise.all([hre.run('sourcify'), hre.run('etherscan-verify')]);
 
   for (let c of [{ address: beacon }, poolImpl]) {
     //copy beacon to sourcify
@@ -35,20 +40,14 @@ const verifyUbi = async () => {
       },
     });
     console.log('sourcify copy result', c.address, res.statusText);
-
   }
-
-
-
-
-}
+};
 
 const main = async () => {
   const contract = await hre.deployments.get('DirectPaymentsFactory');
   const poolImpl = await hre.deployments.get('DirectPaymentsPool');
   const factory = await ethers.getContractAt('DirectPaymentsFactory', contract.address);
   const factoryImpl = await hre.deployments.get('DirectPaymentsFactory_Implementation');
-
 
   //verify beacon which is internal to the factory
   const beacon = await factory.impl();
@@ -67,6 +66,11 @@ const main = async () => {
     constructorArgsParams: poolImpl.args,
   });
 
+  const verifyFactory = await hre.run('verify', {
+    address: factoryImpl.address,
+    constructorArgsParams: factoryImpl.args,
+  });
+
   await Promise.all([hre.run('sourcify'), hre.run('etherscan-verify')]);
 
   // copy manually verifed to sourcify
@@ -80,9 +84,11 @@ const main = async () => {
       },
     });
     console.log('sourcify copy result', c.address, res.statusText);
-
   }
 };
 
-verifyUbi().catch((e) => console.log(e));
-main().catch((e) => console.log(e));
+const verify = async () => {
+  await verifyUbi();
+  await main();
+};
+verify().catch((e) => console.log(e));
