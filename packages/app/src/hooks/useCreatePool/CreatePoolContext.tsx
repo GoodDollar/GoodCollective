@@ -182,13 +182,8 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
 
       if (memberAddresses.length > 0) {
         const extraData = memberAddresses.map(() => '0x');
-        if (memberAddresses.length === 1) {
-          const tx = await sdk.addUBIPoolMember(signer, pool.address, memberAddresses[0]);
-          await tx.wait();
-        } else {
-          const tx = await sdk.addPoolMembers(signer, pool.address, memberAddresses, extraData);
-          await tx.wait();
-        }
+        const tx = await sdk.addPoolMembers(signer, pool.address, memberAddresses, extraData);
+        await tx.wait();
       }
 
       console.log('Pool created successfully:', pool.address);

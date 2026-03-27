@@ -206,7 +206,9 @@ const ReviewLaunch = () => {
                       const url = form[social.name as keyof typeof form];
                       if (typeof url === 'string') {
                         const formattedUrl = formatSocialUrls[social.name as keyof typeof formatSocialUrls](url);
-                        Linking.openURL(formattedUrl);
+                        if (formattedUrl) {
+                          Linking.openURL(formattedUrl);
+                        }
                       }
                     }}>
                     <Box
@@ -257,6 +259,12 @@ const ReviewLaunch = () => {
               <StatRow label="Min Claim Amount" value={`${form.claimAmountPerWeek}G$`} />
               <StatRow label="Expected Members" value={form.expectedMembers} />
               <StatRow label="Amount To Fund" value={`${amountToFund}G$`} />
+              {form.poolRecipients && form.poolRecipients.trim() !== '' && (
+                <StatRow
+                  label="Initial Members"
+                  value={form.poolRecipients.split(/[\n,]/).filter((s) => s.trim() !== '').length}
+                />
+              )}
             </VStack>
           </VStack>
         </VStack>
@@ -266,6 +274,7 @@ const ReviewLaunch = () => {
         onBack={() => previousStep()}
         onNext={handleCreatePool}
         nextText={isCreating ? 'Creating...' : 'Launch Pool'}
+        nextDisabled={isCreating}
         marginTop={6}
         containerStyle={undefined}
         buttonWidth="140px"
@@ -290,10 +299,17 @@ const ReviewLaunch = () => {
         openModal={approvePoolModalVisible}
         onClose={() => setApprovePoolModalVisible(false)}
         title="APPROVE POOL CREATION"
-        paragraphs={[
-          'To create your GoodCollective pool, sign with your wallet.',
-          'This will deploy your pool contract and make it available for members to join.',
-        ]}
+        paragraphs={
+          form.poolRecipients && form.poolRecipients.trim() !== ''
+            ? [
+                'To create your GoodCollective pool, sign with your wallet.',
+                'Note: You will be asked to sign TWO transactions. The first creates the pool, and the second adds your initial members.',
+              ]
+            : [
+                'To create your GoodCollective pool, sign with your wallet.',
+                'This will deploy your pool contract and make it available for members to join.',
+              ]
+        }
         image={PhoneImg}
       />
     </VStack>
