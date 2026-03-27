@@ -10,6 +10,7 @@ import useCrossNavigate from '../../routes/useCrossNavigate';
 import { validateConnection } from '../useContractCalls/util';
 import { useEthersSigner } from '../useEthers';
 import { formatSocialUrls } from '../../lib/formatSocialUrls';
+import { assessPoolMemberEligibility, formatSkippedMembersMessage } from '../../lib/poolMemberEligibility';
 import { Form } from './useCreatePool';
 import { validatePoolRecipients } from './usePoolConfigurationValidation';
 
@@ -74,7 +75,7 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
   const createPool = async () => {
     const validation = validateConnection(maybeAddress, chain?.id, maybeSigner);
     if (typeof validation === 'string') {
-      return false;
+      throw new Error(validation);
     }
     const { chainId, signer } = validation;
     const chainIdString = chainId.toString() as `${SupportedNetwork}`;
@@ -104,10 +105,7 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
 
     const recipientsValidation = validatePoolRecipients(form.poolRecipients, form.maximumMembers);
     if (!recipientsValidation.isValid) {
-      if (recipientsValidation.error) {
-        console.error(recipientsValidation.error);
-      }
-      return false;
+      throw new Error(recipientsValidation.error ?? 'Invalid member addresses.');
     }
     const { memberAddresses } = recipientsValidation;
 
@@ -160,6 +158,26 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
       minClaimAmount: ubiSettings.maxClaimAmount,
       managerFeeBps: (form.managerFeePercentage || 0) * 100,
     };
+
+    if (memberAddresses.length > 0) {
+      const operatorAddress = (await signer.getAddress()).toLowerCase();
+      const { validAddresses, skippedAddresses } = await assessPoolMemberEligibility({
+        provider: signer.provider as ethers.providers.Provider,
+        addresses: memberAddresses,
+        uniquenessValidator: poolSettings.uniquenessValidator,
+        membersValidator: poolSettings.membersValidator,
+        operatorAddress,
+      });
+
+      if (validAddresses.length !== memberAddresses.length) {
+        const skippedSummary = formatSkippedMembersMessage(skippedAddresses);
+        throw new Error(
+          skippedSummary
+            ? `Some initial members cannot be added to this pool: ${skippedSummary}. Please update the list before launching.`
+            : 'Some initial members cannot be added to this pool. Please update the list before launching.'
+        );
+      }
+    }
 
     try {
       console.log('Creating UBI pool with settings:', {

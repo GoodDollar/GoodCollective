@@ -1,16 +1,27 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { GoodCollectiveSDK } from '@gooddollar/goodcollective-sdk';
+import { ethers } from 'ethers';
 import { useEthersProvider, useEthersSigner } from '../useEthers';
 import { SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
+import {
+  assessPoolMemberEligibility,
+  formatSkippedMembersMessage,
+  isZeroAddress,
+} from '../../lib/poolMemberEligibility';
 
 interface UseMemberManagementParams {
   poolAddress?: string;
   pooltype?: string;
   chainId: number;
-  initialMembers?: string[];
 }
 
-export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMembers }: UseMemberManagementParams) => {
+type MemberLoadResult = {
+  members: string[];
+  count: number;
+  onChainCount?: number;
+};
+
+export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMemberManagementParams) => {
   const provider = useEthersProvider({ chainId });
   const signer = useEthersSigner({ chainId });
 
@@ -33,16 +44,98 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
   const [managedMembers, setManagedMembers] = useState<string[]>([]);
   const [totalMemberCount, setTotalMemberCount] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (!poolAddress || pooltype !== 'UBI') {
-      return;
+  const loadMembersFromChain = useCallback(async (): Promise<MemberLoadResult | null> => {
+    if (!poolAddress || !pooltype || !provider || !sdk) {
+      setManagedMembers([]);
+      setTotalMemberCount(null);
+      return null;
     }
 
-    if (initialMembers) {
-      setManagedMembers(initialMembers);
-      setTotalMemberCount(initialMembers.length);
+    if (pooltype !== 'UBI' && pooltype !== 'DIRECT') {
+      setManagedMembers([]);
+      setTotalMemberCount(null);
+      return null;
     }
-  }, [poolAddress, pooltype, initialMembers]);
+
+    const pool =
+      pooltype === 'UBI'
+        ? sdk.ubipool.attach(poolAddress)
+        : (sdk.pool.attach(poolAddress) as ethers.Contract & {
+            MEMBER_ROLE: () => Promise<string>;
+            filters: {
+              RoleGranted: (role: string, account: string | null, sender: string | null) => ethers.EventFilter;
+              RoleRevoked: (role: string, account: string | null, sender: string | null) => ethers.EventFilter;
+            };
+          });
+
+    let onChainCount: number | undefined;
+    if (pooltype === 'UBI') {
+      try {
+        const status = await sdk.ubipool.attach(poolAddress).status();
+        const rawCount = (status as unknown as { membersCount?: ethers.BigNumber }).membersCount ?? status[7];
+        const parsed = Number(rawCount?.toString?.() ?? rawCount);
+        if (!Number.isNaN(parsed)) {
+          onChainCount = parsed;
+        }
+      } catch {
+        // Ignore count parsing failures and fall back to event-derived size.
+      }
+    }
+
+    try {
+      const memberRole = await pool.MEMBER_ROLE();
+      const latestBlock = await provider.getBlockNumber();
+      const fromBlock = Math.max(0, latestBlock - 9500);
+
+      const granted = await pool.queryFilter(pool.filters.RoleGranted(memberRole, null, null), fromBlock, latestBlock);
+      const revoked = await pool.queryFilter(pool.filters.RoleRevoked(memberRole, null, null), fromBlock, latestBlock);
+
+      const allEvents = [...granted, ...revoked].sort((a, b) => {
+        if (a.blockNumber === b.blockNumber) {
+          return (a.logIndex || 0) - (b.logIndex || 0);
+        }
+        return a.blockNumber - b.blockNumber;
+      });
+
+      const memberSet = new Set<string>();
+
+      for (const event of allEvents) {
+        const account = (event.args?.account as string | undefined)?.toLowerCase();
+        if (!account) continue;
+
+        if (event.event === 'RoleGranted') {
+          memberSet.add(account);
+        } else if (event.event === 'RoleRevoked') {
+          memberSet.delete(account);
+        }
+      }
+
+      const members = Array.from(memberSet);
+      const nextTotal = onChainCount ?? members.length;
+
+      setManagedMembers(members);
+      setTotalMemberCount(nextTotal);
+
+      return {
+        members,
+        count: members.length,
+        ...(onChainCount !== undefined ? { onChainCount } : {}),
+      };
+    } catch (error) {
+      console.error('Failed to load pool members from chain:', error);
+      setManagedMembers([]);
+      setTotalMemberCount(onChainCount ?? null);
+      return {
+        members: [],
+        count: 0,
+        ...(onChainCount !== undefined ? { onChainCount } : {}),
+      };
+    }
+  }, [poolAddress, pooltype, provider, sdk]);
+
+  useEffect(() => {
+    loadMembersFromChain();
+  }, [loadMembersFromChain]);
 
   // Fix 3: Support comma AND newline as separators
   const parsedMemberAddresses = useMemo(() => {
@@ -115,22 +208,70 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
 
     try {
       setIsAddingMembers(true);
+      const previousMembers = new Set(managedMembers.map((member) => member.toLowerCase()));
+      const operatorAddress = (await signer.getAddress()).toLowerCase();
+      const pool =
+        pooltype === 'UBI'
+          ? sdk.ubipool.attach(poolAddress)
+          : (sdk.pool.attach(poolAddress) as ethers.Contract & {
+              settings: () => Promise<{
+                membersValidator?: string;
+                uniquenessValidator?: string;
+              }>;
+            });
+      const settings = (await pool.settings()) as {
+        membersValidator?: string;
+        uniquenessValidator?: string;
+      };
 
-      // Fix 7: Single bulk transaction instead of a loop of individual calls
-      const extraData = addressesToAdd.map(() => '0x');
-      const tx = await sdk.addPoolMembers(signer as any, poolAddress, addressesToAdd, extraData);
-      await tx.wait();
-
-      setTotalMemberCount((prev) => (prev ?? 0) + addressesToAdd.length);
-
-      setManagedMembers((prev) => {
-        const next = new Set(prev.map((a) => a.toLowerCase()));
-        addressesToAdd.forEach((a) => next.add(a));
-        return Array.from(next);
+      const { validAddresses, skippedAddresses } = await assessPoolMemberEligibility({
+        provider,
+        addresses: addressesToAdd,
+        uniquenessValidator: settings.uniquenessValidator,
+        membersValidator: settings.membersValidator,
+        poolAddress,
+        operatorAddress,
+        existingMembers: managedMembers,
       });
 
+      if (validAddresses.length === 0) {
+        const skippedSummary = formatSkippedMembersMessage(skippedAddresses);
+        const fallbackReason =
+          pooltype === 'UBI' && !isZeroAddress(settings.uniquenessValidator)
+            ? 'For this pool, members must be verified by the pool uniqueness validator before they can be added.'
+            : 'None of the pasted addresses can be added to this pool.';
+
+        setMemberError(skippedSummary ? `No members were added. ${skippedSummary}` : fallbackReason);
+        setMemberSuccess(null);
+        return;
+      }
+
+      // Fix 7: Single bulk transaction instead of a loop of individual calls
+      const extraData = validAddresses.map(() => '0x');
+      const tx = await sdk.addPoolMembers(signer as any, poolAddress, validAddresses, extraData);
+      await tx.wait();
+
+      const refreshedMembers = await loadMembersFromChain();
+      const addedCount =
+        refreshedMembers?.members.filter((member) => !previousMembers.has(member.toLowerCase())).length ??
+        validAddresses.length;
+      const skippedSummary = formatSkippedMembersMessage(skippedAddresses);
+
       setMemberInput('');
-      setMemberSuccess(`Successfully added ${addressesToAdd.length} member${addressesToAdd.length !== 1 ? 's' : ''}.`);
+      if (addedCount > 0) {
+        setMemberSuccess(
+          `Successfully added ${addedCount} member${addedCount !== 1 ? 's' : ''}.${
+            skippedSummary ? ` Skipped: ${skippedSummary}.` : ''
+          }`
+        );
+      } else {
+        setMemberSuccess(null);
+        setMemberError(
+          skippedSummary
+            ? `Transaction confirmed, but no new members were added. Skipped: ${skippedSummary}.`
+            : 'Transaction confirmed, but no new members were added.'
+        );
+      }
     } catch (e: any) {
       setMemberError(e?.reason || e?.message || 'Failed to add members.');
       setMemberSuccess(null);
@@ -158,14 +299,14 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId, initialMem
 
       const tx = await sdk.removeUBIPoolMember(signer as any, poolAddress, member);
       await tx.wait();
+      const refreshedMembers = await loadMembersFromChain();
+      const memberStillPresent =
+        refreshedMembers?.members.some((existingMember) => existingMember.toLowerCase() === member.toLowerCase()) ??
+        false;
 
-      setTotalMemberCount((prev) => {
-        if (prev === null) return prev;
-        return prev > 0 ? prev - 1 : 0;
-      });
-
-      setManagedMembers((prev) => prev.filter((m) => m.toLowerCase() !== member.toLowerCase()));
-      setMemberSuccess(`Successfully removed member.`);
+      setMemberSuccess(
+        memberStillPresent ? 'Transaction confirmed. Member list refreshed.' : 'Successfully removed member.'
+      );
     } catch (e: any) {
       setMemberError(e?.reason || e?.message || 'Failed to remove member.');
       setMemberSuccess(null);

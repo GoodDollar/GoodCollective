@@ -70,15 +70,10 @@ const ManageCollectivePage = () => {
     chainId,
   });
 
-  const memberList = useMemo(() => {
-    return collective?.stewardCollectives.map((steward) => steward.steward) || [];
-  }, [collective?.stewardCollectives]);
-
   const memberManagement = useMemberManagement({
     poolAddress,
     pooltype,
     chainId,
-    initialMembers: memberList,
   });
 
   if (!collective) {
