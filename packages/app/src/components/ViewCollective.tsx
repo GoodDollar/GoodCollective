@@ -260,7 +260,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
       const network = SupportedNetworkNames[chainId as SupportedNetwork];
       const sdk = new GoodCollectiveSDK(chainId.toString() as any, provider, { network });
 
-      // Always fetch pool settings to get onlyMembers, even if user is not a member
       const poolDetails = await sdk.getUBIPoolsDetails([poolAddress], address);
       const currentPool = poolDetails.find((pool: any) => pool.contract.toLowerCase() === poolAddress.toLowerCase());
 
@@ -277,7 +276,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
       const claimPeriodDaysRaw = currentPool.ubiSettings?.claimPeriodDays;
       const onlyMembersRaw = currentPool.ubiSettings?.onlyMembers;
 
-      // Always store onlyMembers setting for pool open check
       setPoolOnlyMembers(onlyMembersRaw as boolean | undefined);
 
       if (!address || !currentPool.isRegistered) {
@@ -289,8 +287,6 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
       const eligibleAmount = BigInt(claimAmountStr || '0');
 
-      // Check if user has actually claimed by calling hasClaimed(address) on the contract
-      // This is the only reliable way to know if they've claimed (not just if nextClaimTime exists)
       const networkName = env.REACT_APP_NETWORK || 'development-celo';
       const UBI_POOL_ABI =
         (GoodCollectiveContracts as any)[chainId.toString()]?.find((envs: any) => envs.name === networkName)?.contracts
@@ -302,26 +298,20 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
           const poolContract = new ethers.Contract(poolAddress, UBI_POOL_ABI, provider);
           hasClaimedToday = await poolContract.hasClaimed(address);
         } catch (e) {
-          // If contract call fails, fall back to false
           console.warn('Failed to check hasClaimed:', e);
         }
       }
 
-      // hasClaimed should only be true if the user has actually claimed today
-      // The countdown should only show after a successful claim transaction
       setMemberPoolData({
         eligibleAmount,
         hasClaimed: hasClaimedToday,
         nextClaimTime: nextClaimTimeStr ? Number(nextClaimTimeStr) : undefined,
         claimPeriodDays: claimPeriodDaysRaw !== undefined ? Number(claimPeriodDaysRaw) : undefined,
-        // `onlyMembers` from the SDK is typed as PromiseOrValue<boolean>, but in practice is a boolean.
-        // Cast to the expected boolean | undefined shape for local state.
         onlyMembers: onlyMembersRaw as boolean | undefined,
       });
       setIsMemberPoolLoading(false);
       setHasResolvedMemberPoolState(true);
     } catch (e) {
-      // If SDK call fails, gracefully fall back to null so UI can still render
       setMemberPoolData(null);
       setPoolOnlyMembers(undefined);
       setIsMemberPoolLoading(false);

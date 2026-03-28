@@ -25,7 +25,6 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
   const provider = useEthersProvider({ chainId });
   const signer = useEthersSigner({ chainId });
 
-  // Fix 1: Memoize SDK and guard against undefined provider/chainId
   const sdk = useMemo(() => {
     if (!provider || !chainId) return null;
     const chainIdString = chainId.toString() as `${SupportedNetwork}`;
@@ -38,7 +37,6 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
   const [memberSuccess, setMemberSuccess] = useState<string | null>(null);
   const [isAddingMembers, setIsAddingMembers] = useState(false);
 
-  // Fix 2: Track which specific member is being removed (not one global bool)
   const [removingMemberAddress, setRemovingMemberAddress] = useState<string | null>(null);
 
   const [managedMembers, setManagedMembers] = useState<string[]>([]);
@@ -137,7 +135,6 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
     loadMembersFromChain();
   }, [loadMembersFromChain]);
 
-  // Fix 3: Support comma AND newline as separators
   const parsedMemberAddresses = useMemo(() => {
     if (!memberInput) return [];
     return Array.from(
@@ -151,7 +148,6 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
     );
   }, [memberInput]);
 
-  // Fix 4: Clear stale success/error messages when the user starts typing new input
   useEffect(() => {
     if (memberInput.trim() !== '') {
       setMemberSuccess(null);
@@ -190,13 +186,11 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
       return;
     }
 
-    // Fix 5: Support both UBI and DIRECT pool types
     if (pooltype !== 'UBI' && pooltype !== 'DIRECT') {
       setMemberError('Member management is currently supported for UBI and Direct Payments pools only.');
       return;
     }
 
-    // Fix 6: Pre-filter addresses that are already in the pool to prevent contract reverts
     const addressesToAdd = parsedMemberAddresses.filter(
       (addr) => !managedMembers.some((m) => m.toLowerCase() === addr.toLowerCase())
     );
@@ -246,7 +240,6 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
         return;
       }
 
-      // Fix 7: Single bulk transaction instead of a loop of individual calls
       const extraData = validAddresses.map(() => '0x');
       const tx = await sdk.addPoolMembers(signer as any, poolAddress, validAddresses, extraData);
       await tx.wait();
@@ -294,7 +287,6 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
     }
 
     try {
-      // Fix 8: Track which exact member is being removed
       setRemovingMemberAddress(member);
 
       const tx = await sdk.removeUBIPoolMember(signer as any, poolAddress, member);
