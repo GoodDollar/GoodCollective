@@ -236,8 +236,9 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   const [refetchTrigger, setRefetchTrigger] = useState(0);
   const [isMemberPoolLoading, setIsMemberPoolLoading] = useState(false);
+  const [hasResolvedMemberPoolState, setHasResolvedMemberPoolState] = useState(pooltype !== 'UBI');
 
-  const { isManager } = usePoolManager({
+  const { isManager, checkingRole } = usePoolManager({
     poolAddress,
     pooltype: pooltype as 'UBI' | 'DIRECT' | undefined,
     chainId,
@@ -250,9 +251,11 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
       setMemberPoolData(null);
       setPoolOnlyMembers(undefined);
       setIsMemberPoolLoading(false);
+      setHasResolvedMemberPoolState(pooltype !== 'UBI');
       return;
     }
     try {
+      setHasResolvedMemberPoolState(false);
       setIsMemberPoolLoading(true);
       const network = SupportedNetworkNames[chainId as SupportedNetwork];
       const sdk = new GoodCollectiveSDK(chainId.toString() as any, provider, { network });
@@ -265,6 +268,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
         setMemberPoolData(null);
         setPoolOnlyMembers(undefined);
         setIsMemberPoolLoading(false);
+        setHasResolvedMemberPoolState(true);
         return;
       }
 
@@ -279,6 +283,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
       if (!address || !currentPool.isRegistered) {
         setMemberPoolData(null);
         setIsMemberPoolLoading(false);
+        setHasResolvedMemberPoolState(true);
         return;
       }
 
@@ -314,11 +319,13 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
         onlyMembers: onlyMembersRaw as boolean | undefined,
       });
       setIsMemberPoolLoading(false);
+      setHasResolvedMemberPoolState(true);
     } catch (e) {
       // If SDK call fails, gracefully fall back to null so UI can still render
       setMemberPoolData(null);
       setPoolOnlyMembers(undefined);
       setIsMemberPoolLoading(false);
+      setHasResolvedMemberPoolState(true);
     }
   }, [address, poolAddress, pooltype, provider, chainId]);
 
@@ -344,6 +351,13 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
     tokenPrice,
     2
   );
+
+  const isPoolActionStateLoading =
+    pooltype === 'UBI' && (checkingRole || isMemberPoolLoading || !hasResolvedMemberPoolState);
+  const shouldShowJoinPoolButton =
+    !isManager && !checkingRole && !poolOnlyMembers && !memberPoolData && Boolean(address) && pooltype === 'UBI';
+  const shouldShowClaimRewardButton =
+    memberPoolData !== null && memberPoolData.eligibleAmount > 0n && Boolean(address) && pooltype === 'UBI';
 
   if (isDesktopView) {
     return (
@@ -388,14 +402,14 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               </View>
               {maybeDonorCollective && maybeDonorCollective.flowRate !== '0' ? null : (
                 <View style={styles.collectiveDonateBox}>
-                  {pooltype === 'UBI' && isMemberPoolLoading ? (
+                  {isPoolActionStateLoading ? (
                     <VStack alignItems="center" space={2}>
                       <Spinner variant="page-loader" />
-                      <Text>Loading pool details</Text>
+                      <Text>Loading pool actions</Text>
                     </VStack>
                   ) : (
                     <>
-                      {!poolOnlyMembers && !memberPoolData && address && pooltype === 'UBI' && (
+                      {shouldShowJoinPoolButton && (
                         <JoinPoolButton
                           poolAddress={poolAddress as `0x${string}`}
                           poolType={pooltype}
@@ -403,7 +417,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                           onSuccess={refetchMemberPoolData}
                         />
                       )}
-                      {memberPoolData && memberPoolData.eligibleAmount > 0n && address && pooltype === 'UBI' && (
+                      {shouldShowClaimRewardButton && (
                         <ClaimRewardButton
                           poolAddress={poolAddress as `0x${string}`}
                           poolType={pooltype}
@@ -556,16 +570,16 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             <Text style={styles.informationLabel}>{infoLabel}</Text>
           </View>
 
-          {pooltype === 'UBI' && isMemberPoolLoading ? (
+          {isPoolActionStateLoading ? (
             <View style={{ marginBottom: 16 }}>
               <VStack alignItems="center" space={2}>
                 <Spinner variant="page-loader" />
-                <Text>Loading pool details</Text>
+                <Text>Loading pool actions</Text>
               </VStack>
             </View>
           ) : (
             <>
-              {!poolOnlyMembers && !memberPoolData && address && pooltype === 'UBI' && (
+              {shouldShowJoinPoolButton && (
                 <View style={{ marginBottom: 16 }}>
                   <JoinPoolButton
                     poolAddress={poolAddress as `0x${string}`}
@@ -577,7 +591,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                   />
                 </View>
               )}
-              {memberPoolData && memberPoolData.eligibleAmount > 0n && address && pooltype === 'UBI' && (
+              {shouldShowClaimRewardButton && (
                 <View style={{ marginBottom: 16 }}>
                   <ClaimRewardButton
                     poolAddress={poolAddress as `0x${string}`}

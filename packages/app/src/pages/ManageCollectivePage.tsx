@@ -84,7 +84,36 @@ const ManageCollectivePage = () => {
     );
   }
 
-  if (!address || (!isManager && !checkingRole)) {
+  if (!address) {
+    return (
+      <Layout breadcrumbPath={[{ text: collective.ipfs.name, route: `/collective/${collectiveId}/manage` }]}>
+        <VStack space={4} padding={4}>
+          <Text variant="3xl-grey" fontWeight="700">
+            Pool Admin Panel
+          </Text>
+          <Text>You must be connected with a pool manager wallet to access these settings.</Text>
+        </VStack>
+      </Layout>
+    );
+  }
+
+  if (checkingRole) {
+    return (
+      <Layout breadcrumbPath={[{ text: collective.ipfs.name, route: `/collective/${collectiveId}/manage` }]}>
+        <VStack space={4} padding={4} alignItems="flex-start">
+          <Text variant="3xl-grey" fontWeight="700">
+            Pool Admin Panel
+          </Text>
+          <HStack space={3} alignItems="center">
+            <Spinner variant="page-loader" />
+            <Text>Checking manager access...</Text>
+          </HStack>
+        </VStack>
+      </Layout>
+    );
+  }
+
+  if (!isManager) {
     return (
       <Layout breadcrumbPath={[{ text: collective.ipfs.name, route: `/collective/${collectiveId}/manage` }]}>
         <VStack space={4} padding={4}>
