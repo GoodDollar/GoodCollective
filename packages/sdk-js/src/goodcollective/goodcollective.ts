@@ -995,6 +995,6 @@ export class GoodCollectiveSDK {
     extraData: string[]
   ): Promise<ContractTransaction> {
     const connected = this.pool.attach(poolAddress).connect(signer);
-    return connected.addMembers(members, extraData, { ...CHAIN_OVERRIDES[this.chainId] });
+    return connected.addMembers(members, extraData);
   }
 }
