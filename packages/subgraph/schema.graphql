@@ -13,7 +13,7 @@ type DonorCollective @entity {
   donor: Donor!
   collective: Collective!
   contribution: BigInt! # total contribution of the donor to the collective
-  streamedContribution: BigInt! # total only streams contribution of the donor to the collective
+  streamedContribution: BigInt # total only streams contribution of the donor to the collective
   flowRate: BigInt!
   timestamp: Int!
   events: [SupportEvent!]! @derivedFrom(field: "donorCollective")
@@ -45,7 +45,7 @@ type Steward @entity {
   """
   Number of claims from ubi pools performed
   """
-  claims: Int!
+  claims: Int
   totalEarned: BigInt!
 
   totalUBIEarned: BigInt!

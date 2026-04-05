@@ -122,7 +122,7 @@ export function handleUBIPoolCreated(event: UBIPoolCreated): void {
     ubiPoolLimits.claimPeriodDays = poolLimits.claimPeriodDays;
     ubiPoolLimits.cycleLengthDays = poolLimits.cycleLengthDays;
     ubiPoolLimits.maxClaimAmount = poolLimits.maxClaimAmount;
-    ubiPoolLimits.maxClaimers = poolLimits.maxClaimers;
+    ubiPoolLimits.maxClaimers = poolLimits.maxMembers;
     ubiPoolLimits.minActiveUsers = poolLimits.minActiveUsers;
     ubiPoolLimits.onlyMembers = poolLimits.onlyMembers;
 

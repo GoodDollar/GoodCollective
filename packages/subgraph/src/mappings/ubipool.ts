@@ -40,7 +40,7 @@ export function handleUBISettingsChange(event: UBISettingsChanged): void {
   ubiPoolLimits.claimPeriodDays = poolLimits.claimPeriodDays;
   ubiPoolLimits.cycleLengthDays = poolLimits.cycleLengthDays;
   ubiPoolLimits.maxClaimAmount = poolLimits.maxClaimAmount;
-  ubiPoolLimits.maxClaimers = poolLimits.maxClaimers;
+  ubiPoolLimits.maxClaimers = poolLimits.maxMembers;
   ubiPoolLimits.minActiveUsers = poolLimits.minActiveUsers;
   ubiPoolLimits.onlyMembers = poolLimits.onlyMembers;
   ubiPoolLimits.save();
@@ -91,7 +91,7 @@ export function handleUBIClaim(event: UBIClaimed): void {
       steward.totalUBIEarned = BigInt.fromI32(0);
       steward.nfts = new Array<string>();
     }
-    steward.claims = steward.claims + 1;
+    steward.claims = (steward.claims || 0) + 1;
     steward.totalUBIEarned = steward.totalUBIEarned.plus(rewardPerContributor);
 
     // update StewardCollective
