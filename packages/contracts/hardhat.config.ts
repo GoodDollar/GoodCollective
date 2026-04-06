@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import '@typechain/hardhat';
-import '@nomicfoundation/hardhat-chai-matchers';
 import 'hardhat-abi-exporter';
 import 'hardhat-contract-sizer';
 import '@openzeppelin/hardhat-upgrades';
