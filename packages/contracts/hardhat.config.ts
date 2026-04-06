@@ -4,7 +4,6 @@ import 'hardhat-abi-exporter';
 import 'hardhat-contract-sizer';
 import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-deploy';
-import '@nomicfoundation/hardhat-verify';
 import { HardhatUserConfig } from 'hardhat/config';
 
 dotenv.config();

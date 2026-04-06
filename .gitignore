@@ -79,3 +79,6 @@ packages/sdk-js/.yarn/install-state.gz
 !.vercel/project.json
 .vscode/settings.json
 packages/contracts/deployments/*/solcInputs
+.codex
+AGENTS.md
+codex-resume
