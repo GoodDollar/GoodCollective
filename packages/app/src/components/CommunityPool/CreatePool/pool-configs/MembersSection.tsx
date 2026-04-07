@@ -8,6 +8,8 @@ interface MembersSectionProps {
   poolRecipients: string;
   setPoolRecipients: (value: string) => void;
   onValidate: () => void;
+  onValidateRecipients: () => Promise<void>;
+  isCheckingRecipients: boolean;
   errors: {
     maximumMembers?: string;
     poolRecipients?: string;
@@ -22,6 +24,8 @@ const MembersSection = ({
   poolRecipients,
   setPoolRecipients,
   onValidate,
+  onValidateRecipients,
+  isCheckingRecipients,
   errors,
 }: MembersSectionProps) => {
   return (
@@ -105,12 +109,22 @@ const MembersSection = ({
           <TextArea
             value={poolRecipients}
             onChangeText={(value) => setPoolRecipients(value)}
-            onBlur={() => onValidate()}
+            onBlur={async () => {
+              onValidate();
+              await onValidateRecipients();
+            }}
             autoCompleteType={undefined}
             placeholder="0x1234..., 0x5678..."
             minH={24}
             backgroundColor="white"
           />
+          {isCheckingRecipients && (
+            <FormControl.HelperText>
+              <Text fontSize="xs" color="gray.500">
+                Checking member eligibility...
+              </Text>
+            </FormControl.HelperText>
+          )}
           <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
             {errors.poolRecipients}
           </FormControl.ErrorMessage>

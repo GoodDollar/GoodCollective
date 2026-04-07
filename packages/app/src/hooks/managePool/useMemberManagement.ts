@@ -8,6 +8,7 @@ import {
   formatSkippedMembersMessage,
   isZeroAddress,
 } from '../../lib/poolMemberEligibility';
+import { parseMemberAddresses, validateMemberAddresses } from '../../lib/memberAddresses';
 
 interface UseMemberManagementParams {
   poolAddress?: string;
@@ -55,6 +56,8 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
       return null;
     }
 
+    // The collective data passed down here is not a current member list.
+    // Reload member state from on-chain role data so add/remove changes survive refresh.
     const pool =
       pooltype === 'UBI'
         ? sdk.ubipool.attach(poolAddress)
@@ -69,6 +72,7 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
     let onChainCount: number | undefined;
     if (pooltype === 'UBI') {
       try {
+        // Read membersCount separately so the UI can keep the total even if log replay fails.
         const status = await sdk.ubipool.attach(poolAddress).status();
         const rawCount = (status as unknown as { membersCount?: ethers.BigNumber }).membersCount ?? status[7];
         const parsed = Number(rawCount?.toString?.() ?? rawCount);
@@ -85,6 +89,7 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
       const latestBlock = await provider.getBlockNumber();
       const fromBlock = Math.max(0, latestBlock - 9500);
 
+      // Rebuild the current member set by replaying MEMBER_ROLE grant/revoke events in chain order.
       const granted = await pool.queryFilter(pool.filters.RoleGranted(memberRole, null, null), fromBlock, latestBlock);
       const revoked = await pool.queryFilter(pool.filters.RoleRevoked(memberRole, null, null), fromBlock, latestBlock);
 
@@ -122,6 +127,7 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
     } catch (error) {
       console.error('Failed to load pool members from chain:', error);
       setManagedMembers([]);
+      // Keep the total count when available even if the address list cannot be rebuilt from logs.
       setTotalMemberCount(onChainCount ?? null);
       return {
         members: [],
@@ -136,16 +142,7 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
   }, [loadMembersFromChain]);
 
   const parsedMemberAddresses = useMemo(() => {
-    if (!memberInput) return [];
-    return Array.from(
-      new Set(
-        memberInput
-          .split(/[\n,]+/)
-          .map((a) => a.trim())
-          .filter((a) => a.length > 0)
-          .map((a) => a.toLowerCase())
-      )
-    );
+    return parseMemberAddresses(memberInput);
   }, [memberInput]);
 
   useEffect(() => {
@@ -160,22 +157,9 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
     setMemberSuccess(null);
   };
 
-  const validateAddresses = (): string | null => {
-    if (!parsedMemberAddresses.length) {
-      return 'Please enter at least one wallet address.';
-    }
-
-    const invalid = parsedMemberAddresses.find((addr) => !/^0x[a-fA-F0-9]{40}$/.test(addr));
-    if (invalid) {
-      return `Invalid wallet address: ${invalid}`;
-    }
-
-    return null;
-  };
-
   const handleAddMembers = async () => {
     clearStatus();
-    const error = validateAddresses();
+    const error = validateMemberAddresses(parsedMemberAddresses);
     if (error) {
       setMemberError(error);
       return;
@@ -241,6 +225,7 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
       }
 
       const extraData = validAddresses.map(() => '0x');
+      // Use the SDK bulk-add flow so all valid addresses are submitted in one transaction.
       const tx = await sdk.addPoolMembers(signer as any, poolAddress, validAddresses, extraData);
       await tx.wait();
 
@@ -289,6 +274,7 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
     try {
       setRemovingMemberAddress(member);
 
+      // Use the SDK remove-member flow for the selected UBI member.
       const tx = await sdk.removeUBIPoolMember(signer as any, poolAddress, member);
       await tx.wait();
       const refreshedMembers = await loadMembersFromChain();

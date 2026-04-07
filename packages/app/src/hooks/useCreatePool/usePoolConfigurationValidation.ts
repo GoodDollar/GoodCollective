@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { parseMemberAddresses, validateMemberAddresses } from '../../lib/memberAddresses';
 
 export type FormError = {
   maximumMembers?: string;
@@ -21,27 +22,6 @@ export type PoolConfigurationFormData = {
   poolManagerFeeType: 'default' | 'custom';
   managerFeePercentage: number;
   joinStatus?: 'closed' | 'open';
-};
-
-export const parseMemberAddresses = (input?: string): string[] => {
-  if (!input) return [];
-  const normalized = input
-    .split(/[\n,]/)
-    .map((address) => address.trim())
-    .filter((address) => address.length > 0)
-    .map((address) => address.toLowerCase());
-  return Array.from(new Set(normalized));
-};
-
-export const validateMemberAddresses = (members: string[]): string | null => {
-  if (!members.length) {
-    return 'Please enter at least one wallet address.';
-  }
-  const invalid = members.find((addr) => !/^0x[a-fA-F0-9]{40}$/.test(addr));
-  if (invalid) {
-    return `Invalid wallet address: ${invalid}`;
-  }
-  return null;
 };
 
 export type PoolRecipientsValidation = {

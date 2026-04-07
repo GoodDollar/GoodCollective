@@ -260,6 +260,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
       const network = SupportedNetworkNames[chainId as SupportedNetwork];
       const sdk = new GoodCollectiveSDK(chainId.toString() as any, provider, { network });
 
+      // Always fetch pool settings to get onlyMembers, even if user is not a member.
       const poolDetails = await sdk.getUBIPoolsDetails([poolAddress], address);
       const currentPool = poolDetails.find((pool: any) => pool.contract.toLowerCase() === poolAddress.toLowerCase());
 
@@ -276,6 +277,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
       const claimPeriodDaysRaw = currentPool.ubiSettings?.claimPeriodDays;
       const onlyMembersRaw = currentPool.ubiSettings?.onlyMembers;
 
+      // Always store onlyMembers setting for pool open check.
       setPoolOnlyMembers(onlyMembersRaw as boolean | undefined);
 
       if (!address || !currentPool.isRegistered) {
@@ -296,12 +298,16 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
       if (UBI_POOL_ABI.length > 0) {
         try {
           const poolContract = new ethers.Contract(poolAddress, UBI_POOL_ABI, provider);
+          // Check if user has actually claimed by calling hasClaimed(address) on the contract.
+          // This is the reliable way to know if they have claimed, not just whether nextClaimTime exists.
           hasClaimedToday = await poolContract.hasClaimed(address);
         } catch (e) {
+          // If the contract call fails, fall back to false and keep the rest of the UI usable.
           console.warn('Failed to check hasClaimed:', e);
         }
       }
 
+      // hasClaimed should only be true if the user has actually claimed today.
       setMemberPoolData({
         eligibleAmount,
         hasClaimed: hasClaimedToday,
@@ -312,6 +318,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
       setIsMemberPoolLoading(false);
       setHasResolvedMemberPoolState(true);
     } catch (e) {
+      // If the SDK call fails, fall back to null so the page can still render safely.
       setMemberPoolData(null);
       setPoolOnlyMembers(undefined);
       setIsMemberPoolLoading(false);
