@@ -130,6 +130,7 @@ export function handleRewardClaim(event: EventRewardClaimed): void {
     let steward = Steward.load(stewardAddress);
     if (steward === null) {
       steward = new Steward(stewardAddress);
+      steward.claims = 0;
       steward.actions = 0;
       steward.totalEarned = BigInt.fromI32(0);
       steward.totalUBIEarned = BigInt.fromI32(0);

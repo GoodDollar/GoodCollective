@@ -21,7 +21,7 @@ describe('HelperLibrary Swap E2E (Celo fork)', () => {
     const broker = await ethers.getImpersonatedSigner('0xaEb865bCa93DdC8F47b8e29F40C5399cE34d0C58');
     await setBalance(broker.address, ethers.utils.parseEther('1000'));
     const token = (await ethers.getContractAt('ERC20', CUSD)).connect(broker);
-    await token.mint(trader.address, ethers.utils.parseEther('1'));
+    await token.transfer(trader.address, ethers.utils.parseEther('1'));
     const lib = (await ethers.deployContract('HelperLibrary')).connect(trader);
     helper = (await ethers.deployContract('HelperLibraryTest', [], {
       libraries: { HelperLibrary: lib.address },
