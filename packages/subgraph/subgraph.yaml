@@ -9,9 +9,9 @@ dataSources:
     # prettier-ignore
     network: celo
     source:
-      address: '0xb1C7F09156d04BFf6F412447A73a0F72929b6ea4'
+      address: '0x55B06783023D8bfAB28ddb823098f1485b15Bf22'
       abi: DirectPaymentsFactory
-      startBlock: 26191405
+      startBlock: 28352452
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -34,9 +34,9 @@ dataSources:
     # prettier-ignore
     network: celo
     source:
-      address: '0x4602C5F43A9961E430247D3Fb2d5450285080754'
+      address: '0x7af4A611FFA07644C3FE93aA49230e2BD2Ec8dBf'
       abi: UBIPoolFactory
-      startBlock: 26191405
+      startBlock: 28352452
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -61,9 +61,9 @@ dataSources:
     # prettier-ignore
     network: celo
     source:
-      address: '0x251EEBd7d9469bbcc02Ef23c95D902Cbb7fD73B3'
+      address: '0x62AFaF745425fd2b67b358083068d3802e9EF04d'
       abi: ProvableNFT
-      startBlock: 26191405
+      startBlock: 28352452
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
