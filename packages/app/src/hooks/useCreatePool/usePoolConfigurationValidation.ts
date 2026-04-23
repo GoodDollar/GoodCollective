@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { parseMemberAddresses, validateMemberAddresses } from '../../lib/memberAddresses';
 
 export type FormError = {
   maximumMembers?: string;
@@ -8,6 +9,7 @@ export type FormError = {
   customClaimFrequency?: string;
   expectedMembers?: string;
   managerFeePercentage?: string;
+  poolRecipients?: string;
 };
 
 export type PoolConfigurationFormData = {
@@ -22,6 +24,35 @@ export type PoolConfigurationFormData = {
   joinStatus?: 'closed' | 'open';
 };
 
+export type PoolRecipientsValidation = {
+  isValid: boolean;
+  memberAddresses: string[];
+  error?: string;
+};
+
+export const validatePoolRecipients = (poolRecipients?: string, maximumMembers?: number): PoolRecipientsValidation => {
+  const trimmedRecipients = poolRecipients?.trim() ?? '';
+  if (!trimmedRecipients) {
+    return { isValid: true, memberAddresses: [] };
+  }
+
+  const members = parseMemberAddresses(trimmedRecipients);
+  const memberError = validateMemberAddresses(members);
+  if (memberError) {
+    return { isValid: false, memberAddresses: members, error: memberError };
+  }
+
+  if (maximumMembers != null && members.length > maximumMembers) {
+    return {
+      isValid: false,
+      memberAddresses: members,
+      error: `You listed ${members.length} members but the maximum is ${maximumMembers}`,
+    };
+  }
+
+  return { isValid: true, memberAddresses: members };
+};
+
 export const usePoolConfigurationValidation = () => {
   const [errors, setErrors] = useState<FormError>({});
 
@@ -30,6 +61,7 @@ export const usePoolConfigurationValidation = () => {
     let pass = true;
 
     const {
+      poolRecipients,
       maximumMembers,
       claimFrequency,
       customClaimFrequency,
@@ -66,6 +98,13 @@ export const usePoolConfigurationValidation = () => {
     // Validate manager fee percentage
     if (poolManagerFeeType === 'custom' && (managerFeePercentage < 0 || managerFeePercentage > 100)) {
       currErrors.managerFeePercentage = 'Manager fee must be between 0% and 100%';
+      pass = false;
+    }
+
+    // Validate initial member addresses (optional)
+    const recipientsValidation = validatePoolRecipients(poolRecipients, maximumMembers);
+    if (!recipientsValidation.isValid) {
+      currErrors.poolRecipients = recipientsValidation.error ?? 'Invalid member addresses.';
       pass = false;
     }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { ethers } from 'ethers';
 import { useEthersProvider } from '../useEthers';
@@ -30,15 +30,42 @@ export const usePoolManager = ({
   const address = addressParam ?? accountAddress;
   const chainId = chainIdParam ?? chainIdFromAccount ?? 42220;
   const provider = providerParam ?? defaultProvider;
+  const hasRoleInputs = Boolean(address && poolAddress && chainId && pooltype);
+  const canCheckRole = Boolean(hasRoleInputs && provider);
 
   const [isManager, setIsManager] = useState(false);
   const [checkingRole, setCheckingRole] = useState(false);
+  const [hasResolvedRoleCheck, setHasResolvedRoleCheck] = useState(false);
+  const lastResolvedRoleKeyRef = useRef<string | null>(null);
+
+  const roleKey = [chainId, pooltype, poolAddress?.toLowerCase?.(), address?.toLowerCase?.()].join(':');
+
+  useEffect(() => {
+    if (!hasRoleInputs) {
+      setIsManager(false);
+      setCheckingRole(false);
+      setHasResolvedRoleCheck(false);
+      lastResolvedRoleKeyRef.current = null;
+      return;
+    }
+
+    if (lastResolvedRoleKeyRef.current !== roleKey) {
+      setHasResolvedRoleCheck(false);
+    }
+  }, [hasRoleInputs, roleKey]);
 
   useEffect(() => {
     const checkIsManager = async () => {
-      if (!address || !provider || !poolAddress || !chainId || !pooltype) {
+      if (!hasRoleInputs) {
         setIsManager(false);
         setCheckingRole(false);
+        setHasResolvedRoleCheck(false);
+        return;
+      }
+
+      if (!provider) {
+        setCheckingRole(false);
+        setHasResolvedRoleCheck(false);
         return;
       }
 
@@ -55,7 +82,7 @@ export const usePoolManager = ({
           (pooltype === 'UBI' ? contractsForChain?.UBIPool?.abi : contractsForChain?.DirectPaymentsPool?.abi) || [];
 
         if (!poolAbi.length) {
-          setIsManager(false);
+          setHasResolvedRoleCheck(false);
           return;
         }
 
@@ -63,15 +90,19 @@ export const usePoolManager = ({
         const contract = new ethers.Contract(poolAddress, poolAbi, provider);
         const hasRole = await contract.hasRole(MANAGER_ROLE, address);
         setIsManager(Boolean(hasRole));
+        setHasResolvedRoleCheck(true);
+        lastResolvedRoleKeyRef.current = roleKey;
       } catch {
-        setIsManager(false);
+        if (lastResolvedRoleKeyRef.current !== roleKey) {
+          setHasResolvedRoleCheck(false);
+        }
       } finally {
         setCheckingRole(false);
       }
     };
 
     checkIsManager();
-  }, [address, poolAddress, pooltype, provider, chainId]);
+  }, [address, canCheckRole, chainId, hasRoleInputs, poolAddress, pooltype, provider, roleKey]);
 
-  return { isManager, checkingRole };
+  return { isManager, checkingRole: checkingRole || (hasRoleInputs && !hasResolvedRoleCheck) };
 };
