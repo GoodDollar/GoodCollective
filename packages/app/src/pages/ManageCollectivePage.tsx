@@ -1,4 +1,4 @@
-import { HStack, Input, ScrollView, Spinner, Switch, Text, VStack } from 'native-base';
+import { HStack, ScrollView, Spinner, Switch, Text, TextArea, VStack } from 'native-base';
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-native';
 import { useAccount } from 'wagmi';
@@ -70,15 +70,10 @@ const ManageCollectivePage = () => {
     chainId,
   });
 
-  const memberList = useMemo(() => {
-    return collective?.stewardCollectives.map((steward) => steward.steward) || [];
-  }, [collective?.stewardCollectives]);
-
   const memberManagement = useMemberManagement({
     poolAddress,
     pooltype,
     chainId,
-    initialMembers: memberList,
   });
 
   if (!collective) {
@@ -89,7 +84,36 @@ const ManageCollectivePage = () => {
     );
   }
 
-  if (!address || (!isManager && !checkingRole)) {
+  if (!address) {
+    return (
+      <Layout breadcrumbPath={[{ text: collective.ipfs.name, route: `/collective/${collectiveId}/manage` }]}>
+        <VStack space={4} padding={4}>
+          <Text variant="3xl-grey" fontWeight="700">
+            Pool Admin Panel
+          </Text>
+          <Text>You must be connected with a pool manager wallet to access these settings.</Text>
+        </VStack>
+      </Layout>
+    );
+  }
+
+  if (checkingRole) {
+    return (
+      <Layout breadcrumbPath={[{ text: collective.ipfs.name, route: `/collective/${collectiveId}/manage` }]}>
+        <VStack space={4} padding={4} alignItems="flex-start">
+          <Text variant="3xl-grey" fontWeight="700">
+            Pool Admin Panel
+          </Text>
+          <HStack space={3} alignItems="center">
+            <Spinner variant="page-loader" />
+            <Text>Checking manager access...</Text>
+          </HStack>
+        </VStack>
+      </Layout>
+    );
+  }
+
+  if (!isManager) {
     return (
       <Layout breadcrumbPath={[{ text: collective.ipfs.name, route: `/collective/${collectiveId}/manage` }]}>
         <VStack space={4} padding={4}>
@@ -417,30 +441,39 @@ const ManageCollectivePage = () => {
             </VStack>
           ) : (
             <VStack space={6}>
-              {/* Add New Member Section */}
-              <SectionCard title="Add New Member">
+              {/* Bulk Add Members Section */}
+              <SectionCard title="Add Members">
+                <WarningBox type="info">Paste wallet addresses separated by commas or new lines.</WarningBox>
                 <VStack space={2} marginTop={4}>
-                  <Text fontWeight="600">New Member Wallet Address</Text>
-                  <HStack space={4} alignItems="center">
-                    <Input
-                      flex={1}
-                      placeholder="0x..."
-                      value={memberManagement.memberInput}
-                      onChangeText={memberManagement.setMemberInput}
-                      autoCapitalize="none"
-                      borderRadius={8}
-                    />
-                    <ActionButton
-                      onPress={memberManagement.handleAddMembers}
-                      isLoading={memberManagement.isAddingMembers}
-                      isDisabled={memberManagement.isAddingMembers}
-                      text={memberManagement.isAddingMembers ? 'Adding Member...' : 'Add Member'}
-                      bg="goodPurple.500"
-                      textColor="white"
-                      borderRadius={12}
-                    />
-                  </HStack>
+                  <Text fontWeight="600">Wallet Addresses</Text>
+                  <TextArea
+                    autoCompleteType={undefined}
+                    placeholder={`0xabc...123, 0xdef...456\n0xghi...789`}
+                    value={memberManagement.memberInput}
+                    onChangeText={memberManagement.setMemberInput}
+                    autoCapitalize="none"
+                    borderRadius={8}
+                    h={120}
+                  />
+                  <Text fontSize="xs" color="gray.500">
+                    {memberManagement.parsedMemberAddresses.length > 0
+                      ? `Parsed ${memberManagement.parsedMemberAddresses.length} unique address${
+                          memberManagement.parsedMemberAddresses.length !== 1 ? 'es' : ''
+                        }.`
+                      : 'Enter addresses separated by commas or new lines.'}
+                  </Text>
+                  <ActionButton
+                    onPress={memberManagement.handleAddMembers}
+                    isLoading={memberManagement.isAddingMembers}
+                    isDisabled={memberManagement.isAddingMembers || memberManagement.parsedMemberAddresses.length === 0}
+                    text={memberManagement.isAddingMembers ? 'Adding Members...' : 'Add Members'}
+                    bg="goodPurple.500"
+                    textColor="white"
+                    borderRadius={12}
+                    width="100%"
+                  />
                   <StatusMessage type="error" message={memberManagement.memberError} />
+                  <StatusMessage type="success" message={memberManagement.memberSuccess} />
                 </VStack>
               </SectionCard>
 
@@ -484,9 +517,11 @@ const ManageCollectivePage = () => {
                         </Text>
                         <ActionButton
                           onPress={() => memberManagement.handleRemoveMember(member)}
-                          isLoading={memberManagement.isRemovingMember}
-                          isDisabled={memberManagement.isRemovingMember || memberManagement.isAddingMembers}
-                          text={memberManagement.isRemovingMember ? 'Removing Member...' : 'Remove Member'}
+                          isLoading={memberManagement.removingMemberAddress === member}
+                          isDisabled={
+                            memberManagement.removingMemberAddress !== null || memberManagement.isAddingMembers
+                          }
+                          text={memberManagement.removingMemberAddress === member ? 'Removing...' : 'Remove Member'}
                           bg="red.500"
                           textColor="white"
                           borderRadius={12}

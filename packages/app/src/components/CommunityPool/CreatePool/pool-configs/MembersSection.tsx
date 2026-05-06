@@ -1,13 +1,18 @@
-import { Box, FormControl, Input, Radio, Text, VStack, WarningOutlineIcon } from 'native-base';
+import { Box, FormControl, Input, Radio, Text, TextArea, VStack, WarningOutlineIcon } from 'native-base';
 
 interface MembersSectionProps {
   maximumMembers: number;
   setMaximumMembers: (value: number) => void;
   joinStatus: 'closed' | 'open';
   setJoinStatus: (value: 'closed' | 'open') => void;
+  poolRecipients: string;
+  setPoolRecipients: (value: string) => void;
   onValidate: () => void;
+  onValidateRecipients: () => Promise<void>;
+  isCheckingRecipients: boolean;
   errors: {
     maximumMembers?: string;
+    poolRecipients?: string;
   };
 }
 
@@ -16,7 +21,11 @@ const MembersSection = ({
   setMaximumMembers,
   joinStatus,
   setJoinStatus,
+  poolRecipients,
+  setPoolRecipients,
   onValidate,
+  onValidateRecipients,
+  isCheckingRecipients,
   errors,
 }: MembersSectionProps) => {
   return (
@@ -85,6 +94,42 @@ const MembersSection = ({
           </Radio.Group>
         </FormControl>
       </VStack>
+
+      {/* Initial Members */}
+      <Box backgroundColor="white" padding={4} borderWidth={1} borderColor="gray.200" borderRadius={8}>
+        <FormControl isInvalid={!!errors.poolRecipients}>
+          <FormControl.Label>
+            <Text variant="form-label">Initial Members (optional)</Text>
+          </FormControl.Label>
+          <FormControl.HelperText>
+            <Text fontSize="xs" color="gray.500">
+              Add wallet addresses separated by commas or new lines.
+            </Text>
+          </FormControl.HelperText>
+          <TextArea
+            value={poolRecipients}
+            onChangeText={(value) => setPoolRecipients(value)}
+            onBlur={async () => {
+              onValidate();
+              await onValidateRecipients();
+            }}
+            autoCompleteType={undefined}
+            placeholder="0x1234..., 0x5678..."
+            minH={24}
+            backgroundColor="white"
+          />
+          {isCheckingRecipients && (
+            <FormControl.HelperText>
+              <Text fontSize="xs" color="gray.500">
+                Checking member eligibility...
+              </Text>
+            </FormControl.HelperText>
+          )}
+          <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+            {errors.poolRecipients}
+          </FormControl.ErrorMessage>
+        </FormControl>
+      </Box>
     </VStack>
   );
 };

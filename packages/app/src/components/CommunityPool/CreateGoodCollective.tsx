@@ -32,6 +32,7 @@ const CreateGoodCollective = () => {
             discord: form.discord,
             threads: form.threads,
           }}
+          memberAddError={form.memberAddError}
         />
       )}
     </>

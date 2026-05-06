@@ -6,6 +6,8 @@ import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { printAndParseSupportError } from '../../../hooks/useContractCalls/util';
 import BaseModal from '../../modals/BaseModal';
 import NavigationButtons from '../NavigationButtons';
+import { Linking } from 'react-native';
+import { formatSocialUrls } from '../../../lib/formatSocialUrls';
 
 const SectionHeader = ({ title, onEdit }: { title: string; onEdit: () => void }) => (
   <HStack alignItems="center">
@@ -198,16 +200,27 @@ const ReviewLaunch = () => {
               <Label>Socials</Label>
               <HStack space={2}>
                 {socials.map((social, index) => (
-                  <Box
+                  <Pressable
                     key={index}
-                    backgroundColor="gray.100"
-                    width={10}
-                    height={10}
-                    justifyContent="center"
-                    alignItems="center"
-                    borderRadius={4}>
-                    <img width={24} src={social.icon} />
-                  </Box>
+                    onPress={() => {
+                      const url = form[social.name as keyof typeof form];
+                      if (typeof url === 'string') {
+                        const formattedUrl = formatSocialUrls[social.name as keyof typeof formatSocialUrls](url);
+                        if (formattedUrl) {
+                          Linking.openURL(formattedUrl);
+                        }
+                      }
+                    }}>
+                    <Box
+                      backgroundColor="gray.100"
+                      width={10}
+                      height={10}
+                      justifyContent="center"
+                      alignItems="center"
+                      borderRadius={4}>
+                      <img width={24} src={social.icon} />
+                    </Box>
+                  </Pressable>
                 ))}
               </HStack>
             </VStack>
@@ -246,6 +259,12 @@ const ReviewLaunch = () => {
               <StatRow label="Min Claim Amount" value={`${form.claimAmountPerWeek}G$`} />
               <StatRow label="Expected Members" value={form.expectedMembers} />
               <StatRow label="Amount To Fund" value={`${amountToFund}G$`} />
+              {form.poolRecipients && form.poolRecipients.trim() !== '' && (
+                <StatRow
+                  label="Initial Members"
+                  value={form.poolRecipients.split(/[\n,]/).filter((s) => s.trim() !== '').length}
+                />
+              )}
             </VStack>
           </VStack>
         </VStack>
@@ -255,6 +274,7 @@ const ReviewLaunch = () => {
         onBack={() => previousStep()}
         onNext={handleCreatePool}
         nextText={isCreating ? 'Creating...' : 'Launch Pool'}
+        nextDisabled={isCreating}
         marginTop={6}
         containerStyle={undefined}
         buttonWidth="140px"
@@ -279,10 +299,17 @@ const ReviewLaunch = () => {
         openModal={approvePoolModalVisible}
         onClose={() => setApprovePoolModalVisible(false)}
         title="APPROVE POOL CREATION"
-        paragraphs={[
-          'To create your GoodCollective pool, sign with your wallet.',
-          'This will deploy your pool contract and make it available for members to join.',
-        ]}
+        paragraphs={
+          form.poolRecipients && form.poolRecipients.trim() !== ''
+            ? [
+                'To create your GoodCollective pool, sign with your wallet.',
+                'Note: You will be asked to sign TWO transactions. The first creates the pool, and the second adds your initial members.',
+              ]
+            : [
+                'To create your GoodCollective pool, sign with your wallet.',
+                'This will deploy your pool contract and make it available for members to join.',
+              ]
+        }
         image={PhoneImg}
       />
     </VStack>

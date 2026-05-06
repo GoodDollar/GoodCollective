@@ -1,10 +1,12 @@
 import { Box, Text, VStack } from 'native-base';
 import { useEffect, useState } from 'react';
 import { useAccount, useEnsName } from 'wagmi';
+import { ethers } from 'ethers';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import {
   usePoolConfigurationValidation,
   PoolConfigurationFormData,
+  validatePoolRecipients,
 } from '../../../hooks/useCreatePool/usePoolConfigurationValidation';
 import { useScreenSize } from '../../../theme/hooks';
 import MembersSection from './pool-configs/MembersSection';
@@ -12,12 +14,17 @@ import PayoutSettingsSection from './pool-configs/PayoutSettingsSection';
 import PoolManagerFeeSection from './pool-configs/PoolManagerFeeSection';
 import NavigationButtons from '../NavigationButtons';
 import ClaimFrequencySection from './pool-configs/ClaimFrequencySection';
+import { useEthersProvider } from '../../../hooks/useEthers';
+import { assessPoolMemberEligibility, formatSkippedMembersMessage } from '../../../lib/poolMemberEligibility';
+import { getIdentityAddressByChainId } from '../../../models/constants';
 
 const PoolConfiguration = () => {
   const { form, nextStep, submitPartial, previousStep } = useCreatePool();
   const { isDesktopView } = useScreenSize();
-  const { address } = useAccount();
+  const { address, chain } = useAccount();
   const { validate, errors } = usePoolConfigurationValidation();
+  const chainId = chain?.id ?? 42220;
+  const provider = useEthersProvider({ chainId });
 
   const [poolManagerFeeType, setPoolManagerFeeType] = useState<'default' | 'custom'>(
     form.poolManagerFeeType ?? 'default'
@@ -31,6 +38,8 @@ const PoolConfiguration = () => {
   const [claimAmountPerWeek, setClaimAmountPerWeek] = useState(form.claimAmountPerWeek ?? 10);
   const [expectedMembers, setExpectedMembers] = useState(form.expectedMembers ?? 1);
   const [customClaimFrequency, setCustomClaimFrequency] = useState(form.customClaimFrequency ?? 1);
+  const [recipientEligibilityError, setRecipientEligibilityError] = useState<string | undefined>();
+  const [isCheckingRecipients, setIsCheckingRecipients] = useState(false);
   const { data: ensName } = useEnsName({ address: managerAddress as `0x${string}`, chainId: 1 });
 
   useEffect(() => {
@@ -38,6 +47,10 @@ const PoolConfiguration = () => {
       setExpectedMembers(maximumMembers);
     }
   }, [maximumMembers, expectedMembers]);
+
+  useEffect(() => {
+    setRecipientEligibilityError(undefined);
+  }, [poolRecipients, maximumMembers]);
 
   const handleValidate = () => {
     const formData: PoolConfigurationFormData = {
@@ -54,8 +67,50 @@ const PoolConfiguration = () => {
     return validate(formData);
   };
 
-  const submitForm = () => {
-    if (handleValidate()) {
+  const validateRecipientEligibility = async (): Promise<boolean> => {
+    const recipientsValidation = validatePoolRecipients(poolRecipients, maximumMembers);
+    if (!recipientsValidation.isValid || recipientsValidation.memberAddresses.length === 0) {
+      setRecipientEligibilityError(undefined);
+      return recipientsValidation.isValid;
+    }
+
+    if (!provider || !managerAddress) {
+      return true;
+    }
+
+    try {
+      setIsCheckingRecipients(true);
+      const uniquenessValidator = getIdentityAddressByChainId(chainId);
+      const { skippedAddresses, validAddresses } = await assessPoolMemberEligibility({
+        provider,
+        addresses: recipientsValidation.memberAddresses,
+        uniquenessValidator,
+        membersValidator: ethers.constants.AddressZero,
+        operatorAddress: managerAddress.toLowerCase(),
+      });
+
+      if (validAddresses.length !== recipientsValidation.memberAddresses.length) {
+        const skippedSummary = formatSkippedMembersMessage(skippedAddresses);
+        setRecipientEligibilityError(
+          skippedSummary
+            ? `Some initial members are not eligible: ${skippedSummary}.`
+            : 'Some initial members cannot be added to this pool.'
+        );
+        return false;
+      }
+
+      setRecipientEligibilityError(undefined);
+      return true;
+    } finally {
+      setIsCheckingRecipients(false);
+    }
+  };
+
+  const submitForm = async () => {
+    const isValid = handleValidate();
+    const hasEligibleRecipients = await validateRecipientEligibility();
+
+    if (isValid && hasEligibleRecipients) {
       submitPartial({
         poolManagerFeeType,
         claimFrequency: claimFrequency === 2 ? customClaimFrequency : claimFrequency,
@@ -113,9 +168,16 @@ const PoolConfiguration = () => {
         setMaximumMembers={setMaximumMembers}
         joinStatus={joinStatus}
         setJoinStatus={setJoinStatus}
+        poolRecipients={poolRecipients}
+        setPoolRecipients={setPoolRecipients}
         onValidate={handleValidate}
+        onValidateRecipients={async () => {
+          await validateRecipientEligibility();
+        }}
+        isCheckingRecipients={isCheckingRecipients}
         errors={{
           maximumMembers: errors.maximumMembers,
+          poolRecipients: errors.poolRecipients ?? recipientEligibilityError,
         }}
       />
 

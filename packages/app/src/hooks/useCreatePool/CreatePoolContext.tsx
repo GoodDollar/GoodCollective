@@ -5,12 +5,19 @@ import { createContext, ReactNode, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { v4 as uuidv4 } from 'uuid';
 import { UBIPool } from '../../../../contracts/typechain-types/contracts/UBI/UBIPool';
-import { GDEnvTokens, SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
+import {
+  GDEnvTokens,
+  SupportedNetwork,
+  SupportedNetworkNames,
+  getIdentityAddressByChainId,
+} from '../../models/constants';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { validateConnection } from '../useContractCalls/util';
 import { useEthersSigner } from '../useEthers';
 import { formatSocialUrls } from '../../lib/formatSocialUrls';
+import { assessPoolMemberEligibility, formatSkippedMembersMessage } from '../../lib/poolMemberEligibility';
 import { Form } from './useCreatePool';
+import { validatePoolRecipients } from './usePoolConfigurationValidation';
 
 type CreatePoolContextType = {
   step: number;
@@ -73,15 +80,17 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
   const createPool = async () => {
     const validation = validateConnection(maybeAddress, chain?.id, maybeSigner);
     if (typeof validation === 'string') {
-      return false;
+      throw new Error(validation);
     }
     const { chainId, signer } = validation;
-    const chainIdString = chainId.toString() as `${SupportedNetwork}`;
+    const sdkChainId = SupportedNetwork.CELO;
+    const chainIdString = sdkChainId.toString() as `${SupportedNetwork}`;
     const network = SupportedNetworkNames[chainId as SupportedNetwork];
 
     const sdk = new GoodCollectiveSDK(chainIdString, signer.provider as ethers.providers.Provider, { network });
 
     // Final form validation
+
     if (!form.projectName || !form.projectDescription) {
       console.error('Missing required project details');
       return false;
@@ -100,7 +109,17 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
       return false;
     }
 
-    const projectId = form.projectName.replace(' ', '/').toLowerCase() + '-' + uuidv4();
+    const recipientsValidation = validatePoolRecipients(form.poolRecipients, form.maximumMembers);
+    if (!recipientsValidation.isValid) {
+      throw new Error(recipientsValidation.error ?? 'Invalid member addresses.');
+    }
+    const { memberAddresses } = recipientsValidation;
+    if (form.joinStatus === 'closed' && memberAddresses.length === 0) {
+      throw new Error('Closed pools must have at least one initial member.');
+    }
+
+    const projectIdBase = form.projectName.trim().toLowerCase().replace(/\s+/g, '/');
+    const projectId = `${projectIdBase}-${uuidv4()}`;
 
     const poolAttributes = {
       name: form.projectName,
@@ -124,19 +143,20 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
     const poolSettings: UBIPoolSettings = {
       manager: await signer.getAddress(),
       membersValidator: ethers.constants.AddressZero,
-      uniquenessValidator: '0xC361A6E67822a0EDc17D899227dd9FC50BD62F42',
+      uniquenessValidator: getIdentityAddressByChainId(chainId),
       rewardToken: rewardToken,
     };
 
     // Calculate cycle length based on claim frequency
     const cycleLengthDays = form.claimFrequency && form.claimFrequency <= 7 ? 7 : form.claimFrequency || 1;
 
+    const onlyMembers = form.joinStatus === 'closed';
     const ubiSettings: UBISettings = {
       claimPeriodDays: ethers.BigNumber.from(form.claimFrequency || 1),
       minActiveUsers: ethers.BigNumber.from(1),
       maxClaimAmount: ethers.utils.parseEther(String(form.claimAmountPerWeek || 0)),
       maxMembers: form.maximumMembers || form.expectedMembers || 100,
-      onlyMembers: form.poolRecipients ? form.canNewMembersJoin ?? false : false,
+      onlyMembers,
       cycleLengthDays: ethers.BigNumber.from(cycleLengthDays),
       claimForEnabled: false,
     };
@@ -146,6 +166,26 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
       minClaimAmount: ubiSettings.maxClaimAmount,
       managerFeeBps: (form.managerFeePercentage || 0) * 100,
     };
+
+    if (memberAddresses.length > 0) {
+      const operatorAddress = (await signer.getAddress()).toLowerCase();
+      const { validAddresses, skippedAddresses } = await assessPoolMemberEligibility({
+        provider: signer.provider as ethers.providers.Provider,
+        addresses: memberAddresses,
+        uniquenessValidator: poolSettings.uniquenessValidator as unknown as string,
+        membersValidator: poolSettings.membersValidator as unknown as string,
+        operatorAddress,
+      });
+
+      if (validAddresses.length !== memberAddresses.length) {
+        const skippedSummary = formatSkippedMembersMessage(skippedAddresses);
+        throw new Error(
+          skippedSummary
+            ? `Some initial members cannot be added to this pool: ${skippedSummary}. Please update the list before launching.`
+            : 'Some initial members cannot be added to this pool. Please update the list before launching.'
+        );
+      }
+    }
 
     try {
       console.log('Creating UBI pool with settings:', {
@@ -165,8 +205,23 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
         extendedUBISettings,
         false // isBeacon should always be false as per requirements
       );
+
+      let memberAddError: string | undefined;
+
+      if (memberAddresses.length > 0) {
+        try {
+          const extraData = memberAddresses.map(() => '0x');
+          const tx = await sdk.addPoolMembers(signer, pool.address, memberAddresses, extraData);
+          await tx.wait();
+        } catch (error: any) {
+          console.error('Failed to add members after pool creation:', error);
+          memberAddError =
+            'Pool was created successfully, but adding initial members failed. Go to Manage Pool to retry adding members.';
+        }
+      }
+
       console.log('Pool created successfully:', pool.address);
-      submitPartial({ createdPoolAddress: pool.address });
+      submitPartial({ createdPoolAddress: pool.address, memberAddError });
       setStep(6); // Move to success step
       return pool;
     } catch (error) {

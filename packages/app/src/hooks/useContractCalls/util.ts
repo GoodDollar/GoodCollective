@@ -15,7 +15,7 @@ export const validateConnection = (
   if (!address) {
     return 'No address found. Please connect your wallet.';
   }
-  if (!chainId || !(chainId in SupportedNetwork)) {
+  if (!chainId || !(chainId === SupportedNetwork.CELO || chainId === 44787)) {
     return 'Unsupported network. Please connect to Celo Mainnet or Celo Alfajores.';
   }
   if (!signer) {

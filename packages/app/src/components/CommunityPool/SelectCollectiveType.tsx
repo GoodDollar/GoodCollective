@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, HStack, Pressable, Text, VStack } from 'native-base';
+import { Box, Button, Checkbox, HStack, Link, Pressable, Text, VStack } from 'native-base';
 import { CommunityFundsIcon, ResultsBasedIcon, SegmentedAidIcon } from '../../assets';
 import { PoolType, useCreatePool } from '../../hooks/useCreatePool/useCreatePool';
 import { useScreenSize } from '../../theme/hooks';
@@ -13,7 +13,7 @@ const poolTypes = [
     id: 'community-funds' as PoolType,
     name: 'Community Funds',
     icon: CommunityFundsIcon,
-    description: 'Facilitate money distribution to members of existing community organisations',
+    description: 'Distribute funds to members of an existing group or organization.',
     interested: false,
     disabled: false,
   },
@@ -21,8 +21,7 @@ const poolTypes = [
     id: 'segmented-aid' as PoolType,
     name: 'Segmented Aid',
     icon: SegmentedAidIcon,
-    description:
-      'Self-sovereign, user-managed and encrypted digital demographic information allows access to specific funds via GoodOffers',
+    description: 'Provide funds to people who qualify by verified attributes such as age or location.',
     interested: true,
     disabled: true,
   },
@@ -30,7 +29,7 @@ const poolTypes = [
     id: 'results-based' as PoolType,
     name: 'Results-based direct payments',
     icon: ResultsBasedIcon,
-    description: 'Provides direct payments to stewards based on verified climate action',
+    description: 'Reward verified actions or measurable impact through data partners.',
     interested: true,
     disabled: true,
   },
@@ -78,11 +77,14 @@ const SelectType = () => {
                 color: '#6933FF',
               },
             ]}>
-            About Various Pools
+            Create a Pool
           </Text>
           <Text style={selectCollectiveTypeStyles.subtitle}>
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dignissimos ipsa ab nemo fugiat expedita, facilis
-            voluptatibus magni velit odio quis cumque quidem veniam fuga. Ea perferendis voluptas voluptatum in iste!
+            Choose how your pool distributes the funds. Only Community Funds are currently available. If you have
+            interest in the other pools types, reach out here:{' '}
+            <Link href="https://ubi.gd/GoodBuildersTG" isExternal _text={selectCollectiveTypeStyles.linkText}>
+              https://ubi.gd/GoodBuildersTG
+            </Link>
           </Text>
         </Box>
 
@@ -177,6 +179,12 @@ const selectCollectiveTypeStyles = {
     lineHeight: 24,
     maxWidth: '80%',
     fontWeight: '400',
+  },
+  linkText: {
+    color: 'goodPurple.400',
+    textDecorationLine: 'underline',
+    fontWeight: '600',
+    cursor: 'pointer',
   },
   card: {
     borderRadius: 12,
