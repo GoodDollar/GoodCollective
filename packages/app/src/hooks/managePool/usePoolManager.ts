@@ -63,6 +63,12 @@ export const usePoolManager = ({
         return;
       }
 
+      if (!poolAddress || !address) {
+        setCheckingRole(false);
+        setHasResolvedRoleCheck(false);
+        return;
+      }
+
       if (!provider) {
         setCheckingRole(false);
         setHasResolvedRoleCheck(false);

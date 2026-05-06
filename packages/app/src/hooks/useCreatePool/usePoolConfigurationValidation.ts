@@ -69,6 +69,7 @@ export const usePoolConfigurationValidation = () => {
       expectedMembers,
       poolManagerFeeType,
       managerFeePercentage,
+      joinStatus,
     } = formData;
 
     // Validate maximum members
@@ -105,6 +106,9 @@ export const usePoolConfigurationValidation = () => {
     const recipientsValidation = validatePoolRecipients(poolRecipients, maximumMembers);
     if (!recipientsValidation.isValid) {
       currErrors.poolRecipients = recipientsValidation.error ?? 'Invalid member addresses.';
+      pass = false;
+    } else if (joinStatus === 'closed' && recipientsValidation.memberAddresses.length === 0) {
+      currErrors.poolRecipients = 'Closed pools must have at least one initial member.';
       pass = false;
     }
 

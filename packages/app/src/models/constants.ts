@@ -78,3 +78,31 @@ export function getProvableNFTAddress(networkName: string): string {
 
   return '';
 }
+
+/**
+ * Returns the Identity contract address for the given network name.
+ * @param networkName - The network name
+ */
+export function getIdentityAddress(networkName: string): string {
+  const networkEntry =
+    Object.values(GdContracts).find((entry: any) => entry?.name === networkName) ||
+    (GdContracts as Record<string, any>)[networkName];
+
+  if (networkEntry?.Identity) {
+    return networkEntry.Identity;
+  }
+
+  throw new Error(`Identity contract address not found for network "${networkName}".`);
+}
+
+export function getIdentityAddressByChainId(chainId: number): string {
+  const networkNameByChainId: Record<number, string> = {
+    42220: env.REACT_APP_NETWORK,
+    44787: env.REACT_APP_NETWORK,
+  };
+  const networkName = networkNameByChainId[chainId] ?? SupportedNetworkNames[chainId as SupportedNetwork];
+  if (!networkName) {
+    throw new Error(`Unsupported network (chainId=${chainId}).`);
+  }
+  return getIdentityAddress(networkName);
+}

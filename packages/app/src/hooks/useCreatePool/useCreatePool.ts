@@ -30,6 +30,7 @@ export type Form = {
   expectedMembers?: number;
   customClaimFrequency?: number;
   createdPoolAddress?: string;
+  memberAddError?: string;
 };
 
 export const useCreatePool = () => {

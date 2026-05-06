@@ -28,6 +28,7 @@ interface SuccessModalProps {
     discord?: string;
     threads?: string;
   };
+  memberAddError?: string;
 }
 
 const SuccessModal = ({
@@ -37,6 +38,7 @@ const SuccessModal = ({
   buttonText = 'GO TO POOLS',
   collectiveAddress,
   socials,
+  memberAddError,
 }: SuccessModalProps) => {
   const { isDesktopView } = useScreenSize();
   const { navigate } = useCrossNavigate();
@@ -266,13 +268,27 @@ const SuccessModal = ({
                     </HStack>
                   </VStack>
                 )}
-                <HStack>
+                <VStack space={1} alignItems="center">
                   {projectName && (
-                    <Text fontSize="md" color="gray.600">
+                    <Text fontSize="md" color="gray.600" textAlign="center">
                       Your {projectName} GoodCollective pool has been created!
                     </Text>
                   )}
-                </HStack>
+                  {memberAddError && (
+                    <VStack space={2} alignItems="center" maxW="100%">
+                      <Text fontSize="sm" color="red.500" textAlign="center" maxW="100%">
+                        {memberAddError}
+                      </Text>
+                      {!!collectiveAddress && (
+                        <Pressable onPress={() => navigate(`/collective/${collectiveAddress}/manage`)}>
+                          <Text fontSize="sm" color="goodPurple.500" textDecorationLine="underline" textAlign="center">
+                            Go to Manage Pool to add members
+                          </Text>
+                        </Pressable>
+                      )}
+                    </VStack>
+                  )}
+                </VStack>
               </div>
             </VStack>
 

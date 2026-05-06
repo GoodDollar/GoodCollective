@@ -5,7 +5,12 @@ import { createContext, ReactNode, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { v4 as uuidv4 } from 'uuid';
 import { UBIPool } from '../../../../contracts/typechain-types/contracts/UBI/UBIPool';
-import { GDEnvTokens, SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
+import {
+  GDEnvTokens,
+  SupportedNetwork,
+  SupportedNetworkNames,
+  getIdentityAddressByChainId,
+} from '../../models/constants';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { validateConnection } from '../useContractCalls/util';
 import { useEthersSigner } from '../useEthers';
@@ -78,7 +83,8 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
       throw new Error(validation);
     }
     const { chainId, signer } = validation;
-    const chainIdString = chainId.toString() as `${SupportedNetwork}`;
+    const sdkChainId = SupportedNetwork.CELO;
+    const chainIdString = sdkChainId.toString() as `${SupportedNetwork}`;
     const network = SupportedNetworkNames[chainId as SupportedNetwork];
 
     const sdk = new GoodCollectiveSDK(chainIdString, signer.provider as ethers.providers.Provider, { network });
@@ -108,6 +114,9 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
       throw new Error(recipientsValidation.error ?? 'Invalid member addresses.');
     }
     const { memberAddresses } = recipientsValidation;
+    if (form.joinStatus === 'closed' && memberAddresses.length === 0) {
+      throw new Error('Closed pools must have at least one initial member.');
+    }
 
     const projectIdBase = form.projectName.trim().toLowerCase().replace(/\s+/g, '/');
     const projectId = `${projectIdBase}-${uuidv4()}`;
@@ -134,14 +143,13 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
     const poolSettings: UBIPoolSettings = {
       manager: await signer.getAddress(),
       membersValidator: ethers.constants.AddressZero,
-      uniquenessValidator: '0xC361A6E67822a0EDc17D899227dd9FC50BD62F42',
+      uniquenessValidator: getIdentityAddressByChainId(chainId),
       rewardToken: rewardToken,
     };
 
     // Calculate cycle length based on claim frequency
     const cycleLengthDays = form.claimFrequency && form.claimFrequency <= 7 ? 7 : form.claimFrequency || 1;
 
-    // Join status explicitly controls members-only behavior, even if the pool starts empty.
     const onlyMembers = form.joinStatus === 'closed';
     const ubiSettings: UBISettings = {
       claimPeriodDays: ethers.BigNumber.from(form.claimFrequency || 1),
@@ -164,8 +172,8 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
       const { validAddresses, skippedAddresses } = await assessPoolMemberEligibility({
         provider: signer.provider as ethers.providers.Provider,
         addresses: memberAddresses,
-        uniquenessValidator: poolSettings.uniquenessValidator,
-        membersValidator: poolSettings.membersValidator,
+        uniquenessValidator: poolSettings.uniquenessValidator as unknown as string,
+        membersValidator: poolSettings.membersValidator as unknown as string,
         operatorAddress,
       });
 
@@ -198,14 +206,22 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
         false // isBeacon should always be false as per requirements
       );
 
+      let memberAddError: string | undefined;
+
       if (memberAddresses.length > 0) {
-        const extraData = memberAddresses.map(() => '0x');
-        const tx = await sdk.addPoolMembers(signer, pool.address, memberAddresses, extraData);
-        await tx.wait();
+        try {
+          const extraData = memberAddresses.map(() => '0x');
+          const tx = await sdk.addPoolMembers(signer, pool.address, memberAddresses, extraData);
+          await tx.wait();
+        } catch (error: any) {
+          console.error('Failed to add members after pool creation:', error);
+          memberAddError =
+            'Pool was created successfully, but adding initial members failed. Go to Manage Pool to retry adding members.';
+        }
       }
 
       console.log('Pool created successfully:', pool.address);
-      submitPartial({ createdPoolAddress: pool.address });
+      submitPartial({ createdPoolAddress: pool.address, memberAddError });
       setStep(6); // Move to success step
       return pool;
     } catch (error) {

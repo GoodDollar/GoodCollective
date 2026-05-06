@@ -16,6 +16,7 @@ import NavigationButtons from '../NavigationButtons';
 import ClaimFrequencySection from './pool-configs/ClaimFrequencySection';
 import { useEthersProvider } from '../../../hooks/useEthers';
 import { assessPoolMemberEligibility, formatSkippedMembersMessage } from '../../../lib/poolMemberEligibility';
+import { getIdentityAddressByChainId } from '../../../models/constants';
 
 const PoolConfiguration = () => {
   const { form, nextStep, submitPartial, previousStep } = useCreatePool();
@@ -79,10 +80,11 @@ const PoolConfiguration = () => {
 
     try {
       setIsCheckingRecipients(true);
+      const uniquenessValidator = getIdentityAddressByChainId(chainId);
       const { skippedAddresses, validAddresses } = await assessPoolMemberEligibility({
         provider,
         addresses: recipientsValidation.memberAddresses,
-        uniquenessValidator: '0xC361A6E67822a0EDc17D899227dd9FC50BD62F42',
+        uniquenessValidator,
         membersValidator: ethers.constants.AddressZero,
         operatorAddress: managerAddress.toLowerCase(),
       });
@@ -169,7 +171,9 @@ const PoolConfiguration = () => {
         poolRecipients={poolRecipients}
         setPoolRecipients={setPoolRecipients}
         onValidate={handleValidate}
-        onValidateRecipients={validateRecipientEligibility}
+        onValidateRecipients={async () => {
+          await validateRecipientEligibility();
+        }}
         isCheckingRecipients={isCheckingRecipients}
         errors={{
           maximumMembers: errors.maximumMembers,

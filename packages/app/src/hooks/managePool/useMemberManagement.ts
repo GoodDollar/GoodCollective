@@ -74,7 +74,7 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
       try {
         // Read membersCount separately so the UI can keep the total even if log replay fails.
         const status = await sdk.ubipool.attach(poolAddress).status();
-        const rawCount = (status as unknown as { membersCount?: ethers.BigNumber }).membersCount ?? status[7];
+        const rawCount = (status as any).membersCount;
         const parsed = Number(rawCount?.toString?.() ?? rawCount);
         if (!Number.isNaN(parsed)) {
           onChainCount = parsed;
