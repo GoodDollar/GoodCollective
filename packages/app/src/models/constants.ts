@@ -100,6 +100,44 @@ export function getUniquenessValidatorAddress(chainId?: number): string {
 }
 
 /**
+ * Returns the optional IMembersValidator address for the given chainId.
+ *
+ * Unlike uniquenessValidator (a protocol singleton with one canonical IdentityV2
+ * per chain), membersValidator is an optional, deployment-specific hook. The
+ * pool contracts treat address(0) as "no extra membership rule" and only call
+ * the validator's isMemberValid(...) when a non-zero address is configured
+ * (see UBIPool.sol:286-288, DirectPaymentsPool.sol:216-218).
+ *
+ * There is no canonical members-validator deployment in either the
+ * @gooddollar/goodprotocol or contracts deployment manifests, so the default
+ * for every chain is AddressZero. The address is exposed here as a chain-aware
+ * helper so:
+ *   1. Both the pre-deploy eligibility preview (PoolConfiguration) and the
+ *      deploy-time pool settings (CreatePoolContext) read from a single source
+ *      and stay in sync.
+ *   2. A future deployment can plug in a custom validator per chain by setting
+ *      REACT_APP_MEMBERS_VALIDATOR_<chainId> in the build env, without code
+ *      changes at the call sites.
+ *
+ * Returns AddressZero when no override is set or the chain is not recognized.
+ */
+export function getMembersValidatorAddress(chainId?: number): string {
+  if (!chainId) return ethers.constants.AddressZero;
+
+  // Allow per-chain override via env so a deployment can wire in a custom
+  // validator without touching the create-pool flow. Names follow the existing
+  // REACT_APP_* convention used elsewhere in this file.
+  const envKey = `REACT_APP_MEMBERS_VALIDATOR_${chainId}` as const;
+  const overrides = env as unknown as Record<string, string | undefined>;
+  const override = overrides[envKey];
+  if (override && ethers.utils.isAddress(override)) {
+    return ethers.utils.getAddress(override);
+  }
+
+  return ethers.constants.AddressZero;
+}
+
+/**
  * Returns the ProvableNFT contract address for the given network name.
  * @param networkName - The network name
  */

@@ -1,7 +1,6 @@
 import { Box, Text, VStack } from 'native-base';
 import { useEffect, useState } from 'react';
 import { useAccount, useEnsName } from 'wagmi';
-import { ethers } from 'ethers';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import {
   usePoolConfigurationValidation,
@@ -16,7 +15,7 @@ import NavigationButtons from '../NavigationButtons';
 import ClaimFrequencySection from './pool-configs/ClaimFrequencySection';
 import { useEthersProvider } from '../../../hooks/useEthers';
 import { assessPoolMemberEligibility, formatSkippedMembersMessage } from '../../../lib/poolMemberEligibility';
-import { getUniquenessValidatorAddress } from '../../../models/constants';
+import { getMembersValidatorAddress, getUniquenessValidatorAddress } from '../../../models/constants';
 
 const PoolConfiguration = () => {
   const { form, nextStep, submitPartial, previousStep } = useCreatePool();
@@ -84,7 +83,7 @@ const PoolConfiguration = () => {
         provider,
         addresses: recipientsValidation.memberAddresses,
         uniquenessValidator: getUniquenessValidatorAddress(chainId),
-        membersValidator: ethers.constants.AddressZero,
+        membersValidator: getMembersValidatorAddress(chainId),
         operatorAddress: managerAddress.toLowerCase(),
       });
 

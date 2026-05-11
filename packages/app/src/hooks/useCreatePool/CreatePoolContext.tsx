@@ -9,6 +9,7 @@ import {
   GDEnvTokens,
   SupportedNetwork,
   SupportedNetworkNames,
+  getMembersValidatorAddress,
   getUniquenessValidatorAddress,
 } from '../../models/constants';
 import useCrossNavigate from '../../routes/useCrossNavigate';
@@ -149,7 +150,7 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
 
     const poolSettings: UBIPoolSettings = {
       manager: await signer.getAddress(),
-      membersValidator: ethers.constants.AddressZero,
+      membersValidator: getMembersValidatorAddress(chainId),
       uniquenessValidator: getUniquenessValidatorAddress(chainId),
       rewardToken: rewardToken,
     };
