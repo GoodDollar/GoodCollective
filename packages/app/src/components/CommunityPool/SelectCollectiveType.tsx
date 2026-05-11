@@ -81,10 +81,11 @@ const SelectType = () => {
           </Text>
           <Text style={selectCollectiveTypeStyles.subtitle}>
             Choose how your pool distributes the funds. Only Community Funds are currently available. If you have
-            interest in the other pools types, reach out here:{' '}
+            interest in the other pools types,{' '}
             <Link href="https://ubi.gd/GoodBuildersTG" isExternal _text={selectCollectiveTypeStyles.linkText}>
-              https://ubi.gd/GoodBuildersTG
+              reach out here
             </Link>
+            .
           </Text>
         </Box>
 
