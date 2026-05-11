@@ -55,45 +55,40 @@ export const defaultInfoLabel = 'Please see the smart contract for information r
 export const SUBGRAPH_POLL_INTERVAL = parseInt(process.env.IS_DONATING_POLL_INTERVAL ?? '30000', 10);
 
 /**
- * Map of chainId -> goodprotocol deployment names that live on that chain.
- * For Celo mainnet (42220) the actual deployment used depends on the configured
- * env (production / staging / development / pre-production), so we keep an
- * ordered list and pick the one that matches REACT_APP_NETWORK first.
+ * Map of chainId -> the goodprotocol deployment name whose IdentityV2 contract
+ * is the canonical uniqueness validator for pools on that chain.
+ *
+ * IdentityV2 is a chain-level singleton: even though goodprotocol ships
+ * multiple GoodDollar deployments per chain (production / staging / dev /
+ * pre-production for Celo mainnet), they all read whitelist state off the
+ * production IdentityV2 in practice. Pools created against any of the
+ * GoodCollective factory variants are gated on the production registry, so
+ * the validator we embed in pool settings should be the production one.
  */
-const IDENTITY_DEPLOYMENT_NAMES_BY_CHAIN: Record<number, string[]> = {
-  42220: ['production-celo', 'staging-celo', 'development-celo', 'pre-production-celo'],
-  44787: ['alfajores'],
+const IDENTITY_DEPLOYMENT_NAME_BY_CHAIN: Record<number, string> = {
+  42220: 'production-celo',
+  44787: 'alfajores',
 };
 
 /**
- * Returns the IdentityV2 (uniqueness validator) address for the given chainId.
- * Reads from the @gooddollar/goodprotocol deployment manifest so the address
- * follows whatever the goodprotocol package ships, and falls back to the
- * env-configured network name on Celo mainnet so dev/QA builds resolve to the
- * matching IdentityV2 instead of the production one.
+ * Returns the IdentityV2 (uniqueness validator) address for the given chainId,
+ * read from the @gooddollar/goodprotocol deployment manifest. Replaces the
+ * hardcoded literal that used to live at the call sites.
  *
- * Returns ethers.constants.AddressZero when no deployment is found for the
- * given chain - callers should treat AddressZero as "no uniqueness check"
- * (consistent with the existing isZeroAddress checks in poolMemberEligibility).
+ * Returns ethers.constants.AddressZero when no deployment is found - callers
+ * treat AddressZero as "no uniqueness check" (see isZeroAddress in
+ * poolMemberEligibility).
  */
 export function getUniquenessValidatorAddress(chainId?: number): string {
   if (!chainId) return ethers.constants.AddressZero;
 
-  const candidates = IDENTITY_DEPLOYMENT_NAMES_BY_CHAIN[chainId];
-  if (!candidates || candidates.length === 0) return ethers.constants.AddressZero;
-
-  const envNetwork = env.REACT_APP_NETWORK;
-  const ordered =
-    envNetwork && candidates.includes(envNetwork)
-      ? [envNetwork, ...candidates.filter((name) => name !== envNetwork)]
-      : candidates;
+  const deploymentName = IDENTITY_DEPLOYMENT_NAME_BY_CHAIN[chainId];
+  if (!deploymentName) return ethers.constants.AddressZero;
 
   const deployments = GdContracts as unknown as Record<string, { Identity?: string } | undefined>;
-  for (const name of ordered) {
-    const address = deployments[name]?.Identity;
-    if (address && address !== ethers.constants.AddressZero) {
-      return address;
-    }
+  const address = deployments[deploymentName]?.Identity;
+  if (address && address !== ethers.constants.AddressZero) {
+    return address;
   }
 
   return ethers.constants.AddressZero;
