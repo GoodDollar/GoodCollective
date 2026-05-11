@@ -5,7 +5,12 @@ import { createContext, ReactNode, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { v4 as uuidv4 } from 'uuid';
 import { UBIPool } from '../../../../contracts/typechain-types/contracts/UBI/UBIPool';
-import { GDEnvTokens, SupportedNetwork, SupportedNetworkNames } from '../../models/constants';
+import {
+  GDEnvTokens,
+  SupportedNetwork,
+  SupportedNetworkNames,
+  getUniquenessValidatorAddress,
+} from '../../models/constants';
 import useCrossNavigate from '../../routes/useCrossNavigate';
 import { validateConnection } from '../useContractCalls/util';
 import { useEthersSigner } from '../useEthers';
@@ -13,6 +18,7 @@ import { formatSocialUrls } from '../../lib/formatSocialUrls';
 import { assessPoolMemberEligibility, formatSkippedMembersMessage } from '../../lib/poolMemberEligibility';
 import { Form } from './useCreatePool';
 import { validatePoolRecipients } from './usePoolConfigurationValidation';
+import { PoolMembersAddError } from './PoolMembersAddError';
 
 type CreatePoolContextType = {
   step: number;
@@ -109,6 +115,16 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
     }
     const { memberAddresses } = recipientsValidation;
 
+    // Defense in depth: never deploy a closed (onlyMembers=true) pool with zero
+    // initial members. The pool would be permanently inaccessible - no one
+    // could join or claim. The PoolConfiguration step blocks this in the UI,
+    // but we re-check here in case createPool is invoked in some other flow.
+    if (form.joinStatus === 'closed' && memberAddresses.length === 0) {
+      throw new Error(
+        'Closed pools must have at least one initial member, otherwise the pool would have no way for members to join or claim.'
+      );
+    }
+
     const projectIdBase = form.projectName.trim().toLowerCase().replace(/\s+/g, '/');
     const projectId = `${projectIdBase}-${uuidv4()}`;
 
@@ -134,7 +150,7 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
     const poolSettings: UBIPoolSettings = {
       manager: await signer.getAddress(),
       membersValidator: ethers.constants.AddressZero,
-      uniquenessValidator: '0xC361A6E67822a0EDc17D899227dd9FC50BD62F42',
+      uniquenessValidator: getUniquenessValidatorAddress(chainId),
       rewardToken: rewardToken,
     };
 
@@ -198,14 +214,27 @@ export const CreatePoolProvider = ({ children }: { children: ReactNode }) => {
         false // isBeacon should always be false as per requirements
       );
 
+      // Pool deployment succeeded; persist the address up-front so that even if
+      // the follow-up addPoolMembers transaction fails, the recovery UI can
+      // link the user to the manage page for this pool.
+      submitPartial({ createdPoolAddress: pool.address });
+
       if (memberAddresses.length > 0) {
-        const extraData = memberAddresses.map(() => '0x');
-        const tx = await sdk.addPoolMembers(signer, pool.address, memberAddresses, extraData);
-        await tx.wait();
+        try {
+          const extraData = memberAddresses.map(() => '0x');
+          const tx = await sdk.addPoolMembers(signer, pool.address, memberAddresses, extraData);
+          await tx.wait();
+        } catch (addMembersError) {
+          // Pool exists on-chain but the second tx failed (user rejected, gas,
+          // network drop, etc). Surface a recoverable error carrying the pool
+          // address so the UI can direct the user to the manage page to retry
+          // instead of leaving them with a stranded deployed pool.
+          console.error('Pool deployed but addPoolMembers failed:', addMembersError);
+          throw new PoolMembersAddError(pool.address, addMembersError);
+        }
       }
 
       console.log('Pool created successfully:', pool.address);
-      submitPartial({ createdPoolAddress: pool.address });
       setStep(6); // Move to success step
       return pool;
     } catch (error) {

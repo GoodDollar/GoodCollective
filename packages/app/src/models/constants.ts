@@ -1,6 +1,7 @@
 import { Token } from '@uniswap/sdk-core';
 import GdContracts from '@gooddollar/goodprotocol/releases/deployment.json';
 import GoodCollectiveContracts from '../../../contracts/releases/deployment.json';
+import { ethers } from 'ethers';
 
 import env from '../lib/env';
 
@@ -52,6 +53,51 @@ export const frequencyOptions: { value: Frequency; label: Frequency }[] = Object
 export const defaultInfoLabel = 'Please see the smart contract for information regarding payment logic.';
 
 export const SUBGRAPH_POLL_INTERVAL = parseInt(process.env.IS_DONATING_POLL_INTERVAL ?? '30000', 10);
+
+/**
+ * Map of chainId -> goodprotocol deployment names that live on that chain.
+ * For Celo mainnet (42220) the actual deployment used depends on the configured
+ * env (production / staging / development / pre-production), so we keep an
+ * ordered list and pick the one that matches REACT_APP_NETWORK first.
+ */
+const IDENTITY_DEPLOYMENT_NAMES_BY_CHAIN: Record<number, string[]> = {
+  42220: ['production-celo', 'staging-celo', 'development-celo', 'pre-production-celo'],
+  44787: ['alfajores'],
+};
+
+/**
+ * Returns the IdentityV2 (uniqueness validator) address for the given chainId.
+ * Reads from the @gooddollar/goodprotocol deployment manifest so the address
+ * follows whatever the goodprotocol package ships, and falls back to the
+ * env-configured network name on Celo mainnet so dev/QA builds resolve to the
+ * matching IdentityV2 instead of the production one.
+ *
+ * Returns ethers.constants.AddressZero when no deployment is found for the
+ * given chain - callers should treat AddressZero as "no uniqueness check"
+ * (consistent with the existing isZeroAddress checks in poolMemberEligibility).
+ */
+export function getUniquenessValidatorAddress(chainId?: number): string {
+  if (!chainId) return ethers.constants.AddressZero;
+
+  const candidates = IDENTITY_DEPLOYMENT_NAMES_BY_CHAIN[chainId];
+  if (!candidates || candidates.length === 0) return ethers.constants.AddressZero;
+
+  const envNetwork = env.REACT_APP_NETWORK;
+  const ordered =
+    envNetwork && candidates.includes(envNetwork)
+      ? [envNetwork, ...candidates.filter((name) => name !== envNetwork)]
+      : candidates;
+
+  const deployments = GdContracts as unknown as Record<string, { Identity?: string } | undefined>;
+  for (const name of ordered) {
+    const address = deployments[name]?.Identity;
+    if (address && address !== ethers.constants.AddressZero) {
+      return address;
+    }
+  }
+
+  return ethers.constants.AddressZero;
+}
 
 /**
  * Returns the ProvableNFT contract address for the given network name.

@@ -69,6 +69,7 @@ export const usePoolConfigurationValidation = () => {
       expectedMembers,
       poolManagerFeeType,
       managerFeePercentage,
+      joinStatus,
     } = formData;
 
     // Validate maximum members
@@ -105,6 +106,13 @@ export const usePoolConfigurationValidation = () => {
     const recipientsValidation = validatePoolRecipients(poolRecipients, maximumMembers);
     if (!recipientsValidation.isValid) {
       currErrors.poolRecipients = recipientsValidation.error ?? 'Invalid member addresses.';
+      pass = false;
+    } else if (joinStatus === 'closed' && recipientsValidation.memberAddresses.length === 0) {
+      // A closed pool with no initial members would deploy with onlyMembers=true and
+      // zero members - nobody could ever join or claim. Force the user to either add
+      // initial members or switch the pool to open before proceeding.
+      currErrors.poolRecipients =
+        'Closed pools must have at least one initial member. Add a member address or set the pool to Open.';
       pass = false;
     }
 

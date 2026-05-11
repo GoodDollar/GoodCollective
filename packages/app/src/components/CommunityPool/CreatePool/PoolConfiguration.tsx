@@ -16,6 +16,7 @@ import NavigationButtons from '../NavigationButtons';
 import ClaimFrequencySection from './pool-configs/ClaimFrequencySection';
 import { useEthersProvider } from '../../../hooks/useEthers';
 import { assessPoolMemberEligibility, formatSkippedMembersMessage } from '../../../lib/poolMemberEligibility';
+import { getUniquenessValidatorAddress } from '../../../models/constants';
 
 const PoolConfiguration = () => {
   const { form, nextStep, submitPartial, previousStep } = useCreatePool();
@@ -82,7 +83,7 @@ const PoolConfiguration = () => {
       const { skippedAddresses, validAddresses } = await assessPoolMemberEligibility({
         provider,
         addresses: recipientsValidation.memberAddresses,
-        uniquenessValidator: '0xC361A6E67822a0EDc17D899227dd9FC50BD62F42',
+        uniquenessValidator: getUniquenessValidatorAddress(chainId),
         membersValidator: ethers.constants.AddressZero,
         operatorAddress: managerAddress.toLowerCase(),
       });

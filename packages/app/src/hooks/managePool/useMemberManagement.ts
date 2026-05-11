@@ -73,10 +73,11 @@ export const useMemberManagement = ({ poolAddress, pooltype, chainId }: UseMembe
     if (pooltype === 'UBI') {
       try {
         // Read membersCount separately so the UI can keep the total even if log replay fails.
+        // status() is typed by typechain (UBIPool.ts) and returns a named `membersCount` field,
+        // so we read it by name - no positional tuple indexing or fragile casts.
         const status = await sdk.ubipool.attach(poolAddress).status();
-        const rawCount = (status as unknown as { membersCount?: ethers.BigNumber }).membersCount ?? status[7];
-        const parsed = Number(rawCount?.toString?.() ?? rawCount);
-        if (!Number.isNaN(parsed)) {
+        const parsed = Number(status.membersCount);
+        if (Number.isFinite(parsed)) {
           onChainCount = parsed;
         }
       } catch {

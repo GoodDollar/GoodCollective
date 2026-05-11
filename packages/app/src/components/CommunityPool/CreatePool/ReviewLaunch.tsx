@@ -4,6 +4,8 @@ import { ReactNode, useCallback, useMemo, useState } from 'react';
 import { AtIcon, DiscordIcon, EditIcon, InstagramIcon, PhoneImg, TwitterIcon, WebsiteIcon } from '../../../assets';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { printAndParseSupportError } from '../../../hooks/useContractCalls/util';
+import { isPoolMembersAddError } from '../../../hooks/useCreatePool/PoolMembersAddError';
+import useCrossNavigate from '../../../routes/useCrossNavigate';
 import BaseModal from '../../modals/BaseModal';
 import NavigationButtons from '../NavigationButtons';
 import { Linking } from 'react-native';
@@ -58,9 +60,15 @@ const ReviewLaunch = () => {
   const { form, startOver, previousStep, goToBasics, goToProjectDetails, goToPoolConfiguration, createPool } =
     useCreatePool();
   const { isDesktopView } = useScreenSize();
+  const { navigate } = useCrossNavigate();
 
   const [approvePoolModalVisible, setApprovePoolModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+  // Holds the deployed pool address when the pool was created on-chain but the
+  // follow-up addPoolMembers transaction failed. Used to render a recovery
+  // modal that links to the manage page so the user can retry.
+  const [partialCreatePoolAddress, setPartialCreatePoolAddress] = useState<string | undefined>(undefined);
+  const [partialCreateReason, setPartialCreateReason] = useState<string | undefined>(undefined);
   const [isCreating, setIsCreating] = useState(false);
 
   const socials = [
@@ -90,6 +98,8 @@ const ReviewLaunch = () => {
     setIsCreating(true);
     setApprovePoolModalVisible(true);
     setErrorMessage(undefined);
+    setPartialCreatePoolAddress(undefined);
+    setPartialCreateReason(undefined);
 
     try {
       const pool = await createPool();
@@ -104,14 +114,34 @@ const ReviewLaunch = () => {
       console.error('Pool creation error:', error);
       setApprovePoolModalVisible(false);
 
-      const message = printAndParseSupportError(error);
-      setErrorMessage(message);
+      // Pool deployed on-chain but addPoolMembers tx failed - show a recovery
+      // modal pointing the user at the manage page rather than a generic error
+      // that would leave them with a stranded deployed pool.
+      if (isPoolMembersAddError(error)) {
+        setPartialCreatePoolAddress(error.poolAddress);
+        setPartialCreateReason(printAndParseSupportError(error.cause));
+      } else {
+        const message = printAndParseSupportError(error);
+        setErrorMessage(message);
+      }
     } finally {
       setIsCreating(false);
     }
   }, [createPool]);
 
   const onCloseErrorModal = () => setErrorMessage(undefined);
+
+  const onClosePartialCreateModal = () => {
+    setPartialCreatePoolAddress(undefined);
+    setPartialCreateReason(undefined);
+  };
+
+  const onGoToManagePool = () => {
+    if (!partialCreatePoolAddress) return;
+    const address = partialCreatePoolAddress;
+    onClosePartialCreateModal();
+    navigate(`/collective/${address}/manage`);
+  };
 
   // ===== Helpers to reduce repetition =====
   const formatPoolType = useCallback((poolType?: string) => {
@@ -292,6 +322,24 @@ const ReviewLaunch = () => {
         onClose={onCloseErrorModal}
         errorMessage={errorMessage ?? ''}
         onConfirm={onCloseErrorModal}
+      />
+
+      {/* Partial-create recovery modal: shown when the pool was deployed but
+          the second tx (adding initial members) failed. Directs the user to
+          the manage page where they can retry adding members. */}
+      <BaseModal
+        openModal={!!partialCreatePoolAddress}
+        onClose={onClosePartialCreateModal}
+        onConfirm={onGoToManagePool}
+        title="POOL CREATED, MEMBERS NOT ADDED"
+        confirmButtonText="Go to Manage Pool"
+        paragraphs={[
+          'Your pool was deployed on-chain, but the second transaction adding the initial members did not complete.',
+          partialCreateReason ? `Reason: ${partialCreateReason}` : undefined,
+          partialCreatePoolAddress ? `Pool address: ${partialCreatePoolAddress}` : undefined,
+          'You can finish adding members from the pool management page.',
+        ]}
+        image={PhoneImg}
       />
 
       {/* Approval Modal */}
