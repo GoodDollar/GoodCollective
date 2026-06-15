@@ -4,8 +4,12 @@ import { ReactNode, useCallback, useMemo, useState } from 'react';
 import { AtIcon, DiscordIcon, EditIcon, InstagramIcon, PhoneImg, TwitterIcon, WebsiteIcon } from '../../../assets';
 import { useCreatePool } from '../../../hooks/useCreatePool/useCreatePool';
 import { printAndParseSupportError } from '../../../hooks/useContractCalls/util';
+import { isPoolMembersAddError } from '../../../hooks/useCreatePool/PoolMembersAddError';
+import useCrossNavigate from '../../../routes/useCrossNavigate';
 import BaseModal from '../../modals/BaseModal';
 import NavigationButtons from '../NavigationButtons';
+import { Linking } from 'react-native';
+import { formatSocialUrls } from '../../../lib/formatSocialUrls';
 
 const SectionHeader = ({ title, onEdit }: { title: string; onEdit: () => void }) => (
   <HStack alignItems="center">
@@ -56,9 +60,17 @@ const ReviewLaunch = () => {
   const { form, startOver, previousStep, goToBasics, goToProjectDetails, goToPoolConfiguration, createPool } =
     useCreatePool();
   const { isDesktopView } = useScreenSize();
+  const { navigate } = useCrossNavigate();
 
   const [approvePoolModalVisible, setApprovePoolModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+  // Holds the deployed pool address when the pool was created on-chain but the
+  // follow-up addPoolMembers transaction failed. Used to render a recovery
+  // modal that links to the manage page so the user can retry.
+  const [partialCreatePoolAddress, setPartialCreatePoolAddress] = useState<string | undefined>(undefined);
+  const [partialCreateReason, setPartialCreateReason] = useState<string | undefined>(undefined);
+  const [partialCreateMembers, setPartialCreateMembers] = useState<string[]>([]);
+  const [partialCopySuccess, setPartialCopySuccess] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   const socials = [
@@ -88,6 +100,10 @@ const ReviewLaunch = () => {
     setIsCreating(true);
     setApprovePoolModalVisible(true);
     setErrorMessage(undefined);
+    setPartialCreatePoolAddress(undefined);
+    setPartialCreateReason(undefined);
+    setPartialCreateMembers([]);
+    setPartialCopySuccess(false);
 
     try {
       const pool = await createPool();
@@ -102,14 +118,61 @@ const ReviewLaunch = () => {
       console.error('Pool creation error:', error);
       setApprovePoolModalVisible(false);
 
-      const message = printAndParseSupportError(error);
-      setErrorMessage(message);
+      // Pool deployed on-chain but addPoolMembers tx failed - show a recovery
+      // modal pointing the user at the manage page rather than a generic error
+      // that would leave them with a stranded deployed pool.
+      if (isPoolMembersAddError(error)) {
+        setPartialCreatePoolAddress(error.poolAddress);
+        setPartialCreateReason(printAndParseSupportError(error.cause));
+        setPartialCreateMembers(error.memberAddresses);
+      } else {
+        const message = printAndParseSupportError(error);
+        setErrorMessage(message);
+      }
     } finally {
       setIsCreating(false);
     }
   }, [createPool]);
 
   const onCloseErrorModal = () => setErrorMessage(undefined);
+
+  const onClosePartialCreateModal = () => {
+    setPartialCreatePoolAddress(undefined);
+    setPartialCreateReason(undefined);
+    setPartialCreateMembers([]);
+    setPartialCopySuccess(false);
+  };
+
+  const onGoToManagePool = () => {
+    if (!partialCreatePoolAddress) return;
+    const address = partialCreatePoolAddress;
+    onClosePartialCreateModal();
+    navigate(`/collective/${address}/manage`);
+  };
+
+  const onCopyPartialMembers = useCallback(async () => {
+    if (partialCreateMembers.length === 0) return;
+    const text = partialCreateMembers.join('\n');
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for environments without clipboard API (older webviews).
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      setPartialCopySuccess(true);
+      setTimeout(() => setPartialCopySuccess(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy member addresses:', err);
+    }
+  }, [partialCreateMembers]);
 
   // ===== Helpers to reduce repetition =====
   const formatPoolType = useCallback((poolType?: string) => {
@@ -198,16 +261,27 @@ const ReviewLaunch = () => {
               <Label>Socials</Label>
               <HStack space={2}>
                 {socials.map((social, index) => (
-                  <Box
+                  <Pressable
                     key={index}
-                    backgroundColor="gray.100"
-                    width={10}
-                    height={10}
-                    justifyContent="center"
-                    alignItems="center"
-                    borderRadius={4}>
-                    <img width={24} src={social.icon} />
-                  </Box>
+                    onPress={() => {
+                      const url = form[social.name as keyof typeof form];
+                      if (typeof url === 'string') {
+                        const formattedUrl = formatSocialUrls[social.name as keyof typeof formatSocialUrls](url);
+                        if (formattedUrl) {
+                          Linking.openURL(formattedUrl);
+                        }
+                      }
+                    }}>
+                    <Box
+                      backgroundColor="gray.100"
+                      width={10}
+                      height={10}
+                      justifyContent="center"
+                      alignItems="center"
+                      borderRadius={4}>
+                      <img width={24} src={social.icon} />
+                    </Box>
+                  </Pressable>
                 ))}
               </HStack>
             </VStack>
@@ -246,6 +320,12 @@ const ReviewLaunch = () => {
               <StatRow label="Min Claim Amount" value={`${form.claimAmountPerWeek}G$`} />
               <StatRow label="Expected Members" value={form.expectedMembers} />
               <StatRow label="Amount To Fund" value={`${amountToFund}G$`} />
+              {form.poolRecipients && form.poolRecipients.trim() !== '' && (
+                <StatRow
+                  label="Initial Members"
+                  value={form.poolRecipients.split(/[\n,]/).filter((s) => s.trim() !== '').length}
+                />
+              )}
             </VStack>
           </VStack>
         </VStack>
@@ -255,6 +335,7 @@ const ReviewLaunch = () => {
         onBack={() => previousStep()}
         onNext={handleCreatePool}
         nextText={isCreating ? 'Creating...' : 'Launch Pool'}
+        nextDisabled={isCreating}
         marginTop={6}
         containerStyle={undefined}
         buttonWidth="140px"
@@ -274,15 +355,69 @@ const ReviewLaunch = () => {
         onConfirm={onCloseErrorModal}
       />
 
+      {/* Partial-create recovery modal: shown when the pool was deployed but
+          the second tx (adding initial members) failed. Surfaces the attempted
+          member list with a copy-to-clipboard so the user can paste it on the
+          manage page instead of typing it again. */}
+      <BaseModal
+        openModal={!!partialCreatePoolAddress}
+        onClose={onClosePartialCreateModal}
+        onConfirm={onGoToManagePool}
+        title="POOL CREATED, MEMBERS NOT ADDED"
+        confirmButtonText="Go to Manage Pool"
+        paragraphs={[
+          'Your pool was deployed on-chain, but the second transaction adding the initial members did not complete.',
+          partialCreateReason ? `Reason: ${partialCreateReason}` : undefined,
+          partialCreatePoolAddress ? `Pool address: ${partialCreatePoolAddress}` : undefined,
+          partialCreateMembers.length > 0 ? (
+            <VStack key="member-list" space={2} width="100%" maxWidth="360px">
+              <HStack alignItems="center" justifyContent="space-between">
+                <Text fontSize="sm" fontWeight="600">
+                  Members to add ({partialCreateMembers.length})
+                </Text>
+                <Pressable onPress={onCopyPartialMembers}>
+                  <Text fontSize="sm" color="blue.500" fontWeight="600">
+                    {partialCopySuccess ? 'Copied!' : 'Copy'}
+                  </Text>
+                </Pressable>
+              </HStack>
+              <Box
+                borderWidth={1}
+                borderColor="gray.200"
+                borderRadius={8}
+                padding={2}
+                maxHeight={120}
+                overflow="scroll"
+                backgroundColor="gray.50">
+                {partialCreateMembers.map((address) => (
+                  <Text key={address} fontSize="xs" fontFamily="mono" textAlign="left">
+                    {address}
+                  </Text>
+                ))}
+              </Box>
+            </VStack>
+          ) : undefined,
+          'You can finish adding members from the pool management page.',
+        ]}
+        image={PhoneImg}
+      />
+
       {/* Approval Modal */}
       <BaseModal
         openModal={approvePoolModalVisible}
         onClose={() => setApprovePoolModalVisible(false)}
         title="APPROVE POOL CREATION"
-        paragraphs={[
-          'To create your GoodCollective pool, sign with your wallet.',
-          'This will deploy your pool contract and make it available for members to join.',
-        ]}
+        paragraphs={
+          form.poolRecipients && form.poolRecipients.trim() !== ''
+            ? [
+                'To create your GoodCollective pool, sign with your wallet.',
+                'Note: You will be asked to sign TWO transactions. The first creates the pool, and the second adds your initial members.',
+              ]
+            : [
+                'To create your GoodCollective pool, sign with your wallet.',
+                'This will deploy your pool contract and make it available for members to join.',
+              ]
+        }
         image={PhoneImg}
       />
     </VStack>

@@ -1,4 +1,4 @@
-import { Box, Checkbox, FormControl, HStack, Pressable, Radio, Text, VStack, WarningOutlineIcon } from 'native-base';
+import { Box, Checkbox, FormControl, HStack, Link, Pressable, Text, VStack, WarningOutlineIcon } from 'native-base';
 import { useState } from 'react';
 import { useCreatePool } from '../../hooks/useCreatePool/useCreatePool';
 import { useScreenSize } from '../../theme/hooks';
@@ -7,12 +7,12 @@ import { CreateCollectiveLogo } from '../../assets';
 import { InterRegular, InterSemiBold, InterSmall } from '../../utils/webFonts';
 
 const Welcome = () => {
-  const [value, setValue] = useState<string>('one');
-  const [acknowledged, setAcknowledged] = useState<string>('');
+  const [acknowledged, setAcknowledged] = useState<boolean>(false);
   const [pressed, setPressed] = useState<boolean>(false);
   const { isDesktopView } = useScreenSize();
 
   const { nextStep } = useCreatePool();
+  const termsUrl = 'https://www.gooddollar.org/terms-of-use';
 
   const onSubmit = () => {
     if (!acknowledged) {
@@ -40,8 +40,7 @@ const Welcome = () => {
               color: '#6933FF',
             },
           ]}
-          textAlign="center"
-          fontWeight="600">
+          textAlign="center">
           Welcome to
         </Text>
         <Box style={[welcomeStyles.logoImage, isDesktopView && desktopWelcomeStyles.logoImage]}>
@@ -62,49 +61,19 @@ const Welcome = () => {
         style={[welcomeStyles.infoBlock, isDesktopView && desktopWelcomeStyles.infoBlock]}
         backgroundColor="goodPurple.100"
         borderColor="goodPurple.200">
-        <Text variant="body-text" textAlign="justify" color="black">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam totam, tempore saepe beatae et quidem provident
-          aperiam esse recusandae rem fugiat laboriosam est rerum enim at magni suscipit amet qui. Lorem ipsum dolor,
-          sit amet consectetur adipisicing elit. Totam similique vel odio incidunt enim officiis, quo dignissimos
-          quaerat officia omnis at dolorem itaque dolore pariatur tempora? Quo ratione sequi dolorem. Lorem ipsum dolor
-          sit amet consectetur adipisicing elit. Repellendus eum similique culpa dolore quos doloremque. Nostrum quo rem
-          deserunt, sit sint hic itaque? Cumque incidunt facilis repellendus vero magnam dolorem.
+        <Text
+          variant="body-text"
+          style={[welcomeStyles.infoTitle, isDesktopView && desktopWelcomeStyles.infoTitle]}
+          color="black">
+          GoodCollective helps you turn funding into real, verifiable impact.
         </Text>
-        <Text variant="body-text" textAlign="justify" marginTop={4} color="black">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione cupiditate, labore ducimus quae suscipit
-          tempora minus non nihil inventore ipsa dignissimos ex corrupti adipisci impedit autem repudiandae
-          reprehenderit eum in!
+        <Text variant="body-text" style={welcomeStyles.infoBody} color="black">
+          Create a pool, define who's eligible, and automate distributions with ease.
         </Text>
-      </Box>
-
-      {/* Radio Options Block */}
-      <Box
-        style={[welcomeStyles.radioBlock, isDesktopView && desktopWelcomeStyles.radioBlock]}
-        backgroundColor="white"
-        borderColor="goodGrey.200">
-        <Radio.Group
-          name="donationFrequency"
-          value={value}
-          onChange={(v) => {
-            setValue(v);
-            console.log(v);
-          }}
-          flexDir="column">
-          <HStack style={welcomeStyles.radioOption} alignItems="flex-start">
-            <Radio value="one" style={welcomeStyles.radioButton} size="sm" />
-            <Text variant="body-text" flex={1} color="black">
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Animi, dignissimos fugit adipisci, ex libero
-              laborum praesentium officiis
-            </Text>
-          </HStack>
-          <HStack style={welcomeStyles.radioOption} alignItems="flex-start">
-            <Radio value="two" style={welcomeStyles.radioButton} size="sm" />
-            <Text variant="body-text" flex={1} color="black">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates maiores ab dicta vero veritatis omnis
-              natus ration
-            </Text>
-          </HStack>
-        </Radio.Group>
+        <Text variant="body-text" style={[welcomeStyles.infoBody, welcomeStyles.infoBodySpacing]} color="black">
+          Whether you're supporting a community, rewarding actions, or reaching a specific group, everything is simple
+          and fully auditable on-chain.
+        </Text>
       </Box>
 
       {/* Checkbox Section */}
@@ -119,14 +88,18 @@ const Welcome = () => {
               borderRadius={4}
               borderColor="goodGrey.400"
               _checked={{ bg: 'goodPurple.400', borderColor: 'goodPurple.400' }}
-              value={String(acknowledged)}
-              onChange={(v) => setAcknowledged(String(v))}
+              value="acknowledge"
+              isChecked={acknowledged}
+              onChange={(v) => setAcknowledged(v)}
               accessibilityLabel="I understand"
               size="md"
             />
-            <Text variant="body-text" flex={1} color="black">
-              I understand Vitae morbi dolor tellus in tincidunt est ac cursus. Habitasse viverra lectus integer posuere
-              fermentum.
+            <Text style={welcomeStyles.checkboxText} flex={1} color="black">
+              All on-chain transactions are final and non-reversible. GoodCollective is a non-custodial interface
+              provided as-is.{'\n'}
+              <Link href={termsUrl} isExternal _text={welcomeStyles.linkText}>
+                Terms of Use
+              </Link>
             </Text>
           </HStack>
           <FormControl.ErrorMessage
@@ -140,8 +113,13 @@ const Welcome = () => {
 
       {/* CTA Button */}
       <Pressable
-        style={[welcomeStyles.ctaButton, isDesktopView && desktopWelcomeStyles.ctaButton]}
+        style={[
+          welcomeStyles.ctaButton,
+          isDesktopView && desktopWelcomeStyles.ctaButton,
+          { opacity: acknowledged ? 1 : 0.5 },
+        ]}
         bg="goodPurple.400"
+        disabled={!acknowledged}
         onPress={onSubmit}>
         <Text style={[welcomeStyles.ctaButtonText, isDesktopView && desktopWelcomeStyles.ctaButtonText]} color="white">
           Get Started
@@ -166,11 +144,13 @@ const welcomeStyles = {
   },
   welcomeText: {
     fontSize: 48,
+    lineHeight: 56,
     marginBottom: 4,
     ...InterSemiBold,
   },
   logoImage: {
-    width: 365,
+    width: '100%',
+    maxWidth: 320,
     height: 50,
     resizeMode: 'contain',
   },
@@ -188,11 +168,16 @@ const welcomeStyles = {
     shadowRadius: 4,
     elevation: 3,
   },
-  infoText: {
-    fontSize: 14,
-    lineHeight: 20,
-    textAlign: 'justify',
-    ...InterRegular,
+  infoTitle: {
+    textAlign: 'center',
+    marginBottom: 12,
+    ...InterSemiBold,
+  },
+  infoBody: {
+    textAlign: 'center',
+  },
+  infoBodySpacing: {
+    marginTop: 12,
   },
   radioBlock: {
     borderRadius: 12,
@@ -250,6 +235,12 @@ const welcomeStyles = {
     flex: 1,
     ...InterRegular,
   },
+  linkText: {
+    color: 'goodPurple.400',
+    textDecorationLine: 'underline',
+    cursor: 'pointer',
+    ...InterSemiBold,
+  },
   ctaButton: {
     borderRadius: 12,
     paddingVertical: 16,
@@ -278,43 +269,58 @@ const welcomeStyles = {
 
 const desktopWelcomeStyles = {
   container: {
+    maxWidth: 760,
+    width: '100%',
     marginHorizontal: 'auto',
-    paddingHorizontal: 32,
-    paddingTop: 40,
-    paddingBottom: 60,
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    paddingBottom: 48,
   },
   welcomeSection: {
-    marginBottom: 40,
+    marginBottom: 32,
   },
   welcomeText: {
-    fontSize: 96,
-    marginBottom: 2,
+    fontSize: 56,
+    lineHeight: 64,
+    marginBottom: 4,
     ...InterSemiBold,
   },
   logoImage: {
-    width: 1088,
-    height: 145,
+    width: '100%',
+    maxWidth: 520,
+    height: 64,
     resizeMode: 'contain',
   },
   infoBlock: {
-    padding: 32,
-    marginBottom: 24,
-    borderWidth: 1,
+    padding: 24,
+    marginBottom: 20,
+    maxWidth: 720,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  infoTitle: {
+    marginBottom: 12,
   },
   radioBlock: {
-    padding: 32,
-    marginBottom: 24,
+    padding: 24,
+    marginBottom: 20,
   },
   checkboxSection: {
-    padding: 32,
-    marginBottom: 32,
+    padding: 24,
+    marginBottom: 24,
+    maxWidth: 720,
+    alignSelf: 'center',
+    width: '100%',
   },
   ctaButton: {
-    paddingVertical: 20,
-    paddingHorizontal: 32,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    maxWidth: 720,
+    alignSelf: 'center',
+    width: '100%',
   },
   ctaButtonText: {
-    fontSize: 18,
+    fontSize: 16,
     ...InterSemiBold,
   },
 };

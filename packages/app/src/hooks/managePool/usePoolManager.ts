@@ -15,6 +15,15 @@ interface UsePoolManagerParams {
   provider?: ethers.providers.Provider;
 }
 
+/**
+ * Looks up whether the connected (or supplied) address holds MANAGER_ROLE on
+ * the given pool. `isManager` is internally tri-state - undefined means we
+ * haven't checked yet for the current inputs, so callers can distinguish
+ * "not a manager" from "still resolving" via the derived `checkingRole`.
+ *
+ * Returned shape stays boolean for callers, with `checkingRole === true`
+ * covering both the in-flight fetch and the pre-fetch unresolved state.
+ */
 export const usePoolManager = ({
   poolAddress,
   pooltype,
@@ -26,24 +35,31 @@ export const usePoolManager = ({
   const chainIdFromAccount = chain?.id;
   const defaultProvider = useEthersProvider({ chainId: chainIdParam ?? chainIdFromAccount ?? 42220 });
 
-  // Use provided values or fall back to account/context values
   const address = addressParam ?? accountAddress;
   const chainId = chainIdParam ?? chainIdFromAccount ?? 42220;
   const provider = providerParam ?? defaultProvider;
+  const hasRoleInputs = Boolean(address && poolAddress && chainId && pooltype);
 
-  const [isManager, setIsManager] = useState(false);
-  const [checkingRole, setCheckingRole] = useState(false);
+  // undefined = "not yet resolved for the current inputs", which keeps the
+  // UI in a loading state instead of flashing "not manager" before the
+  // on-chain check completes.
+  const [isManager, setIsManager] = useState<boolean | undefined>(undefined);
+  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
-    const checkIsManager = async () => {
-      if (!address || !provider || !poolAddress || !chainId || !pooltype) {
-        setIsManager(false);
-        setCheckingRole(false);
-        return;
-      }
+    // Inputs aren't ready - clear resolution state so a future change starts
+    // a fresh check and the UI stays in loading until then.
+    if (!hasRoleInputs || !provider) {
+      setIsManager(undefined);
+      setIsFetching(false);
+      return;
+    }
 
+    let cancelled = false;
+    const check = async () => {
       try {
-        setCheckingRole(true);
+        setIsManager(undefined);
+        setIsFetching(true);
 
         const chainKey = chainId.toString();
         const networkName = env.REACT_APP_NETWORK || 'development-celo';
@@ -55,23 +71,31 @@ export const usePoolManager = ({
           (pooltype === 'UBI' ? contractsForChain?.UBIPool?.abi : contractsForChain?.DirectPaymentsPool?.abi) || [];
 
         if (!poolAbi.length) {
-          setIsManager(false);
+          if (!cancelled) setIsManager(false);
           return;
         }
 
         const MANAGER_ROLE = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('MANAGER_ROLE'));
-        const contract = new ethers.Contract(poolAddress, poolAbi, provider);
+        const contract = new ethers.Contract(poolAddress as string, poolAbi, provider);
         const hasRole = await contract.hasRole(MANAGER_ROLE, address);
-        setIsManager(Boolean(hasRole));
+        if (!cancelled) setIsManager(Boolean(hasRole));
       } catch {
-        setIsManager(false);
+        if (!cancelled) setIsManager(false);
       } finally {
-        setCheckingRole(false);
+        if (!cancelled) setIsFetching(false);
       }
     };
 
-    checkIsManager();
-  }, [address, poolAddress, pooltype, provider, chainId]);
+    check();
+    return () => {
+      cancelled = true;
+    };
+  }, [address, chainId, hasRoleInputs, poolAddress, pooltype, provider]);
 
-  return { isManager, checkingRole };
+  // `checkingRole` is true while a fetch is in flight, and also while inputs
+  // are valid but resolution hasn't completed yet (covers the brief render
+  // between a roleKey change and the effect running).
+  const checkingRole = isFetching || (hasRoleInputs && isManager === undefined);
+
+  return { isManager: Boolean(isManager), checkingRole };
 };

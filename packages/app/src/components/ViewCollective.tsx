@@ -236,8 +236,9 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
 
   const [refetchTrigger, setRefetchTrigger] = useState(0);
   const [isMemberPoolLoading, setIsMemberPoolLoading] = useState(false);
+  const [hasResolvedMemberPoolState, setHasResolvedMemberPoolState] = useState(pooltype !== 'UBI');
 
-  const { isManager } = usePoolManager({
+  const { isManager, checkingRole } = usePoolManager({
     poolAddress,
     pooltype: pooltype as 'UBI' | 'DIRECT' | undefined,
     chainId,
@@ -250,14 +251,16 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
       setMemberPoolData(null);
       setPoolOnlyMembers(undefined);
       setIsMemberPoolLoading(false);
+      setHasResolvedMemberPoolState(pooltype !== 'UBI');
       return;
     }
     try {
+      setHasResolvedMemberPoolState(false);
       setIsMemberPoolLoading(true);
       const network = SupportedNetworkNames[chainId as SupportedNetwork];
       const sdk = new GoodCollectiveSDK(chainId.toString() as any, provider, { network });
 
-      // Always fetch pool settings to get onlyMembers, even if user is not a member
+      // Always fetch pool settings to get onlyMembers, even if user is not a member.
       const poolDetails = await sdk.getUBIPoolsDetails([poolAddress], address);
       const currentPool = poolDetails.find((pool: any) => pool.contract.toLowerCase() === poolAddress.toLowerCase());
 
@@ -265,6 +268,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
         setMemberPoolData(null);
         setPoolOnlyMembers(undefined);
         setIsMemberPoolLoading(false);
+        setHasResolvedMemberPoolState(true);
         return;
       }
 
@@ -273,19 +277,18 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
       const claimPeriodDaysRaw = currentPool.ubiSettings?.claimPeriodDays;
       const onlyMembersRaw = currentPool.ubiSettings?.onlyMembers;
 
-      // Always store onlyMembers setting for pool open check
+      // Always store onlyMembers setting for pool open check.
       setPoolOnlyMembers(onlyMembersRaw as boolean | undefined);
 
       if (!address || !currentPool.isRegistered) {
         setMemberPoolData(null);
         setIsMemberPoolLoading(false);
+        setHasResolvedMemberPoolState(true);
         return;
       }
 
       const eligibleAmount = BigInt(claimAmountStr || '0');
 
-      // Check if user has actually claimed by calling hasClaimed(address) on the contract
-      // This is the only reliable way to know if they've claimed (not just if nextClaimTime exists)
       const networkName = env.REACT_APP_NETWORK || 'development-celo';
       const UBI_POOL_ABI =
         (GoodCollectiveContracts as any)[chainId.toString()]?.find((envs: any) => envs.name === networkName)?.contracts
@@ -295,30 +298,31 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
       if (UBI_POOL_ABI.length > 0) {
         try {
           const poolContract = new ethers.Contract(poolAddress, UBI_POOL_ABI, provider);
+          // Check if user has actually claimed by calling hasClaimed(address) on the contract.
+          // This is the reliable way to know if they have claimed, not just whether nextClaimTime exists.
           hasClaimedToday = await poolContract.hasClaimed(address);
         } catch (e) {
-          // If contract call fails, fall back to false
+          // If the contract call fails, fall back to false and keep the rest of the UI usable.
           console.warn('Failed to check hasClaimed:', e);
         }
       }
 
-      // hasClaimed should only be true if the user has actually claimed today
-      // The countdown should only show after a successful claim transaction
+      // hasClaimed should only be true if the user has actually claimed today.
       setMemberPoolData({
         eligibleAmount,
         hasClaimed: hasClaimedToday,
         nextClaimTime: nextClaimTimeStr ? Number(nextClaimTimeStr) : undefined,
         claimPeriodDays: claimPeriodDaysRaw !== undefined ? Number(claimPeriodDaysRaw) : undefined,
-        // `onlyMembers` from the SDK is typed as PromiseOrValue<boolean>, but in practice is a boolean.
-        // Cast to the expected boolean | undefined shape for local state.
         onlyMembers: onlyMembersRaw as boolean | undefined,
       });
       setIsMemberPoolLoading(false);
+      setHasResolvedMemberPoolState(true);
     } catch (e) {
-      // If SDK call fails, gracefully fall back to null so UI can still render
+      // If the SDK call fails, fall back to null so the page can still render safely.
       setMemberPoolData(null);
       setPoolOnlyMembers(undefined);
       setIsMemberPoolLoading(false);
+      setHasResolvedMemberPoolState(true);
     }
   }, [address, poolAddress, pooltype, provider, chainId]);
 
@@ -344,6 +348,13 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
     tokenPrice,
     2
   );
+
+  const isPoolActionStateLoading =
+    pooltype === 'UBI' && (checkingRole || isMemberPoolLoading || !hasResolvedMemberPoolState);
+  const shouldShowJoinPoolButton =
+    !isManager && !checkingRole && !poolOnlyMembers && !memberPoolData && Boolean(address) && pooltype === 'UBI';
+  const shouldShowClaimRewardButton =
+    memberPoolData !== null && memberPoolData.eligibleAmount > 0n && Boolean(address) && pooltype === 'UBI';
 
   if (isDesktopView) {
     return (
@@ -388,14 +399,14 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
               </View>
               {maybeDonorCollective && maybeDonorCollective.flowRate !== '0' ? null : (
                 <View style={styles.collectiveDonateBox}>
-                  {pooltype === 'UBI' && isMemberPoolLoading ? (
+                  {isPoolActionStateLoading ? (
                     <VStack alignItems="center" space={2}>
                       <Spinner variant="page-loader" />
-                      <Text>Loading pool details</Text>
+                      <Text>Loading pool actions</Text>
                     </VStack>
                   ) : (
                     <>
-                      {!poolOnlyMembers && !memberPoolData && address && pooltype === 'UBI' && (
+                      {shouldShowJoinPoolButton && (
                         <JoinPoolButton
                           poolAddress={poolAddress as `0x${string}`}
                           poolType={pooltype}
@@ -403,7 +414,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                           onSuccess={refetchMemberPoolData}
                         />
                       )}
-                      {memberPoolData && memberPoolData.eligibleAmount > 0n && address && pooltype === 'UBI' && (
+                      {shouldShowClaimRewardButton && (
                         <ClaimRewardButton
                           poolAddress={poolAddress as `0x${string}`}
                           poolType={pooltype}
@@ -556,16 +567,16 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
             <Text style={styles.informationLabel}>{infoLabel}</Text>
           </View>
 
-          {pooltype === 'UBI' && isMemberPoolLoading ? (
+          {isPoolActionStateLoading ? (
             <View style={{ marginBottom: 16 }}>
               <VStack alignItems="center" space={2}>
                 <Spinner variant="page-loader" />
-                <Text>Loading pool details</Text>
+                <Text>Loading pool actions</Text>
               </VStack>
             </View>
           ) : (
             <>
-              {!poolOnlyMembers && !memberPoolData && address && pooltype === 'UBI' && (
+              {shouldShowJoinPoolButton && (
                 <View style={{ marginBottom: 16 }}>
                   <JoinPoolButton
                     poolAddress={poolAddress as `0x${string}`}
@@ -577,7 +588,7 @@ function ViewCollective({ collective }: ViewCollectiveProps) {
                   />
                 </View>
               )}
-              {memberPoolData && memberPoolData.eligibleAmount > 0n && address && pooltype === 'UBI' && (
+              {shouldShowClaimRewardButton && (
                 <View style={{ marginBottom: 16 }}>
                   <ClaimRewardButton
                     poolAddress={poolAddress as `0x${string}`}
