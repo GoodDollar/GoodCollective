@@ -10,9 +10,7 @@ console.log('provider set');
 // wallet should have MANAGER_ROLE in the pool
 const wallet = new ethers.Wallet('<privatekeyhere').connect(provider);
 console.log('created-wallet');
-const sdk = new GoodCollectiveSDK('42220', provider, {
-  nftStorageKey: '<your nft storage key>',
-});
+const sdk = new GoodCollectiveSDK('42220', provider);
 console.log('sdk initialized');
 
 const poolSettings: DirectPaymentsPool.PoolSettingsStruct = {
