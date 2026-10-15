@@ -158,7 +158,7 @@ library DirectPaymentsLibrary {
             if (reward > 0) {
                 totalRewards += reward;
                 if (totalRewards > rewardsBalance) revert NO_BALANCE();
-                rewardsBalance -= totalRewards;
+                rewardsBalance -= reward;
 
                 _sendReward(
                     globalLimits,

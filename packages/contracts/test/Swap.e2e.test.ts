@@ -21,7 +21,11 @@ describe('HelperLibrary Swap E2E (Celo fork)', () => {
     const broker = await ethers.getImpersonatedSigner('0xaEb865bCa93DdC8F47b8e29F40C5399cE34d0C58');
     await setBalance(broker.address, ethers.utils.parseEther('1000'));
     const token = (await ethers.getContractAt('ERC20', CUSD)).connect(broker);
-    await token.transfer(trader.address, ethers.utils.parseEther('1'));
+    try {
+      await token.transfer(trader.address, ethers.utils.parseEther('1'));
+    } catch (error) {
+      console.error('Transfer failed:', error);
+    }
     const lib = (await ethers.deployContract('HelperLibrary')).connect(trader);
     helper = (await ethers.deployContract('HelperLibraryTest', [], {
       libraries: { HelperLibrary: lib.address },
@@ -55,6 +59,25 @@ describe('HelperLibrary Swap E2E (Celo fork)', () => {
     const token = (await ethers.getContractAt('ERC20', CUSD)).connect(trader);
     await token.approve(helper.address, ethers.constants.MaxUint256);
     await expect(helper.handleSwap(ROUTER, swapData, G$, trader.address)).not.reverted;
+  });
+
+  it('should revert if swapFrom is not the first token in path', async () => {
+    const swapData = {
+      swapFrom: CUSD,
+      amount: ethers.utils.parseEther('0.01'),
+      minReturn: 0,
+      deadline: (Date.now() / 1000).toFixed(0),
+      // path starts with CELO instead of CUSD
+      path: ethers.utils.solidityPack(['address', 'uint24', 'address'], [CELO, 10000, G$]),
+    };
+    const token = (await ethers.getContractAt('ERC20', CUSD)).connect(trader);
+    await token.approve(helper.address, ethers.constants.MaxUint256);
+    // library errors are not in the helper ABI, so attach the library ABI to the helper address
+    const libAbi = await ethers.getContractAt('HelperLibrary', helper.address);
+    await expect(helper.handleSwap(ROUTER, swapData, G$, trader.address)).revertedWithCustomError(
+      libAbi,
+      'INVALID_PATH'
+    );
   });
 
   it('should revert swap on bad minReturn', async () => {

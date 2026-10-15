@@ -310,6 +310,6 @@ contract DirectPaymentsPool is
     }
 
     function cancelIncomingFlow(address donor) external onlyRole(MANAGER_ROLE) {
-        super._cancelIncomingFlow(donor);
+        HelperLibrary.cancelIncomingFlow(superToken, donor);
     }
 }

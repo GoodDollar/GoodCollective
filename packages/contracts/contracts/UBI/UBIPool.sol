@@ -444,6 +444,6 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     }
 
     function cancelIncomingFlow(address donor) external onlyRole(MANAGER_ROLE) {
-        super._cancelIncomingFlow(donor);
+        HelperLibrary.cancelIncomingFlow(superToken, donor);
     }
 }
