@@ -13,6 +13,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deploy, execute } = deployments;
   const { deployer } = await getNamedAccounts();
 
+  console.log('starting deployment', deployer);
   let sfHost;
   let swapMock;
   let feeRecipient = GDContracts[hre.network.name]?.UBIScheme || deployer;
