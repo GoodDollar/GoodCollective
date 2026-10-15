@@ -308,4 +308,8 @@ contract DirectPaymentsPool is
         _setupRole(DEFAULT_ADMIN_ROLE, _settings.manager);
         emit PoolSettingsChanged(_settings);
     }
+
+    function cancelIncomingFlow(address donor) external onlyRole(MANAGER_ROLE) {
+        super._cancelIncomingFlow(donor);
+    }
 }

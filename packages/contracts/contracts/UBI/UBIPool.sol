@@ -305,23 +305,23 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
      */
     function addMember(address member, bytes memory extraData) public returns (bool isMember) {
         bool success = _addMember(member, extraData);
-        
+
         if (!success) {
             // Determine the specific error to revert with
             if (address(settings.uniquenessValidator) != address(0)) {
                 address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
                 if (rootAddress == address(0)) revert NOT_WHITELISTED(member);
             }
-            
+
             if (address(settings.membersValidator) != address(0) && hasRole(MANAGER_ROLE, msg.sender) == false) {
                 revert NOT_MEMBER(member);
             }
-            
+
             if (ubiSettings.onlyMembers && hasRole(MANAGER_ROLE, msg.sender) == false) {
                 revert NOT_MANAGER(member);
             }
         }
-        
+
         return success;
     }
 
@@ -441,5 +441,9 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
 
     function nextClaimTime() public view returns (uint256) {
         return (getCurrentDay() + ubiSettings.claimPeriodDays) * (1 days) + 12 hours;
+    }
+
+    function cancelIncomingFlow(address donor) external onlyRole(MANAGER_ROLE) {
+        super._cancelIncomingFlow(donor);
     }
 }

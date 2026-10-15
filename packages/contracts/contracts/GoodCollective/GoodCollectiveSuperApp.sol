@@ -367,6 +367,10 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         HelperLibrary.recoverFunds(superToken, _recipient, amount);
     }
 
+    function _cancelIncomingFlow(address donor) internal virtual {
+        HelperLibrary.cancelIncomingFlow(superToken, donor);
+    }
+
     /**
      * for methods that can be called via superfluid batch or directly
      */

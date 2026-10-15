@@ -6,6 +6,7 @@ import { Framework } from '@superfluid-finance/sdk-core';
 import { expect } from 'chai';
 import { DirectPaymentsPool, ProvableNFT } from 'typechain-types';
 import { ethers, upgrades, network } from 'hardhat';
+import { Contract } from 'ethers';
 import ERC20ABI from '@openzeppelin/contracts/build/contracts/ERC20PresetMinterPauser.json';
 
 type SignerWithAddress = Awaited<ReturnType<typeof ethers.getSigner>>;
@@ -13,6 +14,7 @@ type SignerWithAddress = Awaited<ReturnType<typeof ethers.getSigner>>;
 describe('DirectPaymentsPool Superapp', () => {
   let pool: DirectPaymentsPool;
   let nft: ProvableNFT;
+  let helperLib: Contract;
   let signer: SignerWithAddress;
   let signers: SignerWithAddress[];
   let poolSettings: DirectPaymentsPool.PoolSettingsStruct;
@@ -77,11 +79,11 @@ describe('DirectPaymentsPool Superapp', () => {
     const factory = await ethers.getContractFactory('ProvableNFT');
     nft = (await upgrades.deployProxy(factory, ['nft', 'cc'], { kind: 'uups' })) as ProvableNFT;
     const swaprouter = await ethers.deployContract('SwapRouterMock', [gdframework.GoodDollar.address]);
-    const helper = await ethers.deployContract('HelperLibrary');
+    helperLib = await ethers.deployContract('HelperLibrary');
     const helper2 = await ethers.deployContract('DirectPaymentsLibrary');
 
     const Pool = await ethers.getContractFactory('DirectPaymentsPool', {
-      libraries: { HelperLibrary: helper.address, DirectPaymentsLibrary: helper2.address },
+      libraries: { HelperLibrary: helperLib.address, DirectPaymentsLibrary: helper2.address },
     });
 
     pool = (await upgrades.deployProxy(Pool, [nft.address, poolSettings, poolLimits, 0, ethers.constants.AddressZero], {
@@ -297,5 +299,110 @@ describe('DirectPaymentsPool Superapp', () => {
     expect(supporter.contribution).equal(ethers.constants.WeiPerEther);
     expect(supporter.lastUpdated).eq(0);
     expect(supporter.flowRate).equal(0);
+  });
+
+  describe('swap path validation', () => {
+    const setupSwap = async () => {
+      const trader = signers[1];
+      const mockToken = await (await ethers.getContractFactoryFromArtifact(ERC20ABI)).deploy('x', 'x');
+      await mockToken.mint(trader.address, ethers.constants.WeiPerEther);
+      await (await mockToken.connect(trader).approve(pool.address, ethers.constants.WeiPerEther)).wait();
+      await gdframework.GoodDollar.mint(await pool.swapRouter(), ethers.constants.WeiPerEther);
+      const swapData = (path: string) => ({
+        swapFrom: mockToken.address,
+        amount: ethers.constants.WeiPerEther,
+        minReturn: ethers.constants.WeiPerEther,
+        deadline: (Date.now() / 1000).toFixed(0),
+        path,
+      });
+      return { trader, mockToken, swapData };
+    };
+
+    it('should support with swap when path starts with swapFrom', async () => {
+      const { trader, mockToken, swapData } = await setupSwap();
+      const path = ethers.utils.solidityPack(
+        ['address', 'uint24', 'address'],
+        [mockToken.address, 10000, gdframework.GoodDollar.address]
+      );
+
+      await pool.connect(trader).supportWithSwap(trader.address, swapData(path), '0x');
+
+      expect(await mockToken.balanceOf(trader.address)).eq(0);
+      const supporter = await pool.supporters(trader.address);
+      expect(supporter.contribution).equal(ethers.constants.WeiPerEther);
+    });
+
+    it('should revert supportWithSwap when path does not start with swapFrom', async () => {
+      const { trader, mockToken, swapData } = await setupSwap();
+      const path = ethers.utils.solidityPack(
+        ['address', 'uint24', 'address'],
+        [gdframework.GoodDollar.address, 10000, mockToken.address]
+      );
+
+      await expect(pool.connect(trader).supportWithSwap(trader.address, swapData(path), '0x')).revertedWithCustomError(
+        helperLib,
+        'INVALID_PATH'
+      );
+      expect(await mockToken.balanceOf(trader.address)).eq(ethers.constants.WeiPerEther);
+    });
+
+    it('should revert handleSwap when path does not start with swapFrom', async () => {
+      const { trader, mockToken, swapData } = await setupSwap();
+      const path = ethers.utils.solidityPack(
+        ['address', 'uint24', 'address'],
+        [gdframework.GoodDollar.address, 10000, mockToken.address]
+      );
+
+      await expect(pool.connect(trader).handleSwap(swapData(path), trader.address, '0x')).revertedWithCustomError(
+        helperLib,
+        'INVALID_PATH'
+      );
+    });
+
+    it('should revert handleSwap when sender is the pool itself', async () => {
+      const { mockToken, swapData } = await setupSwap();
+      const appAction = pool.interface.encodeFunctionData('handleSwap', [swapData('0x'), pool.address, '0x']);
+
+      await expect(sf.batchCall([sf.host.callAppAction(pool.address, appAction)]).exec(signers[1])).reverted;
+      expect(await mockToken.balanceOf(pool.address)).eq(0);
+    });
+  });
+
+  describe('cancelIncomingFlow', () => {
+    const getFlowRate = async (sender: string) =>
+      (
+        await sf.cfaV1.getFlow({
+          superToken: gdframework.GoodDollar.address,
+          sender,
+          receiver: pool.address,
+          providerOrSigner: ethers.provider,
+        })
+      ).flowRate;
+
+    it('should let the manager cancel an incoming stream', async () => {
+      const donor = signers[1];
+      await gdframework.GoodDollar.mint(donor.address, ethers.constants.WeiPerEther);
+      const st = await sf.loadSuperToken(gdframework.GoodDollar.address);
+      await st.createFlow({ receiver: pool.address, sender: donor.address, flowRate: baseFlowRate }).exec(donor);
+      expect(await getFlowRate(donor.address)).equal(baseFlowRate);
+
+      await pool.connect(signer).cancelIncomingFlow(donor.address);
+
+      expect(await getFlowRate(donor.address)).equal('0');
+    });
+
+    it('should revert for non manager', async () => {
+      const donor = signers[1];
+      await gdframework.GoodDollar.mint(donor.address, ethers.constants.WeiPerEther);
+      const st = await sf.loadSuperToken(gdframework.GoodDollar.address);
+      await st.createFlow({ receiver: pool.address, sender: donor.address, flowRate: baseFlowRate }).exec(donor);
+
+      await expect(pool.connect(donor).cancelIncomingFlow(donor.address)).reverted;
+      expect(await getFlowRate(donor.address)).equal(baseFlowRate);
+    });
+
+    it('should revert when there is no active stream', async () => {
+      await expect(pool.connect(signer).cancelIncomingFlow(signers[2].address)).revertedWith('No active stream');
+    });
   });
 });
