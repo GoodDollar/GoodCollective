@@ -368,41 +368,59 @@ describe('DirectPaymentsPool Superapp', () => {
     });
   });
 
-  describe('cancelIncomingFlow', () => {
-    const getFlowRate = async (sender: string) =>
-      (
-        await sf.cfaV1.getFlow({
-          superToken: gdframework.GoodDollar.address,
-          sender,
-          receiver: pool.address,
-          providerOrSigner: ethers.provider,
-        })
-      ).flowRate;
+  describe('superapp callbacks', () => {
+    const abi = ethers.utils.defaultAbiCoder;
+    const agreementData = () => abi.encode(['address', 'address'], [signers[1].address, pool.address]);
+    const id = ethers.constants.HashZero;
+    const getCfa = async () => (await pool.cfaV1()).cfa;
 
-    it('should let the manager cancel an incoming stream', async () => {
-      const donor = signers[1];
-      await gdframework.GoodDollar.mint(donor.address, ethers.constants.WeiPerEther);
-      const st = await sf.loadSuperToken(gdframework.GoodDollar.address);
-      await st.createFlow({ receiver: pool.address, sender: donor.address, flowRate: baseFlowRate }).exec(donor);
-      expect(await getFlowRate(donor.address)).equal(baseFlowRate);
-
-      await pool.connect(signer).cancelIncomingFlow(donor.address);
-
-      expect(await getFlowRate(donor.address)).equal('0');
+    it('should not expose cancelIncomingFlow', async () => {
+      expect((pool.interface.functions as any)['cancelIncomingFlow(address)']).to.be.undefined;
     });
 
-    it('should revert for non manager', async () => {
-      const donor = signers[1];
-      await gdframework.GoodDollar.mint(donor.address, ethers.constants.WeiPerEther);
-      const st = await sf.loadSuperToken(gdframework.GoodDollar.address);
-      await st.createFlow({ receiver: pool.address, sender: donor.address, flowRate: baseFlowRate }).exec(donor);
-
-      await expect(pool.connect(donor).cancelIncomingFlow(donor.address)).reverted;
-      expect(await getFlowRate(donor.address)).equal(baseFlowRate);
+    it('should revert afterAgreementCreated when not called by the host', async () => {
+      const cfa = await getCfa();
+      await expect(
+        pool
+          .connect(signers[1])
+          .afterAgreementCreated(gdframework.GoodDollar.address, cfa, id, agreementData(), '0x', '0x')
+      ).revertedWithCustomError(pool, 'UnauthorizedHost');
     });
 
-    it('should revert when there is no active stream', async () => {
-      await expect(pool.connect(signer).cancelIncomingFlow(signers[2].address)).revertedWith('No active stream');
+    it('should revert afterAgreementUpdated when not called by the host', async () => {
+      const cfa = await getCfa();
+      const cbdata = abi.encode(['int96', 'uint256'], [0, 0]);
+      await expect(
+        pool
+          .connect(signers[1])
+          .afterAgreementUpdated(gdframework.GoodDollar.address, cfa, id, agreementData(), cbdata, '0x')
+      ).revertedWithCustomError(pool, 'UnauthorizedHost');
+      expect((await pool.supporters(signers[1].address)).contribution).equal(0);
+    });
+
+    it('should revert beforeAgreementUpdated when not called by the host', async () => {
+      const cfa = await getCfa();
+      await expect(
+        pool.connect(signers[1]).beforeAgreementUpdated(gdframework.GoodDollar.address, cfa, id, agreementData(), '0x')
+      ).revertedWithCustomError(pool, 'UnauthorizedHost');
+    });
+
+    it('should not revert afterAgreementTerminated when not called by the host', async () => {
+      const cfa = await getCfa();
+      const cbdata = abi.encode(['uint256', 'int96'], [0, 0]);
+      // returns the ctx untouched instead of reverting
+      const ret = await pool
+        .connect(signers[1])
+        .callStatic.afterAgreementTerminated(
+          gdframework.GoodDollar.address,
+          cfa,
+          id,
+          agreementData(),
+          cbdata,
+          '0x1234'
+        );
+      expect(ret).equal('0x1234');
+      expect((await pool.supporters(signers[1].address)).contribution).equal(0);
     });
   });
 });
