@@ -11932,7 +11932,7 @@
           ]
         },
         "DirectPaymentsFactory_Implementation": {
-          "address": "0xffC75a1AB5351d7CecAfC74Fab5B478aF22BD9C3",
+          "address": "0x62528930f1eDe9e889D295329b566352af890F1F",
           "abi": [
             {
               "inputs": [],
@@ -12995,7 +12995,7 @@
           ]
         },
         "DirectPaymentsLibrary": {
-          "address": "0xBeDeee943e2Ad084562cBb076710D9F26E8E42dc",
+          "address": "0x3EeE13fC617a15ED2A43dd9a6A4CA2dA0116f5F2",
           "abi": [
             {
               "inputs": [],
@@ -13102,7 +13102,7 @@
           ]
         },
         "DirectPaymentsPool": {
-          "address": "0x251a9041ba45B9c015b673b4FE8fB88963891Bf7",
+          "address": "0xE8D62047A9cB8017A2e094120c8a9c059051059d",
           "abi": [
             {
               "inputs": [
@@ -13805,7 +13805,7 @@
                 },
                 {
                   "internalType": "address",
-                  "name": "",
+                  "name": "agreementClass",
                   "type": "address"
                 },
                 {
@@ -13893,7 +13893,7 @@
                 },
                 {
                   "internalType": "address",
-                  "name": "",
+                  "name": "agreementClass",
                   "type": "address"
                 },
                 {
@@ -13932,12 +13932,12 @@
               "inputs": [
                 {
                   "internalType": "contract ISuperToken",
-                  "name": "superToken",
+                  "name": "",
                   "type": "address"
                 },
                 {
                   "internalType": "address",
-                  "name": "agreementClass",
+                  "name": "",
                   "type": "address"
                 },
                 {
@@ -13964,7 +13964,7 @@
                   "type": "bytes"
                 }
               ],
-              "stateMutability": "view",
+              "stateMutability": "pure",
               "type": "function"
             },
             {
@@ -14043,19 +14043,6 @@
                 }
               ],
               "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "donor",
-                  "type": "address"
-                }
-              ],
-              "name": "cancelIncomingFlow",
-              "outputs": [],
-              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -15237,7 +15224,7 @@
           ]
         },
         "HelperLibrary": {
-          "address": "0x99b8ea7ee0a52E9e9f93cabAfD212BEAD785b1f8",
+          "address": "0x4A34f89cc9dCA231a4ED6bcEcC42371E4CdB6e8a",
           "abi": [
             {
               "inputs": [],
@@ -17910,7 +17897,7 @@
           ]
         },
         "UBIPool": {
-          "address": "0xe21a978717Bd80a7b093fA98AbA17080339152AF",
+          "address": "0x7d17041B4fd3b4481b6906fF3AAFe656f45F12Ec",
           "abi": [
             {
               "inputs": [
@@ -17968,6 +17955,11 @@
             {
               "inputs": [],
               "name": "INVALID_0_VALUE",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "INVALID_MAX_PERIOD_CLAIMERS",
               "type": "error"
             },
             {
@@ -18033,6 +18025,11 @@
                 }
               ],
               "name": "NOT_WHITELISTED",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "NO_UBI",
               "type": "error"
             },
             {
@@ -18546,7 +18543,7 @@
                 },
                 {
                   "internalType": "address",
-                  "name": "",
+                  "name": "agreementClass",
                   "type": "address"
                 },
                 {
@@ -18634,7 +18631,7 @@
                 },
                 {
                   "internalType": "address",
-                  "name": "",
+                  "name": "agreementClass",
                   "type": "address"
                 },
                 {
@@ -18673,12 +18670,12 @@
               "inputs": [
                 {
                   "internalType": "contract ISuperToken",
-                  "name": "superToken",
+                  "name": "",
                   "type": "address"
                 },
                 {
                   "internalType": "address",
-                  "name": "agreementClass",
+                  "name": "",
                   "type": "address"
                 },
                 {
@@ -18705,7 +18702,7 @@
                   "type": "bytes"
                 }
               ],
-              "stateMutability": "view",
+              "stateMutability": "pure",
               "type": "function"
             },
             {
@@ -18784,19 +18781,6 @@
                 }
               ],
               "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "donor",
-                  "type": "address"
-                }
-              ],
-              "name": "cancelIncomingFlow",
-              "outputs": [],
-              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -20958,7 +20942,7 @@
           ]
         },
         "UBIPoolFactory_Implementation": {
-          "address": "0xc342018238E7b842d0308E42A1498A988c5B8DA2",
+          "address": "0x86b4F4d4B6Dd3328f7c3119a42581925e7B93EC1",
           "abi": [
             {
               "inputs": [],
