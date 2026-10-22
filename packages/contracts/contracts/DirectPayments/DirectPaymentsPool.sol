@@ -305,8 +305,10 @@ contract DirectPaymentsPool is
         if (_settings.manager == address(0)) revert EMPTY_MANAGER();
 
         _revokeRole(MANAGER_ROLE, settings.manager);
+        _revokeRole(MINTER_ROLE, settings.manager);
         settings = _settings;
         _setupRole(MANAGER_ROLE, _settings.manager);
+        _setupRole(MINTER_ROLE, _settings.manager);
         emit PoolSettingsChanged(_settings);
     }
 }

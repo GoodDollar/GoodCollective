@@ -71,6 +71,9 @@ library HelperLibrary {
                 amountIn: _customData.amount,
                 amountOutMinimum: _customData.minReturn
             });
+            uint postBalance = IERC20(_customData.swapFrom).balanceOf(address(this));
+            if (postBalance < preBalance) revert SWAP_FAILED();
+
             return swapRouter.exactInput(params);
         } else {
             // If no path is provided, execute a single-hop swap
