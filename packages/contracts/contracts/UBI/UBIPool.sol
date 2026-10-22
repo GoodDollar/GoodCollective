@@ -442,8 +442,4 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     function nextClaimTime() public view returns (uint256) {
         return (getCurrentDay() + ubiSettings.claimPeriodDays) * (1 days) + 12 hours;
     }
-
-    function cancelIncomingFlow(address donor) external onlyRole(MANAGER_ROLE) {
-        HelperLibrary.cancelIncomingFlow(superToken, donor);
-    }
 }

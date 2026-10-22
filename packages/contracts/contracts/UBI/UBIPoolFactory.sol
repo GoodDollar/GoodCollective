@@ -63,6 +63,7 @@ contract UBIPoolFactory is AccessControlUpgradeable, UUPSUpgradeable {
     }
 
     modifier onlyPoolManager(UBIPool pool) {
+        if (bytes(registry[address(pool)].projectId).length == 0) revert NOT_POOL();
         if (pool.hasRole(pool.MANAGER_ROLE(), msg.sender) == false) {
             revert NOT_PROJECT_OWNER();
         }

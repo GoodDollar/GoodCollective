@@ -198,10 +198,4 @@ library HelperLibrary {
         if (recipient == address(0)) revert ZERO_ADDRESS();
         superToken.transfer(recipient, amount);
     }
-
-    function cancelIncomingFlow(ISuperToken superToken, address donor) external {
-        (, int96 previousFlowRate, , ) = superToken.getFlowInfo(donor, address(this));
-        require(previousFlowRate > 0, "No active stream");
-        superToken.deleteFlow(donor, address(this));
-    }
 }

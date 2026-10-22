@@ -4,6 +4,7 @@ import { deployTestFramework } from '@superfluid-finance/ethereum-contracts/dev-
 import { expect } from 'chai';
 import { UBIPoolFactory, UBIPool, ProvableNFT } from 'typechain-types';
 import { ethers, upgrades } from 'hardhat';
+import { deployMockContract } from 'ethereum-waffle';
 import { PoolSettingsStruct } from 'typechain-types/contracts/UBI/UBIPool';
 
 type SignerWithAddress = Awaited<ReturnType<typeof ethers.getSigner>>;
@@ -106,5 +107,85 @@ describe('UBIPoolFactory', () => {
       factory,
       'NOT_PROJECT_OWNER'
     );
+  });
+
+  describe('changePoolDetails', () => {
+    const createPool = async () => {
+      const tx = await factory.createPool('test', 'pool1', poolSettings, poolLimits, extendedPoolSettings);
+      return (await tx.wait()).events?.find((_) => _.event === 'PoolCreated')?.args?.[0] as string;
+    };
+
+    it('should let the pool manager change the details', async () => {
+      const poolAddr = await createPool();
+
+      await expect(factory.connect(signers[1]).changePoolDetails(poolAddr, 'pool2'))
+        .emit(factory, 'PoolDetailsChanged')
+        .withArgs(poolAddr, 'pool2');
+      expect((await factory.registry(poolAddr)).ipfs).to.equal('pool2');
+    });
+
+    it('should revert for a non manager', async () => {
+      const poolAddr = await createPool();
+
+      await expect(factory.connect(signers[2]).changePoolDetails(poolAddr, 'pool2')).revertedWithCustomError(
+        factory,
+        'NOT_PROJECT_OWNER'
+      );
+    });
+
+    it('should revert for a contract that is not a registered pool', async () => {
+      // a fake pool that grants every role
+      const fake = await deployMockContract(signers[0], [
+        'function MANAGER_ROLE() view returns (bytes32)',
+        'function hasRole(bytes32 role, address account) view returns (bool)',
+      ]);
+      await fake.mock.MANAGER_ROLE.returns(ethers.constants.HashZero);
+      await fake.mock.hasRole.returns(true);
+
+      await expect(factory.connect(signers[2]).changePoolDetails(fake.address, 'pool2')).revertedWithCustomError(
+        factory,
+        'NOT_POOL'
+      );
+      expect((await factory.registry(fake.address)).ipfs).to.equal('');
+    });
+  });
+
+  describe('pool superapp', () => {
+    it('should not expose cancelIncomingFlow', async () => {
+      const tx = await factory.createPool('test', 'pool1', poolSettings, poolLimits, extendedPoolSettings);
+      const poolAddr = (await tx.wait()).events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
+      const pool = await ethers.getContractAt('UBIPool', poolAddr);
+
+      expect((pool.interface.functions as any)['cancelIncomingFlow(address)']).to.be.undefined;
+    });
+
+    it('should revert callbacks that are not called by the host', async () => {
+      const tx = await factory.createPool('test', 'pool1', poolSettings, poolLimits, extendedPoolSettings);
+      const poolAddr = (await tx.wait()).events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
+      const pool = (await ethers.getContractAt('UBIPool', poolAddr)) as UBIPool;
+      const abi = ethers.utils.defaultAbiCoder;
+      const agreementData = abi.encode(['address', 'address'], [signers[1].address, pool.address]);
+      const cfa = (await pool.cfaV1()).cfa;
+      const id = ethers.constants.HashZero;
+
+      await expect(
+        pool
+          .connect(signers[1])
+          .afterAgreementCreated(gdframework.GoodDollar.address, cfa, id, agreementData, '0x', '0x')
+      ).revertedWithCustomError(pool, 'UnauthorizedHost');
+      await expect(
+        pool
+          .connect(signers[1])
+          .afterAgreementUpdated(
+            gdframework.GoodDollar.address,
+            cfa,
+            id,
+            agreementData,
+            abi.encode(['int96', 'uint256'], [0, 0]),
+            '0x'
+          )
+      ).revertedWithCustomError(pool, 'UnauthorizedHost');
+      expect((await pool.supporters(signers[1].address)).contribution).equal(0);
+    });
   });
 });
