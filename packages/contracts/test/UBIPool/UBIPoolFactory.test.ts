@@ -19,8 +19,6 @@ describe('UBIPoolFactory', () => {
   let gdframework: Awaited<ReturnType<typeof deploySuperGoodDollar>>;
   let sfFramework: { [key: string]: string };
 
-
-
   const fixture = async () => {
     const f = await ethers.getContractFactory('UBIPoolFactory');
     const swapMock = await ethers.deployContract('SwapRouterMock', [gdframework.GoodDollar.address]);
@@ -29,7 +27,6 @@ describe('UBIPoolFactory', () => {
     const dpimpl = await ethers.deployContract('UBIPool', [sfFramework['host'], swapMock.address], {
       libraries: { HelperLibrary: helper.address },
     });
-
 
     factory = (await upgrades.deployProxy(f, [signer.address, dpimpl.address, signers[1].address, 1000], {
       kind: 'uups',
@@ -62,7 +59,7 @@ describe('UBIPoolFactory', () => {
       maxPeriodClaimers: 500,
       minClaimAmount: ethers.utils.parseEther('1'),
       managerFeeBps: 0,
-    }
+    };
     poolLimits = {
       cycleLengthDays: ethers.BigNumber.from(60),
       claimPeriodDays: ethers.BigNumber.from(1),
@@ -71,7 +68,6 @@ describe('UBIPoolFactory', () => {
       maxClaimAmount: ethers.utils.parseEther('100'),
       maxMembers: 500,
       onlyMembers: true,
-
     };
   });
 
@@ -103,10 +99,9 @@ describe('UBIPoolFactory', () => {
     // signer 1 is the pool manager so it should not revert
     await expect(factory.createPool('test', 'pool2', poolSettings, poolLimits, extendedPoolSettings)).not.reverted;
 
-    await expect(factory.connect(signers[1]).createPool('test', 'pool3', poolSettings, poolLimits, extendedPoolSettings)).revertedWithCustomError(
-      factory,
-      'NOT_PROJECT_OWNER'
-    );
+    await expect(
+      factory.connect(signers[1]).createPool('test', 'pool3', poolSettings, poolLimits, extendedPoolSettings)
+    ).revertedWithCustomError(factory, 'NOT_PROJECT_OWNER');
   });
 
   describe('changePoolDetails', () => {

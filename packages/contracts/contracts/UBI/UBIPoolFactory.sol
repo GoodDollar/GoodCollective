@@ -192,6 +192,7 @@ contract UBIPoolFactory is AccessControlUpgradeable, UUPSUpgradeable {
             if (memberPools[member][i] == msg.sender) {
                 memberPools[member][i] = memberPools[member][memberPools[member].length - 1];
                 memberPools[member].pop();
+                break;
             }
         }
     }
