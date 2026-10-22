@@ -18,6 +18,8 @@ library HelperLibrary {
 
     error ZERO_AMOUNT();
     error ZERO_ADDRESS();
+    error SWAP_FAILED();
+    error INVALID_PATH();
 
     /**
      * @dev A struct containing information about a token swap
@@ -51,6 +53,9 @@ library HelperLibrary {
         address _sender,
         address _recipient
     ) public returns (uint256 amountOut) {
+        if (_sender == address(this)) revert INVALID_PATH();
+        // make sure tokens are not used form this pool balance
+        uint preBalance = IERC20(_customData.swapFrom).balanceOf(address(this));
         // Transfer the tokens from the sender to this contract
         TransferHelper.safeTransferFrom(_customData.swapFrom, _sender, address(this), _customData.amount);
 
@@ -58,6 +63,7 @@ library HelperLibrary {
         TransferHelper.safeApprove(_customData.swapFrom, address(swapRouter), _customData.amount);
 
         if (_customData.path.length > 0) {
+            if (address(bytes20(_customData.path)) != _customData.swapFrom) revert INVALID_PATH();
             // If a path is provided, execute a multi-hop swap
             IV3SwapRouter.ExactInputParams memory params = IV3SwapRouter.ExactInputParams({
                 path: _customData.path,
@@ -65,6 +71,9 @@ library HelperLibrary {
                 amountIn: _customData.amount,
                 amountOutMinimum: _customData.minReturn
             });
+            uint postBalance = IERC20(_customData.swapFrom).balanceOf(address(this));
+            if (postBalance < preBalance) revert SWAP_FAILED();
+
             return swapRouter.exactInput(params);
         } else {
             // If no path is provided, execute a single-hop swap
@@ -79,7 +88,10 @@ library HelperLibrary {
             });
 
             // Execute the swap using `exactInputSingle`
-            return swapRouter.exactInputSingle(params);
+            uint256 result = swapRouter.exactInputSingle(params);
+            uint postBalance = IERC20(_customData.swapFrom).balanceOf(address(this));
+            if (postBalance < preBalance) revert SWAP_FAILED();
+            return result;
         }
     }
 

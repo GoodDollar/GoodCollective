@@ -189,6 +189,7 @@ contract DirectPaymentsPool is
 
     function claim(uint256 _nftId, ProvableNFT.NFTData memory _data) public {
         nft.proveNFTData(_nftId, _data);
+        if (_data.nftType != settings.nftType) revert UNSUPPORTED_NFT();
         if (claimedNfts[_nftId]) revert ALREADY_CLAIMED(_nftId);
         claimedNfts[_nftId] = true;
         // TODO: should pool own the NFTs?
@@ -303,9 +304,11 @@ contract DirectPaymentsPool is
         if (_settings.nftType != settings.nftType) revert NFTTYPE_CHANGED();
         if (_settings.manager == address(0)) revert EMPTY_MANAGER();
 
-        _revokeRole(DEFAULT_ADMIN_ROLE, settings.manager);
+        _revokeRole(MANAGER_ROLE, settings.manager);
+        _revokeRole(MINTER_ROLE, settings.manager);
         settings = _settings;
-        _setupRole(DEFAULT_ADMIN_ROLE, _settings.manager);
+        _setupRole(MANAGER_ROLE, _settings.manager);
+        _setupRole(MINTER_ROLE, _settings.manager);
         emit PoolSettingsChanged(_settings);
     }
 }

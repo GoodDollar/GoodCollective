@@ -23,6 +23,8 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
     error MAX_MEMBERS_REACHED();
     error MAX_PERIOD_CLAIMERS_REACHED(uint256 claimers);
     error LENGTH_MISMATCH();
+    error NO_UBI();
+    error INVALID_MAX_PERIOD_CLAIMERS();
 
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
     bytes32 public constant MEMBER_ROLE = keccak256("MEMBER_ROLE");
@@ -125,8 +127,8 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         settings = _settings;
         ubiSettings = _ubiSettings;
         extendedSettings = _extendedSettings;
+        _verifyUBISettings(_ubiSettings, _extendedSettings);
         _verifyPoolSettings(_settings);
-        _verifyUBISettings(_ubiSettings);
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender); // when using factory this gives factory role which then set role to the real msg.sender
         _setupRole(MANAGER_ROLE, _settings.manager);
         setSuperToken(ISuperToken(address(settings.rewardToken)));
@@ -163,7 +165,6 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
 
             status.currentDay = currentDay;
             status.dailyUbi = nextDailyUbi;
-            if (status.dailyUbi <= extendedSettings.minClaimAmount) status.dailyUbi = 0;
 
             emit UBICalculated(
                 currentDay,
@@ -188,7 +189,6 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
                 currentBalance < (status.dailyCyclePool * (status.currentCycleLength - currentDayInCycle())));
 
         nextPeriodPool = status.dailyCyclePool;
-        nextDailyUbi;
         if ((currentDayInCycle() + 1) >= status.currentCycleLength || shouldStartEarlyCycle) {
             //start of cycle or first time
             nextPeriodPool = currentBalance / ubiSettings.cycleLengthDays;
@@ -240,12 +240,15 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         address whitelistedRoot = IIdentityV2(settings.uniquenessValidator).getWhitelistedRoot(claimer);
         if (whitelistedRoot == address(0)) revert NOT_WHITELISTED(claimer);
 
-        // if open for anyone but has limits, we add the first claimers as members to handle the max claimers
-        if ((ubiSettings.maxMembers > 0 && ubiSettings.onlyMembers == false)) _grantRole(MEMBER_ROLE, claimer);
+        // with a members cap, open pools auto join the whitelisted root so connected accounts share one slot
+        bool isMember = hasRole(MEMBER_ROLE, claimer) || hasRole(MEMBER_ROLE, whitelistedRoot);
+        if (isMember == false && ubiSettings.onlyMembers == false && ubiSettings.maxMembers > 0) {
+            _grantRole(MEMBER_ROLE, whitelistedRoot);
+            isMember = true;
+        }
 
         // check membership if has claimers limits or limited to members only
-        if ((ubiSettings.maxMembers > 0 || ubiSettings.onlyMembers) && hasRole(MEMBER_ROLE, claimer) == false)
-            revert NOT_MEMBER(claimer);
+        if ((ubiSettings.maxMembers > 0 || ubiSettings.onlyMembers) && isMember == false) revert NOT_MEMBER(claimer);
 
         if (extendedSettings.maxPeriodClaimers > 0 && status.periodClaimers >= extendedSettings.maxPeriodClaimers)
             revert MAX_PERIOD_CLAIMERS_REACHED(status.periodClaimers);
@@ -258,6 +261,8 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
 
         // active user which has not claimed today yet, ie user last claimed < today
         if (status.lastClaimed[whitelistedRoot] == status.currentDay) revert ALREADY_CLAIMED(whitelistedRoot);
+        // a zero claim would use up the claim period and count as an active claimer
+        if (dailyUbi == 0) revert NO_UBI();
 
         status.lastClaimed[whitelistedRoot] = status.currentDay;
         status.periodClaimers += 1;
@@ -305,23 +310,23 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
      */
     function addMember(address member, bytes memory extraData) public returns (bool isMember) {
         bool success = _addMember(member, extraData);
-        
+
         if (!success) {
             // Determine the specific error to revert with
             if (address(settings.uniquenessValidator) != address(0)) {
                 address rootAddress = settings.uniquenessValidator.getWhitelistedRoot(member);
                 if (rootAddress == address(0)) revert NOT_WHITELISTED(member);
             }
-            
+
             if (address(settings.membersValidator) != address(0) && hasRole(MANAGER_ROLE, msg.sender) == false) {
                 revert NOT_MEMBER(member);
             }
-            
+
             if (ubiSettings.onlyMembers && hasRole(MANAGER_ROLE, msg.sender) == false) {
                 revert NOT_MANAGER(member);
             }
         }
-        
+
         return success;
     }
 
@@ -369,19 +374,25 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         UBISettings memory _ubiSettings,
         ExtendedSettings memory _extendedSettings
     ) public onlyRole(MANAGER_ROLE) {
-        _verifyUBISettings(_ubiSettings);
+        _verifyUBISettings(_ubiSettings, _extendedSettings);
         ubiSettings = _ubiSettings;
         extendedSettings = _extendedSettings;
         emit UBISettingsChanged(_ubiSettings);
     }
 
-    function _verifyUBISettings(UBISettings memory _ubiSettings) internal pure {
+    function _verifyUBISettings(
+        UBISettings memory _ubiSettings,
+        ExtendedSettings memory _extendedSettings
+    ) internal pure {
         if (
             _ubiSettings.claimPeriodDays == 0 ||
             _ubiSettings.cycleLengthDays == 0 ||
             _ubiSettings.minActiveUsers == 0 ||
             _ubiSettings.maxClaimAmount == 0
         ) revert INVALID_0_VALUE();
+
+        if (_ubiSettings.maxMembers > 0 && _extendedSettings.maxPeriodClaimers > _ubiSettings.maxMembers)
+            revert INVALID_MAX_PERIOD_CLAIMERS();
     }
 
     /**
@@ -435,7 +446,6 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         if (address(settings.uniquenessValidator) != address(0)) {
             whitelistedRoot = IIdentityV2(settings.uniquenessValidator).getWhitelistedRoot(_member);
         }
-        whitelistedRoot = IIdentityV2(settings.uniquenessValidator).getWhitelistedRoot(_member);
         return status.lastClaimed[whitelistedRoot] == getCurrentDay();
     }
 
