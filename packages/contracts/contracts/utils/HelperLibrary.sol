@@ -71,10 +71,10 @@ library HelperLibrary {
                 amountIn: _customData.amount,
                 amountOutMinimum: _customData.minReturn
             });
+            uint256 result = swapRouter.exactInput(params);
             uint postBalance = IERC20(_customData.swapFrom).balanceOf(address(this));
             if (postBalance < preBalance) revert SWAP_FAILED();
-
-            return swapRouter.exactInput(params);
+            return result;
         } else {
             // If no path is provided, execute a single-hop swap
             IV3SwapRouter.ExactInputSingleParams memory params = IV3SwapRouter.ExactInputSingleParams({
