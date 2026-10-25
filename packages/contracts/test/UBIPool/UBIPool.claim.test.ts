@@ -160,7 +160,10 @@ describe('UBIPool Claim', () => {
       const pool = await createPool({}, { minClaimAmount: ethers.utils.parseEther('1000.1') });
       await whitelist(signers[2].address, signers[2].address);
 
-      await expect(pool.connect(signers[2]).claim()).revertedWithCustomError(pool, 'NO_UBI');
+      await expect(pool.connect(signers[2]).claim()).not.reverted;
+
+      await whitelist(signers[3].address, signers[3].address);
+      await expect(pool.connect(signers[3]).claim()).revertedWithCustomError(pool, 'NO_UBI');
     });
   });
 
