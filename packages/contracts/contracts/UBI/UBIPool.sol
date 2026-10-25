@@ -257,12 +257,16 @@ contract UBIPool is AccessControlUpgradeable, GoodCollectiveSuperApp, UUPSUpgrad
         // (new or active) will trigger the calculation with the active users count of the day before
         // and so on. the new or inactive users that will become active today, will not take into account
         // within the calculation.
+        uint256 previousDay = status.currentDay;
         uint256 dailyUbi = distributionFormula();
 
         // active user which has not claimed today yet, ie user last claimed < today
         if (status.lastClaimed[whitelistedRoot] == status.currentDay) revert ALREADY_CLAIMED(whitelistedRoot);
         // a zero claim would use up the claim period and count as an active claimer
-        if (dailyUbi == 0) revert NO_UBI();
+        if (dailyUbi == 0) {
+            if (status.currentDay != previousDay) return;
+            revert NO_UBI();
+        }
 
         status.lastClaimed[whitelistedRoot] = status.currentDay;
         status.periodClaimers += 1;

@@ -93,19 +93,54 @@ describe('UBIPool Claim', () => {
   });
 
   describe('zero ubi', () => {
-    it('should revert and not use up the claim when there is nothing to claim', async () => {
+    it('should not use up the claim when there is nothing to claim', async () => {
       const pool = await createPool({}, {}, '0');
       await whitelist(signers[2].address, signers[2].address);
 
-      await expect(pool.connect(signers[2]).claim()).revertedWithCustomError(pool, 'NO_UBI');
+      await expect(pool.connect(signers[2]).claim()).not.reverted;
 
       const status = await pool.status();
       expect(status.periodClaimers).equal(0);
       expect(await pool.hasClaimed(signers[2].address)).false;
 
+      await whitelist(signers[3].address, signers[3].address);
+      await expect(pool.connect(signers[3]).claim()).revertedWithCustomError(pool, 'NO_UBI');
+
       await gdframework.GoodDollar.mint(pool.address, ethers.utils.parseEther('1000'));
+      await time.increase(ONE_DAY);
       await expect(pool.connect(signers[2]).claim()).not.reverted;
       expect(await gdframework.GoodDollar.balanceOf(signers[2].address)).equal(ethers.utils.parseEther('1000'));
+    });
+
+    it('should roll over a zero-UBI day and recover when activity drops', async () => {
+      const pool = await createPool(
+        { cycleLengthDays: 1, maxClaimAmount: ethers.utils.parseEther('20') },
+        { minClaimAmount: ethers.utils.parseEther('10') },
+        '100'
+      );
+
+      for (let i = 2; i <= 5; i++) {
+        await whitelist(signers[i].address, signers[i].address);
+        await pool.connect(signers[i]).claim();
+      }
+
+      await time.increase(ONE_DAY);
+      await whitelist(signers[6].address, signers[6].address);
+      await expect(pool.connect(signers[6]).claim()).not.reverted;
+
+      let status = await pool.status();
+      expect(status.dailyUbi).equal(0);
+      expect(status.periodClaimers).equal(0);
+      expect(status.currentDay).equal(await pool.getCurrentDay());
+
+      await whitelist(signers[7].address, signers[7].address);
+      await expect(pool.connect(signers[7]).claim()).revertedWithCustomError(pool, 'NO_UBI');
+
+      await time.increase(ONE_DAY);
+      await whitelist(signers[8].address, signers[8].address);
+      await expect(pool.connect(signers[8]).claim()).not.reverted;
+      status = await pool.status();
+      expect(status.dailyUbi).equal(ethers.utils.parseEther('20'));
     });
   });
 
