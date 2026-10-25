@@ -230,6 +230,36 @@ describe('DirectPaymentsPool Claim', () => {
       expect(claimEvent?.args?.totalRewards).eq(expectedRewards);
     });
 
+    it('should distribute exactly funded rewards across multiple events', async () => {
+      const poolBalance = await gdframework.GoodDollar.balanceOf(pool.address);
+      const secondReward = ethers.BigNumber.from(40);
+
+      await pool.setPoolSettings(
+        { ...poolSettings, rewardPerEvent: [poolBalance.sub(secondReward), secondReward] },
+        0
+      );
+      await pool.setPoolLimits({
+        maxMemberPerDay: poolBalance,
+        maxMemberPerMonth: poolBalance,
+        maxTotalPerMonth: poolBalance,
+      });
+
+      const nftWithMultipleEvents = {
+        ...nftSample,
+        events: [
+          { ...nftSample.events[0], subtype: 1 },
+          { ...nftSample.events[0], subtype: 2 },
+        ],
+      };
+      const tx = await (
+        await nft.mintPermissioned(signers[0].address, nftWithMultipleEvents, true, [])
+      ).wait();
+      const nftId = tx.events?.find((event) => event.event === 'Transfer')?.args?.tokenId;
+
+      await expect(pool['claim(uint256)'](nftId)).not.to.be.reverted;
+      expect(await gdframework.GoodDollar.balanceOf(pool.address)).to.equal(0);
+    });
+
     it('should enforce member monthly reward limits', async () => {
       const block = await ethers.provider.getBlock('latest');
       await time.setNextBlockTimestamp(block.timestamp + (60 * 60 * 24 * 30 - (block.timestamp % (60 * 60 * 24 * 30))));

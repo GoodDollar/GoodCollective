@@ -147,7 +147,7 @@ library DirectPaymentsLibrary {
             ) * _data.events[i].quantity;
             if (reward > 0) {
                 totalRewards += reward;
-                if (totalRewards > rewardsBalance) revert NO_BALANCE();
+                if (reward > rewardsBalance) revert NO_BALANCE();
                 rewardsBalance -= reward;
 
                 _sendReward(
