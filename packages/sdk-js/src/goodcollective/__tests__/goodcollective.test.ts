@@ -52,6 +52,14 @@ const testPoolSettings = [
   false,
 ];
 describe('GoodCollective SDK', () => {
+  it('defaults to the production-celo deployment', () => {
+    const defaultSdk = new GoodCollectiveSDK('42220', localProvider);
+
+    expect(defaultSdk.contracts).toEqual(
+      GoodCollectiveContracts['42220'].find((deployment) => deployment.name === 'production-celo')?.contracts
+    );
+  });
+
   beforeAll(async () => {
     sdk = new GoodCollectiveSDK('42220', localProvider, {
       network: 'localhost',

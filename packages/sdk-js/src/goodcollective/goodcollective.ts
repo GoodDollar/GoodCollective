@@ -99,7 +99,7 @@ export class GoodCollectiveSDK {
           contracts: Contracts;
         }>
       | undefined;
-    this.contracts = (deployments || []).find((d) => (options.network ? d.name === options.network : true))
+    this.contracts = (deployments || []).find((d) => d.name === (options.network ?? 'production-celo'))
       ?.contracts as Contracts;
 
     const factory: Partial<{ address: string; abi: unknown[] }> = this.contracts.DirectPaymentsFactory || {};
