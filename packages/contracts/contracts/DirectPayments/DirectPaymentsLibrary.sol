@@ -24,26 +24,6 @@ library DirectPaymentsLibrary {
     error OVER_GLOBAL_LIMITS();
     error NO_BALANCE();
 
-    function _updateMemberLimits(DirectPaymentsPool.LimitsData storage memberStats, uint128 reward) public {
-        if (memberStats.lastReward + 60 * 60 * 24 < block.timestamp) //more than a day passed since last reward
-        {
-            memberStats.daily = reward;
-        } else {
-            memberStats.daily += reward;
-        }
-
-        if (memberStats.lastMonth < _month()) //month switched
-        {
-            memberStats.monthly = reward;
-        } else {
-            memberStats.monthly += reward;
-        }
-
-        memberStats.total += reward;
-        memberStats.lastReward = uint64(block.timestamp);
-        memberStats.lastMonth = _month();
-    }
-
     /**
      * @dev Updates the global limits with the new reward.
      * @param globalLimits The global limits data to update.
@@ -94,9 +74,19 @@ library DirectPaymentsLibrary {
         ) {
             return false;
         }
-        _updateMemberLimits(memberStats, reward);
+        uint128 daily = memberStats.lastReward / 1 days < block.timestamp / 1 days //new calendar day
+            ? reward
+            : memberStats.daily + reward;
+        uint128 monthly = memberStats.lastMonth < _month() ? reward : memberStats.monthly + reward;
 
-        if (memberStats.daily > limits.maxMemberPerDay || memberStats.monthly > limits.maxMemberPerMonth) return false;
+        // rejected rewards must not count towards the limits
+        if (daily > limits.maxMemberPerDay || monthly > limits.maxMemberPerMonth) return false;
+
+        memberStats.daily = daily;
+        memberStats.monthly = monthly;
+        memberStats.total += reward;
+        memberStats.lastReward = uint64(block.timestamp);
+        memberStats.lastMonth = _month();
 
         return true;
     }
@@ -157,8 +147,8 @@ library DirectPaymentsLibrary {
             ) * _data.events[i].quantity;
             if (reward > 0) {
                 totalRewards += reward;
-                if (totalRewards > rewardsBalance) revert NO_BALANCE();
-                rewardsBalance -= totalRewards;
+                if (reward > rewardsBalance) revert NO_BALANCE();
+                rewardsBalance -= reward;
 
                 _sendReward(
                     globalLimits,

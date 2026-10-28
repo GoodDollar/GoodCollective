@@ -86,27 +86,26 @@ abstract contract SuperAppBaseFlow is ISuperApp {
         return ctx;
     }
 
+    // validation is done in afterAgreementCreated, no before data is needed
     function beforeAgreementCreated(
-        ISuperToken superToken,
-        address agreementClass,
+        ISuperToken /*superToken*/,
+        address /*agreementClass*/,
         bytes32 /*agreementId*/,
         bytes calldata /*agreementData*/,
         bytes calldata /*ctx*/
-    ) external view returns (bytes memory /*beforeData*/) {
-        if (msg.sender != address(host)) revert UnauthorizedHost();
-        if (!isAcceptedAgreement(agreementClass)) return "0x";
-        if (!isAcceptedSuperToken(superToken)) revert NotAcceptedSuperToken();
+    ) external pure returns (bytes memory /*beforeData*/) {
         return "0x";
     }
 
     function afterAgreementCreated(
         ISuperToken superToken,
-        address /*agreementClass*/,
+        address agreementClass,
         bytes32 /*agreementId*/,
         bytes calldata agreementData,
         bytes calldata /*cbdata*/,
         bytes calldata ctx
     ) external returns (bytes memory newCtx) {
+        if (!_isValidCallback(superToken, agreementClass, true)) return ctx;
         (address sender, ) = abi.decode(agreementData, (address, address));
 
         return
@@ -126,9 +125,7 @@ abstract contract SuperAppBaseFlow is ISuperApp {
         bytes calldata agreementData,
         bytes calldata /*ctx*/
     ) external view returns (bytes memory /*beforeData*/) {
-        if (msg.sender != address(host)) revert UnauthorizedHost();
-        if (!isAcceptedAgreement(agreementClass)) return "0x";
-        if (!isAcceptedSuperToken(superToken)) revert NotAcceptedSuperToken();
+        if (!_isValidCallback(superToken, agreementClass, true)) return "0x";
 
         (address sender, ) = abi.decode(agreementData, (address, address));
         (uint256 lastUpdated, int96 flowRate, , ) = superToken.getFlowInfo(sender, address(this));
@@ -138,12 +135,13 @@ abstract contract SuperAppBaseFlow is ISuperApp {
 
     function afterAgreementUpdated(
         ISuperToken superToken,
-        address /*agreementClass*/,
+        address agreementClass,
         bytes32 /*agreementId*/,
         bytes calldata agreementData,
         bytes calldata cbdata,
         bytes calldata ctx
     ) external returns (bytes memory newCtx) {
+        if (!_isValidCallback(superToken, agreementClass, true)) return ctx;
         (address sender, ) = abi.decode(agreementData, (address, address));
         (int96 previousFlowRate, uint256 lastUpdated) = abi.decode(cbdata, (int96, uint256));
 
@@ -167,9 +165,7 @@ abstract contract SuperAppBaseFlow is ISuperApp {
         bytes calldata /*ctx*/
     ) external view returns (bytes memory /*beforeData*/) {
         // we're not allowed to revert in this callback, thus just return empty beforeData on failing checks
-        if (msg.sender != address(host) || !isAcceptedAgreement(agreementClass) || !isAcceptedSuperToken(superToken)) {
-            return "0x";
-        }
+        if (!_isValidCallback(superToken, agreementClass, false)) return "0x";
 
         (address sender, address receiver) = abi.decode(agreementData, (address, address));
         (uint256 lastUpdated, int96 flowRate, , ) = superToken.getFlowInfo(sender, receiver);
@@ -186,9 +182,7 @@ abstract contract SuperAppBaseFlow is ISuperApp {
         bytes calldata ctx
     ) external returns (bytes memory newCtx) {
         // we're not allowed to revert in this callback, thus just return ctx on failing checks
-        if (msg.sender != address(host) || !isAcceptedAgreement(agreementClass) || !isAcceptedSuperToken(superToken)) {
-            return ctx;
-        }
+        if (!_isValidCallback(superToken, agreementClass, false)) return ctx;
 
         (address sender, address receiver) = abi.decode(agreementData, (address, address));
         (uint256 lastUpdated, int96 previousFlowRate) = abi.decode(cbdata, (uint256, int96));
@@ -198,6 +192,24 @@ abstract contract SuperAppBaseFlow is ISuperApp {
 
     // ---------------------------------------------------------------------------------------------
     // HELPERS
+
+    /// @dev returns false for a non CFA agreement. host and token failures revert unless `canRevert` is false.
+    function _isValidCallback(
+        ISuperToken _superToken,
+        address agreementClass,
+        bool canRevert
+    ) internal view returns (bool) {
+        if (msg.sender != address(host)) {
+            if (canRevert) revert UnauthorizedHost();
+            return false;
+        }
+        if (!isAcceptedAgreement(agreementClass)) return false;
+        if (!isAcceptedSuperToken(_superToken)) {
+            if (canRevert) revert NotAcceptedSuperToken();
+            return false;
+        }
+        return true;
+    }
 
     /**
      * @dev Expect Super Agreement involved in callback to be an accepted one

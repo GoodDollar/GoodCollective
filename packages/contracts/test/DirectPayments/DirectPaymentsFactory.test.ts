@@ -4,6 +4,7 @@ import { deployTestFramework } from '@superfluid-finance/ethereum-contracts/dev-
 import { expect } from 'chai';
 import { DirectPaymentsFactory, DirectPaymentsPool, ProvableNFT } from 'typechain-types';
 import { ethers, upgrades } from 'hardhat';
+import { deployMockContract } from 'ethereum-waffle';
 
 type SignerWithAddress = Awaited<ReturnType<typeof ethers.getSigner>>;
 
@@ -147,5 +148,43 @@ describe('DirectPaymentsFactory', () => {
     );
     await expect(pool.recoverFunds(signer.address, 1)).not.reverted;
     await expect(pool.connect(signers[1]).recoverFunds(signer.address, 1)).revertedWith('not owner');
+  });
+
+  describe('changePoolDetails', () => {
+    it('should let the pool manager change the details', async () => {
+      const tx = await factory.createPool('test', 'pool1', poolSettings, poolLimits, 0);
+      const poolAddr = (await tx.wait()).events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
+
+      await expect(factory.connect(signers[1]).changePoolDetails(poolAddr, 'pool2'))
+        .emit(factory, 'PoolDetailsChanged')
+        .withArgs(poolAddr, 'pool2');
+      expect((await factory.registry(poolAddr)).ipfs).to.equal('pool2');
+    });
+
+    it('should revert for a non manager', async () => {
+      const tx = await factory.createPool('test', 'pool1', poolSettings, poolLimits, 0);
+      const poolAddr = (await tx.wait()).events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
+
+      await expect(factory.connect(signers[2]).changePoolDetails(poolAddr, 'pool2')).revertedWithCustomError(
+        factory,
+        'NOT_PROJECT_MANAGER'
+      );
+    });
+
+    it('should revert for a contract that is not a registered pool', async () => {
+      // a fake pool that grants every role
+      const fake = await deployMockContract(signers[0], [
+        'function MANAGER_ROLE() view returns (bytes32)',
+        'function hasRole(bytes32 role, address account) view returns (bool)',
+      ]);
+      await fake.mock.MANAGER_ROLE.returns(ethers.constants.HashZero);
+      await fake.mock.hasRole.returns(true);
+
+      await expect(factory.connect(signers[2]).changePoolDetails(fake.address, 'pool2')).revertedWithCustomError(
+        factory,
+        'NOT_POOL'
+      );
+      expect((await factory.registry(fake.address)).ipfs).to.equal('');
+    });
   });
 });

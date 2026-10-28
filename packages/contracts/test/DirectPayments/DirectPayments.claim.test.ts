@@ -103,9 +103,7 @@ export async function createFactoryPoolFixture(
   const poolAddress = poolTx.events?.find((_) => _.event === 'PoolCreated')?.args?.[0];
   const pool = Pool.attach(poolAddress) as DirectPaymentsPool;
 
-  await gdframework.GoodDollar.mint(pool.address, ethers.constants.WeiPerEther.mul(100000)).then((_: any) =>
-    _.wait()
-  );
+  await gdframework.GoodDollar.mint(pool.address, ethers.constants.WeiPerEther.mul(100000)).then((_: any) => _.wait());
 
   return {
     pool,
@@ -127,7 +125,7 @@ describe('DirectPaymentsPool Claim', () => {
 
   const nftSample = {
     nftUri: 'uri',
-    nftType: 2,
+    nftType: 1,
     version: 2,
     events: [
       {
@@ -175,7 +173,14 @@ describe('DirectPaymentsPool Claim', () => {
       // Set up mock to return false for all calls (reject all members)
       await newMembersValidator.mock.isMemberValid.returns(false);
 
-      await pool.setPoolSettings({ ...poolSettings, membersValidator: newMembersValidator.address, uniquenessValidator: ethers.constants.AddressZero }, 0);
+      await pool.setPoolSettings(
+        {
+          ...poolSettings,
+          membersValidator: newMembersValidator.address,
+          uniquenessValidator: ethers.constants.AddressZero,
+        },
+        0
+      );
       await expect(pool['claim(uint256)'](nftSampleId)).not.reverted;
       const contributer = nftSample.events[0].contributers[0];
       const initialBalance = await gdframework.GoodDollar.balanceOf(contributer);
@@ -223,6 +228,36 @@ describe('DirectPaymentsPool Claim', () => {
       const claimEvent = (await claimTx.wait()).events?.find((_) => _.event === 'NFTClaimed');
       expect(claimEvent?.args?.tokenId).eq(nftSampleId);
       expect(claimEvent?.args?.totalRewards).eq(expectedRewards);
+    });
+
+    it('should distribute exactly funded rewards across multiple events', async () => {
+      const poolBalance = await gdframework.GoodDollar.balanceOf(pool.address);
+      const secondReward = ethers.BigNumber.from(40);
+
+      await pool.setPoolSettings(
+        { ...poolSettings, rewardPerEvent: [poolBalance.sub(secondReward), secondReward] },
+        0
+      );
+      await pool.setPoolLimits({
+        maxMemberPerDay: poolBalance,
+        maxMemberPerMonth: poolBalance,
+        maxTotalPerMonth: poolBalance,
+      });
+
+      const nftWithMultipleEvents = {
+        ...nftSample,
+        events: [
+          { ...nftSample.events[0], subtype: 1 },
+          { ...nftSample.events[0], subtype: 2 },
+        ],
+      };
+      const tx = await (
+        await nft.mintPermissioned(signers[0].address, nftWithMultipleEvents, true, [])
+      ).wait();
+      const nftId = tx.events?.find((event) => event.event === 'Transfer')?.args?.tokenId;
+
+      await expect(pool['claim(uint256)'](nftId)).not.to.be.reverted;
+      expect(await gdframework.GoodDollar.balanceOf(pool.address)).to.equal(0);
     });
 
     it('should enforce member monthly reward limits', async () => {
@@ -285,6 +320,68 @@ describe('DirectPaymentsPool Claim', () => {
         } else await pool['claim(uint256)'](nftId);
         await time.increase(86400);
       }
+    });
+
+    it('should not claim an NFT of a different nftType', async () => {
+      const otherType = { ...nftSample, nftType: 2 };
+      const tx = await (await nft.mintPermissioned(signers[0].address, otherType, true, [])).wait();
+      const nftId = tx.events?.find((e) => e.event === 'Transfer')?.args?.tokenId;
+
+      await expect(pool['claim(uint256)'](nftId)).revertedWithCustomError(pool, 'UNSUPPORTED_NFT');
+      expect(await pool.claimedNfts(nftId)).to.be.false;
+    });
+
+    describe('member limits', () => {
+      const DAY = 60 * 60 * 24;
+      const contributer = nftSample.events[0].contributers[0];
+
+      // aligns next block to the given offset from the start of a utc day
+      const startAtDayOffset = async (offsetSeconds: number) => {
+        const block = await ethers.provider.getBlock('latest');
+        const nextDayStart = block.timestamp - (block.timestamp % DAY) + DAY;
+        await time.setNextBlockTimestamp(nextDayStart + offsetSeconds);
+        return nextDayStart;
+      };
+
+      const claimNew = async (i: number) => {
+        const newNft = { ...nftSample, events: nftSample.events.map((_) => ({ ..._ })) };
+        newNft.events[0].timestamp = nftSample.events[0].timestamp + 1000 * i;
+        const tx = await (await nft.mintPermissioned(signers[0].address, newNft, true, [])).wait();
+        const nftId = tx.events?.find((e) => e.event === 'Transfer')?.args?.tokenId;
+        return pool['claim(uint256)'](nftId);
+      };
+
+      it('should reset daily limit on a new day for a member that claims every less than 24h', async () => {
+        const dayStart = await startAtDayOffset(23 * 3600);
+        for (let i = 1; i <= 3; i++) {
+          await expect(await claimNew(i)).not.to.emit(pool, 'NOT_MEMBER_OR_WHITELISTED_OR_LIMITS');
+        }
+        expect((await pool.memberLimits(contributer)).daily).to.equal(300);
+
+        // 23 hours after the last reward, but on the next calendar day
+        await time.setNextBlockTimestamp(dayStart + DAY + 22 * 3600);
+        await expect(await claimNew(4)).not.to.emit(pool, 'NOT_MEMBER_OR_WHITELISTED_OR_LIMITS');
+        expect((await pool.memberLimits(contributer)).daily).to.equal(100);
+      });
+
+      it('should not count rejected rewards in member limits', async () => {
+        await startAtDayOffset(3600);
+        for (let i = 1; i <= 3; i++) {
+          await claimNew(i);
+        }
+        const before = await pool.memberLimits(contributer);
+        expect(before.daily).to.equal(300);
+
+        const balance = await gdframework.GoodDollar.balanceOf(contributer);
+        await expect(await claimNew(4)).to.emit(pool, 'NOT_MEMBER_OR_WHITELISTED_OR_LIMITS');
+        expect(await gdframework.GoodDollar.balanceOf(contributer)).to.equal(balance);
+
+        const after = await pool.memberLimits(contributer);
+        expect(after.daily).to.equal(300);
+        expect(after.monthly).to.equal(before.monthly);
+        expect(after.total).to.equal(300);
+        expect(after.lastReward).to.equal(before.lastReward);
+      });
     });
   });
 });

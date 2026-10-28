@@ -151,11 +151,8 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
      * @param _ctx The context of the transaction for superfluid in case this was used in superfluid batch. otherwise can be empty.
      * @return Returns the context of the transaction.
      */
-    function support(
-        address _sender,
-        uint256 _amount,
-        bytes memory _ctx
-    ) external onlyHostOrSender(_sender) returns (bytes memory) {
+    function support(address _sender, uint256 _amount, bytes memory _ctx) external returns (bytes memory) {
+        _onlyHostOrSender(_sender);
         if (_amount == 0) revert ZERO_AMOUNT();
 
         // Transfer the tokens from the sender to this contract
@@ -178,7 +175,9 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         address _sender,
         HelperLibrary.SwapData memory _customData,
         bytes memory _ctx
-    ) external onlyHostOrSender(_sender) returns (bytes memory) {
+    ) external returns (bytes memory) {
+        _onlyHostOrSender(_sender);
+
         uint256 balance = superToken.balanceOf(address(this));
         HelperLibrary.handleSwap(swapRouter, _customData, address(superToken), _sender, address(this));
         uint256 amountReceived = superToken.balanceOf(address(this)) - balance;
@@ -200,7 +199,9 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
         HelperLibrary.SwapData memory _customData,
         address _sender,
         bytes memory _ctx
-    ) external onlyHostOrSender(_sender) returns (bytes memory) {
+    ) external returns (bytes memory) {
+        _onlyHostOrSender(_sender);
+
         HelperLibrary.handleSwap(swapRouter, _customData, address(superToken), _sender);
 
         // Return the context of the transaction
@@ -370,8 +371,8 @@ abstract contract GoodCollectiveSuperApp is SuperAppBaseFlow {
     /**
      * for methods that can be called via superfluid batch or directly
      */
-    modifier onlyHostOrSender(address _sender) {
-        if (msg.sender != _sender && msg.sender != address(host)) revert ONLY_HOST_OR_SENDER(msg.sender);
-        _;
+    function _onlyHostOrSender(address _sender) internal view {
+        if (_sender == address(this) || (msg.sender != _sender && msg.sender != address(host)))
+            revert ONLY_HOST_OR_SENDER(msg.sender);
     }
 }
